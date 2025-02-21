@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Timetable</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 90%;
+            padding: 5px;
+            margin: 5px;
+        }
+        input[type="submit"] {
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Timetable</h1>
+
+    <div class="form-container">
+        <h3>Create Your Timetable</h3>
+        <form id="timetable-form">
+            <label for="day">Day:</label>
+            <select id="day" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+				<option value="Saturday">Saturday</option>
+				<option value="Sunday">Sunday</option>
+            </select>
+            <br><br>
+            <label for="time1">Time (1 Hour Lesson):</label>
+            <select id="time1" required>
+                <!-- Time from 4:00 AM to 11:00 PM (1 Hour Increments) -->
+                <option value="4:00 AM - 5:00 AM">4:00 AM - 5:00 AM</option>
+                <option value="5:00 AM - 6:00 AM">5:00 AM - 6:00 AM</option>
+                <option value="6:00 AM - 7:00 AM">6:00 AM - 7:00 AM</option>
+                <option value="7:00 AM - 8:00 AM">7:00 AM - 8:00 AM</option>
+                <option value="8:00 AM - 9:00 AM">8:00 AM - 9:00 AM</option>
+                <option value="9:00 AM - 10:00 AM">9:00 AM - 10:00 AM</option>
+                <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                <option value="11:00 AM - 12:00 PM">11:00 AM - 12:00 PM</option>
+                <option value="12:00 PM - 1:00 PM">12:00 PM - 1:00 PM</option>
+                <option value="1:00 PM - 2:00 PM">1:00 PM - 2:00 PM</option>
+                <option value="2:00 PM - 3:00 PM">2:00 PM - 3:00 PM</option>
+                <option value="3:00 PM - 4:00 PM">3:00 PM - 4:00 PM</option>
+                <option value="4:00 PM - 5:00 PM">4:00 PM - 5:00 PM</option>
+                <option value="5:00 PM - 6:00 PM">5:00 PM - 6:00 PM</option>
+                <option value="6:00 PM - 7:00 PM">6:00 PM - 7:00 PM</option>
+                <option value="7:00 PM - 8:00 PM">7:00 PM - 8:00 PM</option>
+                <option value="8:00 PM - 9:00 PM">8:00 PM - 9:00 PM</option>
+                <option value="9:00 PM - 10:00 PM">9:00 PM - 10:00 PM</option>
+                <option value="10:00 PM - 11:00 PM">10:00 PM - 11:00 PM</option>
+            </select>
+            <br><br>
+            <label for="time2">Time (1 Hour Lesson Starting at 30 Minutes):</label>
+            <select id="time2" required>
+                <!-- Time from 4:30 AM to 11:30 PM (1 Hour Increments) -->
+                <option value="4:30 AM - 5:30 AM">4:30 AM - 5:30 AM</option>
+                <option value="5:30 AM - 6:30 AM">5:30 AM - 6:30 AM</option>
+                <option value="6:30 AM - 7:30 AM">6:30 AM - 7:30 AM</option>
+                <option value="7:30 AM - 8:30 AM">7:30 AM - 8:30 AM</option>
+                <option value="8:30 AM - 9:30 AM">8:30 AM - 9:30 AM</option>
+                <option value="9:30 AM - 10:30 AM">9:30 AM - 10:30 AM</option>
+                <option value="10:30 AM - 11:30 AM">10:30 AM - 11:30 AM</option>
+                <option value="11:30 AM - 12:30 PM">11:30 AM - 12:30 PM</option>
+                <option value="12:30 PM - 1:30 PM">12:30 PM - 1:30 PM</option>
+                <option value="1:30 PM - 2:30 PM">1:30 PM - 2:30 PM</option>
+                <option value="2:30 PM - 3:30 PM">2:30 PM - 3:30 PM</option>
+                <option value="3:30 PM - 4:30 PM">3:30 PM - 4:30 PM</option>
+                <option value="4:30 PM - 5:30 PM">4:30 PM - 5:30 PM</option>
+                <option value="5:30 PM - 6:30 PM">5:30 PM - 6:30 PM</option>
+                <option value="6:30 PM - 7:30 PM">6:30 PM - 7:30 PM</option>
+                <option value="7:30 PM - 8:30 PM">7:30 PM - 8:30 PM</option>
+                <option value="8:30 PM - 9:30 PM">8:30 PM - 9:30 PM</option>
+                <option value="9:30 PM - 10:30 PM">9:30 PM - 10:30 PM</option>
+                <option value="10:30 PM - 11:30 PM">10:30 PM - 11:30 PM</option>
+            </select>
+            <br><br>
+            <label for="subject">Subject:</label>
+<select id="subject" required>
+    <!-- Subject Dropdown -->
+    <option value="Mathematics">Mathematics</option>
+    <option value="English">English</option>
+    <option value="Kiswahili">Kiswahili</option>
+    <option value="Biology">Biology</option>
+    <option value="Physics">Physics</option>
+    <option value="Chemistry">Chemistry</option>
+    <option value="Integrated Science">Integrated Science</option>
+    <option value="Computer">Computer</option>
+    <option value="Religious Education">Religious Education</option>
+    <option value="Social Studies">Social Studies/Life Skills Education</option>
+    <option value="Agriculture">Agriculture/Nutrition/Home Science</option>
+    <option value="Pre-Technical Studies">Pre-Technical Studies/Business Studies/Computer Studies</option>
+    <option value="Creative Arts">Creative Arts (Visual and Performing Arts) and Sports</option>
+</select>
+<br><br>
+<input type="submit" value="Add to Timetable">
+    </div>
+
+    <h3>Your Timetable</h3>
+    <table id="timetable-table">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time (1 Hour)</th>
+                <th>Time (Half Hour)</th>
+                <th>Subject</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Timetable rows will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Initialize timetable from localStorage if exists
+        window.onload = function() {
+            if(localStorage.getItem('timetable')) {
+                const savedTimetable = JSON.parse(localStorage.getItem('timetable'));
+                savedTimetable.forEach(function(item) {
+                    addRowToTable(item);
+                });
+            }
+        };
+
+        // Handle the form submission
+        document.getElementById('timetable-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const day = document.getElementById('day').value;
+            const time1 = document.getElementById('time1').value;
+            const time2 = document.getElementById('time2').value;
+            const subject = document.getElementById('subject').value;
+
+            // Create a new timetable entry
+            const timetableEntry = { day, time1, time2, subject };
+
+            // Add row to the table
+            addRowToTable(timetableEntry);
+
+            // Save the timetable to localStorage
+            saveTimetable(timetableEntry);
+            
+            // Clear input fields
+            document.getElementById('subject').value = '';
+        });
+
+        // Function to add a row to the table
+        function addRowToTable(entry) {
+            const tableBody = document.querySelector('#timetable-table tbody');
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td>${entry.day}</td>
+                <td>${entry.time1}</td>
+                <td>${entry.time2}</td>
+                <td>${entry.subject}</td>
+                <td><button onclick="removeRow(this)">Remove</button></td>
+            `;
+            tableBody.appendChild(row);
+        }
+
+        // Function to save timetable to localStorage
+        function saveTimetable(entry) {
+            let timetable = [];
+            if(localStorage.getItem('timetable')) {
+                timetable = JSON.parse(localStorage.getItem('timetable'));
+            }
+            timetable.push(entry);
+            localStorage.setItem('timetable', JSON.stringify(timetable));
+        }
+
+        // Function to remove a row from the table with confirmation
+        function removeRow(button) {
+            // Show confirmation dialog
+            const confirmation = confirm("Are you sure you want to remove this entry?");
+            if (confirmation) {
+                const row = button.parentElement.parentElement;
+                const day = row.children[0].textContent;
+                const time1 = row.children[1].textContent;
+                const time2 = row.children[2].textContent;
+                const subject = row.children[3].textContent;
+
+                // Remove the row from the table
+                row.remove();
+
+                // Remove from localStorage
+                let timetable = JSON.parse(localStorage.getItem('timetable'));
+                timetable = timetable.filter(entry => !(entry.day === day && entry.time1 === time1 && entry.time2 === time2 && entry.subject === subject));
+                localStorage.setItem('timetable', JSON.stringify(timetable));
+            }
+        }
+    </script>
+
+</body>
+</html>
