@@ -171,8 +171,8 @@ function sendMessage() {
             // Check if the entered password is valid
             if (validatePassword(inputPassword)) {
                 response = `You now have access to PAID features.<br>
-                    Click here: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/paid">Student Paid Features</a> or 
-                    <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/paid">Tutor Paid Features</a>`;
+                    Click here: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/paid">Paid Features</a>;
+                    
                 displayMessage(response, "bot");
 
                 response = "Enjoy advanced features and tools to enhance your experience!";
@@ -198,8 +198,7 @@ function sendMessage() {
         }
     } else if (role === "student-free-trial" || role === "tutor-free-trial") {
         response = `You can access the Free Trial for 3 days.<br>
-            Click here to start: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/trial">Start Students Free Trial</a> or 
-            <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/trial">Tutors Free Trial</a>`;
+            Click here to start: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/trial">Start Students Free Trial</a>;
         displayMessage(response, "bot");
         updateTrialCountdown();  // Start countdown for free trial
     } else if (role === "student-free" || role === "tutor-free") {
@@ -251,7 +250,7 @@ function clearPasswordValidation() {
                 setTimeout(updateTrialCountdown, 1000);
             } else {
                 // Show the expiry message once when trial ends
-                const expiryMessage = "Your free trial has ended. Please <a href='go:subscribe' target='_blank'>pay here</a> to continue using our services.";
+                const expiryMessage = "Your free trial has ended. Please  to continue using our services.";
                 let existingMessage = document.getElementById("trial-message");
                 if (!existingMessage) {
                     displayMessage(expiryMessage, "bot", "trial-message");
@@ -282,7 +281,7 @@ function startPaidFeaturesCountdown() {
 
         if (remainingTime <= 0) {
             // When the countdown ends
-            const expiryMessage = "Your paid features have expired. Please <a href='go:subscribe' target='_blank'>renew your subscription</a>.";
+            const expiryMessage = "Your paid features have expired. Please <a href="">renew your subscription</a>.";
             const existingMessage = document.getElementById("paid-countdown");
             if (!existingMessage) {
                 displayMessage(expiryMessage, "bot", "paid-countdown");
