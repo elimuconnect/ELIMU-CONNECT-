@@ -198,8 +198,8 @@ function sendMessage() {
         }
     } else if (role === "student-free-trial" || role === "tutor-free-trial") {
         response = `You can access the Free Trial for 3 days.<br>
-            Click here to start: <a href='go:trial1' target='_blank'>Start Students Free Trial</a> or 
-            <a href='go:trial2' target='_blank'>Tutors Free Trial</a>`;
+            Click here to start: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/trial">Start Students Free Trial</a> or 
+            <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/trial">Tutors Free Trial</a>`;
         displayMessage(response, "bot");
         updateTrialCountdown();  // Start countdown for free trial
     } else if (role === "student-free" || role === "tutor-free") {
