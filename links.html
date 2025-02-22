@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Elimu Connect tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #dropdown {
+            width: 300px;
+            padding: 10px;
+            margin: 20px auto;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ELIMU CONNECT TOOLS</h1>
+    <select id="dropdown" onchange="openLink()">
+        <option value="">Select a page...</option>
+        <option value="bones.html">Bones</option>
+        <option value="https://elimuconnect.github.io/ELIMU-CONNECT-/chemformulars">Chem Formulars</option>
+        <option value="chemgraphs.html">Chem Graphs</option>
+        <option value="chemical%20formula%26quations.html">Chemical Formula & Equations</option>
+        <option value="chemreactions.html">Chem Reactions</option>
+        <option value="commongases.html">Common Gases</option>
+        <option value="dictionary.html">Dictionary</option>
+        <option value="humanandfishanatomy.html">Human and Fish Anatomy</option>
+        <option value="ideoms.html">Idioms</option>
+        <option value="kamusi.html">Kamusi</option>
+        <option value="mathformulars.html">Math Formulars</option>
+        <option value="mathgraphs.html">Math Graphs</option>
+        <option value="methali.html">Methali</option>
+        <option value="moleconcept.html">Mole Concept</option>
+        <option value="nahaunamisema.html">Nahau na Misemo</option>
+        <option value="notebook.html">Notebook</option>
+        <option value="organicchem.html">Organic Chemistry</option>
+        <option value="periodictable.html">Periodic Table</option>
+        <option value="physicsformulars.html">Physics Formulars</option>
+        <option value="physicsprinciplesexplorer.html">Physics Principles Explorer</option>
+        <option value="plantantomy.html">Plant Anatomy</option>
+        <option value="proverbs.html">Proverbs</option>
+        <option value="quizes.html">Quizzes</option>
+        <option value="remedialtracker.html">Remedial Tracker</option>
+        <option value="similiesandmetaphors.html">Similes and Metaphors</option>
+        <option value="timetablecreator.html">Timetable Creator</option>
+        <option value="transformation.html">Transformation</option>
+        <option value="unitconverter.html">Unit Converter</option>
+    </select>
+
+    <script>
+        function openLink() {
+            let dropdown = document.getElementById("dropdown");
+            let selectedValue = dropdown.value;
+            if (selectedValue) {
+                window.open(selectedValue, "_blank");
+            }
+        }
+    </script>
+</body>
+</html>
