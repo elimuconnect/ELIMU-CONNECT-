@@ -171,8 +171,8 @@ function sendMessage() {
             // Check if the entered password is valid
             if (validatePassword(inputPassword)) {
                 response = `You now have access to PAID features.<br>
-                    Click here: <a href='go:bot1' target='_blank'>Student Paid Features</a> or 
-                    <a href='go:bot2' target='_blank'>Tutor Paid Features</a>`;
+                    Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid Features</a>"; or 
+                   <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutors Paid Features</a>"; `;
                 displayMessage(response, "bot");
 
                 response = "Enjoy advanced features and tools to enhance your experience!";
@@ -198,8 +198,8 @@ function sendMessage() {
         }
     } else if (role === "student-free-trial" || role === "tutor-free-trial") {
         response = `You can access the Free Trial for 3 days.<br>
-            Click here to start: <a href='go:trial1' target='_blank'>Start Students Free Trial</a> or 
-            <a href='go:trial2' target='_blank'>Tutors Free Trial</a>`;
+            Click here to start: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>"; or 
+            <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutors Paid-TRIAL Features</a>";`;
         displayMessage(response, "bot");
         updateTrialCountdown();  // Start countdown for free trial
     } else if (role === "student-free" || role === "tutor-free") {
@@ -282,7 +282,7 @@ function startPaidFeaturesCountdown() {
 
         if (remainingTime <= 0) {
             // When the countdown ends
-            const expiryMessage = "Your paid features have expired. Please <a href='go:subscribe' target='_blank'>renew your subscription</a>.";
+            const expiryMessage = "Your paid features have expired. 
             const existingMessage = document.getElementById("paid-countdown");
             if (!existingMessage) {
                 displayMessage(expiryMessage, "bot", "paid-countdown");
