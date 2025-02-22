@@ -171,8 +171,8 @@ function sendMessage() {
             // Check if the entered password is valid
             if (validatePassword(inputPassword)) {
                 response = `You now have access to PAID features.<br>
-                    Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid Features</a>"; or 
-                   <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutors Paid Features</a>"; `;
+                    Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>"; or 
+                    <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>";`;
                 displayMessage(response, "bot");
 
                 response = "Enjoy advanced features and tools to enhance your experience!";
@@ -190,8 +190,8 @@ function sendMessage() {
         } else {
             // If password has already been validated
             response = `You already have access to the PAID features.<br>
-                Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/paid' target='_blank'>Student PaidFeatures</a>"; or 
-                <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/paid' target='_blank'>Tutors Paid-TRIAL Features</a>";`
+                Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>"; or 
+               <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>";`;
             displayMessage(response, "bot");
 
             startPaidFeaturesCountdown();  // Start countdown for paid features
@@ -199,7 +199,7 @@ function sendMessage() {
     } else if (role === "student-free-trial" || role === "tutor-free-trial") {
         response = `You can access the Free Trial for 3 days.<br>
             Click here to start: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>"; or 
-            <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutors Paid-TRIAL Features</a>";`;
+            <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>";`;
         displayMessage(response, "bot");
         updateTrialCountdown();  // Start countdown for free trial
     } else if (role === "student-free" || role === "tutor-free") {
@@ -250,12 +250,12 @@ function clearPasswordValidation() {
                 // Update every second
                 setTimeout(updateTrialCountdown, 1000);
             } else {
-                / Show the expiry message once when trial ends
-                const expiryMessage = "Your free trial has ended. Please <a href='go:subscribe' target='_blank'>pay here</a> to continue using our services.";
-                let existingMessage = document.getElementById("trial-message");
-                if (!existingMessage) {
-                    displayMessage(expiryMessage, "bot", "trial-message");
-                }
+                const expiryMessage = "Your free trial has ended. Please <a href='https://wa.me/254769255782' target='_blank'>pay here</a> to continue using our services.";
+let existingMessage = document.getElementById("trial-message");
+
+if (!existingMessage) {
+    displayMessage(expiryMessage, "bot", "trial-message");
+}
             }
         }
 
@@ -282,7 +282,7 @@ function startPaidFeaturesCountdown() {
 
         if (remainingTime <= 0) {
             // When the countdown ends
-            const expiryMessage = "Your paid features have expired. 
+            const expiryMessage = "Your paid features have expired. Please <a href='go:subscribe' target='_blank'>renew your subscription</a>.";
             const existingMessage = document.getElementById("paid-countdown");
             if (!existingMessage) {
                 displayMessage(expiryMessage, "bot", "paid-countdown");
