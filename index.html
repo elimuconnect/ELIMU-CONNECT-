@@ -251,7 +251,7 @@ function clearPasswordValidation() {
                 setTimeout(updateTrialCountdown, 1000);
             } else {
                 // Show the expiry message once when trial ends
-                const expiryMessage = "Your free trial has ended. Please <a href='go:subscribe' target='_blank'>pay here</a> to continue using our services.";
+                const expiryMessage = "Your free trial has ended. Please<a href='go:subscribe' target='_blank'>pay here</a> to continue using our services.";
                 let existingMessage = document.getElementById("trial-message");
                 if (!existingMessage) {
                     displayMessage(expiryMessage, "bot", "trial-message");
