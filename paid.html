@@ -167,7 +167,7 @@
                 const countdownMessage = `Your subscription ends in: ${formatCountdown(remainingTime)}`;
                 displayMessage(countdownMessage, "bot");
 
-                const premiumLinkMessage = "Click here to access premium content: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>";
+                const premiumLinkMessage = "Click here to access premium content: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Paid Features</a>";
                 displayMessage(premiumLinkMessage, "bot");
 
                 // Update countdown every second
@@ -210,7 +210,7 @@
                     displayMessage("Password accepted! You can now access premium content.", "bot");
 
                     // Provide link to premium content
-        displayMessage("Click here to access premium content: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid-TRIAL Features</a>", "bot");
+        displayMessage("Click here to access premium content: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'> Paid Features</a>", "bot");
 
                     // Reset the subscription expiration timer
                     localStorage.setItem("paid-start-time", Date.now());
