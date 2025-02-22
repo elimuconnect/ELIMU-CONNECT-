@@ -97,11 +97,12 @@
         <div class="chatbox-input">
             <select id="role-select">
                 <option value="" disabled selected>Select your role</option>
-                <option value="student-free">I am a Student (Free Features)</option>
-                <option value="student-free-trial">I am a Student (Free Trial)</option>
-                <option value="student-paid">I am a Student (Paid Features)</option>
-                <option value="tutor-free">I am a Tutor (Free Features)</option>
-                <option value="tutor-paid">I am a Tutor (Paid Features)</option>
+                <option value="student-free">I am a Student/Tutor (Free Features)</option>
+                <option value="student-free-trial">I am a Student/Tutor (Free Trial)</option>
+                <option value="student-paid">I am a Student/Tutor (Paid Features)</option>
+                <option value="tutor-free"></option>
+				<option value="tutor-free-trial"></option>
+                <option value="tutor-paid"></option>
             </select>
             <button onclick="sendMessage()">Send</button>
         </div>
@@ -150,7 +151,6 @@ function validatePassword(password) {
     return passwords.includes(password);  // Check if password is in the array
 }
 
-// Function to handle the sendMessage click event
 function sendMessage() {
     let role = document.getElementById("role-select").value;
     if (!role) {
@@ -162,24 +162,24 @@ function sendMessage() {
 
     // Check if the password has already been validated
     const passwordValidated = localStorage.getItem('passwordValidated');
-    
-    if (role === "student-paid") {
+
+    if (role === "student-paid" || role === "tutor-paid") {
         if (!passwordValidated) {
-            // Ask for password only if role is "student-paid" and password hasn't been validated before
+            // Ask for password only if password hasn't been validated before
             const inputPassword = prompt("Enter your password:");
 
             // Check if the entered password is valid
             if (validatePassword(inputPassword)) {
-                response = "As a student using PAID features, you get premium access to advanced resources. ";
+                response = `You now have access to PAID features.<br>
+                    Click here: <a href='go:bot1' target='_blank'>Student Paid Features</a> or 
+                    <a href='go:bot2' target='_blank'>Tutor Paid Features</a>`;
                 displayMessage(response, "bot");
 
-                response = "Click here to access premium content: <a href='go:' target='_blank'>Student Paid Features</a>";
+                response = "Enjoy advanced features and tools to enhance your experience!";
                 displayMessage(response, "bot");
 
-                response = "Enjoy a variety of paid features to enhance your learning experience!";
-                displayMessage(response, "bot");
-
-                startPaidFeaturesCountdown();  // Start countdown for paid features
+                // Start countdown for paid features
+                startPaidFeaturesCountdown();
 
                 // Store a flag indicating that the password is validated
                 localStorage.setItem('passwordValidated', 'true');
@@ -189,23 +189,23 @@ function sendMessage() {
             }
         } else {
             // If password has already been validated
-            response = "You have access to the paid features. Click here: <a href='go:chatbot2' target='_blank'>Student Paid Features</a>";
+            response = `You already have access to the PAID features.<br>
+                Click here: <a href='go:bot1' target='_blank'>Student Paid Features</a> or 
+                <a href='go:bot2' target='_blank'>Tutor Paid Features</a>`;
             displayMessage(response, "bot");
-			
-			startPaidFeaturesCountdown();  // Start countdown for paid features
+
+            startPaidFeaturesCountdown();  // Start countdown for paid features
         }
-    } else if (role === "student-free-trial") {
-        response = "You can access the Free Trial for 3 days. Click here to start: <a href='go:trialbot1' target='_blank'>Start Free Trial</a>";
+    } else if (role === "student-free-trial" || role === "tutor-free-trial") {
+        response = `You can access the Free Trial for 3 days.<br>
+            Click here to start: <a href='go:trial1' target='_blank'>Start Students Free Trial</a> or 
+            <a href='go:trial2' target='_blank'>Tutors Free Trial</a>`;
         displayMessage(response, "bot");
         updateTrialCountdown();  // Start countdown for free trial
-    } else if (role === "student-free") {
-        response = "As a student using FREE features, you can access basic learning materials. Click here: <a href='go:freekid' target='_blank'>Student Free Features</a>";
-        displayMessage(response, "bot");
-    } else if (role === "tutor-free") {
-        response = "As a tutor using FREE features, you can manage limited student access. Click here: <a href='go:tutorfree' target='_blank'>Tutor Free Features</a>";
-        displayMessage(response, "bot");
-    } else if (role === "tutor-paid") {
-        response = "As a tutor using PAID features, you have advanced tools for managing students. Click here: <a href='go:tutorpaid' target='_blank'>Tutor Paid Features</a>";
+    } else if (role === "student-free" || role === "tutor-free") {
+        response = `You have access to basic features.<br>
+            Click here: <a href='go:free' target='_blank'>Student Free Features</a> or 
+            <a href='go:tutorfree' target='_blank'>Tutor Free Features</a>`;
         displayMessage(response, "bot");
     }
 }
