@@ -197,7 +197,7 @@ function sendMessage() {
             startPaidFeaturesCountdown();  // Start countdown for paid features
         }
     } else if (role === "student-free-trial" || role === "tutor-free-trial") {
-        response = `You can access the Free Trial for 3 days.<br>
+        response = `You can access the Free Trial for 7 days.<br>
             Click here to start: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Free-TRIAL Features</a>"; or 
             <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutor free-TRIAL Features</a>";`;
         displayMessage(response, "bot");
@@ -225,7 +225,7 @@ function clearPasswordValidation() {
                 localStorage.setItem(trialKey, trialStart);
             }
 
-            const trialDuration = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+            const trialDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
             const trialEnd = parseInt(trialStart) + trialDuration;
             const now = Date.now();
 
