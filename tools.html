@@ -26,6 +26,7 @@
     <select id="mainDropdown" class="dropdown" onchange="showCategory()">
         <option value="">Select a category...</option>
         <option value="resources">Past papers,videos lessons, and ebooks</option>
+        <option value="quizes"QUIZES</option>
         <option value="math">Mathematics Tools</option>
         <option value="chemistry">Chemistry Tools </option>
         <option value="biology">Biology Tools</option>
@@ -51,7 +52,14 @@
         </select>
     </div>
 
-    
+    div id="quizes" class="category">
+        <select onchange="openLink(this)">
+            <option value="">Select A QUIZ...</option>
+            <option value="https://elimuconnect.github.io/ELIMU-CONNECT-/quizes">ALL QUIZES</option>
+            
+        </select>
+    </div>
+
 
     <div id="chemistry" class="category">
         <select onchange="openLink(this)">
