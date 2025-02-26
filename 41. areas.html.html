@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Area Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        canvas { border: 1px solid black; display: block; margin: 20px auto; }
+        .input-container { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Area Calculator</h1>
+    <label for="shape">Choose a shape:</label>
+    <select id="shape" onchange="generateInputs()">
+        <option value="triangle">Triangle</option>
+        <option value="rectangle">Rectangle</option>
+        <option value="circle">Circle</option>
+        <option value="sector">Sector</option>
+        <option value="segment">Segment</option>
+        <option value="polygon">Polygon</option>
+        <option value="cylinder">Cylinder</option>
+        <option value="cone">Cone</option>
+        <option value="frustum">Frustum</option>
+        <option value="sphere">Sphere</option>
+        <option value="kite">Kite</option>
+        <option value="trapezium">Trapezium</option>
+        <option value="rhombus">Rhombus</option>
+        <option value="pyramid">Pyramid</option>
+        <option value="parallelogram">Parallelogram</option>
+        <option value="ellipse">Ellipse</option>
+    </select>
+
+    <div id="inputs" class="input-container"></div>
+    <button onclick="calculateArea()">Calculate Area</button>
+    <p id="result"></p>
+    <p id="explanation"></p>
+
+    <script>
+        function generateInputs() {
+            const shape = document.getElementById("shape").value;
+            const inputsDiv = document.getElementById("inputs");
+            let inputs = "";
+
+            const inputTemplates = {
+                triangle: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
+                rectangle: "Width: <input type='number' id='width'> Height: <input type='number' id='height'>",
+                circle: "Radius: <input type='number' id='radius'>",
+                sector: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
+                segment: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
+                polygon: "Number of sides: <input type='number' id='numSides'> Side length: <input type='number' id='sideLength'>",
+                cylinder: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>",
+                cone: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>",
+                frustum: "Radius 1: <input type='number' id='radius1'> Radius 2: <input type='number' id='radius2'> Height: <input type='number' id='height'>",
+                sphere: "Radius: <input type='number' id='radius'>",
+                kite: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
+                rhombus: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
+                trapezium: "Base 1: <input type='number' id='b1'> Base 2: <input type='number' id='b2'> Height: <input type='number' id='height'>",
+                pyramid: "Base Area: <input type='number' id='baseArea'> Slant Height: <input type='number' id='slantHeight'>",
+                parallelogram: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
+                ellipse: "Major Axis (a): <input type='number' id='a'> Minor Axis (b): <input type='number' id='b'>"
+            };
+
+            inputsDiv.innerHTML = inputTemplates[shape] || "";
+        }
+
+        function calculateArea() {
+            const shape = document.getElementById("shape").value;
+            let area = 0;
+            let explanation = "";
+
+            function getValue(id) {
+                return parseFloat(document.getElementById(id)?.value) || 0;
+            }
+
+            if (shape === "triangle") {
+                let base = getValue("base");
+                let height = getValue("height");
+                area = 0.5 * base * height;
+                explanation = `Area = 1/2 × Base × Height = 1/2 × ${base} × ${height} = ${area}`;
+            } else if (shape === "rectangle") {
+                let width = getValue("width");
+                let height = getValue("height");
+                area = width * height;
+                explanation = `Area = Width × Height = ${width} × ${height} = ${area}`;
+            } else if (shape === "circle") {
+                let radius = getValue("radius");
+                area = Math.PI * radius * radius;
+                explanation = `Area = π × Radius² = π × ${radius}² = ${area.toFixed(2)}`;
+            } else if (shape === "sector") {
+                let radius = getValue("radius");
+                let angle = getValue("angle");
+                area = (angle / 360) * Math.PI * radius ** 2;
+                explanation = `Area = (θ/360) × π × r² = (${angle}/360) × π × ${radius}² = ${area.toFixed(2)}`;
+            
+			
+			} else if (shape === "polygon") {
+    const numSides = parseInt(document.getElementById("numSides").value) || 0;
+    const sideLength = parseFloat(document.getElementById("sideLength").value) || 0;
+
+    if (numSides < 3) {
+        explanation = "A polygon must have at least 3 sides.";
+        area = 0;
+    } else {
+        area = (numSides * Math.pow(sideLength, 2)) / (4 * Math.tan(Math.PI / numSides));
+        explanation = `Area = (n × s²) / (4 × tan(π/n)) = (${numSides} × ${sideLength}²) / (4 × tan(π/${numSides})) = ${area.toFixed(2)}`;
+    }
+	
+	
+	} else if (shape === "cylinder") {
+    const radius = parseFloat(document.getElementById("radius").value) || 0;
+    const height = parseFloat(document.getElementById("height").value) || 0;
+    area = 2 * Math.PI * radius * (radius + height);
+    explanation = `Surface Area = 2πr(r + h) = 2π × ${radius} × (${radius} + ${height}) = ${area.toFixed(2)}`;
+	
+	} else if (shape === "frustum") {
+   const r1 = parseFloat(document.getElementById("radius1").value) || 0;
+const r2 = parseFloat(document.getElementById("radius2").value) || 0;
+
+    const height = parseFloat(document.getElementById("height").value) || 0; // Vertical height
+    const slantHeight = Math.sqrt((r1 - r2) ** 2 + height ** 2); // Slant height using Pythagoras
+
+    // Total surface area = lateral surface area + base areas
+    area = Math.PI * slantHeight * (r1 + r2) + Math.PI * (r1 ** 2 + r2 ** 2);
+    explanation = `Surface Area = π (r₁ + r₂)l + π(r₁² + r₂²) = π × (${r1} + ${r2}) × ${slantHeight.toFixed(2)} + π × (${r1}² + ${r2}²) = ${area.toFixed(2)}`;
+
+ } else if (shape === "trapezium") {
+                const b1 = parseFloat(document.getElementById("b1").value) || 0;
+                const b2 = parseFloat(document.getElementById("b2").value) || 0;
+                const height = parseFloat(document.getElementById("height").value) || 0;
+                area = 0.5 * (b1 + b2) * height;
+                explanation = `Area = 1/2 × (Base1 + Base2) × Height = 1/2 × (${b1} + ${b2}) × ${height} = ${area}`;
+
+
+
+
+
+} else if (shape === "parallelogram") {
+    let base = getValue("base");
+    let height = getValue("height");
+    
+    area = base * height;
+    explanation = `Area = Base × Height = ${base} × ${height} = ${area}`;
+
+
+
+
+
+  } else if (shape === "kite" || shape === "rhombus") {
+    const d1 = parseFloat(document.getElementById("d1").value) || 0;
+    const d2 = parseFloat(document.getElementById("d2").value) || 0;
+    area = 0.5 * d1 * d2;
+    explanation = `Area = 1/2 × Diagonal1 × Diagonal2 = 1/2 × ${d1} × ${d2} = ${area}`;
+
+
+} else if (shape === "sphere") {
+    const radius = parseFloat(document.getElementById("radius").value) || 0;
+    area = 4 * Math.PI * radius * radius;
+    explanation = `Surface Area = 4πr² = 4π × ${radius}² = ${area.toFixed(2)}`;
+	
+} else if (shape === "cone") {
+    const radius = parseFloat(document.getElementById("radius").value) || 0;
+    const height = parseFloat(document.getElementById("height").value) || 0;
+    const slantHeight = Math.sqrt(radius ** 2 + height ** 2);
+    area = Math.PI * radius * (radius + slantHeight);
+    explanation = `Surface Area = πr (r + l) = π × ${radius} × (${radius} + ${slantHeight.toFixed(2)}) = ${area.toFixed(2)}`;
+
+
+// ✅ Closing bracket added here!
+} else if (shape === "pyramid") {
+    let baseArea = getValue("baseArea");
+    let perimeter = getValue("perimeter"); // Add perimeter input
+    let slantHeight = getValue("slantHeight");
+    
+    area = baseArea + 0.5 * perimeter * slantHeight; // Corrected formula
+    explanation = `Total Surface Area = Base Area + 1/2 × Perimeter × Slant Height = ${baseArea} + 1/2 × ${perimeter} × ${slantHeight} = ${area}`;
+			
+			
+				} else if (shape === "segment") {
+    const radius = parseFloat(document.getElementById("radius").value) || 0;
+    const angle = parseFloat(document.getElementById("angle").value) || 0; // Central angle in degrees
+
+    // Sector area
+    const sectorArea = (angle / 360) * Math.PI * radius ** 2;
+    
+    // Triangle area (formed by chord)
+    const triangleArea = 0.5 * radius ** 2 * Math.sin(angle * (Math.PI / 180));
+    
+    // Segment area = Sector area - Triangle area
+    area = sectorArea - triangleArea;
+    explanation = `Area = Sector Area - Triangle Area = (${angle}/360) × π × ${radius}² - 1/2 × ${radius}² × sin(${angle}) = ${area.toFixed(2)}`;
+            } else if (shape === "ellipse") {
+                let a = getValue("a");
+                let b = getValue("b");
+                area = Math.PI * a * b;
+                explanation = `Area = π × Major Axis × Minor Axis = π × ${a} × ${b} = ${area.toFixed(2)}`;
+            }
+
+            document.getElementById("result").innerText = "Area: " + area.toFixed(2);
+            document.getElementById("explanation").innerText = explanation;
+        }
+    </script>
+</body>
+</html>
