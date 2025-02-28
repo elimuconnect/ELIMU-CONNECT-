@@ -29,7 +29,7 @@
         <option value="rhombus">Rhombus</option>
         <option value="pyramid">Pyramid</option>
         <option value="parallelogram">Parallelogram</option>
-        <option value="ellipse">Ellipse</option>
+       
     </select>
 
     <div id="inputs" class="input-container"></div>
@@ -38,48 +38,94 @@
     <p id="explanation"></p>
 
     <script>
-        function generateInputs() {
-            const shape = document.getElementById("shape").value;
-            const inputsDiv = document.getElementById("inputs");
-            let inputs = "";
+    function generateInputs() {
+        const shape = document.getElementById("shape").value;
+        const inputsDiv = document.getElementById("inputs");
+        let inputs = "";
 
-            const inputTemplates = {
-                triangle: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
-                rectangle: "Width: <input type='number' id='width'> Height: <input type='number' id='height'>",
-                circle: "Radius: <input type='number' id='radius'>",
-                sector: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
-                segment: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
-                polygon: "Number of sides: <input type='number' id='numSides'> Side length: <input type='number' id='sideLength'>",
-                cylinder: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>",
-                cone: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>",
-                frustum: "Radius 1: <input type='number' id='radius1'> Radius 2: <input type='number' id='radius2'> Height: <input type='number' id='height'>",
-                sphere: "Radius: <input type='number' id='radius'>",
-                kite: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
-                rhombus: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
-                trapezium: "Base 1: <input type='number' id='b1'> Base 2: <input type='number' id='b2'> Height: <input type='number' id='height'>",
-                pyramid: "Base Area: <input type='number' id='baseArea'> Slant Height: <input type='number' id='slantHeight'>",
-                parallelogram: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
-                ellipse: "Major Axis (a): <input type='number' id='a'> Minor Axis (b): <input type='number' id='b'>"
-            };
+         const inputTemplates = {
+            triangle: "Base: <input type='number' id='base'> Height: <input type='number' id='height'> <br> OR <br> Side A: <input type='number' id='sideA'> Side B: <input type='number' id='sideB'> Side C: <input type='number' id='sideC'> <br> OR <br> Side A: <input type='number' id='sideA2'> Side B: <input type='number' id='sideB2'> Angle C (°): <input type='number' id='angleC'>",
+            rectangle: "Width: <input type='number' id='width'> Height: <input type='number' id='height'>",
+            circle: "Radius: <input type='number' id='radius'>",
+            sector: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
+            segment: "Radius: <input type='number' id='radius'> Angle (degrees): <input type='number' id='angle'>",
+            polygon: "Number of sides: <input type='number' id='numSides'> Side length: <input type='number' id='sideLength'>",
+            cylinder: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>", // Comma was missing here
+            pyramid: "Base side 1: <input type='number' id='base1'> Base side 2: <input type='number' id='base2'> Height: <input type='number' id='height'>",
+       
+            cone: "Radius: <input type='number' id='radius'> Height: <input type='number' id='height'>",
+            frustum: "Radius 1: <input type='number' id='radius1'> Radius 2: <input type='number' id='radius2'> Height: <input type='number' id='height'>",
+            sphere: "Radius: <input type='number' id='radius'>",
+            kite: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
+            rhombus: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
+            trapezium: "Base 1: <input type='number' id='b1'> Base 2: <input type='number' id='b2'> Height: <input type='number' id='height'>",
+            parallelogram: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
+            ellipse: "Major Axis (a): <input type='number' id='a'> Minor Axis (b): <input type='number' id='b'>"
+        
+		
+		
+		 };
 
-            inputsDiv.innerHTML = inputTemplates[shape] || "";
+     inputsDiv.innerHTML = inputTemplates[shape] || "";
+    }
+
+
+       
+	   
+	   function calculateArea() {
+    const shape = document.getElementById("shape").value;
+    let area = 0;
+    let explanation = "";
+
+    function getValue(id) {
+        return parseFloat(document.getElementById(id)?.value) || 0;
+    }
+
+    if (shape === "triangle") {
+        let a = getValue("sideA");  // For Heron's formula
+        let b = getValue("sideB");
+        let c = getValue("sideC");
+
+        let a2 = getValue("sideA2");  // For 1/2 ab sin C formula
+        let b2 = getValue("sideB2");
+        let angleC = getValue("angleC");
+
+        let base = getValue("base");  // For 1/2 bh formula
+        let height = getValue("height");
+
+        console.log("Values:", { a, b, c, a2, b2, angleC, base, height }); // Debugging
+
+        if (a > 0 && b > 0 && c > 0) {
+            // ✅ Heron's Formula
+            let s = (a + b + c) / 2;
+            area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+            explanation = `Using Heron's Formula:<br>
+                           Area = √[s(s-a)(s-b)(s-c)]<br>
+                           = ${area.toFixed(2)} cm²`;
+        } else if (a2 > 0 && b2 > 0 && angleC > 0) {
+            // ✅ 1/2 ab sin C
+            let angleRad = angleC * (Math.PI / 180); // Convert degrees to radians
+            area = 0.5 * a2 * b2 * Math.sin(angleRad);
+            explanation = `Using 1/2 ab sin C:<br>
+                           Area = 1/2 × ${a2} × ${b2} × sin(${angleC}°)<br>
+                           = ${area.toFixed(2)} cm²`;
+        } else if (base > 0 && height > 0) {
+            // ✅ 1/2 × Base × Height
+            area = 0.5 * base * height;
+            explanation = `Using 1/2 × Base × Height:<br>
+                           Area = 1/2 × ${base} × ${height}<br>
+                           = ${area.toFixed(2)} cm²`;
+        } else {
+            explanation = "❌ Please enter valid values for one of the formulas.";
+            area = 0;
         }
+    } 
+	   
+	   
+	 	   
+	
 
-        function calculateArea() {
-            const shape = document.getElementById("shape").value;
-            let area = 0;
-            let explanation = "";
-
-            function getValue(id) {
-                return parseFloat(document.getElementById(id)?.value) || 0;
-            }
-
-            if (shape === "triangle") {
-                let base = getValue("base");
-                let height = getValue("height");
-                area = 0.5 * base * height;
-                explanation = `Area = 1/2 × Base × Height = 1/2 × ${base} × ${height} = ${area}`;
-            } else if (shape === "rectangle") {
+    else if (shape === "rectangle") {
                 let width = getValue("width");
                 let height = getValue("height");
                 area = width * height;
@@ -167,29 +213,43 @@ const r2 = parseFloat(document.getElementById("radius2").value) || 0;
     explanation = `Surface Area = πr (r + l) = π × ${radius} × (${radius} + ${slantHeight.toFixed(2)}) = ${area.toFixed(2)}`;
 
 
-// ✅ Closing bracket added here!
-} else if (shape === "pyramid") {
-    let baseArea = getValue("baseArea");
-    let perimeter = getValue("perimeter"); // Add perimeter input
-    let slantHeight = getValue("slantHeight");
-    
-    area = baseArea + 0.5 * perimeter * slantHeight; // Corrected formula
-    explanation = `Total Surface Area = Base Area + 1/2 × Perimeter × Slant Height = ${baseArea} + 1/2 × ${perimeter} × ${slantHeight} = ${area}`;
-			
-			
-				} else if (shape === "segment") {
-    const radius = parseFloat(document.getElementById("radius").value) || 0;
-    const angle = parseFloat(document.getElementById("angle").value) || 0; // Central angle in degrees
 
-    // Sector area
-    const sectorArea = (angle / 360) * Math.PI * radius ** 2;
-    
-    // Triangle area (formed by chord)
-    const triangleArea = 0.5 * radius ** 2 * Math.sin(angle * (Math.PI / 180));
-    
-    // Segment area = Sector area - Triangle area
-    area = sectorArea - triangleArea;
-    explanation = `Area = Sector Area - Triangle Area = (${angle}/360) × π × ${radius}² - 1/2 × ${radius}² × sin(${angle}) = ${area.toFixed(2)}`;
+ }
+
+if (shape === "pyramid") {
+    let base1 = getValue("base1");  // Base side 1 (length)
+    let base2 = getValue("base2");  // Base side 2 (width)
+    let height = getValue("height");  // Perpendicular height of the pyramid
+
+    // Step 1: Compute the Diagonal of the Base
+    let diagonal = Math.sqrt(Math.pow(base1, 2) + Math.pow(base2, 2)); // √(base1² + base2²)
+    let halfDiagonal = diagonal / 2;  // Half of the diagonal
+
+    // Step 2: Compute the Slant Edge (Apex to Base Corners)
+    let slantEdge = Math.sqrt(Math.pow(height, 2) + Math.pow(halfDiagonal, 2));
+
+    // Step 3: Compute Slant Heights for Two Different Triangular Faces
+    let slantHeight1 = Math.sqrt(Math.pow(slantEdge, 2) - Math.pow(base1 / 2, 2)); // For triangles with base1
+    let slantHeight2 = Math.sqrt(Math.pow(slantEdge, 2) - Math.pow(base2 / 2, 2)); // For triangles with base2
+
+    // Step 4: Compute Base Area
+    let baseArea = base1 * base2;
+
+    // Step 5: Compute Two Different Triangular Face Areas
+    let triangleArea1 = (1 / 2) * base1 * slantHeight1;  // Two faces with base1
+    let triangleArea2 = (1 / 2) * base2 * slantHeight2;  // Two faces with base2
+
+    // Step 6: Compute Total Surface Area
+    let totalArea = baseArea + 2 * triangleArea1 + 2 * triangleArea2;
+
+    // Step 7: Explanation
+    explanation = `Total Surface Area = Base Area + 2 × (Area of base1 triangles) + 2 × (Area of base2 triangles)
+                   = ${base1} × ${base2} + 2 × (1/2 × ${base1} × ${slantHeight1.toFixed(2)}) + 2 × (1/2 × ${base2} × ${slantHeight2.toFixed(2)})
+                   = ${baseArea} + 2 × ${triangleArea1.toFixed(2)} + 2 × ${triangleArea2.toFixed(2)}
+                   = ${totalArea.toFixed(2)} cm²`;
+
+   
+
             } else if (shape === "ellipse") {
                 let a = getValue("a");
                 let b = getValue("b");
