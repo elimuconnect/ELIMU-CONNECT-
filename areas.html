@@ -4,11 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Area Calculator</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        canvas { border: 1px solid black; display: block; margin: 20px auto; }
-        .input-container { margin: 20px; }
-    </style>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    canvas { border: 1px solid black; display: block; margin: 20px auto; }
+    .input-container { margin: 20px; }
+
+    /* Make the dropdown larger */
+    select#shape {
+        font-size: 20px; /* Increase font size */
+        padding: 10px; /* Add padding for better appearance */
+        width: 250px; /* Set a larger width */
+    }
+
+    /* Make the button larger */
+    button {
+        font-size: 22px; /* Increase text size */
+        padding: 12px 20px; /* Add padding for a bigger button */
+        background-color: #28a745; /* Green color */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        border-radius: 5px; /* Add rounded corners */
+        cursor: pointer; /* Change cursor on hover */
+    }
+
+    /* Add hover effect for the button */
+    button:hover {
+        background-color: #218838; /* Darker green on hover */
+    }
+</style>
 </head>
 <body>
     <h1>Area Calculator</h1>
