@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Area Calculator</title>
-  <style>
+    <style>
     body { font-family: Arial, sans-serif; text-align: center; }
     canvas { border: 1px solid black; display: block; margin: 20px auto; }
     .input-container { margin: 20px; }
@@ -52,6 +52,16 @@
         <option value="rhombus">Rhombus</option>
         <option value="pyramid">Pyramid</option>
         <option value="parallelogram">Parallelogram</option>
+		 <option value="rectangularPrism">Rectangular Prism</option> 
+        <option value="triangularPrism">Triangular Prism</option>
+        
+        <option value="hexagonalPrism">Hexagonal Prism</option>
+		<option value="trapezoidalPrism">Trapezoidal Prism</option>
+		
+		
+		
+		
+		
        
     </select>
 
@@ -83,14 +93,33 @@
             rhombus: "Diagonal 1: <input type='number' id='d1'> Diagonal 2: <input type='number' id='d2'>",
             trapezium: "Base 1: <input type='number' id='b1'> Base 2: <input type='number' id='b2'> Height: <input type='number' id='height'>",
             parallelogram: "Base: <input type='number' id='base'> Height: <input type='number' id='height'>",
+			
+			
+			rectangularPrism: "Width: <input type='number' id='width'> Height: <input type='number' id='height'> Length: <input type='number' id='length'>",
+    
+    triangularPrism: "Base: <input type='number' id='base'> Height: <input type='number' id='height'> Length: <input type='number' id='length'> " +
+                     "Side A: <input type='number' id='sideA'> Side B: <input type='number' id='sideB'> Side C: <input type='number' id='sideC'>",
+
+    pentagonalPrism: "Side Length: <input type='number' id='side'> Prism Height: <input type='number' id='prismHeight'>",
+    hexagonalPrism: "Side Length: <input type='number' id='side'> Exterior Angle: <input type='number' id='exteriorAngle'> Prism Height: <input type='number' id='prismHeight'>",
+
+
+    trapezoidalPrism: "Base 1: <input type='number' id='b1'> Base 2: <input type='number' id='b2'> Height: <input type='number' id='height'> Length: <input type='number' id='length'> " +
+                      "Side A: <input type='number' id='sideA'> Side B: <input type='number' id='sideB'>",
+			
+			
+			
+			
             ellipse: "Major Axis (a): <input type='number' id='a'> Minor Axis (b): <input type='number' id='b'>"
         
 		
 		
 		 };
-
-     inputsDiv.innerHTML = inputTemplates[shape] || "";
-    }
+		 
+		 inputsDiv.innerHTML = inputTemplates[shape] || "";
+    console.log("Generated Inputs:", inputsDiv.innerHTML); // Debugging
+}
+		 
 
 
        
@@ -200,6 +229,120 @@ const r2 = parseFloat(document.getElementById("radius2").value) || 0;
                 const height = parseFloat(document.getElementById("height").value) || 0;
                 area = 0.5 * (b1 + b2) * height;
                 explanation = `Area = 1/2 × (Base1 + Base2) × Height = 1/2 × (${b1} + ${b2}) × ${height} = ${area}`;
+
+
+
+}
+else if (shape === "rectangularPrism") {
+    let width = getValue("width");
+    let height = getValue("height");
+    let length = getValue("length");
+    area = 2 * (length * width + length * height + width * height);
+    explanation = `Surface Area = 2(LW + LH + WH) = 2(${length} × ${width} + ${length} × ${height} + ${width} × ${height}) = ${area.toFixed(2)}`;
+} 
+
+else if (shape === "triangularPrism") {
+    let base = getValue("base");
+    let height = getValue("height");
+    let length = getValue("length");
+    let sideA = getValue("sideA");
+    let sideB = getValue("sideB");
+    let sideC = getValue("sideC");
+    
+    let baseArea = 0.5 * base * height;
+    let lateralArea = (sideA + sideB + sideC) * length;
+    area = 2 * baseArea + lateralArea;
+
+    explanation = `Surface Area = 2 × (1/2 × Base × Height) + (Perimeter × Length) <br>
+                   = 2 × (1/2 × ${base} × ${height}) + (${sideA} + ${sideB} + ${sideC}) × ${length} <br>
+                   = ${area.toFixed(2)}`;
+}
+
+
+
+else if (shape === "pentagonalPrism") {
+    let side = getValue("side");
+    let prismHeight = getValue("prismHeight");
+
+    // Calculate apothem correctly
+    let apothem = side / (2 * Math.tan(Math.PI / 5)); // π/5 radians = 36°
+    
+    // Base area of the pentagon
+    let baseArea = (5 * side * apothem) / 2;
+
+    // Perimeter of the pentagon
+    let perimeter = 5 * side;
+
+    // Lateral surface area
+    let lateralArea = perimeter * prismHeight;
+
+    // Total surface area
+    area = 2 * baseArea + lateralArea;
+
+    explanation = `Corrected Calculation:<br>
+                   Apothem = Side / (2 × tan(π/5))<br>
+                   = ${side} / (2 × tan(36°)) = ${apothem.toFixed(2)} cm<br><br>
+                   Base Area = (5 × Side × Apothem) / 2<br>
+                   = (5 × ${side} × ${apothem.toFixed(2)}) / 2 = ${baseArea.toFixed(2)} cm²<br><br>
+                   Surface Area = 2 × Base Area + Perimeter × Prism Height<br>
+                   = 2 × ${baseArea.toFixed(2)} + (${perimeter} × ${prismHeight})<br>
+                   = ${area.toFixed(2)} cm²`;
+
+
+
+} 
+else if (shape === "hexagonalPrism") {
+    let side = getValue("side");
+    let exteriorAngle = getValue("exteriorAngle");
+    let prismHeight = getValue("prismHeight");
+
+    let apothem = side / (2 * Math.tan((exteriorAngle / 2) * (Math.PI / 180))); // Convert degrees to radians
+    let baseArea = (6 * side * apothem) / 2;
+    let perimeter = 6 * side;
+    let lateralArea = perimeter * prismHeight;
+    area = 2 * baseArea + lateralArea;
+    
+    explanation = `Using Exterior Angle:<br>
+                   Apothem = Side / (2 × tan(Exterior Angle / 2))<br>
+                   = ${side} / (2 × tan(${exteriorAngle}/2)) = ${apothem.toFixed(2)}<br><br>
+                   Surface Area = 2 × Base Area + Perimeter × Height<br>
+                   = 2 × (6 × ${side} × ${apothem.toFixed(2)} / 2) + (6 × ${side} × ${prismHeight})<br>
+                   = ${area.toFixed(2)} cm²`;
+
+
+
+}
+
+else if (shape === "trapezoidalPrism") {
+    let b1 = getValue("b1");
+    let b2 = getValue("b2");
+    let height = getValue("height");
+    let length = getValue("length");
+    let sideA = getValue("sideA");
+    let sideB = getValue("sideB");
+
+    let baseArea = 0.5 * (b1 + b2) * height;
+    let lateralArea = (b1 + b2 + sideA + sideB) * length;
+    area = 2 * baseArea + lateralArea;
+
+    explanation = `Surface Area = 2 × (1/2 × (Base1 + Base2) × Height) + (Perimeter × Length) <br>
+                   = 2 × (1/2 × (${b1} + ${b2}) × ${height}) + (${b1} + ${b2} + ${sideA} + ${sideB}) × ${length} <br>
+                   = ${area.toFixed(2)}`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
