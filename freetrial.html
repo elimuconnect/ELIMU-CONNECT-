@@ -116,7 +116,7 @@
         // Function to start the chat and check trial status
         function startChat() {
             const trialKey = "trial-start-time";
-            const trialLockKey = "trial-locked";  // Key to lock the trial after 3 days
+            const trialLockKey = "trial-locked";  // Key to lock the trial after 7 days
             const trialDuration = 7 * 24 * 60 * 60 * 1000;  // 3 days in milliseconds
             const trialStart = localStorage.getItem(trialKey);
 
@@ -161,7 +161,7 @@
                 }
             } else {
                 // First time, start a new trial
-                displayMessage("You are starting a 3-day free trial! We will let you know when it's about to expire.", "bot");
+                displayMessage("You are starting a 7-day free trial! We will let you know when it's about to expire.", "bot");
                 const trialStartTime = Date.now();
                 localStorage.setItem(trialKey, trialStartTime);
                 displayMessage("Your trial has started! We'll keep track of the time remaining.", "bot");
