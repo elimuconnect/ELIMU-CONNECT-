@@ -117,7 +117,7 @@
         function startChat() {
             const trialKey = "trial-start-time";
             const trialLockKey = "trial-locked";  // Key to lock the trial after 3 days
-            const trialDuration = 3 * 24 * 60 * 60 * 1000;  // 3 days in milliseconds
+            const trialDuration = 7 * 24 * 60 * 60 * 1000;  // 3 days in milliseconds
             const trialStart = localStorage.getItem(trialKey);
 
             if (trialStart) {
