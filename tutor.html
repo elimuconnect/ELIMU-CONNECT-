@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Fast Smart Tutor</title>
+  <title>Smart Tutor with Lessons + Questions</title>
   <script src="https://unpkg.com/mathlive"></script>
   <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css" />
   <style>
@@ -13,13 +13,11 @@
       font-family: 'Segoe UI', sans-serif;
       background: #eef1f5;
     }
-
     #app {
       display: flex;
       flex-direction: column;
       height: 100%;
     }
-
     #toolbar {
       padding: 15px;
       background: #1976d2;
@@ -28,7 +26,6 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-
     #toolbar button {
       background: white;
       color: #1976d2;
@@ -38,7 +35,6 @@
       font-size: 16px;
       cursor: pointer;
     }
-
     #editor {
       flex: 1;
       padding: 30px;
@@ -47,13 +43,12 @@
       overflow-y: auto;
       outline: none;
       white-space: pre-wrap;
+      cursor: text;
     }
-
     math-field {
       font-size: 1.4em;
       margin: 0 4px;
     }
-
     #status {
       padding: 10px;
       background: #388e3c;
@@ -61,17 +56,18 @@
       font-weight: bold;
       text-align: center;
     }
-
     .question { color: #333; margin-bottom: 20px; font-weight: bold; }
     .solution { color: #2e7d32; font-weight: normal; }
+    .hand-writing {
+      cursor: url('https://cur.cursors-4u.net/people/peo-2/peo129.cur'), auto !important;
+    }
   </style>
 </head>
 <body>
 
 <div id="app">
   <div id="toolbar">
-    <button onclick="insertMath()">➕ Insert Math</button>
-    <button onclick="speakAll()">🔊 Read Now</button>
+    <button onclick="startTutor()">▶️ Start Tutor</button>
     <button onclick="pauseLesson()">⏸️ Pause</button>
     <button onclick="resumeLesson()">▶️ Resume</button>
     <button onclick="repeatLesson()">🔁 Repeat</button>
@@ -79,47 +75,39 @@
   </div>
 
   <div id="editor" contenteditable="true">
-    <p>Smart Tutor is loading...</p>
+    <p>Click "Start Tutor" to begin lessons.</p>
   </div>
 
-  <div id="status">⏳ Preparing lesson...</div>
+  <div id="status">⏳ Waiting for user action...</div>
 </div>
 
 <script>
-  const lessons = [
+  const lessonsArray = [
+    "Lesson 1: A square number is the product of a number multiplied by itself. For example, 4 × 4 = 16. So 16 is a square number.",
+    "Lesson 2: To solve simple equations, isolate the variable. Example: 3x = 12 → divide by 3 → x = 4.",
+    "Lesson 3: In algebra, terms are separated by plus or minus signs. Like terms can be combined."
+  ];
+
+  const questionsArray = [
     {
       question: "Q1: Solve for x: 2x + 6 = 14",
       solution: "Step 1: Subtract 6 → 2x = 8\nStep 2: Divide by 2 → x = 4"
     },
     {
       question: "Q2: Simplify (x + 3)(x - 1)",
-      solution: "Step 1: Use expansion → x² - x + 3x - 3\nStep 2: Combine terms → x² + 2x - 3"
+      solution: "Step 1: Expand → x² - x + 3x - 3\nStep 2: Combine like terms → x² + 2x - 3"
     }
   ];
-
-  // Force voice preload immediately
-  speechSynthesis.getVoices();
 
   const editor = document.getElementById("editor");
   const status = document.getElementById("status");
 
-  let current = parseInt(localStorage.getItem("lessonIndex") || "0");
   let paused = false;
-  let timer = null;
+  let currentLesson = 0;
+  let currentQuestion = 0;
   let typingTimer = null;
-
-  function insertMath() {
-    const sel = window.getSelection();
-    if (!sel.rangeCount) return;
-    const range = sel.getRangeAt(0);
-    const mathField = document.createElement("math-field");
-    mathField.setAttribute("virtual-keyboard-mode", "onfocus");
-    mathField.textContent = "x^2 + y^2 = r^2";
-    range.deleteContents();
-    range.insertNode(mathField);
-    sel.collapseToEnd();
-    mathField.focus();
-  }
+  let waitTimer = null;
+  let inLessonMode = true;
 
   function getVoice() {
     const voices = speechSynthesis.getVoices();
@@ -127,74 +115,92 @@
     return voices.find(v => preferred.includes(v.name) || preferred.includes(v.lang)) || voices[0];
   }
 
-  function speak(text) {
+  function speak(text, onEnd) {
     speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.voice = getVoice();
-    utter.rate = 0.9;
+    utter.rate = 0.88;
+    utter.onend = () => { if (onEnd) onEnd(); };
     speechSynthesis.speak(utter);
-  }
-
-  function speakAll() {
-    let combined = editor.innerText;
-    const mathFields = editor.querySelectorAll("math-field");
-    mathFields.forEach(field => {
-      combined += " " + field.getValue("spoken-text");
-    });
-    speak(combined);
   }
 
   function typeSolution(text, callback) {
     const solutionDiv = document.createElement("div");
     solutionDiv.className = "solution";
     editor.appendChild(solutionDiv);
+    editor.classList.add("hand-writing");
 
     let i = 0;
     typingTimer = setInterval(() => {
       if (paused) return;
       if (i >= text.length) {
         clearInterval(typingTimer);
+        editor.classList.remove("hand-writing");
         callback && callback();
         return;
       }
       solutionDiv.textContent += text[i];
       i++;
-    }, 40); // faster pen-writing effect
+    }, 80);
   }
 
   function showLesson(index) {
-    if (index >= lessons.length) {
-      editor.innerHTML = "✅ All lessons complete.";
-      status.textContent = "✅ Done.";
-      localStorage.removeItem("lessonIndex");
+    if (index >= lessonsArray.length) {
+      inLessonMode = false;
+      showQuestion(currentQuestion);
       return;
     }
+    const text = lessonsArray[index];
+    editor.innerHTML = `<div class="question">${text}</div>`;
+    status.textContent = `📖 Lesson ${index + 1}: Reading...`;
+    speak(text, () => {
+      currentLesson++;
+      setTimeout(() => showLesson(currentLesson), 4000);
+    });
+  }
 
-    const lesson = lessons[index];
-    editor.innerHTML = `<div class="question">${lesson.question}</div>`;
-    status.textContent = `📖 Lesson ${index + 1}: Showing question`;
-    speak(lesson.question);
+  function showQuestion(index) {
+    if (index >= questionsArray.length) {
+      editor.innerHTML = "✅ All lessons and questions completed.";
+      status.textContent = "✅ Done.";
+      return;
+    }
+    const q = questionsArray[index];
+    editor.innerHTML = `<div class="question">${q.question}</div>`;
+    status.textContent = `🔊 Reading Question ${index + 1}...`;
 
-    timer = setTimeout(() => {
-      if (!paused) {
-        status.textContent = `✍️ Writing solution...`;
-        typeSolution(lesson.solution, () => {
-          status.textContent = `✅ Solution complete`;
-          speak(lesson.solution);
-          setTimeout(() => {
-            current++;
-            showLesson(current);
-          }, 7000); // time to view solution before next lesson
-        });
-      }
-    }, 10000); // reduced wait time before solution appears
+    speak(q.question, () => {
+      status.textContent = `⌛ Writing solution in 10 seconds...`;
+      waitTimer = setTimeout(() => {
+        if (!paused) {
+          status.textContent = `✍️ Writing Solution...`;
+          typeSolution(q.solution, () => {
+            status.textContent = `🔊 Reading Solution...`;
+            speak(q.solution, () => {
+              status.textContent = `✅ Done with Question ${index + 1}.`;
+              currentQuestion++;
+              setTimeout(() => showQuestion(currentQuestion), 5000);
+            });
+          });
+        }
+      }, 10000);
+    });
+  }
+
+  function startTutor() {
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.onvoiceschanged = () => showLesson(currentLesson);
+    } else {
+      showLesson(currentLesson);
+    }
   }
 
   function pauseLesson() {
     paused = true;
-    clearTimeout(timer);
+    clearTimeout(waitTimer);
     clearInterval(typingTimer);
     speechSynthesis.cancel();
+    editor.classList.remove("hand-writing");
     status.textContent = "⏸️ Paused.";
   }
 
@@ -202,30 +208,27 @@
     if (!paused) return;
     paused = false;
     status.textContent = "▶️ Resuming...";
-    showLesson(current);
+    inLessonMode ? showLesson(currentLesson) : showQuestion(currentQuestion);
   }
 
   function repeatLesson() {
     speechSynthesis.cancel();
-    showLesson(current);
+    inLessonMode ? showLesson(currentLesson) : showQuestion(currentQuestion);
   }
 
   function skipLesson() {
-    clearTimeout(timer);
+    clearTimeout(waitTimer);
     clearInterval(typingTimer);
     speechSynthesis.cancel();
-    current++;
-    showLesson(current);
+    if (inLessonMode) {
+      currentLesson++;
+      showLesson(currentLesson);
+    } else {
+      currentQuestion++;
+      showQuestion(currentQuestion);
+    }
   }
-
-  // Start when voices are ready
-  window.speechSynthesis.onvoiceschanged = () => {
-    setTimeout(() => {
-      showLesson(current);
-    }, 1500); // short wait for smoother start
-  };
 </script>
 
 </body>
 </html>
-
