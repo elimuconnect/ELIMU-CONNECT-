@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tutor - Pen Style Writing</title>
+  <title>Fast Smart Tutor</title>
   <script src="https://unpkg.com/mathlive"></script>
   <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css" />
   <style>
@@ -79,7 +79,7 @@
   </div>
 
   <div id="editor" contenteditable="true">
-    <p>Smart Math Tutor is loading...</p>
+    <p>Smart Tutor is loading...</p>
   </div>
 
   <div id="status">⏳ Preparing lesson...</div>
@@ -88,14 +88,17 @@
 <script>
   const lessons = [
     {
-      question: "Q1: Solve for x: 2x + 4 = 10",
-      solution: "Step 1: Subtract 4 from both sides → 2x = 6\nStep 2: Divide both sides by 2 → x = 3"
+      question: "Q1: Solve for x: 2x + 6 = 14",
+      solution: "Step 1: Subtract 6 → 2x = 8\nStep 2: Divide by 2 → x = 4"
     },
     {
-      question: "Q2: Find the square of 8",
-      solution: "Step 1: 8 × 8 = 64\nAnswer: The square of 8 is 64"
+      question: "Q2: Simplify (x + 3)(x - 1)",
+      solution: "Step 1: Use expansion → x² - x + 3x - 3\nStep 2: Combine terms → x² + 2x - 3"
     }
   ];
+
+  // Force voice preload immediately
+  speechSynthesis.getVoices();
 
   const editor = document.getElementById("editor");
   const status = document.getElementById("status");
@@ -156,7 +159,7 @@
       }
       solutionDiv.textContent += text[i];
       i++;
-    }, 50); // speed of pen-writing effect
+    }, 40); // faster pen-writing effect
   }
 
   function showLesson(index) {
@@ -181,10 +184,10 @@
           setTimeout(() => {
             current++;
             showLesson(current);
-          }, 8000); // delay before next lesson
+          }, 7000); // time to view solution before next lesson
         });
       }
-    }, 30000); // show solution after 30 seconds
+    }, 10000); // reduced wait time before solution appears
   }
 
   function pauseLesson() {
@@ -215,10 +218,11 @@
     showLesson(current);
   }
 
+  // Start when voices are ready
   window.speechSynthesis.onvoiceschanged = () => {
     setTimeout(() => {
       showLesson(current);
-    }, 2000);
+    }, 1500); // short wait for smoother start
   };
 </script>
 
