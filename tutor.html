@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart African Tutor</title>
+  <title>Smart Tutor - Pen Style Writing</title>
   <script src="https://unpkg.com/mathlive"></script>
   <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css" />
   <style>
@@ -25,8 +25,8 @@
       background: #1976d2;
       color: white;
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
     #toolbar button {
@@ -39,19 +39,14 @@
       cursor: pointer;
     }
 
-    #lesson-image {
-      max-width: 100%;
-      margin: 0 auto;
-      display: none;
-    }
-
     #editor {
       flex: 1;
       padding: 30px;
-      font-size: 1.8em;
+      font-size: 1.6em;
       background: #fff;
       overflow-y: auto;
       outline: none;
+      white-space: pre-wrap;
     }
 
     math-field {
@@ -66,6 +61,9 @@
       font-weight: bold;
       text-align: center;
     }
+
+    .question { color: #333; margin-bottom: 20px; font-weight: bold; }
+    .solution { color: #2e7d32; font-weight: normal; }
   </style>
 </head>
 <body>
@@ -80,42 +78,32 @@
     <button onclick="skipLesson()">⏭️ Skip</button>
   </div>
 
-  <img id="lesson-image" src="" alt="Lesson Image" />
-
   <div id="editor" contenteditable="true">
-    <p>Welcome. Lessons will appear here and be read aloud.</p>
+    <p>Smart Math Tutor is loading...</p>
   </div>
 
-  <div id="status">⏳ Loading lesson...</div>
+  <div id="status">⏳ Preparing lesson...</div>
 </div>
 
 <script>
   const lessons = [
     {
-      content: "Lesson 1: Introduction to Numbers. Numbers can be whole or decimal. For example, 5 is a whole number. 5.2 is a decimal number.",
-      delay: 5,
-      image: ""
+      question: "Q1: Solve for x: 2x + 4 = 10",
+      solution: "Step 1: Subtract 4 from both sides → 2x = 6\nStep 2: Divide both sides by 2 → x = 3"
     },
     {
-      content: "Lesson 2: Solving simple equations. If 2x = 8, then divide both sides by 2. x equals 4.",
-      delay: 8,
-      image: ""
-    },
-    {
-      content: "Lesson 3: Understanding Fractions. One half is written as one over two. One quarter is one over four.",
-      delay: 7,
-      image: ""
+      question: "Q2: Find the square of 8",
+      solution: "Step 1: 8 × 8 = 64\nAnswer: The square of 8 is 64"
     }
   ];
 
   const editor = document.getElementById("editor");
-  const image = document.getElementById("lesson-image");
   const status = document.getElementById("status");
 
   let current = parseInt(localStorage.getItem("lessonIndex") || "0");
   let paused = false;
-  let speaking = false;
-  let pendingTimeout = null;
+  let timer = null;
+  let typingTimer = null;
 
   function insertMath() {
     const sel = window.getSelection();
@@ -130,62 +118,79 @@
     mathField.focus();
   }
 
-  function getAfricanVoice() {
+  function getVoice() {
     const voices = speechSynthesis.getVoices();
-    const priorityNames = [
-      "Google UK English Male", // Closest to African-sounding English
-      "en-IN", "en-GB", "en-KE", "English (United Kingdom)"
-    ];
-    return voices.find(v => priorityNames.includes(v.name) || priorityNames.includes(v.lang)) || voices[0];
+    const preferred = ["Google UK English Male", "en-GB", "en-IN", "en-KE"];
+    return voices.find(v => preferred.includes(v.name) || preferred.includes(v.lang)) || voices[0];
   }
 
-  function speakText(text) {
+  function speak(text) {
     speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-GB';
-    utterance.voice = getAfricanVoice();
-    utterance.rate = 0.9;
-    speaking = true;
-    utterance.onend = () => speaking = false;
-    speechSynthesis.speak(utterance);
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.voice = getVoice();
+    utter.rate = 0.9;
+    speechSynthesis.speak(utter);
   }
 
   function speakAll() {
-    const mathFields = editor.querySelectorAll("math-field");
     let combined = editor.innerText;
+    const mathFields = editor.querySelectorAll("math-field");
     mathFields.forEach(field => {
       combined += " " + field.getValue("spoken-text");
     });
-    speakText(combined);
+    speak(combined);
+  }
+
+  function typeSolution(text, callback) {
+    const solutionDiv = document.createElement("div");
+    solutionDiv.className = "solution";
+    editor.appendChild(solutionDiv);
+
+    let i = 0;
+    typingTimer = setInterval(() => {
+      if (paused) return;
+      if (i >= text.length) {
+        clearInterval(typingTimer);
+        callback && callback();
+        return;
+      }
+      solutionDiv.textContent += text[i];
+      i++;
+    }, 50); // speed of pen-writing effect
   }
 
   function showLesson(index) {
     if (index >= lessons.length) {
-      status.textContent = "✅ All lessons completed.";
+      editor.innerHTML = "✅ All lessons complete.";
+      status.textContent = "✅ Done.";
       localStorage.removeItem("lessonIndex");
       return;
     }
 
     const lesson = lessons[index];
-    editor.innerText = lesson.content;
-    image.src = lesson.image;
-    image.style.display = lesson.image ? "block" : "none";
-    status.textContent = `📖 Lesson ${index + 1}`;
+    editor.innerHTML = `<div class="question">${lesson.question}</div>`;
+    status.textContent = `📖 Lesson ${index + 1}: Showing question`;
+    speak(lesson.question);
 
-    speakText(lesson.content);
-    localStorage.setItem("lessonIndex", index.toString());
-
-    pendingTimeout = setTimeout(() => {
+    timer = setTimeout(() => {
       if (!paused) {
-        current++;
-        showLesson(current);
+        status.textContent = `✍️ Writing solution...`;
+        typeSolution(lesson.solution, () => {
+          status.textContent = `✅ Solution complete`;
+          speak(lesson.solution);
+          setTimeout(() => {
+            current++;
+            showLesson(current);
+          }, 8000); // delay before next lesson
+        });
       }
-    }, lesson.delay * 1000);
+    }, 30000); // show solution after 30 seconds
   }
 
   function pauseLesson() {
     paused = true;
-    clearTimeout(pendingTimeout);
+    clearTimeout(timer);
+    clearInterval(typingTimer);
     speechSynthesis.cancel();
     status.textContent = "⏸️ Paused.";
   }
@@ -203,17 +208,17 @@
   }
 
   function skipLesson() {
-    clearTimeout(pendingTimeout);
+    clearTimeout(timer);
+    clearInterval(typingTimer);
     speechSynthesis.cancel();
     current++;
     showLesson(current);
   }
 
-  // Load voices first, then start lesson
   window.speechSynthesis.onvoiceschanged = () => {
     setTimeout(() => {
       showLesson(current);
-    }, 3000);
+    }, 2000);
   };
 </script>
 
