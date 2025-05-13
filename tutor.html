@@ -84,40 +84,37 @@
 </div>
 
 <script>
- 
+  
 
 
+// Set the tutor start time (local time for Kenya, 2025-05-13 at 16:28)
+  const scheduledTime = new Date(2025, 4, 13, 16, 28, 0); // (YYYY, MM[0-11], DD, HH, MM, SS)
+  let tutorStarted = false;
 
+  function checkStartTime() {
+    const now = new Date();
+    const diff = scheduledTime - now;
 
-
-
-
-/ ✅ Scheduled start time in ISO 8601 format (Kenyan time UTC+3)
-    const TUTOR_START_TIME = "2025-05-13T16:28:00+03:00";
-
-    // Parse it as a Date object
-    const scheduledTime = new Date(TUTOR_START_TIME).getTime(); // Always in UTC ms
-
-    let lessonStarted = false;
-
-    function checkTimeAndShowLesson() {
-      const now = Date.now(); // current time in UTC ms
-
-      if (!lessonStarted && now >= scheduledTime) {
-        lessonStarted = true;
-        document.getElementById("lesson").style.display = "block";
-        document.getElementById("wait").style.display = "none";
-      } else if (!lessonStarted) {
-        document.getElementById("lesson").style.display = "none";
-        document.getElementById("wait").style.display = "block";
-      }
+    if (!tutorStarted && diff <= 0) {
+      tutorStarted = true;
+      document.getElementById("status").textContent = "✅ Lesson has started!";
+      document.getElementById("timer").style.display = "none";
+      document.getElementById("lesson").style.display = "block";
+      clearInterval(checker);  // Stop the interval once the lesson starts
+    } else {
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      document.getElementById("timer").textContent = `⏳ Please wait ${mins} min ${secs} sec...`;
     }
+  }
 
-    // Check every second
-    setInterval(checkTimeAndShowLesson, 1000);
+  // Initial check
+  checkStartTime();
 
-    // Initial check
-    checkTimeAndShowLesson();
+  // Set an interval to check every second
+  const checker = setInterval(checkStartTime, 1000);
+
+
 
 
 
@@ -131,7 +128,6 @@
 
 
   
-
    const lessonsArray = [
    `Lesson 1: TITRATIONS (VOLUMETRIC ANALYSIS)
 
