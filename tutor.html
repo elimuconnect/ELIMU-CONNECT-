@@ -80,11 +80,15 @@
     <p>Click "Start Tutor" to begin.</p>
   </div>
 
-  <div id="status">⏳ Waiting for user action...</div>
+  <div id="status">⏳ Waiting for your scheduled time...</div>
 </div>
 
 <script>
-  const lessonsArray = [
+  const TUTOR_START_TIME = "2025-05-13T15:23"; // Set your time here
+  const scheduledTime = new Date(TUTOR_START_TIME);
+  let tutorStarted = false;
+
+   const lessonsArray = [
    `Lesson 1: TITRATIONS (VOLUMETRIC ANALYSIS)
 
 In titration experiments and calculations:
@@ -115,7 +119,6 @@ In titration experiments and calculations:
       solution: "Step 1: Expand → x² - x + 3x - 3\nStep 2: Combine like terms → x² + 2x - 3"
     }
   ];
-
   const editor = document.getElementById("editor");
   const status = document.getElementById("status");
 
@@ -125,7 +128,6 @@ In titration experiments and calculations:
   let inLessonMode = true;
   let currentLesson = 0;
   let currentQuestion = 0;
-
   const fullTranscript = [];
 
   function getVoice() {
@@ -139,7 +141,7 @@ In titration experiments and calculations:
     const utter = new SpeechSynthesisUtterance(text);
     utter.voice = getVoice();
     utter.rate = 0.88;
-    utter.onend = () => { if (onEnd) onEnd(); };
+    utter.onend = () => onEnd && onEnd();
     speechSynthesis.speak(utter);
   }
 
@@ -158,8 +160,7 @@ In titration experiments and calculations:
         callback && callback();
         return;
       }
-      solutionDiv.textContent += text[i];
-      i++;
+      solutionDiv.textContent += text[i++];
     }, 80);
   }
 
@@ -169,10 +170,12 @@ In titration experiments and calculations:
       showQuestion(currentQuestion);
       return;
     }
+
     const text = lessonsArray[index];
     editor.innerHTML = `<div class="question">${text}</div>`;
     status.textContent = `📖 Lesson ${index + 1}: Reading...`;
     fullTranscript.push(`Lesson ${index + 1}:\n${text}\n`);
+
     speak(text, () => {
       currentLesson++;
       setTimeout(() => showLesson(currentLesson), 4000);
@@ -185,6 +188,7 @@ In titration experiments and calculations:
       status.textContent = "✅ Done.";
       return;
     }
+
     const q = questionsArray[index];
     editor.innerHTML = `<div class="question">${q.question}</div>`;
     status.textContent = `🔊 Reading Question ${index + 1}...`;
@@ -210,13 +214,36 @@ In titration experiments and calculations:
   }
 
   function startTutor() {
-    if (speechSynthesis.getVoices().length === 0) {
-      speechSynthesis.onvoiceschanged = () => showLesson(currentLesson);
-    } else {
-      showLesson(currentLesson);
-    }
+  const now = new Date();
+  if (tutorStarted) return;
+
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Too early! Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return;
   }
 
+  tutorStarted = true;
+  status.textContent = "🟢 Tutor is starting...";
+
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.onvoiceschanged = () => showLesson(currentLesson);
+  } else {
+    showLesson(currentLesson);
+  }
+}
+
+  // 🔁 Check every 2 seconds if time reached and start
+  setInterval(() => {
+    const now = new Date();
+    if (!tutorStarted && now >= scheduledTime) {
+      startTutor();
+    }
+  }, 2000);
+
+  // Allow manual control
   function pauseLesson() {
     paused = true;
     clearTimeout(waitTimer);
@@ -226,35 +253,107 @@ In titration experiments and calculations:
     status.textContent = "⏸️ Paused.";
   }
 
-  function resumeLesson() {
-    if (!paused) return;
-    paused = false;
-    status.textContent = "▶️ Resuming...";
-    inLessonMode ? showLesson(currentLesson) : showQuestion(currentQuestion);
+
+
+
+
+
+
+
+
+function resumeLesson() {
+  const now = new Date();
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Too early to resume! Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return;
   }
 
+  if (!isPaused) return;
+  isPaused = false;
+  pauseBtn.disabled = false;
+  resumeBtn.disabled = true;
+  status.textContent = '⏯️ Resumed lesson';
+  speakText(lessonText.textContent);
+  typingTimer = setInterval(() => {
+    speakText(lessonText.textContent);
+  }, 10000);
+}
+
+
+
+  
+
+  
+  
   function repeatLesson() {
-    speechSynthesis.cancel();
-    showLesson(currentLesson - 1);
+  const now = new Date();
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Too early! Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return; // Prevent repeating the lesson before the scheduled time
   }
+
+  speechSynthesis.cancel();
+  showLesson(currentLesson - 1);
+}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   function repeatQuestion() {
     speechSynthesis.cancel();
     showQuestion(currentQuestion - 1);
   }
 
+  
+  
+  
   function skipLesson() {
-    clearTimeout(waitTimer);
-    clearInterval(typingTimer);
-    speechSynthesis.cancel();
-    if (inLessonMode) {
-      currentLesson++;
-      showLesson(currentLesson);
-    } else {
-      currentQuestion++;
-      showQuestion(currentQuestion);
-    }
+  const now = new Date();
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Too early to skip! Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return; // Prevent skipping the lesson before the scheduled time
   }
+
+  clearTimeout(waitTimer);
+  clearInterval(typingTimer);
+  speechSynthesis.cancel();
+  if (inLessonMode) {
+    currentLesson++;
+    showLesson(currentLesson);
+  } else {
+    currentQuestion++;
+    showQuestion(currentQuestion);
+  }
+}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
   function downloadAll() {
     const blob = new Blob([fullTranscript.join('\n')], { type: 'text/plain' });
