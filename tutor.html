@@ -87,33 +87,84 @@
   
 
 
-
-
-const scheduledTime = new Date(2025, 4, 13, 18, 48, 0); // Scheduled start time (Kenya, 2025-05-13 at 18:48:00)
+// Set your scheduled time for tutor start (adjust this as needed)
+const TUTOR_START_TIME = "2025-05-13T16:28"; // Example: 2025-05-13T16:28
+const scheduledTime = new Date(TUTOR_START_TIME);
 let tutorStarted = false;
+let isPaused = false;  // Add isPaused flag for resume logic
 
-function checkStartTime() {
+// Timer to update the countdown
+const countdownInterval = setInterval(() => {
   const now = new Date();
-  const diff = scheduledTime - now;
-
-  if (!tutorStarted && diff <= 0) {
-    tutorStarted = true;
-    document.getElementById("status").textContent = "✅ Lesson has started!";
-    document.getElementById("timer").style.display = "none";
-    document.getElementById("lesson").style.display = "block";
-    clearInterval(checker);  // Stop the interval once the lesson starts
-  } else {
-    const mins = Math.floor(diff / 60000);
-    const secs = Math.floor((diff % 60000) / 1000);
-    document.getElementById("timer").textContent = `⏳ Please wait ${mins} min ${secs} sec...`;
+  if (!tutorStarted && now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Waiting for scheduled time... ${minutes} minute(s) ${seconds} second(s) left.`;
+  } else if (!tutorStarted && now >= scheduledTime) {
+    startTutor();
+    clearInterval(countdownInterval); // Stop the countdown once started
   }
+}, 1000);
+
+// Start Tutor only when scheduled time is reached
+function startTutor() {
+  const now = new Date();
+  if (tutorStarted) return;
+
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return;
+  }
+
+  tutorStarted = true;
+  status.textContent = "🟢 Tutor is starting...";
+  showLesson(currentLesson);  // Start the lesson once the tutor is initiated
 }
 
-// Initial check
-checkStartTime();
+// Pause Lesson
+function pauseLesson() {
+  isPaused = true;
+  paused = true;
+  clearTimeout(waitTimer);
+  clearInterval(typingTimer);
+  speechSynthesis.cancel();
+  editor.classList.remove("hand-writing");
+  status.textContent = "⏸️ Paused.";
+}
 
-// Set an interval to check every second (increased from 2 seconds)
-const checker = setInterval(checkStartTime, 1000); // Every second to be more precise
+// Resume Lesson
+function resumeLesson() {
+  const now = new Date();
+  if (now < scheduledTime) {
+    const diff = Math.floor((scheduledTime - now) / 1000);
+    const minutes = Math.floor(diff / 60);
+    const seconds = diff % 60;
+    status.textContent = `⏳ Too early to resume! Wait ${minutes} minute(s) and ${seconds} second(s)...`;
+    return;
+  }
+
+  if (!isPaused) return; // Skip if not paused
+  isPaused = false;
+  pauseBtn.disabled = false;
+  resumeBtn.disabled = true;
+  status.textContent = '⏯️ Resumed lesson';
+  speakText(lessonText.textContent);
+  typingTimer = setInterval(() => {
+    speakText(lessonText.textContent);
+  }, 10000);
+}
+
+
+
+
+
+
+
+
 
 
   
