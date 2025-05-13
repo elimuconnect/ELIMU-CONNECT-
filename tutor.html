@@ -87,17 +87,50 @@
  
 
 
-const scheduledTime = Date.parse("2025-05-13T16:28:00+03:00");
 
-if (Date.now() >= scheduledTime) {
-  // Show lesson
-}
+
+
+
+
+/ ✅ Scheduled start time in ISO 8601 format (Kenyan time UTC+3)
+    const TUTOR_START_TIME = "2025-05-13T16:28:00+03:00";
+
+    // Parse it as a Date object
+    const scheduledTime = new Date(TUTOR_START_TIME).getTime(); // Always in UTC ms
+
+    let lessonStarted = false;
+
+    function checkTimeAndShowLesson() {
+      const now = Date.now(); // current time in UTC ms
+
+      if (!lessonStarted && now >= scheduledTime) {
+        lessonStarted = true;
+        document.getElementById("lesson").style.display = "block";
+        document.getElementById("wait").style.display = "none";
+      } else if (!lessonStarted) {
+        document.getElementById("lesson").style.display = "none";
+        document.getElementById("wait").style.display = "block";
+      }
+    }
+
+    // Check every second
+    setInterval(checkTimeAndShowLesson, 1000);
+
+    // Initial check
+    checkTimeAndShowLesson();
+
+
+
+
+
+
+
+
+
 
 
 
   
-  const scheduledTime = new Date(TUTOR_START_TIME);
-  let tutorStarted = false;
 
    const lessonsArray = [
    `Lesson 1: TITRATIONS (VOLUMETRIC ANALYSIS)
