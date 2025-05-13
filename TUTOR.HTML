@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All-in-One Math Editor</title>
+  <script src="https://unpkg.com/mathlive"></script>
+  <script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
+  <script src="https://unpkg.com/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 20px;
+    }
+
+    #toolbar button, input[type="file"] {
+      padding: 8px 12px;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      margin: 5px 5px 10px 0;
+      cursor: pointer;
+    }
+
+    #editor {
+      min-height: 400px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-y: auto;
+    }
+
+    math-field {
+      font-size: 1.2em;
+      margin: 0 4px;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    img.preview {
+      max-width: 100%;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📚 All-in-One Math Editor</h2>
+
+<div id="toolbar">
+  <input type="file" accept="application/pdf" onchange="loadPDF(event)">
+  <input type="file" accept="image/*" onchange="loadImage(event)">
+  <button onclick="insertMath()">➕ Insert Math</button>
+  <button onclick="speakAll()">🔊 Read All</button>
+</div>
+
+<canvas id="pdf-canvas"></canvas>
+<img id="image-preview" class="preview" />
+
+<div id="editor" contenteditable="true">
+  <p>Paste your math questions here, or load from PDF/image. Insert math anywhere.</p>
+</div>
+
+<script>
+  // PDF Support
+  async function loadPDF(event) {
+    const file = event.target.files[0];
+    if (!file || file.type !== "application/pdf") return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const typedarray = new Uint8Array(reader.result);
+      const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+      let extracted = "";
+
+      for (let i = 1; i <= Math.min(pdf.numPages, 3); i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        extracted += textContent.items.map(item => item.str).join(" ") + "\n\n";
+      }
+
+      document.getElementById("editor").innerText += extracted;
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // Image OCR
+  async function loadImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const img = document.getElementById("image-preview");
+    img.src = URL.createObjectURL(file);
+    img.style.display = "block";
+
+    const result = await Tesseract.recognize(file, 'eng', {
+      logger: m => console.log(m)
+    });
+
+    document.getElementById("editor").innerText += "\n" + result.data.text;
+  }
+
+  // Insert math
+  function insertMath() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return;
+
+    const range = sel.getRangeAt(0);
+    const mathField = document.createElement("math-field");
+    mathField.setAttribute("virtual-keyboard-mode", "onfocus");
+    mathField.textContent = "x^2 + y^2 = r^2";
+
+    range.deleteContents();
+    range.insertNode(mathField);
+    sel.collapseToEnd();
+    mathField.focus();
+  }
+
+  // Read aloud
+  function speakAll() {
+    const editor = document.getElementById("editor");
+    const mathFields = editor.querySelectorAll("math-field");
+
+    // Speak plain text
+    const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null, false);
+    let combinedText = '';
+    while (walker.nextNode()) {
+      combinedText += walker.currentNode.nodeValue + ' ';
+    }
+
+    const utterance = new SpeechSynthesisUtterance(combinedText.trim());
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+
+    // Speak math fields
+    for (const field of mathFields) {
+      setTimeout(() => {
+        field.speak({ withHighlighting: true });
+      }, 1000);
+    }
+  }
+</script>
+
+</body>
+</html>
