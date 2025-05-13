@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tutor with Lessons + Questions</title>
+  <title>Smart Tutor: Save + Repeat + Download</title>
   <script src="https://unpkg.com/mathlive"></script>
   <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css" />
   <style>
@@ -70,12 +70,14 @@
     <button onclick="startTutor()">▶️ Start Tutor</button>
     <button onclick="pauseLesson()">⏸️ Pause</button>
     <button onclick="resumeLesson()">▶️ Resume</button>
-    <button onclick="repeatLesson()">🔁 Repeat</button>
+    <button onclick="repeatLesson()">🔁 Repeat Lesson</button>
+    <button onclick="repeatQuestion()">🔁 Repeat Question</button>
     <button onclick="skipLesson()">⏭️ Skip</button>
+    <button onclick="downloadAll()">⬇️ Download All</button>
   </div>
 
   <div id="editor" contenteditable="true">
-    <p>Click "Start Tutor" to begin lessons.</p>
+    <p>Click "Start Tutor" to begin.</p>
   </div>
 
   <div id="status">⏳ Waiting for user action...</div>
@@ -103,11 +105,13 @@
   const status = document.getElementById("status");
 
   let paused = false;
-  let currentLesson = 0;
-  let currentQuestion = 0;
   let typingTimer = null;
   let waitTimer = null;
   let inLessonMode = true;
+  let currentLesson = 0;
+  let currentQuestion = 0;
+
+  const fullTranscript = [];
 
   function getVoice() {
     const voices = speechSynthesis.getVoices();
@@ -153,6 +157,7 @@
     const text = lessonsArray[index];
     editor.innerHTML = `<div class="question">${text}</div>`;
     status.textContent = `📖 Lesson ${index + 1}: Reading...`;
+    fullTranscript.push(`Lesson ${index + 1}:\n${text}\n`);
     speak(text, () => {
       currentLesson++;
       setTimeout(() => showLesson(currentLesson), 4000);
@@ -168,6 +173,7 @@
     const q = questionsArray[index];
     editor.innerHTML = `<div class="question">${q.question}</div>`;
     status.textContent = `🔊 Reading Question ${index + 1}...`;
+    fullTranscript.push(`\n${q.question}\n`);
 
     speak(q.question, () => {
       status.textContent = `⌛ Writing solution in 10 seconds...`;
@@ -176,6 +182,7 @@
           status.textContent = `✍️ Writing Solution...`;
           typeSolution(q.solution, () => {
             status.textContent = `🔊 Reading Solution...`;
+            fullTranscript.push(`${q.solution}\n`);
             speak(q.solution, () => {
               status.textContent = `✅ Done with Question ${index + 1}.`;
               currentQuestion++;
@@ -213,7 +220,12 @@
 
   function repeatLesson() {
     speechSynthesis.cancel();
-    inLessonMode ? showLesson(currentLesson) : showQuestion(currentQuestion);
+    showLesson(currentLesson - 1);
+  }
+
+  function repeatQuestion() {
+    speechSynthesis.cancel();
+    showQuestion(currentQuestion - 1);
   }
 
   function skipLesson() {
@@ -227,6 +239,16 @@
       currentQuestion++;
       showQuestion(currentQuestion);
     }
+  }
+
+  function downloadAll() {
+    const blob = new Blob([fullTranscript.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Smart_Tutor_Summary.txt';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 </script>
 
