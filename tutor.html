@@ -88,32 +88,31 @@
 
 
 // Set the tutor start time (local time for Kenya, 2025-05-13 at 16:28)
-  const scheduledTime = new Date(2025, 4, 13, 18, 35, 0); // (YYYY, MM[0-11], DD, HH, MM, SS)
-  let tutorStarted = false;
+    const scheduledTime = new Date(2025, 4, 13, 16, 28, 0); // (YYYY, MM[0-11], DD, HH, MM, SS)
+    let tutorStarted = false;
 
-  function checkStartTime() {
-    const now = new Date();
-    const diff = scheduledTime - now;
+    function checkStartTime() {
+      const now = new Date();
+      const diff = scheduledTime - now;
 
-    if (!tutorStarted && diff <= 0) {
-      tutorStarted = true;
-      document.getElementById("status").textContent = "✅ Lesson has started!";
-      document.getElementById("timer").style.display = "none";
-      document.getElementById("lesson").style.display = "block";
-      clearInterval(checker);  // Stop the interval once the lesson starts
-    } else {
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      document.getElementById("timer").textContent = `⏳ Please wait ${mins} min ${secs} sec...`;
+      if (!tutorStarted && diff <= 0) {
+        tutorStarted = true;
+        document.getElementById("status").textContent = "✅ Lesson has started!";
+        document.getElementById("timer").style.display = "none";
+        document.getElementById("lesson").style.display = "block";
+        clearInterval(checker);  // Stop the interval once the lesson starts
+      } else {
+        const mins = Math.floor(diff / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        document.getElementById("timer").textContent = `⏳ Please wait ${mins} min ${secs} sec...`;
+      }
     }
-  }
 
-  // Initial check
-  checkStartTime();
+    // Initial check
+    checkStartTime();
 
-  // Set an interval to check every second
-  const checker = setInterval(checkStartTime, 1000);
-
+    // Set an interval to check every second
+    const checker = setInterval(checkStartTime, 1000);
 
 
 
