@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Titration Calculator</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background-color: #eef2f7;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .section {
+      background: white;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .step {
+      margin-bottom: 10px;
+    }
+    .formula {
+      font-weight: bold;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Direct & Back Titration Calculator</h2>
+
+<div class="section">
+  <h3>Direct Titration(calculating molarity)</h3>
+  <label>Volume of acid (cm³):</label>
+  <input type="number" id="directVolAcid" step="any"><br>
+  <label>Concentration of acid (mol/dm³):</label>
+  <input type="number" id="directConcAcid" step="any"><br>
+  <label>Volume of base (cm³):</label>
+  <input type="number" id="directVolBase" step="any"><br>
+ 
+  
+  
+  <label>Mole Ratio Acid:Base = </label>
+  <input type="number" id="directRatioAcid" value="1" style="width: 50px;"> :
+  <input type="number" id="directRatioBase" value="1" style="width: 50px;"><br>
+
+  <button onclick="calculateDirect()">Calculate Direct Titration</button>
+  <div id="directResult"></div>
+</div>
+
+<div class="section">
+  <h3>Back Titration(calculating the molar mass of the solid/liquid)</h3>
+  <label>Mass of substance (g):</label>
+  <input type="number" id="massSubstance" step="any"><br>
+  <label>Volume of acid added initially (cm³):</label>
+  <input type="number" id="acidVolume" step="any"><br>
+  <label>Concentration of acid (mol/dm³):</label>
+  <input type="number" id="acidConcentration" step="any"><br>
+  <label>Volume of base used in titration (cm³):</label>
+  <input type="number" id="baseVolume" step="any"><br>
+  <label>Concentration of base (mol/dm³):</label>
+  <input type="number" id="baseConcentration" step="any"><br>
+  <label>Moles of Acid : Moles of Substance = </label>
+  <input type="number" id="acidRatio" value="1" style="width: 50px;"> :
+  <input type="number" id="substanceRatio" value="1" style="width: 50px;"><br>
+
+  <button onclick="calculateBack()">Calculate Back Titration</button>
+  <div id="backResult"></div>
+</div>
+
+<script>
+  function format(val) {
+    return parseFloat(val.toFixed(4)).toString().replace(/\.?0+$/, "");
+  }
+
+  function calculateDirect() {
+    const vA = parseFloat(document.getElementById('directVolAcid').value) / 1000;
+    const cA = parseFloat(document.getElementById('directConcAcid').value);
+    const vB = parseFloat(document.getElementById('directVolBase').value) / 1000;
+  
+    const rA = parseFloat(document.getElementById('directRatioAcid').value);
+    const rB = parseFloat(document.getElementById('directRatioBase').value);
+
+    const steps = [];
+    steps.push(`<div class='step formula'>Step 1: Calculate moles of acid = volume × concentration</div>`);
+    const molesA = vA * cA;
+    steps.push(`<div class='step'>${format(vA)} × ${cA} = ${format(molesA)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 2: Use mole ratio (Acid:Base = ${rA}:${rB})</div>`);
+    const molesB = molesA * (rB / rA);
+    steps.push(`<div class='step'>Moles of base = ${format(molesA)} × (${rB}/${rA}) = ${format(molesB)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 3: Calculate concentration of base = moles / volume</div>`);
+    const concB = molesB / vB;
+    steps.push(`<div class='step'>${format(molesB)} ÷ ${format(vB)} = ${format(concB)} mol/dm³</div>`);
+
+    document.getElementById('directResult').innerHTML = steps.join('');
+  }
+
+  function calculateBack() {
+    const mass = parseFloat(document.getElementById('massSubstance').value);
+    const volAcid = parseFloat(document.getElementById('acidVolume').value) / 1000;
+    const concAcid = parseFloat(document.getElementById('acidConcentration').value);
+    const volBase = parseFloat(document.getElementById('baseVolume').value) / 1000;
+    const concBase = parseFloat(document.getElementById('baseConcentration').value);
+    const acidRatio = parseFloat(document.getElementById("acidRatio").value);
+    const substanceRatio = parseFloat(document.getElementById("substanceRatio").value);
+
+    const steps = [];
+
+    steps.push(`<div class='step formula'>Step 1: Moles of acid added = volume × concentration</div>`);
+    const molesAcidInitial = volAcid * concAcid;
+    steps.push(`<div class='step'>${format(volAcid)} × ${concAcid} = ${format(molesAcidInitial)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 2: Moles of base used = volume × concentration</div>`);
+    const molesBaseUsed = volBase * concBase;
+    steps.push(`<div class='step'>${format(volBase)} × ${concBase} = ${format(molesBaseUsed)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 3: Moles of acid that reacted with substance = total acid - excess acid</div>`);
+    const molesAcidReacted = molesAcidInitial - molesBaseUsed;
+    steps.push(`<div class='step'>${format(molesAcidInitial)} - ${format(molesBaseUsed)} = ${format(molesAcidReacted)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 4: Use ratio Acid:Substance = ${acidRatio}:${substanceRatio}</div>`);
+    const molesSubstance = molesAcidReacted * (substanceRatio / acidRatio);
+    steps.push(`<div class='step'>Moles of substance = ${format(molesAcidReacted)} × (${substanceRatio}/${acidRatio}) = ${format(molesSubstance)} mol</div>`);
+
+    steps.push(`<div class='step formula'>Step 5: Molar mass = mass ÷ moles</div>`);
+    const molarMass = mass / molesSubstance;
+    steps.push(`<div class='step'>${mass} ÷ ${format(molesSubstance)} = ${format(molarMass)} g/mol</div>`);
+
+    document.getElementById("backResult").innerHTML = steps.join('');
+  }
+</script>
+
+</body>
+</html>
