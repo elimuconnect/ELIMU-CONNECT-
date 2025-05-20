@@ -3,195 +3,168 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Savina Consultancy Tour and Travel Ltd</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f8f8f8;
-      scroll-behavior: smooth;
-    }
-    header {
-      background: #0077cc;
-      color: white;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    nav h1 {
-      font-size: 1.5rem;
-    }
-    .nav-links {
-      display: flex;
-      gap: 1rem;
-    }
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .hero {
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
-      height: 80vh;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-    .hero h2 {
-      font-size: 3rem;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 1rem;
-      border-radius: 8px;
-    }
-    section {
-      padding: 3rem 2rem;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .services, .gallery, .testimonials {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
-    .card:hover {
-      transform: scale(1.03);
-    }
-    .gallery img {
-      width: 100%;
-      border-radius: 10px;
-      transition: transform 0.3s;
-    }
-    .gallery img:hover {
-      transform: scale(1.05);
-    }
-    footer {
-      background: #222;
-      color: #ccc;
-      text-align: center;
-      padding: 2rem;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-width: 500px;
-      margin: auto;
-    }
-    input, textarea {
-      padding: 0.75rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #0077cc;
-      color: white;
-      border: none;
-      padding: 0.75rem;
-      cursor: pointer;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-  </style>
+  <title>Savina Consultancy Tour & Travel Ltd</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-white text-gray-800 font-sans">
 
-<header>
-  <nav>
-    <h1>Savina Travel Ltd</h1>
-    <div class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#services">Services</a>
-      <a href="#destinations">Destinations</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+  <!-- Header -->
+  <header class="bg-blue-800 text-white p-6 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Savina Consultancy Tour & Travel Ltd</h1>
+      <nav class="space-x-6 text-sm">
+        <a href="#about" class="hover:underline">About</a>
+        <a href="#commitment" class="hover:underline">Commitment</a>
+        <a href="#services" class="hover:underline">Services</a>
+        <a href="#contact" class="hover:underline">Contact</a>
+      </nav>
     </div>
-  </nav>
-</header>
+  </header>
 
-<section class="hero" id="home">
-  <h2>Explore the World with Savina Tours</h2>
-</section>
+  <!-- Introduction & About -->
+  <section id="about" class="bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <h2 class="text-2xl font-bold mb-4">INTRODUCTION</h2>
+        <p>Savina Consultancy Tour & Travel Ltd is a Tours, Travel based in Nairobi, Kenya that specializes in providing personalized and reliable Travel services to its customers.</p>
+        <h2 class="text-2xl font-bold mt-8 mb-4">ABOUT US</h2>
+        <p>Established in Kenya, we remain committed to providing high quality travel services with the help of a group of Strong, Enthusiastic and Professional Team.</p>
+        <p class="mt-2">Savina Consultancy Tour & Travel Ltd is a Multinational skilled team. Each team member brings in a wealth of experience and knowledge of Regional and International Travel, tourism and hospitality to add to our communal pool of expertise.</p>
+      </div>
+      <div>
+        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" alt="About" class="rounded-xl shadow-md w-full object-cover">
+      </div>
+    </div>
+  </section>
 
-<section id="services">
-  <h2>Our Services</h2>
-  <div class="services">
-    <div class="card">Flight Bookings</div>
-    <div class="card">Visa Assistance</div>
-    <div class="card">Holiday Packages</div>
-    <div class="card">Hotel Reservations</div>
-    <div class="card">Corporate Travel Solutions</div>
-  </div>
-</section>
+  <!-- Commitment -->
+  <section id="commitment" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <img src="https://static.wixstatic.com/media/9ba186_f307bd987ee44131b0f933eee6984d0b~mv2.png" alt="Commitment" class="rounded-xl shadow-md w-full object-cover">
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold mb-4">OUR COMMITMENT</h2>
+        <p>We provide all our clients with first-rate flexible service in a professional and personalized manner, adding real value to our services.</p>
 
-<section id="destinations">
-  <h2>Top Destinations</h2>
-  <div class="gallery">
-    <img src="https://images.unsplash.com/photo-1494475673543-6a6a27143b18" alt="Paris">
-    <img src="https://images.unsplash.com/photo-1500048993953-d23a436266cf" alt="Dubai">
-    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="Nairobi">
-    <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f" alt="London">
-  </div>
-</section>
+        <h2 class="text-2xl font-bold mt-8 mb-4">OUR CODE OF CONDUCT</h2>
+        <p>We are consistent and transparent in our decisions and actions. We fulfill our commitments with integrity and conduct ourselves in a way that is true to our identity.</p>
 
-<section id="about">
-  <h2>About Us</h2>
-  <p style="max-width: 700px; margin: auto; text-align: center;">
-    Savina Consultancy Tour and Travel Ltd is your trusted partner for seamless and affordable travel planning. 
-    We specialize in providing travel solutions tailored for individuals, families, groups, and corporations. 
-    Whether you're dreaming of a beach holiday, a business trip, or an adventure abroad, we've got you covered.
-  </p>
-</section>
+        <h2 class="text-2xl font-bold mt-8 mb-4">OUR COMPANY VALUES</h2>
+        <p>Care, professionalism and dedication are some of the core values that underpin the business approach of Savina Consultancy Tour & Travel Ltd...</p>
 
-<section id="testimonials">
-  <h2>What Our Clients Say</h2>
-  <div class="testimonials">
-    <div class="card">"Excellent service and great experience booking my Dubai trip!" – Jane W.</div>
-    <div class="card">"They handled everything — from flights to visa. I highly recommend them!" – Peter M.</div>
-    <div class="card">"Very professional team. They made my holiday stress-free!" – Miriam K.</div>
-  </div>
-</section>
+        <blockquote class="mt-6 italic text-blue-900 font-semibold">Our services are not only totally reliable and safe, but also personalized to suit the needs and preferences of you, the customer...</blockquote>
+        <p class="mt-2 font-semibold text-right">~Samuel Mwangi Ngunju, Managing Director</p>
+		
+		 <img src="https://static.wixstatic.com/media/9ba186_cacb39bf45ff4fdf9e2017dbd2c06a8c~mv2.jpg" height: 100px; width: 100px;> 
+		
+		
+		
+      </div>
+    </div>
+  </section>
 
-<section id="contact">
-  <h2>Contact Us</h2>
-  <form onsubmit="sendMessage(event)">
-    <input type="text" placeholder="Your Name" required />
-    <input type="email" placeholder="Your Email" required />
-    <textarea rows="4" placeholder="Your Message" required></textarea>
-    <button type="submit">Send Message</button>
-  </form>
-</section>
+  <!-- Why Us -->
+  <section class="bg-gray-100 py-12">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-4">Why Us</h2>
+      <p class="mb-4">Our services are dependable, reliable and efficient - earning us global recommendations...</p>
+      <img src="https://static.wixstatic.com/media/9ba186_809a87ab6aff400fa1533159d30c1ed8~mv2.jpg" alt="Why Us" class="rounded-xl w-full shadow-md mb-6">
+      <p class="mb-4">The key to a successful Safari is dealing with a ground operator that has vast local knowledge and experience...</p>
+      <p>Our forte is Custom Designing versatile itineraries for individual travellers...</p>
+    </div>
+  </section>
 
-<footer>
-  <p>&copy; 2025 Savina Consultancy Tour and Travel Ltd. All Rights Reserved.</p>
-</footer>
+  <!-- Services -->
+  <section id="services" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-2xl font-bold text-center mb-12">Our Services(Detailed)</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-<script>
-  function sendMessage(e) {
-    e.preventDefault();
-    alert("Message sent! We'll get back to you shortly.");
-  }
-</script>
+        <!-- Service Cards -->
+        <!-- 1 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_feecfce6ff5f4368a561e955a5ca8a10~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Air Ticketing and Visa services</h3>
+          <p>We provide the most direct and cost-effective flight schedules with special fares to save costs.</p>
+        </div>
+        <!-- 2 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_114499b5b39d4cb8b870de9e2330424b~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Safaris and Tour Packages</h3>
+          <p>Tailored safaris for luxury and adventure travelers with 24/7 support and diverse activities.</p>
+        </div>
+        <!-- 3 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_8dadf886c5fd49bf9821917fd3ccb481~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Study Abroad Programs</h3>
+          <p>We help students access quality international education with support on applications and visas.</p>
+        </div>
+        <!-- 4 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_5c3f4435904c430abae8792faf6f5438~mv2.png" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">School Holiday Programs</h3>
+          <p>Fun, educational trips for school holidays, both local and abroad, fostering learning and exploration.</p>
+        </div>
+        <!-- 5 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_4e97b3f3b33c43229c30bc41cd2d6a6a~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Language School Program in Switzerland</h3>
+          <p>Learn French and German in scenic Switzerland through immersive language and cultural programs.</p>
+        </div>
+        <!-- 6 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_7710290e894a47918156b32c915f185d~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Paragliding Adventures</h3>
+          <p>Experience the thrill of paragliding with certified guides and stunning aerial views.</p>
+        </div>
+        <!-- 7 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_97d250abd65b4ffe9706cc7d89965e19~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Hotel Booking & Airport Transfers</h3>
+          <p>Convenient hotel reservations and smooth airport transfers for your hassle-free travels.</p>
+        </div>
+        <!-- 8 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_fb53a8f62e574a34a01b619c213c9365~mv2.png" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Conference & Event Planning</h3>
+          <p>End-to-end event management for corporate functions, workshops, and conferences.</p>
+        </div>
+        <!-- 9 -->
+        <div class="bg-gray-50 p-4 rounded-xl shadow">
+          <img src="https://static.wixstatic.com/media/9ba186_bb54f10c9d824ee799ca66604c1366ff~mv2.jpg" class="rounded-xl h-40 w-full object-cover mb-3">
+          <h3 class="font-semibold mb-1">Ecotourism Experiences</h3>
+          <p>Explore Kenya’s natural beauty responsibly, supporting conservation and local communities.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Ecotourism -->
+  <section class="bg-green-50 py-12">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-4">ECOTOURISM IS WHAT MAKES US DIFFERENT</h2>
+      <img src="https://static.wixstatic.com/media/9ba186_072d988756bc4810b6bfdc03750d988e~mv2.jpg" alt="Ecotourism" class="rounded-xl shadow-md w-full object-cover max-h-80 mb-6">
+      <p>We practice Ecotourism to protect nature and empower local communities...</p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="bg-gray-900 text-white py-12">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+      <p>P.O. Box 78547-80100 Nairobi, Kenya</p>
+      <p>Email: savinaconsultancytravelagency@gmail.com</p>
+      <p>Phone: +254 112 300141 | +41 77 938 63 91</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-black text-gray-400 text-center py-4 text-sm">
+    &copy; 2025 Savina Consultancy Tour & Travel Ltd. All rights reserved.
+  </footer>
 
 </body>
 </html>
+
