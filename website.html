@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Savina Consultancy Tour and Travel Ltd</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f8f8;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: #0077cc;
+      color: white;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    nav h1 {
+      font-size: 1.5rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .hero {
+      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+      height: 80vh;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .hero h2 {
+      font-size: 3rem;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    section {
+      padding: 3rem 2rem;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .services, .gallery, .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: scale(1.03);
+    }
+    .gallery img {
+      width: 100%;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+    footer {
+      background: #222;
+      color: #ccc;
+      text-align: center;
+      padding: 2rem;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 500px;
+      margin: auto;
+    }
+    input, textarea {
+      padding: 0.75rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #0077cc;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <h1>Savina Travel Ltd</h1>
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#destinations">Destinations</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero" id="home">
+  <h2>Explore the World with Savina Tours</h2>
+</section>
+
+<section id="services">
+  <h2>Our Services</h2>
+  <div class="services">
+    <div class="card">Flight Bookings</div>
+    <div class="card">Visa Assistance</div>
+    <div class="card">Holiday Packages</div>
+    <div class="card">Hotel Reservations</div>
+    <div class="card">Corporate Travel Solutions</div>
+  </div>
+</section>
+
+<section id="destinations">
+  <h2>Top Destinations</h2>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1494475673543-6a6a27143b18" alt="Paris">
+    <img src="https://images.unsplash.com/photo-1500048993953-d23a436266cf" alt="Dubai">
+    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="Nairobi">
+    <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f" alt="London">
+  </div>
+</section>
+
+<section id="about">
+  <h2>About Us</h2>
+  <p style="max-width: 700px; margin: auto; text-align: center;">
+    Savina Consultancy Tour and Travel Ltd is your trusted partner for seamless and affordable travel planning. 
+    We specialize in providing travel solutions tailored for individuals, families, groups, and corporations. 
+    Whether you're dreaming of a beach holiday, a business trip, or an adventure abroad, we've got you covered.
+  </p>
+</section>
+
+<section id="testimonials">
+  <h2>What Our Clients Say</h2>
+  <div class="testimonials">
+    <div class="card">"Excellent service and great experience booking my Dubai trip!" – Jane W.</div>
+    <div class="card">"They handled everything — from flights to visa. I highly recommend them!" – Peter M.</div>
+    <div class="card">"Very professional team. They made my holiday stress-free!" – Miriam K.</div>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact Us</h2>
+  <form onsubmit="sendMessage(event)">
+    <input type="text" placeholder="Your Name" required />
+    <input type="email" placeholder="Your Email" required />
+    <textarea rows="4" placeholder="Your Message" required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+</section>
+
+<footer>
+  <p>&copy; 2025 Savina Consultancy Tour and Travel Ltd. All Rights Reserved.</p>
+</footer>
+
+<script>
+  function sendMessage(e) {
+    e.preventDefault();
+    alert("Message sent! We'll get back to you shortly.");
+  }
+</script>
+
+</body>
+</html>
