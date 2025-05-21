@@ -2,196 +2,443 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Savina Consultancy Tour and Travel Ltd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Savina Consultancy Tour & Travel Ltd</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f8f8f8;
-      scroll-behavior: smooth;
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
-    header {
-      background: #0077cc;
-      color: white;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
     }
-    nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+    @keyframes zoomIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
-    nav h1 {
-      font-size: 1.5rem;
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out forwards;
     }
-    .nav-links {
-      display: flex;
-      gap: 1rem;
+    .animate-slide-in-right {
+      animation: slideInRight 1s ease-out forwards;
     }
-    .nav-links a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
+    .animate-zoom-in {
+      animation: zoomIn 1s ease-out forwards;
     }
-    .hero {
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
-      height: 80vh;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+    /* Initially hide all images with animation */
+    img[data-animate] {
+      opacity: 0;
+      transform-style: preserve-3d;
     }
-    .hero h2 {
-      font-size: 3rem;
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 1rem;
-      border-radius: 8px;
-    }
-    section {
-      padding: 3rem 2rem;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .services, .gallery, .testimonials {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-    }
-    .card:hover {
-      transform: scale(1.03);
-    }
-    .gallery img {
-      width: 100%;
-      border-radius: 10px;
-      transition: transform 0.3s;
-    }
-    .gallery img:hover {
-      transform: scale(1.05);
-    }
-    footer {
-      background: #222;
-      color: #ccc;
-      text-align: center;
-      padding: 2rem;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-width: 500px;
-      margin: auto;
-    }
-    input, textarea {
-      padding: 0.75rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #0077cc;
-      color: white;
-      border: none;
-      padding: 0.75rem;
-      cursor: pointer;
-      border-radius: 5px;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #005fa3;
-    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
   </style>
 </head>
-<body>
+<body class="bg-white text-gray-800 font-sans leading-relaxed">
 
-<header>
-  <nav>
-    <h1>Savina Travel Ltd</h1>
-    <div class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#services">Services</a>
-      <a href="#destinations">Destinations</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+  <!-- Header / Navbar -->
+  <header class="bg-blue-800 text-white p-6 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <!-- Logo and Company Name -->
+      <div class="flex items-center space-x-4">
+        <!-- Icon - NO animation on this image -->
+        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" 
+             alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
+        <h1 class="text-xl md:text-2xl font-bold">Savina Consultancy Tour & Travel Ltd</h1>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex space-x-6 text-sm font-medium">
+        <a href="#home" class="hover:underline">Home</a>
+        <a href="#about" class="hover:underline">About Us</a>
+        <a href="#services" class="hover:underline">Services</a>
+        <a href="#safaris" class="hover:underline">Safaris & Tours</a>
+        <a href="#study" class="hover:underline">Study Abroad</a>
+        <a href="#ecotourism" class="hover:underline">Ecotourism</a>
+        <a href="#contact" class="hover:underline">Contact</a>
+      </nav>
     </div>
-  </nav>
-</header>
+  </header>
 
-<section class="hero" id="home">
-  <h2>Explore the World with Savina Tours</h2>
-</section>
+  <!-- Hero Section -->
+  <section class="w-full h-96 bg-cover bg-center rounded-xl shadow-md my-6 mx-auto max-w-6xl"
+           style="background-image: url('https://images.unsplash.com/photo-1623888676435-d3b01b4d1dc0?w=1200&auto=format&fit=crop&q=80');"
+           data-animate="zoom-in">
+  </section>
 
-<section id="services">
-  <h2>Our Services</h2>
-  <div class="services">
-    <div class="card">Flight Bookings</div>
-    <div class="card">Visa Assistance</div>
-    <div class="card">Holiday Packages</div>
-    <div class="card">Hotel Reservations</div>
-    <div class="card">Corporate Travel Solutions</div>
+  <!-- About Section -->
+  <section id="about" class="bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Introduction</h2>
+        <p class="mb-4">Savina Consultancy Tour & Travel Ltd is based in Nairobi, Kenya, specializing in providing personalized and reliable travel services.</p>
+
+        <h2 class="text-2xl font-bold mb-2">About Us</h2>
+        <p>We are committed to high-quality travel experiences, backed by a strong, professional team with regional and international expertise.</p>
+        <p class="mt-2">Our multinational team brings extensive knowledge in travel, tourism, and hospitality, offering exceptional service to every client.</p>
+      </div>
+      <div>
+        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" alt="About Image" class="rounded-xl shadow-lg" data-animate="slide-in-right">
+      </div>
+    </div>
+  </section>
+
+  <!-- Commitment Section -->
+  <section id="commitment" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div class="h-96 w-full rounded-xl shadow-md bg-cover bg-center"
+           style="background-image: url('https://static.wixstatic.com/media/9ba186_053db535cc2542379ed6391cc95c4b92~mv2.jpg');"
+           data-animate="fade-in">
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Our Commitment</h2>
+        <p>We offer first-rate flexible service in a professional and personalized manner, adding real value to every client’s experience.</p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Code of Conduct</h3>
+        <p>We are transparent and consistent in our actions, fulfilling our promises with integrity and staying true to our identity.</p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Company Values</h3>
+        <p>Care, professionalism, and dedication define our approach to every customer interaction and service we provide.</p>
+
+        <blockquote class="mt-6 italic text-blue-900 font-semibold border-l-4 border-blue-300 pl-4">
+          Our services are not only totally reliable and safe, but also personalized to suit the needs and preferences of you, the customer...
+        </blockquote>
+        <p class="mt-2 font-semibold text-right">~ Samuel Mwangi Ngunju, Managing Director</p>
+        <img src="https://static.wixstatic.com/media/9ba186_cacb39bf45ff4fdf9e2017dbd2c06a8c~mv2.jpg" alt="Director" class="w-32 h-auto mt-4 rounded shadow-md" data-animate="fade-in">
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us Section -->
+  <section class="bg-gray-100 py-12 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-3xl font-bold mb-4">Why Us</h2>
+      <p class="mb-4">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
+      <img src="https://static.wixstatic.com/media/9ba186_809a87ab6aff400fa1533159d30c1ed8~mv2.jpg" alt="Why Us Image" class="rounded-xl w-full shadow-lg mb-6" data-animate="fade-in">
+      <p class="mb-4">We bring vast local knowledge and experience to your safari and travel plans.</p>
+      <p>Our specialty is custom designing versatile itineraries for individual travelers and groups alike.</p>
+    </div>
+  </section>
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+   
+
+  <!-- Background slideshow layers -->
+  
+ 
+ 
+ <!-- Services -->
+<section id="services" class="bg-white py-12">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-2xl font-bold text-center mb-12">Our Services (Detailed)</h2>
+
+    <!-- Service 1 -->
+    <section id="service1" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Air Ticketing and Visa services</h3>
+        <p>We provide the most direct and cost-effective flight schedules with special fares to save costs.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_feecfce6ff5f4368a561e955a5ca8a10~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1578810771596-22aa7aa7465f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YWlyJTIwdGlja2V0aW5nfGVufDB8fDB8fHww'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1729029731689-16e7989704b8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YWlyJTIwdGlja2V0aW5nfGVufDB8fDB8fHww'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1704938462335-b2bf7e7b60af?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fGFpciUyMHRpY2tldGluZ3xlbnwwfHwwfHx8MA%3D%3D'); opacity: 0;"></div>
+       <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1566566220367-af8d77269124?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGFpcnBvcnR8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1663415526185-af4a8451e113?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGFpcndheXN8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	   <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1586441133374-ed1cb4007a47?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBhc3Nwb3J0fGVufDB8fDB8fHww'); opacity: 0;"></div>
+	  </div>
+    </section>
+
+    <!-- Service 2 -->
+    <section id="service2" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Safaris and Tour Packages</h3>
+        <p>Tailored safaris for luxury and adventure travelers with 24/7 support and diverse activities.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_114499b5b39d4cb8b870de9e2330424b~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://media.istockphoto.com/id/96773018/photo/game-drive.webp?a=1&b=1&s=612x612&w=0&k=20&c=Acy8I-hhJ2odPGiMv4TBaZ_OEAM8ToLJj9XKevOL3gA='); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1661962845905-879dbe49c086?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bGlvbnxlbnwwfHwwfHx8MA%3D%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1666237390552-dca0ad72629c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YnVmZmFsb3xlbnwwfHwwfHx8MA%3D%3D'); opacity: 0;"></div>
+      <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1515658323406-25d61c141a6e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8a2VueWF8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1519046904884-53103b34b206?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJlYWNofGVufDB8fDB8fHww'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1548184937-ee402152fa02?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YWlyJTIwYmFsb29ufGVufDB8fDB8fHww'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1547970810-dc1eac37d174?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cmhpbm98ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1614640514617-684c8b4c3403?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2lsZCUyMGFuaW1hbHN8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  
+	  
+	  
+	  
+	  
+	  </div>
+    </section>
+
+    <!-- Service 3 -->
+    <section id="service3" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Study Abroad Programs</h3>
+        <p>We help students access quality international education with support on applications and visas.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_8dadf886c5fd49bf9821917fd3ccb481~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1682765673086-2efa891f884c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHN0dWR5JTIwYWJyb2FkfGVufDB8fDB8fHww'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1713296255442-e9338f42aad8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dW5pdmVyc2l0eXxlbnwwfHwwfHx8MA%3D%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fHVuaXZlcnNpdHl8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+      <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1663079426406-1b82fed16a79?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHVuaXZlcnNpdHl8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  
+	  
+	  
+	  </div>
+    </section>
+
+    <!-- Service 4 -->
+    <section id="service4" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">School Holiday Programs</h3>
+        <p>Fun, educational trips for school holidays, both local and abroad, fostering learning and exploration.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_5c3f4435904c430abae8792faf6f5438~mv2.png'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1663046047669-a6895b55b82f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8c2Nob29sJTIwdHJpcHN8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1661634073903-2ecdccdfc8a2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c2Nob29sJTIwdHJpcHN8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1685645647479-a0232f3fec6d?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fHNjaG9vbCUyMHRyaXBzfGVufDB8fDB8fHww'); opacity: 0;"></div>
+      </div>
+    </section>
+
+    <!-- Service 5 -->
+    <section id="service5" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Language School Program in Switzerland</h3>
+        <p>Learn French and German in scenic Switzerland through immersive language and cultural programs.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_4e97b3f3b33c43229c30bc41cd2d6a6a~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1543109740-4bdb38fda756?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTV8fGxhbmd1YWdlJTIwc3R1ZHl8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1545968340-848cddd981ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDB8fGxhbmd1YWdlfGVufDB8fDB8fHww'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://media.istockphoto.com/id/984431914/photo/switzerland.webp?a=1&b=1&s=612x612&w=0&k=20&c=0Ahk8xBQFynULiUIDlzWXzoZIW38u2Gc38o5WAaaUpU='); opacity: 0;"></div>
+      </div>
+    </section>
+
+    <!-- Service 6 -->
+    <section id="service6" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Paragliding Adventures</h3>
+        <p>Experience the thrill of paragliding with certified guides and stunning aerial views.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_7710290e894a47918156b32c915f185d~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1663054309676-bb9d31c56f72?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8UGFyYWdsaWRpbmclMjBBZHZlbnR1cmVzfGVufDB8fDB8fHww'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1664286587695-3f62180799ad?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDF8fFBhcmFnbGlkaW5nJTIwQWR2ZW50dXJlc3xlbnwwfHwwfHx8MA%3D%3D'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://plus.unsplash.com/premium_photo-1676827547813-43b657f8c9a9?q=80&w=1472&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); opacity: 0;"></div>
+     https://images.unsplash.com/photo-1565992441121-4367c2967103?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2tpaW5nfGVufDB8fDB8fHww
+https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8c2tpaW5nfGVufDB8fDB8fHww
+https://images.unsplash.com/photo-1617939532603-2905b4eeb788?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NzZ8fHNraWluZ3xlbnwwfHwwfHx8MA%3D%3D
+	 </div>
+    </section>
+
+    <!-- Service 7 -->
+    <section id="service7" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Hotel Booking & Airport Transfers</h3>
+        <p>Convenient hotel reservations and smooth airport transfers for your hassle-free travels.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1667403206492-a7fc384d46a6?w=1200&auto=format&fit=crop&q=80'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1497493292307-31c376b6e479?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+      </div>
+    </section>
+
+    <!-- Service 8 -->
+    <section id="service8" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Cruises and Special Events</h3>
+        <p>Organize memorable cruises and special events tailored to your preferences.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_50d3052683b04c8e9c463789da60d71a~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1497493292307-31c376b6e479?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+      </div>
+    </section>
+
+    <!-- Service 9 -->
+    <section id="service9" class="mb-12">
+      <div class="mb-4">
+        <h3 class="text-xl font-semibold mb-2">Holiday & Event Planning</h3>
+        <p>Custom holiday and event planning services that ensure a memorable experience.</p>
+      </div>
+      <div class="w-full h-96 bg-cover bg-center rounded-xl shadow-md relative overflow-hidden max-w-6xl mx-auto">
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://static.wixstatic.com/media/9ba186_7a7d5c491e5e42b4b4ef1bc0ab7a8b2c~mv2.jpg'); opacity: 1;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1470770903676-69b98201ea1c?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+        <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1497493292307-31c376b6e479?w=1200&auto=format&fit=crop&q=80'); opacity: 0;"></div>
+      </div>
+    </section>
+
   </div>
 </section>
 
-<section id="destinations">
-  <h2>Top Destinations</h2>
-  <div class="gallery">
-    <img src="https://images.unsplash.com/photo-1494475673543-6a6a27143b18" alt="Paris">
-    <img src="https://images.unsplash.com/photo-1500048993953-d23a436266cf" alt="Dubai">
-    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee" alt="Nairobi">
-    <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f" alt="London">
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+<!-- Ecotourism -->
+<section class="bg-green-50 py-12">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-2xl font-bold mb-4">ECOTOURISM IS WHAT MAKES US DIFFERENT</h2>
+    <img src="https://static.wixstatic.com/media/9ba186_072d988756bc4810b6bfdc03750d988e~mv2.jpg" alt="Ecotourism" class="rounded-xl shadow-md w-full object-cover max-h-80 mb-6">
+    <p>We practice Ecotourism to protect nature and empower local communities. Our programs promote sustainable travel, environmental conservation, and cultural respect—ensuring every journey you take with us leaves a positive impact on the destinations we explore together.</p>
   </div>
 </section>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
-<section id="about">
-  <h2>About Us</h2>
-  <p style="max-width: 700px; margin: auto; text-align: center;">
-    Savina Consultancy Tour and Travel Ltd is your trusted partner for seamless and affordable travel planning. 
-    We specialize in providing travel solutions tailored for individuals, families, groups, and corporations. 
-    Whether you're dreaming of a beach holiday, a business trip, or an adventure abroad, we've got you covered.
-  </p>
-</section>
+  <!-- Contact -->
+  <section id="contact" class="bg-gray-900 text-white py-12">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+      <p>P.O. Box 78547-80100 Nairobi, Kenya</p>
+      <p>Email: savinaconsultancytravelagency@gmail.com</p>
+      <p>Phone: +254 112 300141 | +41 77 938 63 91</p>
+    </div>
+  </section>
 
-<section id="testimonials">
-  <h2>What Our Clients Say</h2>
-  <div class="testimonials">
-    <div class="card">"Excellent service and great experience booking my Dubai trip!" – Jane W.</div>
-    <div class="card">"They handled everything — from flights to visa. I highly recommend them!" – Peter M.</div>
-    <div class="card">"Very professional team. They made my holiday stress-free!" – Miriam K.</div>
-  </div>
-</section>
+  <!-- Footer -->
+  <footer class="bg-black text-gray-400 text-center py-4 text-sm">
+    &copy; 2025 Savina Consultancy Tour & Travel Ltd. All rights reserved.
+  </footer>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-<section id="contact">
-  <h2>Contact Us</h2>
-  <form onsubmit="sendMessage(event)">
-    <input type="text" placeholder="Your Name" required />
-    <input type="email" placeholder="Your Email" required />
-    <textarea rows="4" placeholder="Your Message" required></textarea>
-    <button type="submit">Send Message</button>
-  </form>
-</section>
+  <script>
+    // Intersection Observer to animate images on scroll
+    const animateImages = document.querySelectorAll('img[data-animate], section[data-animate], div[data-animate]');
 
-<footer>
-  <p>&copy; 2025 Savina Consultancy Tour and Travel Ltd. All Rights Reserved.</p>
-</footer>
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.2 // trigger when 20% of the image is visible
+    };
 
-<script>
-  function sendMessage(e) {
-    e.preventDefault();
-    alert("Message sent! We'll get back to you shortly.");
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const animationType = el.getAttribute('data-animate');
+          if (animationType === 'fade-in') {
+            el.classList.add('animate-fade-in');
+          } else if (animationType === 'slide-in-right') {
+            el.classList.add('animate-slide-in-right');
+          } else if (animationType === 'zoom-in') {
+            el.classList.add('animate-zoom-in');
+          }
+          observer.unobserve(el);
+        }
+      });
+    }, observerOptions);
+
+    animateImages.forEach(img => {
+      observer.observe(img);
+    });
+
+
+
+
+
+
+ 
+ // Animate backgrounds for each service separately
+  function animateBackgrounds(serviceId, interval = 3000) {
+    const section = document.getElementById(serviceId);
+    if (!section) return;
+    const bgDivs = section.querySelectorAll('div.absolute');
+    let current = 0;
+    setInterval(() => {
+      bgDivs.forEach((div, idx) => {
+        div.style.opacity = (idx === current) ? '1' : '0';
+      });
+      current = (current + 1) % bgDivs.length;
+    }, interval);
   }
-</script>
 
+  // Run for all 9 services with 3 seconds interval
+  for(let i=1; i<=9; i++) {
+    animateBackgrounds(`service${i}`, 3000);
+  }
+
+
+
+
+
+
+
+
+
+
+  </script>
 </body>
 </html>
