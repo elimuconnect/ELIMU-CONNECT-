@@ -116,28 +116,48 @@
 <body class="bg-white text-gray-800 font-sans leading-relaxed">
 
   <!-- Header / Navbar -->
+  
+  
+  
+  
   <header class="bg-blue-800 text-white p-6 shadow-md">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <!-- Logo and Company Name -->
-      <div class="flex items-center space-x-4">
-        <!-- Icon - NO animation on this image -->
-        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" 
-             alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
-        <h1 class="text-xl md:text-2xl font-bold">Savina Consultancy Tour & Travel Ltd</h1>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="hidden md:flex space-x-6 text-sm font-medium">
-        <a href="#home" class="hover:underline">Home</a>
-        <a href="#about" class="hover:underline">About Us</a>
-        <a href="#services" class="hover:underline">Services</a>
-        <a href="#safaris" class="hover:underline">Safaris & Tours</a>
-        <a href="#study" class="hover:underline">Study Abroad</a>
-        <a href="#ecotourism" class="hover:underline">Ecotourism</a>
-        <a href="#contact" class="hover:underline">Contact</a>
-      </nav>
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <!-- Logo and Company Name -->
+    <div class="flex items-center space-x-4">
+      <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" 
+           alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
+      <h1 class="text-xl md:text-2xl font-bold">Savina Consultancy Tour & Travel Ltd</h1>
     </div>
-  </header>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex space-x-6 text-sm font-medium">
+      <a href="#about" class="hover:underline">About Us</a>
+      <a href="#services" class="hover:underline">Services</a>
+      <a href="#contact" class="hover:underline">Contact</a>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden">
+      <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
+        &#x22EE; <!-- Unicode for vertical ellipsis (⋮) -->
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobile-menu" class="md:hidden mt-4 px-4 space-y-2 hidden">
+    <a href="#about" class="block text-sm hover:underline">About Us</a>
+    <a href="#services" class="block text-sm hover:underline">Services</a>
+    <a href="#contact" class="block text-sm hover:underline">Contact</a>
+  </div>
+</header>
+
+  
+  
+  
+  
+  
+  
 
   <!-- Hero Section -->
   <section class="w-full h-96 bg-cover bg-center rounded-xl shadow-md my-6 mx-auto max-w-6xl"
@@ -236,7 +256,10 @@
 
  
     
-	
+	  "https://images.pexels.com/photos/15549014/pexels-photo-15549014/free-photo-of-ant.jpeg?auto=compress&cs=tinysrgb&w=600" 
+      "https://images.pexels.com/photos/19216114/pexels-photo-19216114/free-photo-of-yarigatake.jpeg?auto=compress&cs=tinysrgb&w=600" 
+      "https://images.pexels.com/photos/2695232/pexels-photo-2695232.jpeg?auto=compress&cs=tinysrgb&w=600" 
+   "https://images.pexels.com/photos/2405095/pexels-photo-2405095.jpeg?auto=compress&cs=tinysrgb&w=600" 
 	
 	
 	  
@@ -650,7 +673,14 @@ function setupCarousel(id) {
 
 
 
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
 
+    btn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+  });
 
   </script>
 </body>
