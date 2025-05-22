@@ -131,9 +131,9 @@
 
     <!-- Desktop Navigation -->
     <nav class="hidden md:flex space-x-6 text-sm font-medium">
-      <a href="#about" class="hover:underline">About Us</a><br>
-      <a href="#services" class="hover:underline">Services</a><br>
-      <a href="#contact" class="hover:underline">Contact</a><br>
+      <a href="#about" class="hover:underline">About Us</a>
+      <a href="#services" class="hover:underline">Services</a>
+      <a href="#contact" class="hover:underline">Contact</a>
     </nav>
 
     <!-- Mobile Menu Button -->
@@ -148,7 +148,9 @@
   <div id="mobile-menu" class="md:hidden mt-4 px-4 space-y-2 hidden">
     <a href="#about" class="block text-sm hover:underline">About Us</a>
     <a href="#services" class="block text-sm hover:underline">Services</a>
+	<a href="#testimonials" class="block text-sm hover:underline">Testimonials</a>
     <a href="#contact" class="block text-sm hover:underline">Contact</a>
+  
   </div>
 </header>
 
@@ -254,12 +256,6 @@
    </div>
   </section>
 
- 
-    
-	  
-	
-	  
-	 
 	
 	
 	
@@ -524,17 +520,66 @@
 
 	
  
- 
- 
-<!-- Ecotourism -->
-<section class="bg-green-50 py-12">
-  <div class="max-w-4xl mx-auto px-6 text-center">
-    <h2 class="text-2xl font-bold mb-4">ECOTOURISM IS WHAT MAKES US DIFFERENT</h2>
-    <img src="https://static.wixstatic.com/media/9ba186_072d988756bc4810b6bfdc03750d988e~mv2.jpg" alt="Ecotourism" class="rounded-xl shadow-md w-full object-cover max-h-80 mb-6">
-    <p>We practice Ecotourism to protect nature and empower local communities. Our programs promote sustainable travel, environmental conservation, and cultural respect—ensuring every journey you take with us leaves a positive impact on the destinations we explore together.</p>
+ <section id="testimonials" class="bg-white py-10 px-4">
+  <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8">What Our Clients Say</h2>
+  <div class="relative overflow-hidden max-w-3xl mx-auto">
+    <div id="testimonialSlider" class="flex transition-transform duration-700 ease-in-out">
+      <!-- Testimonial 1 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-blue-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Savina made my honeymoon the best experience of my life!"</p>
+          <img src="https://i.pravatar.cc/100?img=1" alt="Client 1" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Jane Wanjiku</h4>
+          <p class="text-xs text-gray-500">Nairobi</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-green-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Professional, affordable, and unforgettable!"</p>
+          <img src="https://i.pravatar.cc/100?img=2" alt="Client 2" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">John Otieno</h4>
+          <p class="text-xs text-gray-500">Kisumu</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-yellow-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"I can't wait to travel with Savina again!"</p>
+          <img src="https://i.pravatar.cc/100?img=3" alt="Client 3" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Mercy Chebet</h4>
+          <p class="text-xs text-gray-500">Eldoret</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 4 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-red-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"My business trip was smooth and well planned."</p>
+          <img src="https://i.pravatar.cc/100?img=4" alt="Client 4" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Peter Mwangi</h4>
+          <p class="text-xs text-gray-500">Mombasa</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 5 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-purple-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Highly recommend Savina for group tours!"</p>
+          <img src="https://i.pravatar.cc/100?img=5" alt="Client 5" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Faith Njeri</h4>
+          <p class="text-xs text-gray-500">Naivasha</p>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
- 
+
+
+
  
  
  
@@ -677,6 +722,39 @@ document.addEventListener('DOMContentLoaded', function () {
       menu.classList.toggle('hidden');
     });
   });
+
+
+
+
+
+
+
+
+const slider = document.getElementById('testimonialSlider');
+  let index = 0;
+  const slideCount = 5;
+
+  function showNextTestimonial() {
+    index = (index + 1) % slideCount;
+    slider.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  setInterval(showNextTestimonial, 4000); // change every 4 seconds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   </script>
 </body>
