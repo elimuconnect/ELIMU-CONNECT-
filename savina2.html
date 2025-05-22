@@ -2,84 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Savina Consultancy Tour & Travel Ltd</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      color: #333;
-      scroll-behavior: smooth;
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
-
-    header {
-      background-color: #003366;
-      color: white;
-      padding: 1rem 2rem;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
     }
-
-    header h1 {
-      font-size: 1.5rem;
+    @keyframes zoomIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
-
-    nav a {
-      margin: 0 1rem;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out forwards;
     }
-
-    nav a:hover {
-      text-decoration: underline;
+    .animate-slide-in-right {
+      animation: slideInRight 1s ease-out forwards;
     }
+    .animate-zoom-in {
+      animation: zoomIn 1s ease-out forwards;
+    }
+    /* Initially hide all images with animation */
+    img[data-animate] {
+      opacity: 0;
+      transform-style: preserve-3d;
+    }
+	
+	
+	
+	
+	
+	
+	/* Animation classes */
+  .slide-in {
+    animation: slideInFade 4s ease-in-out infinite;
+  }
+  .slide-left {
+    animation: slideLeftFade 4s ease-in-out infinite;
+    animation-delay: 1.33s;
+  }
+  .slide-right {
+    animation: slideRightFade 4s ease-in-out infinite;
+    animation-delay: 2.66s;
+  }
+  .zoom-in {
+    animation: zoomFade 4s ease-in-out infinite;
+    animation-delay: 0s;
+  }
 
-    
-    
-	.hero {
-  position: relative;
-  height: 85vh;
-  background: url('https://images.unsplash.com/photo-1518684079-6e2b9d06b03e') center/cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-}
+  @keyframes slideInFade {
+    0%, 33% {opacity: 1; transform: translateX(0);}
+    40%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideLeftFade {
+    0%, 33% {opacity: 0; transform: translateX(20px);}
+    40%, 73% {opacity: 1; transform: translateX(0);}
+    80%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideRightFade {
+    0%, 66% {opacity: 0; transform: translateX(-20px);}
+    73%, 100% {opacity: 1; transform: translateX(0);}
+  }
+  @keyframes zoomFade {
+    0%, 33% {opacity: 1; transform: scale(1);}
+    40%, 100% {opacity: 0; transform: scale(1.2);}
+  }
+	
+	
+	
+	.carousel-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
 
-.hero-overlay {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-full-image {
-  width: 100%;
-  max-width: 600px;
-  height: auto;
-  margin-bottom: 1rem;
-  z-index: 2;
-}
-
-.hero h2 {
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 2.5rem;
-  padding: 1rem 2rem;
-  border-radius: 10px;
-  z-index: 2;
-}
-
+  .carousel-image.active {
+    opacity: 1;
+  }
 	
 	
 	
@@ -92,217 +101,515 @@
 	
 	
 	
-
-    section {
-      padding: 3rem 2rem;
-    }
-
-    h2.section-title {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #003366;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card, .image-card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 1.2rem;
-      transition: 0.3s;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .image-card img {
-      width: 100%;
-      border-radius: 8px;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .about-text {
-      max-width: 800px;
-      margin: auto;
-      text-align: center;
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    form {
-      max-width: 500px;
-      margin: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    input, textarea {
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      background-color: #003366;
-      color: white;
-      padding: 0.8rem;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    footer {
-      background: #003366;
-      color: white;
-      text-align: center;
-      padding: 1.5rem;
-    }
-
-    .whatsapp-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #25d366;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: bold;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      z-index: 1000;
-    }
-
-    .whatsapp-btn:hover {
-      background: #1da851;
-    }
-
-    @media (max-width: 600px) {
-      header, nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .hero h2 {
-        font-size: 1.8rem;
-        padding: 1rem;
-      }
-    }
+	
   </style>
 </head>
-<body>
+<body class="bg-white text-gray-800 font-sans leading-relaxed">
 
-<header>
-  <h1>Savina Travel Ltd</h1>
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#services">Services</a>
-    <a href="#destinations">Destinations</a>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-  </nav>
-</header>
+  <!-- Header / Navbar -->
+  <header class="bg-blue-800 text-white p-6 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <!-- Logo and Company Name -->
+      <div class="flex items-center space-x-4">
+        <!-- Icon - NO animation on this image -->
+        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" 
+             alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
+        <h1 class="text-xl md:text-2xl font-bold">Savina Consultancy Tour & Travel Ltd</h1>
+      </div>
 
-<section class="hero" id="home">
-  <div class="hero-overlay">
-    <img src="https://images.unsplash.com/photo-1500048993953-d23a436266cf" alt="Overlay Image" class="hero-full-image">
-    <h2>Dream. Discover. Travel with Savina.</h2>
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex space-x-6 text-sm font-medium">
+        <a href="#home" class="hover:underline">Home</a>
+        <a href="#about" class="hover:underline">About Us</a>
+        <a href="#services" class="hover:underline">Services</a>
+        <a href="#safaris" class="hover:underline">Safaris & Tours</a>
+        <a href="#study" class="hover:underline">Study Abroad</a>
+        <a href="#ecotourism" class="hover:underline">Ecotourism</a>
+        <a href="#contact" class="hover:underline">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="w-full h-96 bg-cover bg-center rounded-xl shadow-md my-6 mx-auto max-w-6xl"
+           style="background-image: url('https://images.unsplash.com/photo-1623888676435-d3b01b4d1dc0?w=1200&auto=format&fit=crop&q=80');"
+           data-animate="zoom-in">
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Introduction</h2>
+        <p class="mb-4">Savina Consultancy Tour & Travel Ltd is based in Nairobi, Kenya, specializing in providing personalized and reliable travel services.</p>
+
+        <h2 class="text-2xl font-bold mb-2">About Us</h2>
+        <p>We are committed to high-quality travel experiences, backed by a strong, professional team with regional and international expertise.</p>
+        <p class="mt-2">Our multinational team brings extensive knowledge in travel, tourism, and hospitality, offering exceptional service to every client.</p>
+      </div>
+      <div>
+        <img src="https://static.wixstatic.com/media/9ba186_0333f2280f484825b5cc3e8a05ea44fb~mv2.jpg" alt="About Image" class="rounded-xl shadow-lg" data-animate="slide-in-right">
+      </div>
+    </div>
+  </section>
+
+  <!-- Commitment Section -->
+  <section id="commitment" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div class="h-96 w-full rounded-xl shadow-md bg-cover bg-center"
+           style="background-image: url('https://static.wixstatic.com/media/9ba186_053db535cc2542379ed6391cc95c4b92~mv2.jpg');"
+           data-animate="fade-in">
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Our Commitment</h2>
+        <p>We offer first-rate flexible service in a professional and personalized manner, adding real value to every client’s experience.</p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Code of Conduct</h3>
+        <p>We are transparent and consistent in our actions, fulfilling our promises with integrity and staying true to our identity.</p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Company Values</h3>
+        <p>Care, professionalism, and dedication define our approach to every customer interaction and service we provide.</p>
+
+        <blockquote class="mt-6 italic text-blue-900 font-semibold border-l-4 border-blue-300 pl-4">
+          Our services are not only totally reliable and safe, but also personalized to suit the needs and preferences of you, the customer...
+        </blockquote>
+        <p class="mt-2 font-semibold text-right">~ Samuel Mwangi Ngunju, Managing Director</p>
+        <img src="https://static.wixstatic.com/media/9ba186_cacb39bf45ff4fdf9e2017dbd2c06a8c~mv2.jpg" alt="Director" class="w-32 h-auto mt-4 rounded shadow-md" data-animate="fade-in">
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us Section -->
+  <section class="bg-gray-100 py-12 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-3xl font-bold mb-4">Why Us</h2>
+      <p class="mb-4">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
+      <img src="https://static.wixstatic.com/media/9ba186_809a87ab6aff400fa1533159d30c1ed8~mv2.jpg" alt="Why Us Image" class="rounded-xl w-full shadow-lg mb-6" data-animate="fade-in">
+      <p class="mb-4">We bring vast local knowledge and experience to your safari and travel plans.</p>
+      <p>Our specialty is custom designing versatile itineraries for individual travelers and groups alike.</p>
+    </div>
+  </section>
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+   
+
+  <!-- Background slideshow layers -->
+  
+ 
+ 
+ <section id="services" class="px-4 py-8 max-w-7xl mx-auto text-center">
+  <h2 class="text-3xl font-bold mb-10">Our Services</h2>
+
+  <!-- Service 1: Masai Mara Safari -->
+  <section id="service1" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Masai Mara Safari</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+      Embark on a thrilling adventure through the Masai Mara, home to the iconic Big Five. Witness the Great Migration and enjoy unforgettable game drives across the open savannah. Elevate your experience with a sunrise hot air balloon ride over the plains.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+      <img src="https://images.pexels.com/photos/6477225/pexels-photo-6477225.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Big Five" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 slide-in">
+      <img src="https://static.wixstatic.com/media/9ba186_114499b5b39d4cb8b870de9e2330424b~mv2.jpg" alt="Big Five" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+      <img src="https://images.pexels.com/photos/2323411/pexels-photo-2323411.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Hot air balloon" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 zoom-in">
+    
+
+   </div>
+  </section>
+
+  <!-- Service 2: Mt. Kenya Hiking -->
+  <section id="service2" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Mt. Kenya Hiking</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+     Conquer Kenya’s tallest peak with expert-guided treks through forested slopes and alpine meadows. Marvel at rare flora and crystal-clear mountain streams as you ascend. Enjoy breathtaking views from Point Lenana and feel on top of Africa.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+     
+  
+  
+  
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://www.pexels.com/photo/yarigatake-19216114/'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1548184937-ee402152fa02?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YWlyJTIwYmFsb29ufGVufDB8fDB8fHww'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1547970810-dc1eac37d174?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cmhpbm98ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  <div class="absolute inset-0 bg-cover bg-center rounded-xl shadow-md transition-opacity duration-700" style="background-image: url('https://images.unsplash.com/photo-1614640514617-684c8b4c3403?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2lsZCUyMGFuaW1hbHN8ZW58MHx8MHx8fDA%3D'); opacity: 0;"></div>
+	  
+	  
+  
+  
+  
+  
+  
+  
+  
+  </section>
+ 
+
+  <!-- Service 3: Beaches Safari Holidays -->
+  <section id="service3" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Beaches Safari Holidays</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+      Relax on Kenya's pristine beaches, where turquoise waters meet golden sands. Combine coastal leisure with wildlife excursions for a unique safari experience. Stay in beachfront hotels offering stunning ocean views and exceptional hospitality.
+    Visit Lake Nakuru National Park, renowned for its vibrant flocks of flamingos and diverse wildlife. Explore the scenic landscapes and spot rhinos, giraffes, and other species. Capture the mesmerizing sight of pink-hued shores teeming with birdlife.
+	</p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Beach view" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 slide-right">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Lake Nakuru flamingos" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 zoom-in">
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?w=800" alt="Hotel beach view" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+    </div>
+  </section>
+
+  <!-- Service 4: Kenya Lodges Safari and Rich Kenya Culture -->
+  <section id="service4" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Kenya Lodges Safari and Rich Kenya Culture</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+     Immerse yourself in Kenya's rich cultural heritage by staying in traditional lodges. Engage with local communities, experience Maasai traditions, and enjoy authentic cuisine. These lodges offer comfort while providing insights into Kenya's diverse cultures.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" alt="Kenya Lodge" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 zoom-in">
+      <img src="https://images.unsplash.com/photo-1468071174046-657d9d351a40?w=800" alt="Masai culture" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+    </div>
+  </section>
+
+  
+	
+	
+	
+	
+	
+	
+	
+	
+	<section id="services-continued" class="px-4 py-8 max-w-7xl mx-auto text-center">
+  <h2 class="text-3xl font-bold mb-10">More Services</h2>
+
+ AIRTICKETING
+  <section id="service5" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">AIRTICKETING</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+      Book flights with ease through our comprehensive air ticketing services. We partner with major airlines to offer competitive rates and convenient schedules. Let us handle your travel arrangements for a seamless journey.
+    </p>
+    
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md grid grid-cols-3 gap-4">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400" alt="Jungfraujoch" class="rounded-lg object-cover w-full h-48">
+       <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?w=400" alt="Beatus Caves" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?w=400" alt="Beatus Caves" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400" alt="Beatenberg" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1468071174046-657d9d351a40?w=400" alt="Grindelwald" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?w=400" alt="Schynige Platte" class="rounded-lg object-cover w-full h-48">
+    </div>
+  </section>
+  <!-- Hotel Reservation -->
+  <section id="service6" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Hotel Reservation</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+     Find the perfect accommodation to suit your preferences and budget. From luxury resorts to budget-friendly hotels, we offer a range of options across Kenya. Enjoy comfortable stays with excellent amenities and service.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+      <img src="https://images.unsplash.com/photo-1501117716987-c8f9c7e5c29c?w=800" alt="Hotel room with beach view" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 zoom-in">
+      <img src="https://images.unsplash.com/photo-1505653752535-7aa44f9c7b72?w=800" alt="Hotel exterior" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+      <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Hotel lobby" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-right">
+    </div>
+  </section>
+
+  <!-- Study Abroad Programs -->
+  <section id="service7" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Study Abroad Programs</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+      Pursue higher education opportunities in the USA, UK, Canada, South Korea, and Schengen countries. Our services include student visa application assistance and guidance on choosing the right institution. Embark on your academic journey with confidence.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+      <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800" alt="Students abroad" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 slide-in">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" alt="Visa application" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+      <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=800" alt="Language school" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 zoom-in">
+    </div>
+  </section>
+
+  <!-- Switzerland language programs -->
+  <section id="service8" class="mb-16">
+    <h3 class="text-2xl font-semibold mb-4">Switzerland-Study language programmes</h3>
+    <p class="max-w-3xl mx-auto mb-6">
+      Enhance your language skills by enrolling in French or German courses in Switzerland. Our partner schools offer immersive programs in picturesque settings. Experience cultural enrichment while achieving language proficiency.
+    </p>
+    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md grid grid-cols-3 gap-4">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400" alt="Jungfraujoch" class="rounded-lg object-cover w-full h-48">
+        <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?w=400" alt="Beatus Caves" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1494526585095-c41746248156?w=400" alt="Beatus Caves" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400" alt="Beatenberg" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1468071174046-657d9d351a40?w=400" alt="Grindelwald" class="rounded-lg object-cover w-full h-48">
+      <img src="https://images.unsplash.com/photo-1500534623283-312aade485b7?w=400" alt="Schynige Platte" class="rounded-lg object-cover w-full h-48">
+    </div>
+  </section>
+
+  
+
+	
+	<section id="swiss-services" class="max-w-4xl mx-auto text-center">
+  <h3 class="text-2xl font-semibold mb-10">Switzerland Adventure Packages</h3>
+
+  <!-- Service 9: Harder Kulm -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Harder Kulm</h4>
+    <p class="mb-6">Ride the funicular to Harder Kulm, Interlaken's local mountain, for breathtaking vistas of Lake Thun and Lake Brienz. Dine at the panoramic restaurant and capture stunning photographs from the viewing platform. A must-visit for nature lovers..</p>
+    <div id="harder-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800" class="carousel-image active" alt="Harder Kulm View">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Interlaken">
+      <img src="https://source.unsplash.com/800x600/?swiss-alps,viewpoint" class="carousel-image" alt="Swiss Alps">
+    </div>
+  </div>
+
+  <!-- Service 10-11: Beatus Caves + Beatenburg -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Beatus Caves & Beatenburg</h4>
+    <p class="mb-6">Explore the mystical St. Beatus Caves, nestled in the cliffs above Lake Thun. Wander through illuminated chambers adorned with stalactites and stalagmites. Learn about the legend of Saint Beatus and the dragon.Discover the tranquil village of Beatenberg, offering panoramic views of the Bernese Alps. Combine your visit with an exploration of the nearby St. Beatus Caves. Experience the perfect blend of nature and legend.</p>
+    <div id="beatus-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image active" alt="Beatus Caves">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Beatenberg">
+      <img src="https://source.unsplash.com/800x600/?lake-thun,switzerland" class="carousel-image" alt="Lake Thun">
+    </div>
+  </div>
+
+  <!-- Service 12: Grindelwald -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Grindelwald</h4>
+    <p class="mb-6">Visit the charming alpine village of Grindelwald, a gateway to the Jungfrau region. Enjoy outdoor activities like hiking, skiing, and mountain biking amidst stunning scenery. Relax in cozy chalets and savor Swiss hospitality.
+</p>
+    <div id="grindelwald-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image active" alt="Grindelwald Village">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Swiss Mountain">
+      <img src="https://source.unsplash.com/800x600/?alps,snow" class="carousel-image" alt="Snowy Alps">
+    </div>
+  </div>
+
+  <!-- Service 13: Schynige Platte -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Schynige Platte</h4>
+    <p class="mb-6">Take a nostalgic ride on the cogwheel train to Schynige Platte, renowned for its alpine gardens and hiking trails. Admire panoramic views of the Eiger, Mönch, and Jungfrau peaks. A paradise for nature enthusiasts..</p>
+    <div id="platte-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image active" alt="Schynige Platte Train">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Mountain Train">
+      <img src="https://source.unsplash.com/800x600/?alpine-garden,switzerland" class="carousel-image" alt="Alpine Garden">
+    </div>
+  </div>
+
+  <!-- Service 14: Paragliding and Skiing -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Paragliding & Skiing</h4>
+    <p class="mb-6">Experience the thrill of paragliding over the Swiss Alps or skiing down pristine slopes. Interlaken and surrounding regions offer excellent facilities for both activities. Adventure seekers will find their paradise here..</p>
+    <div id="adventure-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image active" alt="Paragliding">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Skiing">
+      <img src="https://source.unsplash.com/800x600/?snow-sports,swiss-alps" class="carousel-image" alt="Winter Sports">
+    </div>
+  </div>
+
+  <!-- Service 15: Ebike, Jet Boat, Canyoning, Kayak, Skydiving -->
+  <div class="mb-16">
+    <h4 class="text-xl font-semibold mb-4">Adventure Tours: E-Bike, Jet Boat, Kayak, Skydiving</h4>
+    <p class="mb-6">Engage in a variety of adrenaline-pumping activities in Switzerland's adventure capital. From e-bike tours through scenic trails to jet boat rides on alpine lakes, there's something for everyone. Try canyoning, kayaking, or even skydiving for unforgettable memories.</p>
+    <div id="sports-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image active" alt="Ebike Tour">
+      <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800" class="carousel-image" alt="Jet Boat Ride">
+      <img src="https://source.unsplash.com/800x600/?skydiving,switzerland" class="carousel-image" alt="Skydiving Adventure">
+    </div>
   </div>
 </section>
-
-<section id="services">
-  <h2 class="section-title">Our Services</h2>
-  <div class="grid">
-    <div class="card">✈️ Flight Bookings</div>
-    <div class="card">🌍 Visa Applications</div>
-    <div class="card">🏖️ Holiday Packages</div>
-    <div class="card">🏨 Hotel Reservations</div>
-    <div class="card">🧳 Corporate Travel</div>
-    <div class="card">🛂 Immigration Consultancy</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+ 
+ 
+ 
+<!-- Ecotourism -->
+<section class="bg-green-50 py-12">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-2xl font-bold mb-4">ECOTOURISM IS WHAT MAKES US DIFFERENT</h2>
+    <img src="https://static.wixstatic.com/media/9ba186_072d988756bc4810b6bfdc03750d988e~mv2.jpg" alt="Ecotourism" class="rounded-xl shadow-md w-full object-cover max-h-80 mb-6">
+    <p>We practice Ecotourism to protect nature and empower local communities. Our programs promote sustainable travel, environmental conservation, and cultural respect—ensuring every journey you take with us leaves a positive impact on the destinations we explore together.</p>
   </div>
 </section>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
-<section id="destinations">
-  <h2 class="section-title">Popular Destinations</h2>
-  <div class="grid">
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1500048993953-d23a436266cf" alt="Dubai" />
-      <p><strong>Dubai</strong> – Luxury shopping & skyscrapers.</p>
+  <!-- Contact -->
+  <section id="contact" class="bg-gray-900 text-white py-12">
+    <div class="max-w-3xl mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
+      <p>P.O. Box 78547-80100 Nairobi, Kenya</p>
+      <p>Email: savinaconsultancytravelagency@gmail.com</p>
+      <p>Phone: +254 112 300141 | +41 77 938 63 91</p>
     </div>
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Maldives" />
-      <p><strong>Maldives</strong> – Pure tropical paradise.</p>
-    </div>
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1505765050534-bbc527c97f4c" alt="Paris" />
-      <p><strong>Paris</strong> – The city of love and lights.</p>
-    </div>
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f" alt="London" />
-      <p><strong>London</strong> – History meets modern life.</p>
-    </div>
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1560347876-aeef00ee58a1" alt="Nairobi" />
-      <p><strong>Nairobi</strong> – Urban safari adventure.</p>
-    </div>
-    <div class="image-card">
-      <img src="https://images.unsplash.com/photo-1605051384514-d92f1b1c7f25" alt="Cape Town" />
-      <p><strong>Cape Town</strong> – Mountains & coastlines.</p>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section id="about">
-  <h2 class="section-title">About Us</h2>
-  <p class="about-text">
-    Savina Consultancy Tour and Travel Ltd is your trusted travel partner across Kenya and beyond. 
-    We offer personalized, professional services for individuals, families, and corporate clients.
-    Our experienced team ensures your travel experience is smooth, safe, and memorable.
-  </p>
-</section>
+  <!-- Footer -->
+  <footer class="bg-black text-gray-400 text-center py-4 text-sm">
+    &copy; 2025 Savina Consultancy Tour & Travel Ltd. All rights reserved.
+  </footer>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-<section id="testimonials">
-  <h2 class="section-title">Testimonials</h2>
-  <div class="grid">
-    <div class="card">"Savina handled my Europe visa and flights with speed and professionalism!" – <strong>Anne K.</strong></div>
-    <div class="card">"We used their holiday package for Dubai. The experience was 10/10!" – <strong>Victor M.</strong></div>
-    <div class="card">"Best service I've ever received from a travel company." – <strong>Faith N.</strong></div>
-  </div>
-</section>
+  <script>
+    // Intersection Observer to animate images on scroll
+    const animateImages = document.querySelectorAll('img[data-animate], section[data-animate], div[data-animate]');
 
-<section id="contact">
-  <h2 class="section-title">Contact Us</h2>
-  <form onsubmit="submitForm(event)">
-    <input type="text" placeholder="Full Name" required>
-    <input type="email" placeholder="Email Address" required>
-    <textarea placeholder="Message" rows="4" required></textarea>
-    <button type="submit">Send Message</button>
-  </form>
-</section>
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.2 // trigger when 20% of the image is visible
+    };
 
-<footer>
-  <p>&copy; 2025 Savina Consultancy Tour and Travel Ltd. All Rights Reserved.</p>
-</footer>
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const animationType = el.getAttribute('data-animate');
+          if (animationType === 'fade-in') {
+            el.classList.add('animate-fade-in');
+          } else if (animationType === 'slide-in-right') {
+            el.classList.add('animate-slide-in-right');
+          } else if (animationType === 'zoom-in') {
+            el.classList.add('animate-zoom-in');
+          }
+          observer.unobserve(el);
+        }
+      });
+    }, observerOptions);
 
-<!-- WhatsApp Floating Button -->
-<a href="https://wa.me/254712345678" class="whatsapp-btn" target="_blank">
-  💬 Chat with us
-</a>
+    animateImages.forEach(img => {
+      observer.observe(img);
+    });
 
-<script>
-  function submitForm(e) {
-    e.preventDefault();
-    alert("Thank you for contacting Savina Travel. We'll get back to you soon.");
+
+
+
+
+
+ 
+ // Animate backgrounds for each service separately
+  function animateBackgrounds(serviceId, interval = 3000) {
+    const section = document.getElementById(serviceId);
+    if (!section) return;
+    const bgDivs = section.querySelectorAll('div.absolute');
+    let current = 0;
+    setInterval(() => {
+      bgDivs.forEach((div, idx) => {
+        div.style.opacity = (idx === current) ? '1' : '0';
+      });
+      current = (current + 1) % bgDivs.length;
+    }, interval);
   }
-</script>
 
+  // Run for all 9 services with 3 seconds interval
+  for(let i=1; i<=9; i++) {
+    animateBackgrounds(`service${i}`, 3000);
+  }
+
+
+function setupCarousel(id) {
+    const container = document.getElementById(id);
+    const images = container.querySelectorAll('.carousel-image');
+    let i = 0;
+    setInterval(() => {
+      images[i].classList.remove('active');
+      images[i].style.opacity = 0;
+      i = (i + 1) % images.length;
+      images[i].classList.add('active');
+      images[i].style.opacity = 1;
+    }, 4000);
+  }
+
+  [
+    "harder-carousel",
+    "beatus-carousel",
+    "grindelwald-carousel",
+    "platte-carousel",
+    "adventure-carousel",
+    "sports-carousel"
+  ].forEach(setupCarousel);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </script>
 </body>
 </html>
