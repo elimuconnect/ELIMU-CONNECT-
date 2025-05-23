@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Savina Consultancy Tour & Travel Ltd</title>
   <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          montserrat: ['Montserrat', 'sans-serif'],
+        },
+      },
+    }
+  }
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
 
 
 
@@ -196,10 +211,10 @@
     <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
       <div>
         <h2 class="text-3xl font-bold mb-4">Introduction</h2>
-        <p class="mb-4">Savina Consultancy Tour & Travel Ltd is based in Nairobi, Kenya, specializing in providing personalized and reliable travel services.</p>
+        <p  class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Savina Consultancy Tour & Travel Ltd is based in Nairobi, Kenya, specializing in providing personalized and reliable travel services.</p>
 
         <h2 class="text-2xl font-bold mb-2">About Us</h2>
-        <p>We are committed to high-quality travel experiences, backed by a strong, professional team with regional and international expertise.</p>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">We are committed to high-quality travel experiences, backed by a strong, professional team with regional and international expertise.</p>
         <p class="mt-2">Our multinational team brings extensive knowledge in travel, tourism, and hospitality, offering exceptional service to every client.</p>
       </div>
     <div>
@@ -220,18 +235,18 @@
       </div>
       <div>
         <h2 class="text-3xl font-bold mb-4">Our Commitment</h2>
-        <p>We offer first-rate flexible service in a professional and personalized manner, adding real value to every client’s experience.</p>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">We offer first-rate flexible service in a professional and personalized manner, adding real value to every client’s experience.</p>
 
         <h3 class="text-xl font-bold mt-6 mb-2">Our Code of Conduct</h3>
-        <p>We are transparent and consistent in our actions, fulfilling our promises with integrity and staying true to our identity.</p>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">We are transparent and consistent in our actions, fulfilling our promises with integrity and staying true to our identity.</p>
 
         <h3 class="text-xl font-bold mt-6 mb-2">Our Company Values</h3>
-        <p>Care, professionalism, and dedication define our approach to every customer interaction and service we provide.</p>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Care, professionalism, and dedication define our approach to every customer interaction and service we provide.</p>
 
         <blockquote class="mt-6 italic text-blue-900 font-semibold border-l-4 border-blue-300 pl-4">
           Our services are not only totally reliable and safe, but also personalized to suit the needs and preferences of you, the customer...
         </blockquote>
-        <p class="mt-2 font-semibold text-right">~ Samuel Mwangi Ngunju, Managing Director</p>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">~ Samuel Mwangi Ngunju, Managing Director</p>
         <img src="https://static.wixstatic.com/media/9ba186_cacb39bf45ff4fdf9e2017dbd2c06a8c~mv2.jpg"
      alt="Director"
      class="w-32 h-32 mt-4 rounded-full shadow-md"
@@ -243,10 +258,13 @@
   <!-- Why Us Section -->
   <section class="bg-gray-100 py-12 text-center">
     <div class="max-w-4xl mx-auto px-6">
-      <h2 class="text-3xl font-bold mb-4">Why Us</h2>
-      <p class="mb-4">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
-      <img src="https://static.wixstatic.com/media/9ba186_ad34a9b8e4b54e65856bcd92bb0ca7eb~mv2.png" alt="Why Us Image" class="rounded-xl w-full shadow-lg mb-6" data-animate="fade-in">
-      <p class="mb-4">We bring vast local knowledge and experience to your safari and travel plans.</p>
+    <h2 class="text-3xl font-bold mb-4">Why Us</h2>
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto"">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
+      <img src="https://static.wixstatic.com/media/9ba186_ad34a9b8e4b54e65856bcd92bb0ca7eb~mv2.png"
+     alt="Why Us Image"
+     class="w-[32rem] rounded-xl shadow-lg mb-6 mx-auto block"
+     data-animate="fade-in">
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">We bring vast local knowledge and experience to your safari and travel plans.</p>
       <p>Our specialty is custom designing versatile itineraries for individual travelers and groups alike.</p>
     </div>
   </section>
@@ -271,13 +289,14 @@
 
   <!-- Service 1: Masai Mara Safari -->
   <section id="service1" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Masai Mara Safari</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-green-600">Masai Mara Safari</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
       Embark on a thrilling adventure through the Masai Mara, home to the iconic Big Five. Witness the Great Migration and enjoy unforgettable game drives across the open savannah. Elevate your experience with a sunrise hot air balloon ride over the plains.
     </p>
-     <div id="sports-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
+     <div id="sports-carousel" class="carousel relative w-full h-[36rem] rounded-xl overflow-hidden shadow-md mx-auto">
+
 	  <img src="https://images.pexels.com/photos/2323411/pexels-photo-2323411.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image active" alt="Ebike Tour">
-      <img src="https://images.pexels.com/photos/677974/pexels-photo-677974.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Jet Boat Ride">
+      <img src="https://images.unsplash.com/photo-1598894000396-bc30e0996899?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cmhpbm98ZW58MHx8MHx8fDA%3D" class="carousel-image" alt="Jet Boat Ride">
       <img src="https://images.pexels.com/photos/1054650/pexels-photo-1054650.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Skydiving Adventure">
     <img src="https://images.pexels.com/photos/59840/elephant-baby-safari-elephants-africa-59840.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Skydiving Adventure">
 	<img src=https://plus.unsplash.com/premium_photo-1661834810497-764f4898a8c6?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"" class="carousel-image" alt="Skydiving Adventure">
@@ -289,12 +308,15 @@
   </section>
 
 	
+	 
+	
+	
 	
 	
 	<!-- Service 2: Mt. Kenya Hiking -->
 <section id="service2" class="mb-16">
-  <h3 class="text-2xl font-semibold mb-4">Mt. Kenya Hiking</h3>
-  <p class="max-w-3xl mx-auto mb-6">
+  <h3 class="text-5xl font-bold mb-4 text-blue-600">Mt. Kenya Hiking</h3>
+  <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
     Conquer Kenya’s tallest peak with expert-guided treks through forested slopes and alpine meadows. Marvel at rare flora and crystal-clear mountain streams as you ascend. Enjoy breathtaking views from Point Lenana and feel on top of Africa.
   </p>
   <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
@@ -331,8 +353,8 @@
 
   <!-- Service 3: Beaches Safari Holidays -->
   <section id="service3" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Beaches Safari Holidays</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-red-600">Beaches Safari Holidays</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
       Relax on Kenya's pristine beaches, where turquoise waters meet golden sands. Combine coastal leisure with wildlife excursions for a unique safari experience. Stay in beachfront hotels offering stunning ocean views and exceptional hospitality.
     Visit Lake Nakuru National Park, renowned for its vibrant flocks of flamingos and diverse wildlife. Explore the scenic landscapes and spot rhinos, giraffes, and other species. Capture the mesmerizing sight of pink-hued shores teeming with birdlife.
 	</p>
@@ -359,15 +381,16 @@
 
   <!-- Service 4: Kenya Lodges Safari and Rich Kenya Culture -->
   <section id="service4" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Kenya Lodges Safari and Rich Kenya Culture</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-green-600">Kenya Lodges Safari and Rich Kenya Culture</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
      Immerse yourself in Kenya's rich cultural heritage by staying in traditional lodges. Engage with local communities, experience Maasai traditions, and enjoy authentic cuisine. These lodges offer comfort while providing insights into Kenya's diverse cultures.
     </p>
-    <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md">
+    <div class="relative w-full max-w-4xl h-[36rem] mx-auto overflow-hidden rounded-xl shadow-md">
+
       <img src="https://images.pexels.com/photos/667200/pexels-photo-667200.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Beach view" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-all duration-1000 slide-right">
-      <img src="https://images.pexels.com/photos/9078373/pexels-photo-9078373.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Lake Nakuru flamingos" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 zoom-in">
-      <img src="https://images.pexels.com/photos/13033076/pexels-photo-13033076.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Hotel beach view" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
-	 <img src="https://images.pexels.com/photos/28928759/pexels-photo-28928759/free-photo-of-traditional-african-drum-performance-at-cultural-festival.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Hotel beach view" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+     <img src="https://images.unsplash.com/photo-1606094092594-93c09d76b721?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fG1hYXNhaXxlbnwwfHwwfHx8MA%3D%3D" alt="Lake Nakuru flamingos" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 zoom-in">
+      <img src="https://images.unsplash.com/photo-1563378815186-e1f885990b08?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bWFhc2FpfGVufDB8fDB8fHww" alt="Hotel beach view" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
+	 <img src="https://images.unsplash.com/photo-1563378815260-6e67a0c7d5db?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fG1hYXNhaXxlbnwwfHwwfHx8MA%3D%3D" alt="Hotel beach view" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-1000 slide-left">
 	
 	
 	
@@ -388,8 +411,8 @@
 
  AIRTICKETING and VISA SERVICES
   <section id="service5" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">AIRTICKETING AND VISA SERVICES</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-purple-600">AIRTICKETING AND VISA SERVICES</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
       Book flights with ease through our comprehensive air ticketing and Visa services. We partner with major airlines to offer competitive rates and convenient schedules. Let us handle your travel arrangements for a seamless journey.
     </p>
     
@@ -404,8 +427,8 @@
   </section>
   <!-- Hotel Reservation -->
   <section id="service6" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Hotel Reservation</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-green-600">Hotel Reservation</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
      Find the perfect accommodation to suit your preferences and budget. From luxury resorts to budget-friendly hotels, we offer a range of options across Kenya. Enjoy comfortable stays with excellent amenities and service.
     </p>
   
@@ -425,8 +448,8 @@
 
   <!-- Study Abroad Programs -->
   <section id="service7" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Study Abroad Programs</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-green-600">Study Abroad Programs</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
       Pursue higher education opportunities in the USA, UK, Canada, South Korea, and Schengen countries. Our services include student visa application assistance and guidance on choosing the right institution. Embark on your academic journey with confidence.
     </p>
     
@@ -445,8 +468,8 @@
 
   <!-- Switzerland language programs -->
   <section id="service8" class="mb-16">
-    <h3 class="text-2xl font-semibold mb-4">Switzerland-Study language programmes</h3>
-    <p class="max-w-3xl mx-auto mb-6">
+    <h3 class="text-5xl font-bold mb-4 text-indigo-600">Switzerland-Study language programmes</h3>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
       Enhance your language skills by enrolling in French or German courses in Switzerland. Our partner schools offer immersive programs in picturesque settings. Experience cultural enrichment while achieving language proficiency.
     </p>
     <div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md grid grid-cols-3 gap-4">
@@ -467,8 +490,8 @@
 
   <!-- Service 9: Harder Kulm -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Harder Kulm</h4>
-    <p class="mb-6">Ride the funicular to Harder Kulm, Interlaken's local mountain, for breathtaking vistas of Lake Thun and Lake Brienz. Dine at the panoramic restaurant and capture stunning photographs from the viewing platform. A must-visit for nature lovers..</p>
+    <h4 class="text-5xl font-bold mb-4 text-green-600">Harder Kulm</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Ride the funicular to Harder Kulm, Interlaken's local mountain, for breathtaking vistas of Lake Thun and Lake Brienz. Dine at the panoramic restaurant and capture stunning photographs from the viewing platform. A must-visit for nature lovers..</p>
     <div id="harder-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
       
       <img src="https://images.pexels.com/photos/30809856/pexels-photo-30809856/free-photo-of-majestic-castle-by-lake-brienz-in-iseltwald.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Interlaken">
@@ -483,8 +506,8 @@
 
   <!-- Service 10-11: Beatus Caves + Beatenburg -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Beatus Caves & Beatenburg</h4>
-    <p class="mb-6">Explore the mystical St. Beatus Caves, nestled in the cliffs above Lake Thun. Wander through illuminated chambers adorned with stalactites and stalagmites. Learn about the legend of Saint Beatus and the dragon.Discover the tranquil village of Beatenberg, offering panoramic views of the Bernese Alps. Combine your visit with an exploration of the nearby St. Beatus Caves. Experience the perfect blend of nature and legend.</p>
+    <h4 class="text-5xl font-bold mb-4 text-teal-600" >Beatus Caves & Beatenburg</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto"">Explore the mystical St. Beatus Caves, nestled in the cliffs above Lake Thun. Wander through illuminated chambers adorned with stalactites and stalagmites. Learn about the legend of Saint Beatus and the dragon.Discover the tranquil village of Beatenberg, offering panoramic views of the Bernese Alps. Combine your visit with an exploration of the nearby St. Beatus Caves. Experience the perfect blend of nature and legend.</p>
     <div id="beatus-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
       <img src="https://images.pexels.com/photos/4963860/pexels-photo-4963860.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image active" alt="Beatus Caves">
       <img src="https://images.pexels.com/photos/17405150/pexels-photo-17405150/free-photo-of-man-standing-inside-a-rocky-cave-with-spread-arms.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Beatenberg">
@@ -494,8 +517,8 @@
 
   <!-- Service 12: Grindelwald -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Grindelwald</h4>
-    <p class="mb-6">Visit the charming alpine village of Grindelwald, a gateway to the Jungfrau region. Enjoy outdoor activities like hiking, skiing, and mountain biking amidst stunning scenery. Relax in cozy chalets and savor Swiss hospitality.
+<h4 class="text-5xl font-bold mb-4 text-violet-600" >Grindelwald</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Visit the charming alpine village of Grindelwald, a gateway to the Jungfrau region. Enjoy outdoor activities like hiking, skiing, and mountain biking amidst stunning scenery. Relax in cozy chalets and savor Swiss hospitality.
 </p>
     <div id="grindelwald-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
       <img src="https://images.pexels.com/photos/18040159/pexels-photo-18040159/free-photo-of-gondola-lift-in-majestic-mountains.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image active" alt="Grindelwald Village">
@@ -506,8 +529,8 @@
 
   <!-- Service 13: Schynige Platte -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Schynige Platte</h4>
-    <p class="mb-6">Take a nostalgic ride on the cogwheel train to Schynige Platte, renowned for its alpine gardens and hiking trails. Admire panoramic views of the Eiger, Mönch, and Jungfrau peaks. A paradise for nature enthusiasts..</p>
+    <h4 class="text-5xl font-bold mb-4 text-green-600">Schynige Platte</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Take a nostalgic ride on the cogwheel train to Schynige Platte, renowned for its alpine gardens and hiking trails. Admire panoramic views of the Eiger, Mönch, and Jungfrau peaks. A paradise for nature enthusiasts..</p>
     <div id="platte-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
       <img src="https://images.pexels.com/photos/32192231/pexels-photo-32192231/free-photo-of-stylish-woman-in-train-carriage-striking-a-pose.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image active" alt="Schynige Platte Train">
       <img src="https://images.pexels.com/photos/32161041/pexels-photo-32161041/free-photo-of-alpine-blue-flowers-with-mountain-view-in-spring.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Mountain Train">
@@ -517,8 +540,8 @@
 
   <!-- Service 14: Paragliding and Skiing -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Paragliding & Skiing</h4>
-    <p class="mb-6">Experience the thrill of paragliding over the Swiss Alps or skiing down pristine slopes. Interlaken and surrounding regions offer excellent facilities for both activities. Adventure seekers will find their paradise here..</p>
+    <h4 class="text-5xl font-bold mb-4 text-teal-600">Paragliding & Skiing</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Experience the thrill of paragliding over the Swiss Alps or skiing down pristine slopes. Interlaken and surrounding regions offer excellent facilities for both activities. Adventure seekers will find their paradise here..</p>
     <div id="adventure-carousel" class="carousel relative w-full h-96 rounded-xl overflow-hidden shadow-md mx-auto">
       <img src="https://static.wixstatic.com/media/9ba186_7710290e894a47918156b32c915f185d~mv2.jpg" class="carousel-image active" alt="Paragliding">
       <img src="https://images.pexels.com/photos/28544946/pexels-photo-28544946/free-photo-of-high-flying-paragliding-adventure-against-blue-sky.jpeg?auto=compress&cs=tinysrgb&w=600" class="carousel-image" alt="Skiing">
@@ -528,50 +551,6 @@
 
    </div>
   </div>
-
-
-
-<!-- Service 15: Ebike, Jet Boat, Canyoning, Kayak, Skydiving -->
-<div class="mb-16">
-  <h4 class="text-xl font-semibold mb-4">Adventure Tours: E-Bike, Jet Boat, Kayak, Skydiving</h4>
-  <p class="mb-6">Engage in a variety of adrenaline-pumping activities in Switzerland's adventure capital. From e-bike tours through scenic trails to jet boat rides on alpine lakes, there's something for everyone. Try canyoning, kayaking, or even skydiving for unforgettable memories.</p>
-
-  <div class="relative w-full max-w-4xl mx-auto grid grid-cols-3 gap-4">
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/32159631/13712488_640_360_60fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/27921682/12264090_360_640_25fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/8574164/8574164-hd_1280_720_25fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/2964490/2964490-hd_1280_720_25fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/3889864/3889864-hd_1280_720_25fps.mp4" type="video/mp4">
-      </video>
-    </div>
-    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
-      <video autoplay muted loop playsinline class="w-full h-full object-cover">
-        <source src="https://videos.pexels.com/video-files/8208750/8208750-hd_1280_720_25fps.mp4" type="video/mp4">
-      </video>
-    </div>
-  </div>
-</div>
-
-
-
 
 
 
@@ -602,8 +581,8 @@
 
   <!-- Service 15: Ebike, Jet Boat, Canyoning, Kayak, Skydiving -->
   <div class="mb-16">
-    <h4 class="text-xl font-semibold mb-4">Adventure Tours: E-Bike, Jet Boat, Kayak, Skydiving</h4>
-    <p class="mb-6">Engage in a variety of adrenaline-pumping activities in Switzerland's adventure capital. From e-bike tours through scenic trails to jet boat rides on alpine lakes, there's something for everyone. Try canyoning, kayaking, or even skydiving for unforgettable memories.</p>
+    <h4 class="text-5xl font-bold mb-4 text-green-600">Adventure Tours: E-Bike, Jet Boat, Kayak, Skydiving</h4>
+    <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Engage in a variety of adrenaline-pumping activities in Switzerland's adventure capital. From e-bike tours through scenic trails to jet boat rides on alpine lakes, there's something for everyone. Try canyoning, kayaking, or even skydiving for unforgettable memories.</p>
     
 	
 	<div class="relative w-full max-w-4xl h-96 mx-auto overflow-hidden rounded-xl shadow-md grid grid-cols-3 gap-4">
@@ -622,14 +601,28 @@
 	
 	
 	
-	
-	<div class="oval-video">
-	
- <video autoplay muted loop playsinline>
-    <source src="https://videos.pexels.com/video-files/32159631/13712488_640_360_60fps.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+	<!-- Service 15: Ebike, Jet Boat, Canyoning, Kayak, Skydiving -->
+<div class="mb-16">
+  <h4 class="text-5xl font-bold mb-4 text-blue-600"></h4>
+  <p class="mb-6"></p>
+
+  <div class="relative w-full max-w-4xl mx-auto grid grid-cols-3 gap-4">
+    <div class="w-full h-48 overflow-hidden rounded-[50%/30%] shadow-md">
+      <video autoplay muted loop playsinline class="w-full h-full object-cover">
+        <source src="https://videos.pexels.com/video-files/32159631/13712488_640_360_60fps.mp4" type="video/mp4">
+      </video>
+    </div>
+   
+   
+  </div>
 </div>
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -651,9 +644,9 @@
       <div class="min-w-full px-6 flex justify-center">
         <div class="bg-blue-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
           <p class="italic">"Savina made my honeymoon the best experience of my life!"</p>
-          <img src="https://i.pravatar.cc/100?img=1" alt="Client 1" class="w-12 h-12 rounded-full mt-2 mb-1">
-          <h4 class="font-semibold text-sm">Jane Wanjiku</h4>
-          <p class="text-xs text-gray-500">Nairobi</p>
+         
+          <h4 class="font-semibold text-sm">Havey Kings </h4>
+          <p class="text-xs text-gray-500">Switzerland</p>
         </div>
       </div>
 
@@ -661,9 +654,9 @@
       <div class="min-w-full px-6 flex justify-center">
         <div class="bg-green-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
           <p class="italic">"Professional, affordable, and unforgettable!"</p>
-          <img src="https://i.pravatar.cc/100?img=2" alt="Client 2" class="w-12 h-12 rounded-full mt-2 mb-1">
-          <h4 class="font-semibold text-sm">John Otieno</h4>
-          <p class="text-xs text-gray-500">Kisumu</p>
+          <img src="" alt="Client 2" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">D. Biero Wales</h4>
+          <p class="text-xs text-gray-500">Switzerland</p>
         </div>
       </div>
 
@@ -671,9 +664,9 @@
       <div class="min-w-full px-6 flex justify-center">
         <div class="bg-yellow-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
           <p class="italic">"I can't wait to travel with Savina again!"</p>
-          <img src="https://i.pravatar.cc/100?img=3" alt="Client 3" class="w-12 h-12 rounded-full mt-2 mb-1">
-          <h4 class="font-semibold text-sm">Mercy Chebet</h4>
-          <p class="text-xs text-gray-500">Eldoret</p>
+          <img src="" alt="Client 3" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Mary Wairimu</h4>
+          <p class="text-xs text-gray-500">Mombasa</p>
         </div>
       </div>
 
@@ -681,21 +674,13 @@
       <div class="min-w-full px-6 flex justify-center">
         <div class="bg-red-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
           <p class="italic">"My business trip was smooth and well planned."</p>
-          <img src="https://i.pravatar.cc/100?img=4" alt="Client 4" class="w-12 h-12 rounded-full mt-2 mb-1">
-          <h4 class="font-semibold text-sm">Peter Mwangi</h4>
-          <p class="text-xs text-gray-500">Mombasa</p>
+          <img src="" alt="Client 4" class="w-12 h-12 rounded-full mt-2 mb-1">
+          <h4 class="font-semibold text-sm">Paul Okongo</h4>
+          <p class="text-xs text-gray-500">Nairobi</p>
         </div>
       </div>
 
-      <!-- Testimonial 5 -->
-      <div class="min-w-full px-6 flex justify-center">
-        <div class="bg-purple-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
-          <p class="italic">"Highly recommend Savina for group tours!"</p>
-          <img src="https://i.pravatar.cc/100?img=5" alt="Client 5" class="w-12 h-12 rounded-full mt-2 mb-1">
-          <h4 class="font-semibold text-sm">Faith Njeri</h4>
-          <p class="text-xs text-gray-500">Naivasha</p>
-        </div>
-      </div>
+     
 
     </div>
   </div>
@@ -872,6 +857,36 @@ const slider = document.getElementById('testimonialSlider');
   }
 
   setInterval(showNextTestimonial, 4000); // change every 4 seconds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = {
+  theme: {
+    extend: {
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
+      },
+    },
+  },
+};
+
+
+
+
+
 
 
 
