@@ -70,7 +70,7 @@
       let cInJperGramC = c;
 
       if (massUnit === "kg") mInGrams = mass * 1000;
-      if (cUnit === "kJ/kg°C") cInJperGramC = c * 1000 / 1000; // = c in J/g°C
+      if (cUnit === "kJ/kg°C") cInJperGramC = c * 1000 / 1000; // still J/g°C, same units
 
       const deltaT = t2 - t1;
       const qJ = mInGrams * cInJperGramC * deltaT;
@@ -87,11 +87,33 @@ Q = m × c × ΔT = ${fmt(mInGrams)} g × ${fmt(cInJperGramC)} J/g°C × ${fmt(d
 Q = ${fmt(qKJ)} kJ
 `;
 
+      // Add endo/exo info for Q
+      if (qKJ > 0) {
+        output += "\nThis process is Endothermic (absorbs heat).";
+      } else if (qKJ < 0) {
+        output += "\nThis process is Exothermic (releases heat).";
+      } else {
+        output += "\nThis process has no net heat exchange (Q = 0).";
+      }
+
       if (!isNaN(n) && n > 0) {
         const deltaH = qKJ / n;
-        output += `\nΔH = Q / n = ${fmt(qKJ)} / ${fmt(n)} = ${fmt(deltaH)} kJ/mol`;
+        output += `
+
+ΔH = Q / n = ${fmt(qKJ)} / ${fmt(n)} = ${fmt(deltaH)} kJ/mol`;
+
+        // Add endo/exo info for ΔH
+        if (deltaH > 0) {
+          output += "\nThis molar enthalpy change (ΔH) is Endothermic.";
+        } else if (deltaH < 0) {
+          output += "\nThis molar enthalpy change (ΔH) is Exothermic.";
+        } else {
+          output += "\nThis molar enthalpy change (ΔH) is zero.";
+        }
       } else {
-        output += `\nTo calculate molar enthalpy (ΔH), enter the number of moles.`;
+        output += `
+
+To calculate molar enthalpy (ΔH), enter the number of moles.`;
       }
 
       document.getElementById("result").textContent = output.trim();
