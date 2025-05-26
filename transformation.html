@@ -53,6 +53,16 @@
     <canvas id="canvas" width="900" height="900"></canvas>
 
     <script>
+	
+	let transformType = null;
+    let transformCenter = null;
+
+	
+	
+	
+	
+	
+	
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
 
@@ -132,24 +142,70 @@
             ctx.stroke();
         }
 
-        function drawDashedLines() {
-            ctx.setLineDash([5, 5]); 
-            ctx.strokeStyle = "gray"; 
-            ctx.lineWidth = 1;
+       
+	   
+	   
+	  
+	   
+	   
+	function drawDashedLines(type = null, center = null) {
+    ctx.setLineDash([5, 5]);
+    ctx.strokeStyle = "gray";
+    ctx.lineWidth = 1;
 
-            for (let i = 0; i < originalTrapezium.length; i++) {
-                let start = canvasCoords(originalTrapezium[i]);
-                let end = canvasCoords(transformedTrapezium[i]);
+    for (let i = 0; i < transformedTrapezium.length; i++) {
+        let start, end;
 
-                ctx.beginPath();
-                ctx.moveTo(start.x, start.y);
-                ctx.lineTo(end.x, end.y);
-                ctx.stroke();
-            }
+        if (type === "rotation" || type === "enlargement") {
+            if (!center || isNaN(center.x) || isNaN(center.y)) continue;
 
-            ctx.setLineDash([]); 
+            // Always draw from the center to both the original and transformed point
+            start = canvasCoords(center);
+            end = canvasCoords(transformedTrapezium[i]);
+
+            // Optionally also show from center to original point (for clarity)
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(canvasCoords(originalTrapezium[i]).x, canvasCoords(originalTrapezium[i]).y);
+            ctx.stroke();
+        } else {
+            start = canvasCoords(originalTrapezium[i]);
+            end = canvasCoords(transformedTrapezium[i]);
         }
 
+        if (!start || !end) continue;
+
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+    }
+
+    ctx.setLineDash([]);
+}
+
+
+
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
         function canvasCoords(point) {
             return { 
                 x: canvas.width / 2 + point.x * gridSize, 
@@ -157,57 +213,121 @@
             };
         }
 
-        function reflect() {
-            let line = document.getElementById("reflectionLine").value.trim();
+      
+	  
+	  
+	  
+	  
+	  function reflect() {
+    let line = document.getElementById("reflectionLine").value.trim();
 
-            if (line.startsWith("y=")) {
-                let yVal = parseFloat(line.split("=")[1]);
-                transformedTrapezium = originalTrapezium.map(p => ({ x: p.x, y: 2 * yVal - p.y }));
-            } else if (line.startsWith("x=")) {
-                let xVal = parseFloat(line.split("=")[1]);
-                transformedTrapezium = originalTrapezium.map(p => ({ x: 2 * xVal - p.x, y: p.y }));
-            }
+    if (line.startsWith("y=")) {
+        let yVal = parseFloat(line.split("=")[1]);
+        transformedTrapezium = originalTrapezium.map(p => ({ x: p.x, y: 2 * yVal - p.y }));
+    } else if (line.startsWith("x=")) {
+        let xVal = parseFloat(line.split("=")[1]);
+        transformedTrapezium = originalTrapezium.map(p => ({ x: 2 * xVal - p.x, y: p.y }));
+    }
 
-            draw();
-        }
+    transformType = "reflection";
+    transformCenter = null; // no single center for reflection
 
-        function rotate() {
-            let angle = parseFloat(document.getElementById("angle").value);
-            let centerX = parseFloat(document.getElementById("rotateX").value);
-            let centerY = parseFloat(document.getElementById("rotateY").value);
-            let rad = (angle * Math.PI) / 180;
-            let cosA = Math.cos(rad);
-            let sinA = Math.sin(rad);
+    draw();
+}
 
-            transformedTrapezium = originalTrapezium.map(p => ({
-                x: centerX + (p.x - centerX) * cosA - (p.y - centerY) * sinA,
-                y: centerY + (p.x - centerX) * sinA + (p.y - centerY) * cosA
-            }));
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
 
-            draw();
-        }
+        
+		
+		function rotate() {
+    let angle = parseFloat(document.getElementById("angle").value);
+    let centerX = parseFloat(document.getElementById("rotateX").value);
+    let centerY = parseFloat(document.getElementById("rotateY").value);
+    let rad = (angle * Math.PI) / 180;
+    let cosA = Math.cos(rad);
+    let sinA = Math.sin(rad);
 
-        function enlarge() {
-            let scale = parseFloat(document.getElementById("scale").value);
-            let centerX = parseFloat(document.getElementById("scaleX").value);
-            let centerY = parseFloat(document.getElementById("scaleY").value);
+    transformedTrapezium = originalTrapezium.map(p => ({
+        x: centerX + (p.x - centerX) * cosA - (p.y - centerY) * sinA,
+        y: centerY + (p.x - centerX) * sinA + (p.y - centerY) * cosA
+    }));
 
-            transformedTrapezium = originalTrapezium.map(p => ({
-                x: centerX + (p.x - centerX) * scale,
-                y: centerY + (p.y - centerY) * scale
-            }));
+    transformType = "rotation";
+    transformCenter = { x: centerX, y: centerY };
 
-            draw();
-        }
+    draw();
+}
 
-        function draw() {
-            drawGrid();
-            drawTrapezium(originalTrapezium, "blue");
-            drawDashedLines();
-            drawTrapezium(transformedTrapezium, "red");
-        }
+		
+		
+		
+		
+		
+		
+	function enlarge() {
+    let scale = parseFloat(document.getElementById("scale").value);
+    let centerX = parseFloat(document.getElementById("scaleX").value);
+    let centerY = parseFloat(document.getElementById("scaleY").value);
 
-        draw();
+    transformedTrapezium = originalTrapezium.map(p => ({
+        x: centerX + (p.x - centerX) * scale,
+        y: centerY + (p.y - centerY) * scale
+    }));
+
+    transformType = "enlargement";
+    transformCenter = { x: centerX, y: centerY };
+
+
+console.log("Transform center:", transformCenter);
+
+
+    draw();
+}
+
+		
+		
+		
+
+		
+		
+		
+		
+		
+
+       
+	   
+	   
+	   
+	  function draw() {
+    drawGrid();
+    drawTrapezium(originalTrapezium, "blue");
+    drawDashedLines(transformType, transformCenter);
+    drawTrapezium(transformedTrapezium, "red");
+}
+
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+
+
     </script>
 
 </body>
