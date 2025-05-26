@@ -142,27 +142,77 @@
       return total;
     }
 
-    function calculateDeltaH(){
-      let sb=0, sf=0;
-      try {
-        const dd = sumDropdowns();
-        sb += dd.sumBroken; sf += dd.sumForm;
-      } catch(e) {
-        document.getElementById("result").innerHTML = 
-          `<span style="color:red;">${e}</span>`;
-        return;
-      }
-      sb += sumManual("bondsBrokenManual");
-      sf += sumManual("bondsFormedManual");
+    function calculateDeltaH() {
+  let sb = 0, sf = 0;
+  let detail = `<strong>Step-by-Step Calculation:</strong><br>`;
 
-      const ΔH = sb - sf;
-      const type = ΔH>0 ? "Endothermic (ΔH > 0)" :
-                   ΔH<0 ? "Exothermic (ΔH < 0)" : "ΔH = 0";
+  // 1) Dropdown rows
+  document.querySelectorAll("#bondRows tr").forEach((row, idx) => {
+    const bc = row.querySelector(".break-count").value;
+    const bb = row.querySelector(".break-bond").value;
+    const fc = row.querySelector(".form-count").value;
+    const fb = row.querySelector(".form-bond").value;
 
-      document.getElementById("result").innerHTML = `
-        ΔH = ${sb} − ${sf} = <strong>${ΔH} kJ/mol</strong><br>${type}
-      `;
+    // only row 1 is required
+    if (idx === 0 && (!bc || !bb || !fc || !fb)) {
+      document.getElementById("result").innerHTML = 
+        `<span style="color:red;">Row 1 must have all entries.</span>`;
+      throw "";
     }
+
+    if (bc && bb) {
+      const e = bc * bondEnergies[bb];
+      sb += e;
+      detail += `Row ${idx+1} Broken: ${bc}×${bb} (${bondEnergies[bb]}) = ${e} kJ<br>`;
+    }
+    if (fc && fb) {
+      const e = fc * bondEnergies[fb];
+      sf += e;
+      detail += `Row ${idx+1} Formed: ${fc}×${fb} (${bondEnergies[fb]}) = ${e} kJ<br>`;
+    }
+  });
+
+  detail += `<br><u>Subtotal</u>:<br>`;
+  detail += `Total Broken = ${sb} kJ<br>`;
+  detail += `Total Formed = ${sf} kJ<br>`;
+
+  // 2) Manual entries
+  function parseManual(id, label) {
+    let sum = 0;
+    const txt = document.getElementById(id).value.trim();
+    if (!txt) return sum;
+    detail += `<br><u>${label} (manual)</u>:<br>`;
+    txt.split(",").forEach(p => {
+      const m = p.trim().match(/^(?:(\d+)×)?([A-Za-z=≡\-]+):\s*([\d.]+)/);
+      if (m) {
+        const qty = parseInt(m[1]||1,10);
+        const bond = m[2];
+        const val  = parseFloat(m[3]);
+        const e = qty * val;
+        detail += `${qty}×${bond} (${val}) = ${e} kJ<br>`;
+        sum += e;
+      }
+    });
+    return sum;
+  }
+
+  const mb = parseManual("bondsBrokenManual", "Broken");
+  const mf = parseManual("bondsFormedManual", "Formed");
+  sb += mb; sf += mf;
+
+  detail += `<br><u>Grand Total</u>:<br>`;
+  detail += `Broken = ${sb} kJ, Formed = ${sf} kJ<br>`;
+
+  // 3) Final ΔH
+  const dH = sb - sf;
+  const type = dH>0 ? "Endothermic (ΔH > 0)" 
+                   : dH<0 ? "Exothermic (ΔH < 0)"
+                          : "ΔH = 0\u00A0kJ/mol";
+  detail += `<br><strong>ΔH = ${sb} – ${sf} = ${dH} kJ/mol</strong><br>${type}`;
+
+  document.getElementById("result").innerHTML = detail;
+}
+
   </script>
 
 </body>
