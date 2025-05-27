@@ -68,6 +68,16 @@
       max-width: 100%;
       margin: 10px 0;
     }
+    label {
+      font-weight: bold;
+    }
+    select {
+      margin: 0 10px 15px 5px;
+      padding: 6px 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
@@ -91,6 +101,15 @@
   <br>
 
   <input type="file" id="imageUpload" accept="image/*">
+
+  <!-- Voice language selector -->
+  <label for="voiceLang">Select voice language:</label>
+  <select id="voiceLang" onchange="loadVoices()">
+    <option value="en" selected>English</option>
+    <option value="sw">Swahili</option>
+  </select>
+
+  <br>
 
   <button onclick="prevLesson()">⬅️ Previous Lesson</button>
   <button onclick="nextLesson()">➡️ Next Lesson</button>
@@ -175,118 +194,85 @@
       showLesson(currentLesson);
     }
 
-    
-	
-	
-	
-	
-	
-	
-	function loadCustomLesson() {
-  const fileInput = document.getElementById("lessonFile");
-  const file = fileInput.files[0];
-  if (!file || !file.name.endsWith(".docx")) {
-    alert("Please select a .docx file.");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    mammoth.convertToHtml({ arrayBuffer: e.target.result }, {
-      convertImage: mammoth.images.inline(function (element) {
-        return element.read("base64").then(function (imageBuffer) {
-          return {
-            src: "data:" + element.contentType + ";base64," + imageBuffer
-          };
-        });
-      })
-    }).then(function (result) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(result.value, "text/html");
-
-      // Remove all <ul> and <li> (unordered lists)
-      doc.querySelectorAll("ul").forEach(ul => ul.remove());
-      doc.querySelectorAll("li").forEach(li => {
-        const span = document.createElement("span");
-        span.innerHTML = li.innerHTML;
-        li.parentNode.replaceChild(span, li);
-      });
-
-      const html = doc.body.innerHTML;
-      const editor = document.getElementById("editor");
-      editor.innerHTML = html;
-
-      lessonsArray = [editor.innerHTML];
-      tutorStarted = true;
-      currentLesson = 0;
-      saveLessons();
-
-      // OCR for all images in the editor
-      const images = editor.querySelectorAll("img");
-      ocrTexts = [];
-      images.forEach(img => {
-        Tesseract.recognize(
-          img.src,
-          'eng',
-          { logger: m => console.log(m) }
-        ).then(({ data: { text } }) => {
-          if (text.trim()) {
-            ocrTexts.push(text.trim());
-            console.log("OCR Text from Word image:", text.trim());
-          }
-        });
-      });
-    }).catch(err => {
-      console.error(err);
-      alert("Error reading Word file.");
-    });
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-    function nextLesson() {
-      if (tutorStarted && currentLesson < lessonsArray.length - 1) {
-        currentLesson++;
-        showLesson(currentLesson);
+    function loadCustomLesson() {
+      const fileInput = document.getElementById("lessonFile");
+      const file = fileInput.files[0];
+      if (!file || !file.name.endsWith(".docx")) {
+        alert("Please select a .docx file.");
+        return;
       }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        mammoth.convertToHtml({ arrayBuffer: e.target.result }, {
+          convertImage: mammoth.images.inline(function (element) {
+            return element.read("base64").then(function (imageBuffer) {
+              return {
+                src: "data:" + element.contentType + ";base64," + imageBuffer
+              };
+            });
+          })
+        }).then(function (result) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(result.value, "text/html");
+
+          // Remove all <ul> and <li> (unordered lists)
+          doc.querySelectorAll("ul").forEach(ul => ul.remove());
+          doc.querySelectorAll("li").forEach(li => {
+            const span = document.createElement("span");
+            span.innerHTML = li.innerHTML;
+            li.parentNode.replaceChild(span, li);
+          });
+
+          const html = doc.body.innerHTML;
+          const editor = document.getElementById("editor");
+          editor.innerHTML = html;
+
+          lessonsArray = [editor.innerHTML];
+          tutorStarted = true;
+          currentLesson = 0;
+          saveLessons();
+
+          // OCR for all images in the editor
+          const images = editor.querySelectorAll("img");
+          ocrTexts = [];
+          images.forEach(img => {
+            Tesseract.recognize(
+              img.src,
+              'eng',
+              { logger: m => console.log(m) }
+            ).then(({ data: { text } }) => {
+              if (text.trim()) {
+                ocrTexts.push(text.trim());
+                console.log("OCR Text from Word image:", text.trim());
+              }
+            });
+          });
+        }).catch(err => {
+          console.error(err);
+          alert("Failed to load .docx file.");
+        });
+      };
+      reader.readAsArrayBuffer(file);
     }
 
     function prevLesson() {
-      if (tutorStarted && currentLesson > 0) {
-        currentLesson--;
-        showLesson(currentLesson);
+      if (!tutorStarted) return alert("Start by loading or pasting lessons.");
+      if (currentLesson > 0) {
+        showLesson(currentLesson - 1);
+      }
+    }
+
+    function nextLesson() {
+      if (!tutorStarted) return alert("Start by loading or pasting lessons.");
+      if (currentLesson < lessonsArray.length - 1) {
+        showLesson(currentLesson + 1);
       }
     }
 
     function saveLessons() {
       localStorage.setItem("lessonsArray", JSON.stringify(lessonsArray));
-      localStorage.setItem("currentLesson", currentLesson.toString());
-    }
-
-    function loadLessonsFromStorage() {
-      const storedLessons = localStorage.getItem("lessonsArray");
-      const storedIndex = localStorage.getItem("currentLesson");
-      if (storedLessons) {
-        lessonsArray = JSON.parse(storedLessons);
-        currentLesson = storedIndex ? parseInt(storedIndex) : 0;
-        tutorStarted = true;
-        showLesson(currentLesson);
-      }
+      localStorage.setItem("currentLesson", currentLesson);
     }
 
     function loadVoices() {
@@ -296,14 +282,26 @@
         return;
       }
 
-      selectedVoice = voices.find(v =>
-        (v.lang.toLowerCase().includes("en") && v.name.toLowerCase().includes("nigerian")) ||
-        (v.lang.toLowerCase().includes("en") && v.name.toLowerCase().includes("african")) ||
-        (v.lang.toLowerCase().includes("en") && v.name.toLowerCase().includes("female"))
-      );
+      const selectedLang = document.getElementById("voiceLang").value;
 
+      if (selectedLang === "sw") {
+        // Find a Swahili voice if available
+        selectedVoice = voices.find(v =>
+          v.lang.toLowerCase().startsWith("sw") || v.name.toLowerCase().includes("swahili")
+        );
+      } else {
+        // English voices, prioritize African or Nigerian female voice
+        selectedVoice = voices.find(v =>
+          (v.lang.toLowerCase().startsWith("en") && (v.name.toLowerCase().includes("nigerian") || v.name.toLowerCase().includes("african")))
+        );
+        if (!selectedVoice) {
+          selectedVoice = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
+        }
+      }
+
+      // Fallback to any voice if none found for chosen language
       if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
+        selectedVoice = voices[0];
       }
     }
     loadVoices();
@@ -312,13 +310,13 @@
     }
 
     function readLessonAloud() {
-      if (!tutorStarted || !lessonsArray.length) {
+      if (!tutorStarted || lessonsArray.length === 0) {
         alert("No lesson loaded.");
         return;
       }
-
       const editorText = document.getElementById("editor").innerText;
-      const mathText = document.getElementById("mathInput")?.getValue?.() || "";
+      const mathInput = document.getElementById("mathInput");
+      const mathText = mathInput?.getValue?.() || "";
 
       const combined = [
         editorText,
@@ -326,12 +324,15 @@
         ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""
       ].filter(Boolean).join("\n");
 
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+
       speechUtterance = new SpeechSynthesisUtterance(combined);
       speechUtterance.voice = selectedVoice;
       speechUtterance.rate = 1;
       speechUtterance.pitch = 1.1;
 
-      speechSynthesis.cancel();
       speechSynthesis.speak(speechUtterance);
     }
 
@@ -348,81 +349,64 @@
     }
 
     function printLesson() {
-      if (!tutorStarted) {
-        alert("No lesson loaded.");
-        return;
-      }
+      if (!tutorStarted) return alert("Load a lesson first.");
       const printWindow = window.open('', '_blank');
-      printWindow.document.write(`<pre>${lessonsArray[currentLesson]}</pre>`);
+      printWindow.document.write('<html><head><title>Print Lesson</title></head><body>');
+      printWindow.document.write(document.getElementById("editor").innerHTML);
+      printWindow.document.write('</body></html>');
       printWindow.document.close();
+      printWindow.focus();
       printWindow.print();
+      printWindow.close();
     }
 
     function downloadLesson() {
-      if (!tutorStarted) {
-        alert("No lesson loaded.");
-        return;
-      }
-      const blob = new Blob([lessonsArray[currentLesson]], { type: 'text/plain' });
+      if (!tutorStarted) return alert("Load a lesson first.");
+      const content = document.getElementById("editor").innerHTML;
+      const blob = new Blob([content], { type: "text/html" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `Lesson-${currentLesson + 1}.txt`;
+      a.download = `lesson_${currentLesson + 1}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    document.getElementById("lessonText").addEventListener("paste", async function (event) {
-      const items = (event.clipboardData || window.clipboardData).items;
-      for (const item of items) {
-        if (item.type.indexOf("image") === 0) {
-          const blob = item.getAsFile();
-          const url = URL.createObjectURL(blob);
-          insertImageInEditor(url);
-          event.preventDefault();
-        }
-      }
-    });
-
-    document.getElementById("imageUpload").addEventListener("change", function () {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        insertImageInEditor(e.target.result);
-      };
-      reader.readAsDataURL(file);
-      this.value = "";
-    });
-
-    function insertImageInEditor(imageUrl) {
-      const img = document.createElement("img");
-      img.src = imageUrl;
-      img.alt = "Inserted Image";
-      img.style.maxWidth = "100%";
-      img.style.margin = "10px 0";
-
-      document.getElementById("editor").appendChild(img);
-
-      Tesseract.recognize(
-        imageUrl,
-        'eng',
-        { logger: m => console.log(m) }
-      ).then(({ data: { text } }) => {
-        if (text.trim()) {
-          ocrTexts.push(text.trim());
-          console.log("OCR Text extracted:", text.trim());
-        }
-      });
-    }
-
-    // Load lessons from localStorage on page load
+    // Load saved lessons on page load
     window.onload = () => {
-      loadLessonsFromStorage();
+      const savedLessons = localStorage.getItem("lessonsArray");
+      const savedCurrent = localStorage.getItem("currentLesson");
+      if (savedLessons) {
+        lessonsArray = JSON.parse(savedLessons);
+        tutorStarted = true;
+        currentLesson = savedCurrent ? parseInt(savedCurrent, 10) : 0;
+        showLesson(currentLesson);
+      }
     };
 
+    // OCR for uploaded images
+    document.getElementById("imageUpload").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          Tesseract.recognize(
+            img,
+            'eng',
+            { logger: m => console.log(m) }
+          ).then(({ data: { text } }) => {
+            alert("OCR Result:\n" + text.trim());
+            ocrTexts.push(text.trim());
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    });
   </script>
 
 </body>
