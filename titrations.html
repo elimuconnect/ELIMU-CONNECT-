@@ -77,6 +77,11 @@
   <input type="number" id="baseVolume" step="any"><br>
   <label>Concentration of base (mol/dm³):</label>
   <input type="number" id="baseConcentration" step="any"><br>
+  
+  <label>Mole Ratio (Acid : Base)</label><br>
+<input type="number" id="backRatioAcid" value="1" min="1" style="width: 50px;"> :
+<input type="number" id="backRatioBase" value="1" min="1" style="width: 50px;"><br>
+  
   <label>Moles of Acid : Moles of Substance = </label>
   <input type="number" id="acidRatio" value="1" style="width: 50px;"> :
   <input type="number" id="substanceRatio" value="1" style="width: 50px;"><br>
@@ -86,9 +91,13 @@
 </div>
 
 <script>
-  function format(val) {
-    return parseFloat(val.toFixed(4)).toString().replace(/\.?0+$/, "");
+ function format(num) {
+  if (Math.abs(num) < 1 && num !== 0) {
+    // For small numbers, show up to 6 decimal places (without trailing zeros)
+    return parseFloat(num.toFixed(6)).toString();
   }
+  return parseFloat(num.toFixed(4)).toString(); // For regular numbers
+}
 
   function calculateDirect() {
     const vA = parseFloat(document.getElementById('directVolAcid').value) / 1000;
@@ -115,38 +124,53 @@
   }
 
   function calculateBack() {
-    const mass = parseFloat(document.getElementById('massSubstance').value);
-    const volAcid = parseFloat(document.getElementById('acidVolume').value) / 1000;
-    const concAcid = parseFloat(document.getElementById('acidConcentration').value);
-    const volBase = parseFloat(document.getElementById('baseVolume').value) / 1000;
-    const concBase = parseFloat(document.getElementById('baseConcentration').value);
-    const acidRatio = parseFloat(document.getElementById("acidRatio").value);
-    const substanceRatio = parseFloat(document.getElementById("substanceRatio").value);
+  const mass = parseFloat(document.getElementById('massSubstance').value);
+  const volAcid = parseFloat(document.getElementById('acidVolume').value) / 1000;
+  const concAcid = parseFloat(document.getElementById('acidConcentration').value);
+  const volBase = parseFloat(document.getElementById('baseVolume').value) / 1000;
+  const concBase = parseFloat(document.getElementById('baseConcentration').value);
+  const acidRatio = parseFloat(document.getElementById("acidRatio").value);
+  const substanceRatio = parseFloat(document.getElementById("substanceRatio").value);
 
-    const steps = [];
+  // New: Acid : Base ratio
+  const backRatioAcid = parseFloat(document.getElementById("backRatioAcid").value);
+  const backRatioBase = parseFloat(document.getElementById("backRatioBase").value);
 
-    steps.push(`<div class='step formula'>Step 1: Moles of acid added = volume × concentration</div>`);
-    const molesAcidInitial = volAcid * concAcid;
-    steps.push(`<div class='step'>${format(volAcid)} × ${concAcid} = ${format(molesAcidInitial)} mol</div>`);
+  const steps = [];
 
-    steps.push(`<div class='step formula'>Step 2: Moles of base used = volume × concentration</div>`);
-    const molesBaseUsed = volBase * concBase;
-    steps.push(`<div class='step'>${format(volBase)} × ${concBase} = ${format(molesBaseUsed)} mol</div>`);
+  // Step 1: Moles of acid added
+  const molesAcidInitial = volAcid * concAcid;
+  steps.push(`<div class='step formula'>Step 1: Moles of acid added = volume × concentration</div>`);
+  steps.push(`<div class='step'>${format(volAcid)} × ${concAcid} = ${format(molesAcidInitial)} mol</div>`);
 
-    steps.push(`<div class='step formula'>Step 3: Moles of acid that reacted with substance = total acid - excess acid</div>`);
-    const molesAcidReacted = molesAcidInitial - molesBaseUsed;
-    steps.push(`<div class='step'>${format(molesAcidInitial)} - ${format(molesBaseUsed)} = ${format(molesAcidReacted)} mol</div>`);
+  // Step 2: Moles of base added
+  const molesBaseUsed = volBase * concBase;
+  steps.push(`<div class='step formula'>Step 2: Moles of base added = volume × concentration</div>`);
+  steps.push(`<div class='step'>${format(volBase)} × ${concBase} = ${format(molesBaseUsed)} mol</div>`);
 
-    steps.push(`<div class='step formula'>Step 4: Use ratio Acid:Substance = ${acidRatio}:${substanceRatio}</div>`);
-    const molesSubstance = molesAcidReacted * (substanceRatio / acidRatio);
-    steps.push(`<div class='step'>Moles of substance = ${format(molesAcidReacted)} × (${substanceRatio}/${acidRatio}) = ${format(molesSubstance)} mol</div>`);
+  // Step 3: Convert moles of base to acid equivalent using acid:base ratio
+  const molesAcidEquivalent = molesBaseUsed * (backRatioAcid / backRatioBase);
+  steps.push(`<div class='step formula'>Step 3: Convert moles of base to acid equivalent using ratio ${backRatioAcid}:${backRatioBase}</div>`);
+  steps.push(`<div class='step'>Acid equivalent = ${format(molesBaseUsed)} × (${backRatioAcid}/${backRatioBase}) = ${format(molesAcidEquivalent)} mol</div>`);
 
-    steps.push(`<div class='step formula'>Step 5: Molar mass = mass ÷ moles</div>`);
-    const molarMass = mass / molesSubstance;
-    steps.push(`<div class='step'>${mass} ÷ ${format(molesSubstance)} = ${format(molarMass)} g/mol</div>`);
+  // Step 4: Moles of acid that reacted with the substance
+  const molesAcidReacted = molesAcidInitial - molesAcidEquivalent;
+  steps.push(`<div class='step formula'>Step 4: Acid reacted with substance = total acid - acid that reacted with base</div>`);
+  steps.push(`<div class='step'>${format(molesAcidInitial)} - ${format(molesAcidEquivalent)} = ${format(molesAcidReacted)} mol</div>`);
 
-    document.getElementById("backResult").innerHTML = steps.join('');
-  }
+  // Step 5: Use acid:substance ratio to get moles of substance
+  const molesSubstance = molesAcidReacted * (substanceRatio / acidRatio);
+  steps.push(`<div class='step formula'>Step 5: Use ratio Acid:Substance = ${acidRatio}:${substanceRatio}</div>`);
+  steps.push(`<div class='step'>Moles of substance = ${format(molesAcidReacted)} × (${substanceRatio}/${acidRatio}) = ${format(molesSubstance)} mol</div>`);
+
+  // Step 6: Molar mass = mass / moles
+  const molarMass = mass / molesSubstance;
+  steps.push(`<div class='step formula'>Step 6: Molar mass = mass ÷ moles</div>`);
+  steps.push(`<div class='step'>${mass} ÷ ${format(molesSubstance)} = ${format(molarMass)} g/mol</div>`);
+
+  document.getElementById("backResult").innerHTML = steps.join('');
+}
+
 </script>
 
 </body>
