@@ -1,50 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ELIMU CONNECT: Learn and Tutor</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f5f5f5; color: #333; line-height: 1.6; }
-    header {
-      background: #0077cc;
-      color: white;
-      padding: 2rem;
-      text-align: center;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ELIMU CONNECT LTD</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          montserrat: ['Montserrat', 'sans-serif'],
+        },
+      },
     }
-    header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .cta {
-      background: #ffd700;
-      text-align: center;
-      padding: 1rem;
-      font-weight: bold;
-      font-size: 1.1rem;
+  }
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+
+
+<style>
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
-    nav {
-      background: #004c99;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
-      padding: 1rem;
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
     }
-    nav a {
-      color: white;
-      text-decoration: none;
-      background: #0077cc;
-      padding: 0.6rem 1.2rem;
-      border-radius: 5px;
-      transition: background 0.3s;
+    @keyframes zoomIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
     }
-    nav a:hover { background: #005999; }
-    .section {
-      padding: 2rem;
-      background: white;
-      margin: 1rem;
-      border-radius: 10px;
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out forwards;
     }
-    .section h2 {
+    .animate-slide-in-right {
+      animation: slideInRight 1s ease-out forwards;
+    }
+    .animate-zoom-in {
+      animation: zoomIn 1s ease-out forwards;
+    }
+    /* Initially hide all images with animation */
+    img[data-animate] {
+      opacity: 0;
+      transform-style: preserve-3d;
+    }
+	
+	
+	
+	
+	
+	
+	/* Animation classes */
+  .slide-in {
+    animation: slideInFade 4s ease-in-out infinite;
+  }
+  .slide-left {
+    animation: slideLeftFade 4s ease-in-out infinite;
+    animation-delay: 1.33s;
+  }
+  .slide-right {
+    animation: slideRightFade 4s ease-in-out infinite;
+    animation-delay: 2.66s;
+  }
+  .zoom-in {
+    animation: zoomFade 4s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+
+  @keyframes slideInFade {
+    0%, 33% {opacity: 1; transform: translateX(0);}
+    40%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideLeftFade {
+    0%, 33% {opacity: 0; transform: translateX(20px);}
+    40%, 73% {opacity: 1; transform: translateX(0);}
+    80%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideRightFade {
+    0%, 66% {opacity: 0; transform: translateX(-20px);}
+    73%, 100% {opacity: 1; transform: translateX(0);}
+  }
+  @keyframes zoomFade {
+    0%, 33% {opacity: 1; transform: scale(1);}
+    40%, 100% {opacity: 0; transform: scale(1.2);}
+  }
+	
+	
+	
+	.carousel-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .carousel-image.active {
+    opacity: 1;
+  }
+	
+	
+	
+	
+	
+	
+	.oval-video {
+    width: 640px;
+    height: 360px;
+    border-radius: 50% / 30%;
+    overflow: hidden;
+  }
+
+  .oval-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	.carousel-image {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .carousel-image.active {
+    display: block;
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	.shape-circle {
+    clip-path: circle(50% at 50% 50%);
+  }
+
+  .shape-triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  
+  .shape-star {
+  clip-path: polygon(
+    50% -20%,
+    72% 30%,
+    120% 30%,
+    80% 60%,
+    95% 120%,
+    50% 85%,
+    5% 120%,
+    20% 60%,
+    -20% 30%,
+    28% 30%
+  );
+}
+
+  .shape-hexagon {
+    clip-path: polygon(
+      25% 5%, 75% 5%,
+      100% 50%, 75% 95%,
+      25% 95%, 0% 50%
+    );
+  }
+
+  .shape-diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  .shape-oval {
+    clip-path: ellipse(50% 35% at 50% 50%);
+  }
+
+  .shape-cylinder {
+    clip-path: ellipse(50% 30% at 50% 0%), ellipse(50% 30% at 50% 100%);
+    border-radius: 50% / 30%;
+  }
+
+  .shape-cone {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  .shape-gasjar {
+    clip-path: polygon(
+      30% 0%, 70% 0%, 70% 15%, 80% 20%,
+      80% 80%, 70% 85%, 70% 100%, 30% 100%,
+      30% 85%, 20% 80%, 20% 20%, 30% 15%
+    );
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	.section h2 {
       text-align: center;
       color: #0077cc;
       margin-bottom: 1rem;
@@ -62,119 +248,680 @@
       border-left: 5px solid #0077cc;
       border-radius: 5px;
     }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      padding: 2rem;
-    }
-    .gallery img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 8px;
-      transition: transform 0.3s;
-    }
-    .gallery img:hover { transform: scale(1.05); }
-    footer {
-      background: #004c99;
-      color: white;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	 header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .cta {
+      background: #ffd700;
       text-align: center;
       padding: 1rem;
-      font-size: 0.9rem;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
-
-    @media (max-width: 600px) {
-      header h1 { font-size: 1.6rem; }
-      nav { flex-direction: column; }
-    }
+	
+	
+	
+	
   </style>
-</head>
-<body>
 
-<header>
-  <img src="https://static.wixstatic.com/media/9ba186_d9fdeb0dc4344faabfad8fa2117501c7~mv2.png" alt="logo" style="height: 60px; width: auto;">
-   <h1>ELIMU CONNECT: Learn and Tutor</h1>
-  <p>Learn, Teach, and Succeed Anytime, Anywhere</p>
+
+</head>
+<body class="bg-white text-gray-800 font-sans leading-relaxed">
+
+  <!-- Header / Navbar -->
+  
+ 
+  <header class="bg-blue-800 text-white p-6 shadow-md">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <!-- Logo and Company Name -->
+    <div class="flex items-center space-x-4">
+      <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
+           alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
+      <h1 class="text-xl md:text-2xl font-bold">ELIMU CONNECT LTD</h1>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex space-x-6 text-sm font-medium">
+      <a href="#about" class="hover:underline">About Us</a>
+	  <a href="#services" class="hover:underline">Services.</a>
+      <a href="#testimonials" class="block text-sm hover:underline">Testimonials</a>
+	
+	<a href="#sponsor" class="block text-sm hover:underline">Sponsor a student/donate</a>
+	
+    
+	
+	 <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Login</a>
+  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install Our App</a>
+  
+	
+	</nav>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden">
+      <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
+        &#x22EE; <!-- Unicode for vertical ellipsis (⋮) -->
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobile-menu" class="md:hidden mt-4 px-4 space-y-2 hidden">
+    <a href="#about" class="block text-sm hover:underline">About Us</a>
+    <a href="#services" class="block text-sm hover:underline">Services</a>
+	<a href="#testimonials" class="block text-sm hover:underline">Testimonials</a>
+	<a href="#sponsor" class="block text-sm hover:underline">Sponsor a student/donate</a>
+	
+	
+    <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Login</a>
+  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install our App</a>
+  
+ 
+  
+  </div>
 </header>
 
-<div class="cta">
-  🎁 1 Month Free Trial + 25% Referral Commission! 💰<br>
-  Students to subscribe @ sh 500 per month(CBC,KCSE) or $ 8 per month (IGCSE,CBSE+ others)<br>
-  For schools subscription, contact us)
+ 
+ 
+ 
+ <div class="cta">
+  🎁 1 week Free Trial + 20% Referral Commission! 💰
 </div>
 
-<nav>
+ 
+  
+  <!-- Hero Section with Oval Video -->
+<section class="w-full h-96 flex items-center justify-center my-6 mx-auto max-w-6xl" data-animate="zoom-in">
+  <div class="w-[640px] h-[360px] rounded-[50%/30%] overflow-hidden shadow-xl">
+    <video autoplay muted loop playsinline class="w-full h-full object-cover">
+      <source src="https://cdn.pixabay.com/video/2021/09/15/88751-606111298_large.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</section>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="ict" class="px-4 py-8 max-w-7xl mx-auto text-center">
+
+  <h2 class="text-3xl font-bold mb-10">ICT INTEGRATION IN EDUCATION</h2>
+  
+  
+  
+  
+
+  
+  	
+	
+  <h3 class="text-5xl font-bold mb-4 text-purple-600">ICT INTEGRATION IN EDUCATION</h3>
+  <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
+    The integration of ICT in education is revolutionizing the learning experience. From interactive digital classrooms to real-time collaboration tools, technology empowers students to learn beyond the limits of traditional walls. It brings lessons to life, makes learning more engaging, and equips learners with the digital skills needed to thrive in the 21st century. Embracing ICT isn’t just an option—it’s the future of education.
+  </p>
+
+  <div class="relative w-full max-w-6xl mx-auto mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <!-- Rectangle -->
+    <video class="shape-rectangle w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/5892366/5892366-uhd_2560_1440_30fps.mp4" type="video/mp4">
+    </video>
+
+    <!-- Circle -->
+    <video class="shape-circle w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/5939926/5939926-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    </video>
+
+    <!-- Oval -->
+    <video class="shape-oval w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/6168921/6168921-uhd_2560_1440_30fps.mp4" type="video/mp4">
+    </video>
+
+    
+
+    <!-- Circle -->
+    <video class="shape-circle w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/4298113/4298113-uhd_2560_1440_25fps.mp4" type="video/mp4">
+    </video>
+
+    <!-- Oval -->
+    <video class="shape-oval w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/5183278/5183278-hd_1920_1080_30fps.mp4" type="video/mp4">
+    </video>
+
    
-  <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/index" target="_blank">Login</a>
-  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install App</a>
-  <a href="https://wa.me/message/JOZAIKLP6BU3C1" target="_blank">Chat on WhatsApp</a>
-  <a href="tel:+254769255782">Call Now</a>
-</nav>
+    <!-- Circle -->
+    <video class="shape-circle w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/1422633/1422633-hd_1920_810_24fps.mp4" type="video/mp4">
+    </video>
 
-<section class="section">
-  <h2>Key Features</h2>
-  <ul class="features">
-    <li>Live Lessons – From just Ksh 100 / $1.3 per hour</li>
-    <li>FREE AI-Powered Live Tutor</li>
-    <li>Connect with Nearby Tutors</li>
-    <li>Evening School-Based Lessons</li>
-    <li>Homework Help on Demand</li>
-    <li>2000+ Video Lessons</li>
-    <li>1000+ Quizzes</li>
-    <li>Weekly Live Tests + Certificates</li>
-    <li>1000 Q&A Pairs</li>
-    <li>30,000 Past Papers</li>
-    <li>200 Ebooks</li>
-    <li>3 Fun Math Games</li>
-    <li>Student Forums + Peer Help</li>
-    <li>Career Guidance Hub</li>
-    <li>TSC Swaps Platform</li>
-    <li>Teachers’ Forum & File Sharing</li>
-    <li>Math Game Competitions (Tutors)</li>
-    <li>Schemes of Work & Lesson Plans</li>
-    <li>Remedial Lessons Tracker</li>
-    <li>Personal Study Timetable Maker</li>
-    <li>Math, Chemistry & Physics Formula Tools</li>
-    <li>Scientific Calculator & Graph Tools</li>
-    <li>Human, Fish, Plant Anatomy Tools</li>
-    <li>Digital Dictionary & Kamusi</li>
-    <li>Similes, Metaphors, Misemo, Nahau, Methali Tools</li>
-    <li>Digital Note Book</li>
-    <li>Digital Periodic Table</li>
-    <li>Physics Principles & Mole Concept Tools</li>
-    <li>Chemical Equations & Organic Chemistry Tools</li>
-    <li>Area, Volume, Trigonometry, Logarithm Tools</li>
-    <li>Income Tax, Interest, Variations & Binomial Tools</li>
-    <li>Latitudes & Longitudes Tool</li>
-    <li>Area Approximation & Errors Tool</li>
-    <li>Statistics & Matrices Calculators</li>
-    <li>Differentiation & Integration Tools</li>
-  </ul>
+  
+  </div>
 </section>
 
-<section class="section">
-  <h2>Curricula Covered</h2>
-  <ul class="features">
-    <li>Kenyan CBC & KCSE</li>
-    <li>IGCSE (International)</li>
-    <li>CBSE (Indian Curriculum)</li>
-    <li>Other International Curricula</li>
-  </ul>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <section id="services" class="px-4 py-8 max-w-7xl mx-auto text-center">
+  <h2 class="text-2xl sm:text-3xl font-bold text-green-700 mb-8">Services We Offer</h2>
+
+  <div class="grid md:grid-cols-3 gap-8 text-left">
+
+    <!-- For Students -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">For Students</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-blue-800">
+        <li>Live Lessons – From just Ksh 200 / $1.6 per hour</li>
+        <li>FREE AI-Powered Live Tutor</li>
+        <li>Connect with Nearby Tutors</li>
+        <li>Evening School-Based Lessons</li>
+        <li>Homework Help on Demand</li>
+        <li>2000+ Video Lessons</li>
+        <li>1000+ Quizzes</li>
+        <li>Weekly Live Tests + Certificates</li>
+        <li>1000 Q&A Pairs</li>
+        <li>30,000 Past Papers</li>
+        <li>200 Ebooks</li>
+        <li>3 Fun Math Games</li>
+		<li>3 Fun language Games</li>
+        <li>Student Forums + Peer Help</li>
+        <li>Career Guidance Hub</li>
+        <li>Personal Study Timetable Maker</li>
+        <li>Digital Note Book</li>
+        <li>Scientific Calculator & Graph Tools</li>
+        <li>Math, Chemistry & Physics Formula Tools</li>
+        <li>Digital Dictionary & Kamusi</li>
+        <li>Similes, Metaphors, Misemo, Nahau, Methali Tools</li>
+        <li>Human, Fish, Plant Anatomy Tools</li>
+        <li>Digital Periodic Table</li>
+        <li>Physics Principles & Mole Concept Tools</li>
+        <li>Chemical Equations & Organic Chemistry Tools</li>
+        <li>Area, Volume, Trigonometry, Logarithm Tools</li>
+        <li>Income Tax, Interest, Variations & Binomial Tools</li>
+        <li>Latitudes & Longitudes Tool</li>
+        <li>Area Approximation & Errors Tool</li>
+        <li>Statistics & Matrices Calculators</li>
+        <li>Differentiation & Integration Tools</li>
+      </ul>
+    </div>
+
+    <!-- For Tutors -->
+    <div class="bg-green-50 border-l-4 border-green-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-green-700 mb-4">For Tutors</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-green-800">
+        <li>Connect with Students for Online or Physical Tutoring</li>
+        <li>Teach in Evening School-Based Programs</li>
+        <li>Get Listed in Tutor Directory</li>
+        <li>Math Game Competitions</li>
+        <li>TSC Swaps Platform</li>
+        <li>Teachers’ Forum & File Sharing</li>
+        <li>Upload Notes, Exams, and Teaching Tools</li>
+        <li>Schemes of Work & Lesson Plans Access</li>
+        <li>Remedial Lessons Tracker</li>
+        <li>International Job Connections (Teaching Abroad)</li>
+      </ul>
+    </div>
+
+    <!-- For Schools -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-yellow-700 mb-4">For Schools</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-yellow-800">
+        <li>Supply of Academic Charts & Teaching Aids</li>
+        <li>ICT Integration Tools & Digital Solutions</li>
+        <li>Evening-Based Tuition Programs</li>
+        <li>School-Based STEMLA Clubs (STEM + Languages)</li>
+        <li>Teacher Swaps linkings</li>
+        <li>Tree Planting & Environmental CSR Projects</li>
+        <li>Performance Tracking Tools</li>
+        <li>Bulk Subscriptions for eLearning Resources</li>
+		<li>We develop websites and web apps for schools</li>
+      </ul>
+    </div>
+
+  </div>
 </section>
 
-<section class="gallery">
-  <img src="https://static.wixstatic.com/media/9ba186_d9fdeb0dc4344faabfad8fa2117501c7~mv2.png" alt="img1">
-  <img src="https://static.wixstatic.com/media/9ba186_fef8903ed02a41e99f18edb3c38adfa6~mv2.png" alt="img2">
-  <img src="https://static.wixstatic.com/media/9ba186_aee5f4538d4248c783e356228edf68b7~mv2.png" alt="img3">
-  <img src="https://static.wixstatic.com/media/9ba186_08f293f2d70041809e68902efdb6b7a9~mv2.png" alt="img4">
-  <img src="https://static.wixstatic.com/media/9ba186_10735523d48e408bb9c89ebadd283386~mv2.png" alt="img5">
-  <img src="https://static.wixstatic.com/media/9ba186_769190fd39744add84532c177135399b~mv2.png" alt="img6">
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <section id="service5" class="mb-16 text-center px-4">
+  <h3 class="text-4xl sm:text-5xl font-bold mb-4 text-green-700">Explore Elimu Connect in Action</h3>
+  <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto mb-8 text-gray-700">
+    Discover how Elimu Connect is transforming education across Kenya. From interactive tutoring to digital tools and school programs, our work speaks for itself. Browse some of the images showcasing our impact on learners, teachers, and schools.
+  </p>
+
+  <div class="relative w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
+
+    <!-- 30 images with shapes and double height -->
+    <!-- You can replace src URLs with your own -->
+    <!-- Row 1 -->
+    <img src="https://images.pexels.com/photos/3825572/pexels-photo-3825572.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/7723354/pexels-photo-7723354.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-cone" alt="">
+    <img src="https://images.pexels.com/photos/248152/pexels-photo-248152.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/3825379/pexels-photo-3825379.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://images.pexels.com/photos/3825443/pexels-photo-3825443.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 2 -->
+    <img src="https://images.pexels.com/photos/714699/pexels-photo-714699.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/3781338/pexels-photo-3781338.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/5905857/pexels-photo-5905857.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-cylinder" alt="">
+    <img src="https://images.pexels.com/photos/5212316/pexels-photo-5212316.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://images.pexels.com/photos/5775/calculator-scientific.jpg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 3 -->
+    <img src="https://images.pexels.com/photos/6156448/pexels-photo-6156448.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/2678059/pexels-photo-2678059.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/674318/pexels-photo-674318.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/950327/pexels-photo-950327.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://cdn.pixabay.com/photo/2013/07/12/13/50/heart-147389_1280.png" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 4 -->
+    <img src="https://cdn.pixabay.com/photo/2021/07/20/12/10/atom-6480540_640.jpg" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2015/12/19/23/17/albert-einstein-1100449_1280.png" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2018/02/26/15/10/pulley-3183263_640.png" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://cdn.pixabay.com/photo/2016/07/18/07/39/quantum-mechanics-1525470_640.jpg" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2021/11/09/06/38/physics-6780773_640.jpg" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 5 -->
+    <img src="https://images.pexels.com/photos/159581/dictionary-reference-book-learning-meaning-159581.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/27240871/pexels-photo-27240871/free-photo-of-a-pile-of-books-with-the-words-the-best-books-to-read-in-2020.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/1205651/pexels-photo-1205651.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    
+  </div>
+</section>
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+
+	
+	 
+	 
+	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+  <!-- About Section -->
+  <section id="about" class="bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        
+
+        <h2 class="text-2xl font-bold mb-2">About Us – Elimu Connect Ltd</h2>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">At Elimu Connect Ltd, we are on a mission to transform education in Kenya and beyond by making quality learning accessible, affordable, and impactful—especially for students in underserved communities.
+
+We are a registered private limited company committed to empowering learners and educators through innovative solutions in academic coaching, educational publishing, ICT integration, school supplies, and teacher recruitment. Our unique approach blends technology, community engagement, and social impact, ensuring that no child is left behind due to financial or geographic barriers.
+
+Whether it’s a student improving in STEM and languages, a teacher getting connected to a job, or a school receiving vital educational tools, Elimu Connect is the bridge to opportunity.</p>
+        
+      </div>
+    <div>
+  <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png"
+       alt="About Image"
+       class="w-64 rounded-xl shadow-lg"
+       data-animate="slide-in-right">
+</div>
+    </div>
+  </section>
+
+  <!-- Commitment Section -->
+  <section id="commitment" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div class="h-96 w-full rounded-xl shadow-md bg-cover bg-center"
+           style="background-image: url('https://static.wixstatic.com/media/9ba186_ec5b3eb56d0b47b7b74398a4e0386917~mv2.png');"
+           data-animate="fade-in">
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Our Vision</h2>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">To transform education in Kenya and Africa by providing accessible, innovative, and 
+inclusive learning resources, services, and technologies for all students—regardless of their 
+socioeconomic background. </p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Mission</h3>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">To empower learners and educators through affordable tutoring, cutting-edge educational 
+tools, STEM and language enrichment programs, and employment linkages—bridging the 
+gap between potential and opportunity.</p> 
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Company objectives</h3>
+       <ol class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto list-decimal space-y-4">
+  <li>To offer affordable and sponsored academic coaching, especially in STEM and languages.</li>
+  <li>To write, publish, and distribute quality curriculum-aligned books across schools and bookshops.</li>
+  <li>To provide ICT integration tools and digital infrastructure for education.</li>
+  <li>To supply academic charts and essential fast-moving school and office items.</li>
+  <li>To connect teachers with job opportunities locally and internationally.</li>
+  <li>To introduce STEMLA (STEM + Languages) Clubs in primary and secondary schools.</li>
+  <li>To champion environmental awareness through tree planting in schools.</li>
+  <li>To partner with donors and foundations to support needy but bright learners.</li>
+</ol>
+
+
+       
+  
+</div>
+    </div>
+  </section>
+
+  <!-- Why Us Section -->
+  <section class="bg-gray-100 py-12 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+    <h2 class="text-3xl font-bold mb-4">Why Us</h2>
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto"">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
+      <img src="https://static.wixstatic.com/media/9ba186_26fcd61a48234041893396470003b5c2~mv2.png"
+     alt="Why Us Image"
+     class="w-[32rem] rounded-xl shadow-lg mb-6 mx-auto block"
+     data-animate="fade-in">
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Student-centered: We design every solution with learners in mind.
+
+Tech-enabled: From mobile apps to smart classroom tools, we embrace innovation.
+
+Impact-driven: We actively seek sponsors for bright but needy students.
+
+Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</p>
+      <p></p>
+    </div>
+  </section>
+
+
+ <section id="testimonials" class="bg-white py-10 px-4">
+  <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 text-green-700">What Our Clients Say</h2>
+  <div class="relative overflow-hidden max-w-3xl mx-auto">
+    <div id="testimonialSlider" class="flex transition-transform duration-700 ease-in-out">
+
+      <!-- Testimonial 1 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-blue-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Elimu Connect helped my daughter improve in math and science within a month. The tutors are top-notch!"</p>
+          <h4 class="font-semibold text-sm mt-2">Josephine Kamau</h4>
+          <p class="text-xs text-gray-500">Parent, Nakuru</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-green-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"I got connected to a teaching job in Rwanda through Elimu Connect. Truly life-changing!"</p>
+          <h4 class="font-semibold text-sm mt-2">Daniel Omondi</h4>
+          <p class="text-xs text-gray-500">Teacher, Kisumu</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-yellow-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Our school received quality books and science charts. The delivery was prompt and professional."</p>
+          <h4 class="font-semibold text-sm mt-2">Headteacher A. Kiprop</h4>
+          <p class="text-xs text-gray-500">Baringo County</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 4 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-red-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Thanks to a sponsorship from Elimu Connect, I was able to access online tutoring and improve my KCSE score!"</p>
+          <h4 class="font-semibold text-sm mt-2">Faith Wanjiru</h4>
+          <p class="text-xs text-gray-500">Student, Turkana</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>
 
-<footer>
-  &copy; 2025 ELIMU CONNECT | All rights reserved | Designed for Students & Tutors Worldwide
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="sponsor" class="py-16 px-6 bg-green-50 text-center">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl sm:text-4xl font-bold text-green-800 mb-4">Sponsor a Student. Empower a Generation.</h2>
+    <p class="text-lg text-gray-700 mb-10">
+      Your sponsorship provides vital academic support to bright but underserved students. Choose from our flexible 3-tier sponsorship model and help a learner thrive with digital tools, live tutoring, and in-person mentorship.
+    </p>
+
+    <div class="grid sm:grid-cols-3 gap-8 mb-12">
+
+      <!-- Category 1 -->
+      <div class="bg-white border-t-4 border-green-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-green-700 mb-2">🟢 Category 1</h3>
+        <p class="text-gray-600 mb-2 text-sm">Digital Access Only</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>Website & app features</li>
+          <li>AI academic assistant</li>
+          <li>Recorded video lessons</li>
+          <li>Past papers, quizzes, eBooks, games</li>
+          <li>Study planners</li>
+        </ul>
+        <p class="font-bold text-green-700 text-lg">KES 500 / ~USD 4<br><span class="text-sm font-normal">per month</span></p>
+        <p class="mt-2 text-xs text-gray-500 italic">Best for self-driven learners with internet access.</p>
+      </div>
+
+      <!-- Category 2 -->
+      <div class="bg-white border-t-4 border-yellow-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-yellow-700 mb-2">🟡 Category 2</h3>
+        <p class="text-gray-600 mb-2 text-sm">Digital Access + Online Tutoring</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>All Category 1 features</li>
+          <li>2 live online tutor sessions/week</li>
+          <li>Real-time support & assignments</li>
+        </ul>
+        <p class="font-bold text-yellow-700 text-lg">KES 2,500 / ~USD 20<br><span class="text-sm font-normal">per month</span></p>
+        <p class="mt-2 text-xs text-gray-500 italic">Ideal for students needing guided help.</p>
+      </div>
+
+      <!-- Category 3 -->
+      <div class="bg-white border-t-4 border-red-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-red-700 mb-2">🔴 Category 3</h3>
+        <p class="text-gray-600 mb-2 text-sm">Full Package (Digital + Online + Physical)</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>All Category 2 features</li>
+          <li>2 in-person tutoring sessions/week</li>
+          <li>Mentorship & personalized guidance</li>
+        </ul>
+        <p class="font-bold text-red-700 text-lg">KES 6,500 / ~USD 50<br><span class="text-sm font-normal">per month</span></p>
+        <p class="mt-2 text-xs text-gray-500 italic">Best for rural & marginalized students.</p>
+      </div>
+
+    </div>
+
+    <a href="#contact" class="inline-block bg-green-700 text-white font-semibold py-3 px-6 rounded hover:bg-green-800 transition">
+      Sponsor Now or Partner with Us
+    </a>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Footer -->
+<footer class="bg-black text-gray-200 text-center py-4 text-sm">
+  &copy; <span id="year"></span> Elimu Connect LTD.<br>
+  website developed by +254769255782
 </footer>
+  
+  
+  <!-- WhatsApp Floating Button -->
+<a href="https://wa.me/254769255782" target="_blank" aria-label="Chat on WhatsApp"
+   class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg flex items-center space-x-2 transition duration-300">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.94 11.94 0 0012 0C5.373 0 0 5.373 0 12a11.94 11.94 0 001.7 6.14L0 24l6.26-1.68A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12a11.94 11.94 0 00-3.48-8.52zM12 22a9.93 9.93 0 01-5.28-1.48l-.38-.22-3.72.99.99-3.72-.22-.38A9.93 9.93 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.15-7.75c-.28-.14-1.65-.81-1.9-.9-.26-.1-.45-.14-.64.14-.18.28-.73.9-.9 1.08-.17.18-.33.2-.6.07-.28-.14-1.2-.44-2.28-1.4-.84-.74-1.4-1.65-1.56-1.92-.16-.28-.02-.43.12-.57.12-.12.28-.33.42-.5.14-.17.18-.28.28-.46.1-.18.05-.35-.02-.5-.07-.14-.64-1.54-.88-2.1-.23-.56-.47-.48-.64-.48h-.55c-.18 0-.46.07-.7.35-.23.28-.9.88-.9 2.15s.92 2.5 1.05 2.68c.14.18 1.82 2.78 4.42 3.9.62.27 1.1.44 1.47.56.62.2 1.18.17 1.62.1.5-.07 1.65-.67 1.88-1.32.23-.64.23-1.2.16-1.32-.07-.1-.26-.17-.54-.3z"/>
+  </svg>
+  <span class="font-semibold text-sm">Contact Us</span>
+</a>
 
-</body>
+  
+ 
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Mobile menu toggle
+    const btn = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    btn?.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+
+    // Animate elements on scroll
+    const animateImages = document.querySelectorAll('img[data-animate], section[data-animate], div[data-animate]');
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const animationType = el.getAttribute('data-animate');
+          el.classList.add(`animate-${animationType}`);
+          observer.unobserve(el);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    animateImages.forEach(img => observer.observe(img));
+
+    // Animate backgrounds for service sections
+    function animateBackgrounds(serviceId, interval = 3000) {
+      const section = document.getElementById(serviceId);
+      if (!section) return;
+      const bgDivs = section.querySelectorAll('div.absolute');
+      let current = 0;
+      setInterval(() => {
+        bgDivs.forEach((div, idx) => {
+          div.style.opacity = (idx === current) ? '1' : '0';
+        });
+        current = (current + 1) % bgDivs.length;
+      }, interval);
+    }
+
+    for (let i = 1; i <= 9; i++) animateBackgrounds(`service${i}`);
+
+    // Generic image carousels
+    function setupCarousel(id) {
+      const container = document.getElementById(id);
+      const images = container?.querySelectorAll('.carousel-image');
+      if (!images || images.length === 0) return;
+
+      let i = 0;
+      setInterval(() => {
+        images[i].classList.remove('active');
+        images[i].style.opacity = 0;
+        i = (i + 1) % images.length;
+        images[i].classList.add('active');
+        images[i].style.opacity = 1;
+      }, 4000);
+    }
+
+    ["harder-carousel", "beatus-carousel", "grindelwald-carousel", "platte-carousel", "adventure-carousel", "sports-carousel"].forEach(setupCarousel);
+
+    // Testimonials slider
+    const slider = document.getElementById("testimonialSlider");
+    const testimonials = slider?.children.length || 0;
+    let index = 0;
+    if (slider && testimonials > 0) {
+      setInterval(() => {
+        index = (index + 1) % testimonials;
+        slider.style.transform = `translateX(-${index * 100}%)`;
+      }, 2000);
+    }
+
+    // Update year
+    const year = document.getElementById('year');
+    if (year) year.textContent = new Date().getFullYear();
+  });
+</script>
+
+  </body>
 </html>
+
