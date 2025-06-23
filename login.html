@@ -70,8 +70,6 @@
     <form class="login-form" onsubmit="event.preventDefault(); sendMessage();">
       <select id="role-select" required>
         <option value="" disabled selected>Select your role</option>
-        <option value="student-free">Free Features</option>
-        <option value="student-free-trial">I am a Student/Tutor (Free Trial)</option>
         <option value="student-paid">Student Paid Features</option>
         <option value="tutor-paid">Tutor Paid Features</option>
       </select>
@@ -256,7 +254,7 @@ function startPaidFeaturesCountdown() {
 
         if (remainingTime <= 0) {
             // When the countdown ends
-            const expiryMessage = "Your paid features have expired. Please <a href='go:subscribe' target='_blank'>renew your subscription</a>.";
+            const expiryMessage = "Your paid features have expired. Please <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/login' target='_blank'>renew your subscription</a>.";
             const existingMessage = document.getElementById("paid-countdown");
             if (!existingMessage) {
                 displayMessage(expiryMessage, "bot", "paid-countdown");
