@@ -143,8 +143,7 @@ function sendMessage() {
             // Check if the entered password is valid
             if (validatePassword(inputPassword)) {
                 response = `You now have access to PAID features.<br>
-                    Click here: <a href='go:bot1' target='_blank'>Student Paid Features</a> or 
-                    <a href='go:bot2' target='_blank'>Tutor Paid Features</a>`;
+                    Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/tutors paid Features</a>"; 
                 displayMessage(response, "bot");
 
                 response = "Enjoy advanced features and tools to enhance your experience!";
@@ -254,7 +253,7 @@ function startPaidFeaturesCountdown() {
 
         if (remainingTime <= 0) {
             // When the countdown ends
-            const expiryMessage = "Your paid features have expired. Please <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/login' target='_blank'>renew your subscription</a>.";
+            const expiryMessage = "Your paid features have expired. Please pay/subscribe 
             const existingMessage = document.getElementById("paid-countdown");
             if (!existingMessage) {
                 displayMessage(expiryMessage, "bot", "paid-countdown");
