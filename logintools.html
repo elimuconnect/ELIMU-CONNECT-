@@ -1,297 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ELIMU CONNECT - Login & Tools</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4CAF50, #81C784);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .login-container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      margin-top: 40px;
-    }
-
-    .login-container h2 {
-      margin-bottom: 20px;
-      color: #4CAF50;
-    }
-
-    .login-form select,
-    .login-form button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .login-form button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    .login-form button:hover {
-      background-color: #45a049;
-    }
-
-    .footer-note {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #888;
-    }
-
-    #chatbox-body {
-      margin-top: 20px;
-      text-align: left;
-      max-height: 200px;
-      overflow-y: auto;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background: #f9f9f9;
-    }
-
-    .chat-message {
-      margin-bottom: 10px;
-    }
-
-    .bot-message {
-      background-color: #eef4ff;
-      padding: 12px;
-      border-radius: 8px;
-      color: #222;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .bot-message a {
-      color: #007BFF;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    .bot-message a:hover {
-      color: #0056b3;
-      text-decoration: underline;
-    }
-
-    .tools-container {
-      text-align: center;
-      margin-top: 40px;
-      width: 90%;
-      max-width: 600px;
-      display: none; /* hidden initially */
-    }
-
-    .tools-container h1 {
-      font-size: 24px;
-      color: #fff;
-      margin-bottom: 15px;
-    }
-
-    .dropdown,
-    .category select {
-      margin: 10px auto;
-      font-size: 18px;
-      padding: 12px;
-      width: 80%;
-      max-width: 500px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    .category {
-      display: none;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Protected Tools & Resources</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  .tools-container {
+    margin-top: 20px;
+  }
+  label, select {
+    display: block;
+    margin: 10px 0;
+  }
+  .error {
+    color: red;
+  }
+  button {
+    margin-top: 10px;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Login Box -->
-  <div class="login-container">
-    <h2>Welcome to ELIMU CONNECT APP</h2>
-    <form class="login-form" onsubmit="event.preventDefault(); sendMessage();">
-      <select id="role-select" required>
-        <option value="" disabled selected>Select your role</option>
-        <option value="student-paid">Student Paid Features</option>
-        <option value="tutor-paid">Tutor Paid Features</option>
-      </select>
-      <button type="submit">Continue</button>
-    </form>
-    <div id="chatbox-body" class="messages"></div>
-    <div class="footer-note">Choose your role to continue</div>
-  </div>
+<h2>Enter Password to Access Tools & Resources</h2>
+<input type="password" id="password-input" placeholder="Enter password" />
+<button id="submit-btn">Submit</button>
+<p class="error" id="error-msg"></p>
 
-  <!-- Tools -->
-  <div class="tools-container" id="tools-section">
-    <h1>ELIMU CONNECT TOOLS & RESOURCES</h1>
-    <select id="mainDropdown" class="dropdown" onchange="showCategory()">
-      <option value="">Select a category...</option>
-      <option value="resources">Past papers, videos lessons, and ebooks</option>
-      <option value="quizes">QUIZZES</option>
-      <option value="math">Mathematics Tools</option>
-      <option value="chemistry">Chemistry Tools</option>
-      <option value="biology">Biology Tools</option>
-      <option value="physics">Physics Tools</option>
-      <option value="kiswahili">Kiswahili Tools</option>
-      <option value="english">English Tools</option>
-    </select>
+<!-- Tools -->
+<div class="tools-container" id="tools-section" style="display:none;">
+  <h1>ELIMU CONNECT TOOLS & RESOURCES</h1>
 
-    <!-- Dynamic Dropdown Sections -->
-    <div id="resources" class="category">
-      <select onchange="openLink(this)">
-        <option value="">Select resources...</option>
-        <option value="https://www.socialcreator.com/pastpapersandquizes">ALL RESOURCES</option>
-      </select>
-    </div>
+  <label for="tool-select">Select Tool:</label>
+  <select id="tool-select">
+    <option value="">--Choose a tool--</option>
+    <option value="https://forms.gle/eE8oPzFj5CxE4vpr9">Google Forms</option>
+    <option value="https://linktr.ee/elimuconnect">Linktree</option>
+    <option value="https://elimuconnect.mikecrm.com/wt7ZVe6">CRM Form</option>
+  </select>
 
-    <div id="quizes" class="category">
-      <select onchange="openLink(this)">
-        <option value="">Select A QUIZ...</option>
-        <option value="https://elimuconnect.github.io/ELIMU-CONNECT-/quizes">ALL QUIZES</option>
-      </select>
-    </div>
+  <label for="resource-select">Select Resource:</label>
+  <select id="resource-select">
+    <option value="">--Choose a resource--</option>
+    <option value="https://docs.google.com/spreadsheets/d/1Vh5uP5Vpb9qwTRTYriPpZ9-6vBBOczsA5kbRZaU8esA/edit?usp=sharing">Google Sheets</option>
+    <option value="https://elimuconnect.mikecrm.com/wt7ZVe6">CRM Resource</option>
+  </select>
+</div>
 
-    <!-- Add other categories here if needed -->
-  </div>
+<script>
+  const correctPassword = "yourPasswordHere"; // Set your password here
 
-  <script>
-    const passwords = ["pS9hJk!hPmD0bF7T", "Qw4$KiH6dFg8L2Zn"];
+  const passwordInput = document.getElementById("password-input");
+  const submitBtn = document.getElementById("submit-btn");
+  const errorMsg = document.getElementById("error-msg");
+  const toolsSection = document.getElementById("tools-section");
+  const toolSelect = document.getElementById("tool-select");
+  const resourceSelect = document.getElementById("resource-select");
 
-    function displayMessage(message, sender, id = '') {
-      const messageDiv = document.createElement("div");
-      messageDiv.classList.add("chat-message", `${sender}-message`);
-      messageDiv.classList.add("bot-message");
-      if (id) messageDiv.id = id;
-      messageDiv.innerHTML = message;
-      document.getElementById("chatbox-body").appendChild(messageDiv);
+  submitBtn.addEventListener("click", () => {
+    const enteredPassword = passwordInput.value.trim();
+    if (enteredPassword === correctPassword) {
+      errorMsg.textContent = "";
+      showToolsSection(true);
+    } else {
+      errorMsg.textContent = "Incorrect password. Please try again.";
+      showToolsSection(false);
     }
+  });
 
-    function validatePassword(password) {
-      return passwords.includes(password);
-    }
+  function showToolsSection(show) {
+    toolsSection.style.display = show ? "block" : "none";
+  }
 
-    function sendMessage() {
-      let role = document.getElementById("role-select").value;
-      if (!role) {
-        alert("Please select your role.");
-        return;
-      }
+  toolSelect.addEventListener("change", () => {
+    const url = toolSelect.value;
+    if (url) window.open(url, "_blank");
+    toolSelect.selectedIndex = 0; // reset selection after opening
+  });
 
-      const passwordValidated = localStorage.getItem('passwordValidated');
-      if (!passwordValidated) {
-        const inputPassword = prompt("Enter your password:");
-        if (validatePassword(inputPassword)) {
-          localStorage.setItem('passwordValidated', 'true');
-          localStorage.setItem('student-paid-access-start', Date.now());
-          displayMessage(`You now have access to PAID features.<br>Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`, "bot");
-          showToolsSection(true);
-          startPaidFeaturesCountdown();
-        } else {
-          displayMessage("Invalid or expired password. Please check your password or subscribe.", "bot");
-          showToolsSection(false);
-        }
-      } else {
-        displayMessage(`You already have access to the PAID features.<br>Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`, "bot");
-        showToolsSection(true);
-        startPaidFeaturesCountdown();
-      }
-    }
-
-    function showToolsSection(show) {
-      const toolsSection = document.getElementById("tools-section");
-      if (show) {
-        toolsSection.style.display = "block";
-      } else {
-        toolsSection.style.display = "none";
-      }
-    }
-
-    function startPaidFeaturesCountdown() {
-      const key = "student-paid-access-start";
-      const duration = 30 * 24 * 60 * 60 * 1000;
-      let start = localStorage.getItem(key);
-      if (!start) {
-        start = Date.now();
-        localStorage.setItem(key, start);
-      }
-      const end = parseInt(start) + duration;
-
-      function updateCountdown() {
-        const now = Date.now();
-        const remaining = end - now;
-        if (remaining <= 0) {
-          const msg = `Your paid features have expired. Please pay/subscribe <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`;
-          const existingMessage = document.getElementById("paid-countdown");
-          if (existingMessage) {
-            existingMessage.innerHTML = msg;
-          } else {
-            displayMessage(msg, "bot", "paid-countdown");
-          }
-          showToolsSection(false);
-          localStorage.removeItem('passwordValidated');
-          localStorage.removeItem('student-paid-access-start');
-          return;
-        }
-        const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
-        const hours = Math.floor((remaining % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-        const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
-        const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-        const countdownMessage = `Your paid features expire in: <b>${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds</b>.`;
-        let existingMessage = document.getElementById("paid-countdown");
-        if (existingMessage) {
-          existingMessage.innerHTML = countdownMessage;
-        } else {
-          displayMessage(countdownMessage, "bot", "paid-countdown");
-        }
-        setTimeout(updateCountdown, 1000);
-      }
-      updateCountdown();
-    }
-
-    // Dropdown logic for tools/resources
-    function showCategory() {
-      const selected = document.getElementById("mainDropdown").value;
-      document.querySelectorAll(".category").forEach(div => div.style.display = "none");
-      if (selected) {
-        const catDiv = document.getElementById(selected);
-        if (catDiv) catDiv.style.display = "block";
-      }
-    }
-
-    function openLink(select) {
-      if (select.value) {
-        window.open(select.value, "_blank");
-        select.selectedIndex = 0;
-      }
-    }
-
-    // On page load, check if password is already validated to show tools immediately
-    window.onload = () => {
-      if(localStorage.getItem('passwordValidated')) {
-        showToolsSection(true);
-        startPaidFeaturesCountdown();
-      }
-    }
-  </script>
+  resourceSelect.addEventListener("change", () => {
+    const url = resourceSelect.value;
+    if (url) window.open(url, "_blank");
+    resourceSelect.selectedIndex = 0; // reset selection after opening
+  });
+</script>
 
 </body>
 </html>
+
