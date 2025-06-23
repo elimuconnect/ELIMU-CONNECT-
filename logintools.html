@@ -1,94 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Protected Tools & Resources</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-  }
-  .tools-container {
-    margin-top: 20px;
-  }
-  label, select {
-    display: block;
-    margin: 10px 0;
-  }
-  .error {
-    color: red;
-  }
-  button {
-    margin-top: 10px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELIMU CONNECT website - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4CAF50, #81C784);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #4CAF50;
+    }
+
+    .login-form select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .login-form button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-form button:hover {
+      background-color: #45a049;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+
+    #chatbox-body {
+      margin-top: 20px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .chat-message {
+      margin-bottom: 10px;
+    }
+
+    .bot-message {
+      text-align: left;
+      background-color: #eef4ff;
+      padding: 12px;
+      border-radius: 8px;
+      color: #222;
+      font-size: 15px;
+      line-height: 1.6;
+      font-family: Arial, sans-serif;
+    }
+
+    .bot-message a {
+      color: #007BFF;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .bot-message a:hover {
+      text-decoration: underline;
+      color: #0056b3;
+    }
+
+    a {
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      color: #0056b3;
+    }
+
+    /* Tools UI container, hidden by default */
+    #tools-ui {
+      margin-top: 30px;
+      text-align: left;
+      display: none; /* Hidden initially */
+    }
+
+    #tools-ui h3 {
+      color: #4CAF50;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    #tools-ui ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #tools-ui ul li {
+      margin-bottom: 12px;
+    }
+
+    #tools-ui ul li a {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    #tools-ui ul li a:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Enter Password to Access Tools & Resources</h2>
-<input type="password" id="password-input" placeholder="Enter password" />
-<button id="submit-btn">Submit</button>
-<p class="error" id="error-msg"></p>
+  <div class="login-container">
+    <h2>Welcome to ELIMU CONNECT APP</h2>
+    <form class="login-form" onsubmit="event.preventDefault(); sendMessage();">
+      <select id="role-select" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="student-paid">Student Paid Features</option>
+        <option value="tutor-paid">Tutor Paid Features</option>
+      </select>
+      <button type="submit">Continue</button>
+    </form>
 
-<!-- Tools -->
-<div class="tools-container" id="tools-section" style="display:none;">
-  <h1>ELIMU CONNECT TOOLS & RESOURCES</h1>
+    <div id="chatbox-body" class="messages"></div>
 
-  <label for="tool-select">Select Tool:</label>
-  <select id="tool-select">
-    <option value="">--Choose a tool--</option>
-    <option value="https://forms.gle/eE8oPzFj5CxE4vpr9">Google Forms</option>
-    <option value="https://linktr.ee/elimuconnect">Linktree</option>
-    <option value="https://elimuconnect.mikecrm.com/wt7ZVe6">CRM Form</option>
-  </select>
+    <div class="footer-note">Choose your role to continue</div>
 
-  <label for="resource-select">Select Resource:</label>
-  <select id="resource-select">
-    <option value="">--Choose a resource--</option>
-    <option value="https://docs.google.com/spreadsheets/d/1Vh5uP5Vpb9qwTRTYriPpZ9-6vBBOczsA5kbRZaU8esA/edit?usp=sharing">Google Sheets</option>
-    <option value="https://elimuconnect.mikecrm.com/wt7ZVe6">CRM Resource</option>
-  </select>
-</div>
+    <!-- Tools UI hidden initially -->
+    <div id="tools-ui">
+      <h3>Paid Features Tools</h3>
+      <ul>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/tools/tool1.html" target="_blank">Tool 1: Homework Planner</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/tools/tool2.html" target="_blank">Tool 2: Tutor Scheduler</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/tools/tool3.html" target="_blank">Tool 3: Study Tracker</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/tools/tool4.html" target="_blank">Tool 4: Resource Library</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/tools/tool5.html" target="_blank">Tool 5: Progress Reports</a></li>
+      </ul>
+    </div>
+  </div>
 
-<script>
-  const correctPassword = "yourPasswordHere"; // Set your password here
+  <script>
+    let chatboxBody = document.getElementById("chatbox-body");
+    const toolsUI = document.getElementById("tools-ui");
 
-  const passwordInput = document.getElementById("password-input");
-  const submitBtn = document.getElementById("submit-btn");
-  const errorMsg = document.getElementById("error-msg");
-  const toolsSection = document.getElementById("tools-section");
-  const toolSelect = document.getElementById("tool-select");
-  const resourceSelect = document.getElementById("resource-select");
+    // Array of 100 passwords (simplified example)
+    const passwords = [
+      "pS9hJk!hPmD0bF7T", "Qw4$KiH6dFg8L2Zn", "M5a#Hq9oLpD1g0Fj",
+      "R!3hP8LsE6kZyTf7", "Xj2zU!hYqW8mK9Rn"
+      // Add more passwords as needed
+    ];
 
-  submitBtn.addEventListener("click", () => {
-    const enteredPassword = passwordInput.value.trim();
-    if (enteredPassword === correctPassword) {
-      errorMsg.textContent = "";
-      showToolsSection(true);
-    } else {
-      errorMsg.textContent = "Incorrect password. Please try again.";
-      showToolsSection(false);
+    // Function to display messages in chatbox
+    function displayMessage(message, sender, id = '') {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("chat-message", `${sender}-message`);
+      messageDiv.innerHTML = message;
+      if (id) messageDiv.id = id;
+      chatboxBody.appendChild(messageDiv);
+      chatboxBody.scrollTop = chatboxBody.scrollHeight;
     }
-  });
 
-  function showToolsSection(show) {
-    toolsSection.style.display = show ? "block" : "none";
+    // Validate password
+    function validatePassword(password) {
+      return passwords.includes(password);
+    }
+
+    // Show tools UI and hide login form
+    function showToolsUI() {
+      document.querySelector(".login-form").style.display = "none";
+      toolsUI.style.display = "block";
+      chatboxBody.innerHTML = ""; // clear any messages if you want
+    }
+
+    // Main sendMessage handler
+    function sendMessage() {
+      let role = document.getElementById("role-select").value;
+      if (!role) {
+        alert("Please select your role.");
+        return;
+      }
+
+      const passwordValidated = localStorage.getItem('passwordValidated');
+
+      if (role === "student-paid" || role === "tutor-paid") {
+        if (!passwordValidated) {
+          const inputPassword = prompt("Enter your password:");
+          if (validatePassword(inputPassword)) {
+            localStorage.setItem('passwordValidated', 'true');
+            displayMessage("Password validated successfully! Access granted to paid features.", "bot");
+            showToolsUI();
+            startPaidFeaturesCountdown();
+          } else {
+            displayMessage("Invalid or expired password. Please check your password or subscribe.", "bot");
+          }
+        } else {
+          displayMessage("You already have access to paid features.", "bot");
+          showToolsUI();
+          startPaidFeaturesCountdown();
+        }
+      } else {
+        // For now, only handle paid roles — can extend for free/trial here if needed
+        displayMessage("Please select a paid role to access the tools.", "bot");
+      }
+    }
+
+    // Countdown timer for paid features (optional)
+    function startPaidFeaturesCountdown() {
+      const paidAccessKey = "student-paid-access-start";
+      const paidDuration = 30 * 24 * 60 * 60 * 1000; // 30 days
+      let paidAccessStart = localStorage.getItem(paidAccessKey);
+
+      if (!paidAccessStart) {
+        paidAccessStart = Date.now();
+        localStorage.setItem(paidAccessKey, paidAccessStart);
+      }
+
+      const paidAccessEnd = parseInt(paidAccessStart) + paidDuration;
+
+      function updateCountdown() {
+        const now = Date.now();
+        const remainingTime = paidAccessEnd - now;
+
+        if (remainingTime <= 0) {
+          displayMessage("Your paid features have expired. Please renew your subscription.", "bot");
+          clearInterval(countdownInterval);
+          return;
+        }
+
+        const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+        const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+        const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+        const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
+
+        const countdownMessage = `Your paid features expire in: <b>${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds</b>.`;
+
+        // Display countdown inside chatbox, update or create
+        let countdownEl = document.getElementById("paid-countdown");
+        if (!countdownEl) {
+displayMessage(countdownMessage, "bot", "paid-countdown");
+} else {
+countdownEl.innerHTML = countdownMessage;
+}
+}
+      updateCountdown();
+  const countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+// Auto-show tools if already logged in before
+window.onload = () => {
+  if (localStorage.getItem("passwordValidated") === "true") {
+    showToolsUI();
+    startPaidFeaturesCountdown();
   }
-
-  toolSelect.addEventListener("change", () => {
-    const url = toolSelect.value;
-    if (url) window.open(url, "_blank");
-    toolSelect.selectedIndex = 0; // reset selection after opening
-  });
-
-  resourceSelect.addEventListener("change", () => {
-    const url = resourceSelect.value;
-    if (url) window.open(url, "_blank");
-    resourceSelect.selectedIndex = 0; // reset selection after opening
-  });
-</script>
-
+};
+</script> 
 </body>
-</html>
+</html> ```
 
