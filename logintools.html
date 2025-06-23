@@ -98,6 +98,7 @@
       margin-top: 40px;
       width: 90%;
       max-width: 600px;
+      display: none; /* hidden initially */
     }
 
     .tools-container h1 {
@@ -140,7 +141,7 @@
   </div>
 
   <!-- Tools -->
-  <div class="tools-container">
+  <div class="tools-container" id="tools-section">
     <h1>ELIMU CONNECT TOOLS & RESOURCES</h1>
     <select id="mainDropdown" class="dropdown" onchange="showCategory()">
       <option value="">Select a category...</option>
@@ -169,7 +170,7 @@
       </select>
     </div>
 
-    <!-- You can add other categories similarly -->
+    <!-- Add other categories here if needed -->
   </div>
 
   <script>
@@ -202,13 +203,25 @@
           localStorage.setItem('passwordValidated', 'true');
           localStorage.setItem('student-paid-access-start', Date.now());
           displayMessage(`You now have access to PAID features.<br>Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`, "bot");
+          showToolsSection(true);
           startPaidFeaturesCountdown();
         } else {
           displayMessage("Invalid or expired password. Please check your password or subscribe.", "bot");
+          showToolsSection(false);
         }
       } else {
         displayMessage(`You already have access to the PAID features.<br>Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`, "bot");
+        showToolsSection(true);
         startPaidFeaturesCountdown();
+      }
+    }
+
+    function showToolsSection(show) {
+      const toolsSection = document.getElementById("tools-section");
+      if (show) {
+        toolsSection.style.display = "block";
+      } else {
+        toolsSection.style.display = "none";
       }
     }
 
@@ -227,7 +240,15 @@
         const remaining = end - now;
         if (remaining <= 0) {
           const msg = `Your paid features have expired. Please pay/subscribe <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student/Teacher paid Features</a>`;
-          displayMessage(msg, "bot", "paid-countdown");
+          const existingMessage = document.getElementById("paid-countdown");
+          if (existingMessage) {
+            existingMessage.innerHTML = msg;
+          } else {
+            displayMessage(msg, "bot", "paid-countdown");
+          }
+          showToolsSection(false);
+          localStorage.removeItem('passwordValidated');
+          localStorage.removeItem('student-paid-access-start');
           return;
         }
         const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
@@ -260,6 +281,14 @@
       if (select.value) {
         window.open(select.value, "_blank");
         select.selectedIndex = 0;
+      }
+    }
+
+    // On page load, check if password is already validated to show tools immediately
+    window.onload = () => {
+      if(localStorage.getItem('passwordValidated')) {
+        showToolsSection(true);
+        startPaidFeaturesCountdown();
       }
     }
   </script>
