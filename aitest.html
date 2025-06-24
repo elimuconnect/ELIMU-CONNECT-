@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test AI Tutor API</title>
+</head>
+<body>
+  <h2>Ask AI Tutor</h2>
+  <textarea id="question" placeholder="Enter a question"></textarea><br>
+  <button onclick="ask()">Ask</button>
+  <pre id="response"></pre>
+
+  <script>
+    async function ask() {
+      const question = document.getElementById('question').value;
+      const res = await fetch('https://elimu-connect-a-i-tutor.onrender.com/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, student: 'grade 7' })
+      });
+      const data = await res.json();
+      document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
