@@ -1,24 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test AI Tutor API</title>
+  <title>AI Tutor Test</title>
 </head>
 <body>
   <h2>Ask AI Tutor</h2>
-  <textarea id="question" placeholder="Enter a question"></textarea><br>
+  <textarea id="question" rows="5" cols="50" placeholder="Type your question here..."></textarea><br><br>
   <button onclick="ask()">Ask</button>
+
+  <h3>Response:</h3>
   <pre id="response"></pre>
 
   <script>
     async function ask() {
-      const question = document.getElementById('question').value;
-      const res = await fetch('https://elimu-connect-a-i-tutor.onrender.com/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, student: 'grade 7' })
-      });
-      const data = await res.json();
-      document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+      const question = document.getElementById("question").value;
+
+      const responseElement = document.getElementById("response");
+      responseElement.textContent = "Waiting for AI...";
+
+      try {
+        const res = await fetch("https://elimu-connect-a-i-tutor.onrender.com/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question: question,
+            student: "grade 7"
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.answer) {
+          responseElement.textContent = data.answer;
+        } else if (data.error) {
+          responseElement.textContent = "❌ Error: " + data.error;
+        } else {
+          responseElement.textContent = "❌ Unknown response from server.";
+        }
+
+      } catch (error) {
+        responseElement.textContent = "❌ Failed to contact server: " + error.message;
+      }
     }
   </script>
 </body>
