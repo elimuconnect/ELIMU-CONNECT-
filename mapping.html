@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Elimu Connect – Location Share</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 10px;
+    }
+
+    #map {
+      height: 50vh;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      width: 90%;
+      margin: 5px auto;
+      display: block;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    label {
+      display: block;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    #radiusValue {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>📍 Elimu Connect – Share Your Location</h3>
+
+<input id="name" type="text" placeholder="Name (e.g., Mary)" />
+<select id="role">
+  <option value="Student">Student</option>
+  <option value="Teacher">Teacher</option>
+</select>
+<input id="subject" type="text" placeholder="Subject or Class" />
+<input id="phone" type="text" placeholder="Phone Number (07xx)" />
+<button onclick="shareLocation()">📤 Share Location</button>
+
+<hr>
+
+<label for="filter">Filter by Role:</label>
+<select id="filter" onchange="loadMarkers()">
+  <option value="All">All</option>
+  <option value="Student">Students</option>
+  <option value="Teacher">Teachers</option>
+</select>
+
+<label for="radius">Distance (0–20 km):</label>
+<input type="range" id="radius" min="0" max="20" value="20" oninput="updateRadiusLabel(); loadMarkers();" />
+<div id="radiusValue">Showing within: 20 km</div>
+
+<label for="userSelect">Go to user:</label>
+<select id="userSelect" onchange="zoomToUser(this.value)">
+  <option value="">-- Select --</option>
+</select>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+  // 🔐 Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
+    authDomain: "tutor-students-mapping.firebaseapp.com",
+    databaseURL: "https://tutor-students-mapping-default-rtdb.firebaseio.com",
+    projectId: "tutor-students-mapping",
+    storageBucket: "tutor-students-mapping.appspot.com",
+    messagingSenderId: "631567514082",
+    appId: "1:631567514082:web:a0d782917914ffe403a1bb"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let map, userLat, userLng, markers = [];
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+
+    map = L.map('map').setView([userLat, userLng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    L.marker([userLat, userLng]).addTo(map).bindPopup("📍 You are here").openPopup();
+
+    loadMarkers();
+  }, () => alert("❌ Location access denied."));
+
+  function updateRadiusLabel() {
+    const km = document.getElementById("radius").value;
+    document.getElementById("radiusValue").innerText = `Showing within: ${km} km`;
+  }
+
+  function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  }
+
+  function loadMarkers() {
+    // Remove old markers
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    const roleFilter = document.getElementById("filter").value;
+    const maxDistance = parseFloat(document.getElementById("radius").value);
+    const dropdown = document.getElementById("userSelect");
+    dropdown.innerHTML = `<option value="">-- Select --</option>`;
+
+    db.ref("locations").once("value", snapshot => {
+      snapshot.forEach(child => {
+        const d = child.val();
+        if (!d.lat || !d.lng || (roleFilter !== "All" && d.role !== roleFilter)) return;
+
+        const dist = getDistance(userLat, userLng, d.lat, d.lng);
+        if (dist <= maxDistance) {
+          const marker = L.marker([d.lat, d.lng]).addTo(map)
+            .bindPopup(`<b>${d.name}</b><br>📞 ${d.phone}<br>📘 ${d.subject}<br>🧑‍🏫 ${d.role}`);
+          markers.push(marker);
+
+          // Add to dropdown
+          const opt = document.createElement("option");
+          opt.value = `${d.lat},${d.lng}`;
+          opt.textContent = `${d.name} (${d.role}) – ${dist.toFixed(1)} km`;
+          dropdown.appendChild(opt);
+        }
+      });
+    });
+  }
+
+  function zoomToUser(value) {
+    if (!value) return;
+    const [lat, lng] = value.split(",");
+    map.setView([parseFloat(lat), parseFloat(lng)], 16);
+  }
+
+  function shareLocation() {
+    const name = document.getElementById("name").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const role = document.getElementById("role").value;
+
+    if (!name || !subject || !phone || !userLat || !userLng) {
+      return alert("Please fill all fields and allow location access.");
+    }
+
+    const userId = phone.replace(/[^0-9]/g, ""); // unique key by phone
+    db.ref("locations/" + userId).set({ name, subject, phone, role, lat: userLat, lng: userLng });
+    alert("✅ Location shared and saved!");
+    loadMarkers();
+  }
+</script>
+
+</body>
+</html>
