@@ -1,96 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>School Bus Tracker — Parent View</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Parent – Track School Bus</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { font-family: sans-serif; margin:0; padding:10px; background:#f0f0f0; }
-    h2 { text-align:center; }
-    #map { height:60vh; border-radius:10px; margin-top:10px }
-    button, input { width:100%; margin:5px 0; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; }
-    button { background:#4CAF50; color:white; }
-    audio { display:none; }
+    body { font-family: sans-serif; background: #eef2f3; padding: 10px; }
+    h2 { text-align: center; }
+    #map { height: 70vh; border-radius: 10px; margin-top: 10px; }
+    input, button {
+      width: 100%; padding: 12px; font-size: 16px; margin: 5px 0;
+      border-radius: 8px; border: 1px solid #ccc;
+    }
+    button { background: #2196F3; color: white; border: none; }
   </style>
 </head>
 <body>
 
-  <h2>🚌 School Bus Tracker (Parent)</h2>
+<h2>🚸 Parent – Track School Bus</h2>
+<input type="text" id="parentPhone" placeholder="Enter Your Phone Number" />
+<button onclick="setHomeLocation()">🏠 Set Home Location</button>
+<div id="map"></div>
+<audio id="bell" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
-  <button onclick="setHome()">🏠 Save My Home Location</button>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-  <div id="map"></div>
-  <audio id="bell" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
+    authDomain: "schooltransports-34fd7.firebaseapp.com",
+    databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
+    projectId: "schooltransports-34fd7",
+    storageBucket: "schooltransports-34fd7.appspot.com",
+    messagingSenderId: "125561731802",
+    appId: "1:125561731802:web:745a6ce91863118a4f03e3"
+  };
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    // ✅ New Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
-      authDomain: "schooltransports-34fd7.firebaseapp.com",
-      databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
-      projectId: "schooltransports-34fd7",
-      storageBucket: "schooltransports-34fd7.firebasestorage.app",
-      messagingSenderId: "125561731802",
-      appId: "1:125561731802:web:745a6ce91863118a4f03e3"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  let map = L.map('map').setView([-1.29, 36.82], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    const map = L.map('map').setView([-1.29,36.82],13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    const bell = document.getElementById('bell');
+  const bell = document.getElementById("bell");
+  const today = new Date().toISOString().split('T')[0];
+  let homeMarker = null;
+  let busMarkers = {};
 
-    let homeMarker = null;
-    let driverMarkers = {};
+  window.setHomeLocation = () => {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      localStorage.setItem("homeLat", lat);
+      localStorage.setItem("homeLng", lng);
+      alert("✅ Home location saved.");
+      drawHomeMarker();
+    }, () => alert("❌ Please allow location access."));
+  };
 
-    // Save & show parent's home
-    window.setHome = () => navigator.geolocation.getCurrentPosition(pos => {
-      const {latitude:lat, longitude:lng} = pos.coords;
-      localStorage.setItem('homeLat', lat);
-      localStorage.setItem('homeLng', lng);
-      alert('✅ Home location saved!');
-      showHome();
-    }, () => alert('❌ Enable location.'));
-    
-    function showHome() {
-      const lat = parseFloat(localStorage.getItem('homeLat'));
-      const lng = parseFloat(localStorage.getItem('homeLng'));
-      if (!isNaN(lat + lng)) {
-        if (homeMarker) map.removeLayer(homeMarker);
-        homeMarker = L.marker([lat,lng], {
-          icon: L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/25/25694.png', iconSize:[30,30] })
-        }).addTo(map).bindPopup('🏠 Your Home');
-      }
-    }
+  function drawHomeMarker() {
+    const lat = localStorage.getItem("homeLat");
+    const lng = localStorage.getItem("homeLng");
+    if (!lat || !lng) return;
+    if (homeMarker) map.removeLayer(homeMarker);
+    homeMarker = L.marker([lat, lng], { icon: L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/25/25694.png", iconSize: [30, 30] }) }).addTo(map).bindPopup("🏠 Your Home");
+  }
 
-    // Listen for live driver updates
-    onValue(ref(db, 'drivers'), snapshot => {
-      const drivers = snapshot.val() || {};
-      // Remove old markers
-      Object.values(driverMarkers).forEach(m => map.removeLayer(m));
-      driverMarkers = {};
+  function watchDrivers() {
+    const path = ref(db, `drivers/${today}`);
+    onValue(path, snap => {
+      const homeLat = parseFloat(localStorage.getItem("homeLat"));
+      const homeLng = parseFloat(localStorage.getItem("homeLng"));
+      for (let key in busMarkers) map.removeLayer(busMarkers[key]);
+      busMarkers = {};
+      snap.forEach(child => {
+        const d = child.val();
+        const marker = L.marker([d.lat, d.lng]).addTo(map);
+        marker.bindPopup(`🚌 ${d.name || 'Driver'}<br>📞 ${d.phone}`);
+        busMarkers[d.phone] = marker;
 
-      const homeLat = parseFloat(localStorage.getItem('homeLat'));
-      const homeLng = parseFloat(localStorage.getItem('homeLng'));
-
-      Object.values(drivers).forEach(d => {
-        const m = L.marker([d.lat, d.lng]).addTo(map)
-          .bindPopup(`🚌 ${d.name || 'Driver'}<br>📞 ${d.phone}`);
-        driverMarkers[d.phone] = m;
-
-        // Ring bell if within 100m of home
-        if (!isNaN(homeLat + homeLng)) {
-          const dist = map.distance([homeLat,homeLng],[d.lat,d.lng]);
+        if (!isNaN(homeLat) && !isNaN(homeLng)) {
+          const dist = map.distance([d.lat, d.lng], [homeLat, homeLng]);
           if (dist < 100) bell.play();
         }
       });
     });
+  }
 
-    showHome();
-  </script>
+  drawHomeMarker();
+  watchDrivers();
+</script>
 </body>
 </html>
+
