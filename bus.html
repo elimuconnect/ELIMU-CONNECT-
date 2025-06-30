@@ -6,110 +6,70 @@
   <title>Driver – School Bus Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 10px;
-      background: #f0f0f0;
-    }
-    h2 {
-      text-align: center;
-    }
-    #map {
-      height: 60vh;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
+    body { font-family: sans-serif; padding: 10px; background: #f0f0f0; }
+    h2 { text-align: center; }
+    #map { height: 60vh; border-radius: 10px; margin-top: 10px; }
     input, button {
-      width: 100%;
-      margin: 5px 0;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      width: 100%; margin: 5px 0; padding: 12px; font-size: 16px;
+      border-radius: 8px; border: 1px solid #ccc;
     }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-    }
-    button.end {
-      background-color: #f44336;
-    }
+    button { background-color: #4CAF50; color: white; border: none; }
+    button.end { background-color: #f44336; }
   </style>
 </head>
 <body>
+  <h2>🚌 School Bus Driver</h2>
+  <input type="text" id="driverName" placeholder="Driver Name (optional)">
+  <input type="text" id="driverPhone" placeholder="Driver Phone Number">
+  <button onclick="startJourney()">🚀 Start Journey</button>
+  <button class="end" onclick="endJourney()">🛑 End Journey</button>
+  <div id="map"></div>
 
-<h2>🚌 Driver – School Bus Tracker</h2>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-<input type="text" id="driverName" placeholder="Driver Name (optional)">
-<input type="text" id="driverPhone" placeholder="Driver Phone Number" />
-<button onclick="startJourney()">🚀 Start Journey</button>
-<button class="end" onclick="endJourney()">🛑 End Journey</button>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
+      authDomain: "schooltransports-34fd7.firebaseapp.com",
+      databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
+      projectId: "schooltransports-34fd7",
+      storageBucket: "schooltransports-34fd7.appspot.com",
+      messagingSenderId: "125561731802",
+      appId: "1:125561731802:web:745a6ce91863118a4f03e3"
+    };
 
-<div id="map"></div>
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    let map = L.map('map').setView([-1.29, 36.82], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
-    authDomain: "schooltransports-34fd7.firebaseapp.com",
-    databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
-    projectId: "schooltransports-34fd7",
-    storageBucket: "schooltransports-34fd7.appspot.com",
-    messagingSenderId: "125561731802",
-    appId: "1:125561731802:web:745a6ce91863118a4f03e3"
-  };
+    let watchId = null;
+    const today = new Date().toISOString().split('T')[0];
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  let map = L.map('map').setView([-1.29, 36.82], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-  let driverMarker = null;
-  let watchId = null;
-
-  window.startJourney = () => {
-    const name = document.getElementById("driverName").value.trim();
-    const phone = document.getElementById("driverPhone").value.trim();
-    if (!phone) return alert("⚠️ Please enter your phone number.");
-
-    watchId = navigator.geolocation.watchPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-
-      if (driverMarker) map.removeLayer(driverMarker);
-      driverMarker = L.marker([lat, lng]).addTo(map).bindPopup("📍 Your Current Location");
-
-      set(ref(db, "drivers/" + phone), {
-        name,
-        phone,
-        lat,
-        lng
+    window.startJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      const name = document.getElementById("driverName").value.trim();
+      if (!phone) return alert("Enter your phone number.");
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        set(ref(db, `drivers/${today}/${phone}`), { name, phone, lat, lng, timestamp: Date.now() });
+      }, () => alert("❌ Cannot track location."), {
+        enableHighAccuracy: true
       });
+      alert("📍 Tracking started.");
+    };
 
-    }, () => alert("❌ Location access denied."), {
-      enableHighAccuracy: true
-    });
-
-    alert("✅ Journey started. Your location is now live.");
-  };
-
-  window.endJourney = () => {
-    const phone = document.getElementById("driverPhone").value.trim();
-    if (!phone) return alert("⚠️ Enter your phone number first.");
-    if (watchId) navigator.geolocation.clearWatch(watchId);
-
-    remove(ref(db, "drivers/" + phone));
-    alert("🛑 Journey ended and location removed.");
-    if (driverMarker) map.removeLayer(driverMarker);
-  };
-</script>
-
+    window.endJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      if (!phone) return alert("Enter your phone number.");
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      remove(ref(db, `drivers/${today}/${phone}`));
+      alert("🛑 Journey ended.");
+    };
+  </script>
 </body>
 </html>
-
