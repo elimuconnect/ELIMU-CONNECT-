@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>School Bus Tracker – Driver</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f0f0f0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #map {
+      height: 65vh;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    input, button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+
+    button.end {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🚌 Driver – School Bus Tracker</h2>
+
+<input type="text" id="driverName" placeholder="Driver Name (optional)">
+<input type="text" id="driverPhone" placeholder="Driver Phone Number">
+
+<button onclick="startJourney()">🚀 Start Journey</button>
+<button class="end" onclick="endJourney()">🛑 End Journey</button>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCSLVBSH3yRreadREISYTQVLZ3k1tG27A",
+    authDomain: "school-transports.firebaseapp.com",
+    projectId: "school-transports",
+    databaseURL: "https://school-transports-default-rtdb.firebaseio.com",
+    storageBucket: "school-transports.appspot.com",
+    messagingSenderId: "1037706969342",
+    appId: "1:1037706969342:web:041b08e1c449c8f70265af"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let map = L.map('map').setView([-1.29, 36.82], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  let marker = null;
+  let watchId = null;
+
+  function getTodayKey() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  window.startJourney = () => {
+    const phone = document.getElementById("driverPhone").value.trim();
+    const name = document.getElementById("driverName").value.trim();
+    if (!phone) return alert("Enter your phone number.");
+
+    const dateKey = getTodayKey();
+    const path = `drivers/${phone}/${dateKey}`;
+
+    watchId = navigator.geolocation.watchPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      if (marker) marker.setLatLng([lat, lng]);
+      else marker = L.marker([lat, lng]).addTo(map).bindPopup("🚌 You (Driver)").openPopup();
+
+      set(ref(db, path), {
+        name,
+        phone,
+        lat,
+        lng,
+        date: dateKey,
+        timestamp: new Date().toISOString()
+      });
+
+    }, () => alert("❌ Cannot track location."), {
+      enableHighAccuracy: true
+    });
+
+    alert("📍 Tracking started.");
+  };
+
+  window.endJourney = () => {
+    const phone = document.getElementById("driverPhone").value.trim();
+    if (!phone) return alert("Enter your phone number.");
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    const dateKey = getTodayKey();
+    remove(ref(db, `drivers/${phone}/${dateKey}`));
+    alert("🛑 Journey ended.");
+    if (marker) {
+      map.removeLayer(marker);
+      marker = null;
+    }
+  };
+</script>
+</body>
+</html>
