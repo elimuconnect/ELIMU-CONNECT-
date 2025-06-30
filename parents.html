@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Parent – School Bus Tracker</title>
+  <title>School Bus Tracker – Parent</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body {
@@ -28,11 +28,6 @@
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-    }
     #distanceCard {
       background: #fff3cd;
       padding: 15px;
@@ -46,8 +41,8 @@
 </head>
 <body>
 
-<h2>🚌 School Bus Tracker (Parents)</h2>
-<input type="text" id="myPhone" placeholder="Your Phone (for proximity alert)">
+<h2>🚌 School Bus Tracker (Parent)</h2>
+<input type="text" id="myPhone" placeholder="Your Phone (for alert)">
 <button onclick="saveMyPhone()">✅ Save My Phone</button>
 
 <div id="distanceCard">🚍 Distance from bus: <span id="distanceText">--</span></div>
@@ -73,17 +68,22 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const map = L.map("map").setView([-1.29, 36.82], 13);
+  const map = L.map("map").setView([-1.29, 36.82], 14);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
   const bell = document.getElementById("bell");
   const distanceText = document.getElementById("distanceText");
   const distanceCard = document.getElementById("distanceCard");
-  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
   let myPhone = localStorage.getItem("myPhone") || "";
   if (myPhone) document.getElementById("myPhone").value = myPhone;
 
+  let myLatLng = null;
+  let busMarkers = {};
+  let hasRungBell = false;
+
+  // Save phone
   window.saveMyPhone = () => {
     myPhone = document.getElementById("myPhone").value.trim();
     if (!myPhone) return alert("Enter your phone.");
@@ -91,34 +91,49 @@
     alert("✅ Saved.");
   };
 
-  let myLatLng = null;
+  // Watch parent live location
   navigator.geolocation.watchPosition(pos => {
     myLatLng = [pos.coords.latitude, pos.coords.longitude];
+  }, () => {
+    alert("❌ Please allow location access.");
+  }, {
+    enableHighAccuracy: true,
+    maximumAge: 0,
+    timeout: 10000
   });
 
-  let markers = {};
-
+  // Load all active buses today
   onValue(ref(db, "drivers/" + today), snap => {
-    for (let id in markers) map.removeLayer(markers[id]);
-    markers = {};
-    distanceCard.style.display = "none";
+    Object.values(busMarkers).forEach(marker => map.removeLayer(marker));
+    busMarkers = {};
+
+    if (!myLatLng) return;
 
     snap.forEach(child => {
       const d = child.val();
-      const marker = L.marker([d.lat, d.lng]).addTo(map);
+      const latlng = [d.lat, d.lng];
+      const dist = map.distance(myLatLng, latlng); // meters
+      const distKm = (dist / 1000).toFixed(2);
+      distanceText.textContent = `${distKm} km`;
+      distanceCard.style.display = "block";
+
+      const marker = L.marker(latlng).addTo(map);
       marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}`);
-      markers[d.phone] = marker;
+      busMarkers[d.phone] = marker;
 
-      if (myLatLng) {
-        const dist = map.distance(myLatLng, [d.lat, d.lng]);
-        const distKm = (dist / 1000).toFixed(2);
-        distanceText.textContent = `${distKm} km`;
-        distanceCard.style.display = "block";
+      // Auto center on first bus
+      map.setView(latlng, 16);
 
-        if (dist < 200) bell.play(); // Ring bell under 200m
+      // 🔔 Ring if within 200m
+      if (dist < 200 && !hasRungBell) {
+        bell.play();
+        hasRungBell = true;
+      } else if (dist >= 200) {
+        hasRungBell = false;
       }
     });
   });
+
 </script>
 
 </body>
