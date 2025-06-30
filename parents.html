@@ -20,7 +20,7 @@
       border-radius: 10px;
       margin-top: 10px;
     }
-    input, button {
+    input, button, select {
       width: 100%;
       margin: 5px 0;
       padding: 12px;
@@ -42,8 +42,13 @@
 <body>
 
 <h2>🚌 School Bus Tracker (Parent)</h2>
+
 <input type="text" id="myPhone" placeholder="Your Phone (for alert)">
 <button onclick="saveMyPhone()">✅ Save My Phone</button>
+
+<select id="schoolFilter" onchange="filterBuses()">
+  <option value="">🎓 Filter by School</option>
+</select>
 
 <div id="distanceCard">🚍 Distance from bus: <span id="distanceText">--</span></div>
 <div id="map"></div>
@@ -74,14 +79,16 @@
   const bell = document.getElementById("bell");
   const distanceText = document.getElementById("distanceText");
   const distanceCard = document.getElementById("distanceCard");
+  const schoolDropdown = document.getElementById("schoolFilter");
 
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10);
   let myPhone = localStorage.getItem("myPhone") || "";
   if (myPhone) document.getElementById("myPhone").value = myPhone;
 
   let myLatLng = null;
   let busMarkers = {};
   let hasRungBell = false;
+  let allDrivers = [];
 
   // Save phone
   window.saveMyPhone = () => {
@@ -102,29 +109,41 @@
     timeout: 10000
   });
 
-  // Load all active buses today
-  onValue(ref(db, "drivers/" + today), snap => {
+  function filterBuses() {
+    const selectedSchool = schoolDropdown.value;
+    const filtered = selectedSchool ? allDrivers.filter(d => d.school === selectedSchool) : allDrivers;
+    renderDrivers(filtered);
+  }
+
+  function renderDrivers(drivers) {
     Object.values(busMarkers).forEach(marker => map.removeLayer(marker));
     busMarkers = {};
 
     if (!myLatLng) return;
 
-    snap.forEach(child => {
-      const d = child.val();
+    drivers.forEach((d, index) => {
       const latlng = [d.lat, d.lng];
-      const dist = map.distance(myLatLng, latlng); // meters
+      const dist = map.distance(myLatLng, latlng);
       const distKm = (dist / 1000).toFixed(2);
       distanceText.textContent = `${distKm} km`;
       distanceCard.style.display = "block";
 
-      const marker = L.marker(latlng).addTo(map);
-      marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}`);
+
+
+const busIcon = L.icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/296/296216.png", // bus image
+  iconSize: [40, 40], // adjust size as needed
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20]
+});
+const marker = L.marker(latlng, { icon: busIcon }).addTo(map);
+
+     
+      marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}<br>🏫 ${d.school}`);
       busMarkers[d.phone] = marker;
 
-      // Auto center on first bus
-      map.setView(latlng, 16);
+      if (index === 0) map.setView(latlng, 16);
 
-      // 🔔 Ring if within 200m
       if (dist < 200 && !hasRungBell) {
         bell.play();
         hasRungBell = true;
@@ -132,9 +151,38 @@
         hasRungBell = false;
       }
     });
+  }
+
+  // Load all buses and schools
+  onValue(ref(db, "drivers/" + today), snap => {
+    allDrivers = [];
+    const schools = new Set();
+
+    snap.forEach(child => {
+      const d = child.val();
+      if (d.lat && d.lng) {
+        allDrivers.push(d);
+        if (d.school) schools.add(d.school);
+      }
+    });
+
+    // Update dropdown
+    const current = schoolDropdown.value;
+    schoolDropdown.innerHTML = `<option value="">🎓 Filter by School</option>`;
+    Array.from(schools).sort().forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.textContent = s;
+      schoolDropdown.appendChild(opt);
+    });
+    schoolDropdown.value = current;
+
+    filterBuses();
   });
 
 </script>
 
 </body>
 </html>
+
+ 
