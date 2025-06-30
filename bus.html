@@ -3,184 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>School Bus Tracker – Parent</title>
+  <title>Driver – School Bus Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 10px;
-      background: #f0f0f0;
+    body { font-family: sans-serif; padding: 10px; background: #f0f0f0; }
+    h2 { text-align: center; }
+    #map { height: 60vh; border-radius: 10px; margin-top: 10px; }
+    input, button {
+      width: 100%; margin: 5px 0; padding: 12px; font-size: 16px;
+      border-radius: 8px; border: 1px solid #ccc;
     }
-    h2 {
-      text-align: center;
-    }
-    #map {
-      height: 60vh;
-      border-radius: 10px;
-      margin-top: 10px;
-    }
-    input, button, select {
-      width: 100%;
-      margin: 5px 0;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    #distanceCard {
-      background: #fff3cd;
-      padding: 15px;
-      margin-top: 10px;
-      border-left: 5px solid #ffc107;
-      border-radius: 8px;
-      font-size: 18px;
-      display: none;
-    }
+    button { background-color: #4CAF50; color: white; border: none; }
+    button.end { background-color: #f44336; }
   </style>
 </head>
 <body>
+  <h2>🚌 School Bus Driver</h2>
+  <input type="text" id="driverName" placeholder="Driver Name (optional)">
+  <input type="text" id="driverPhone" placeholder="Driver Phone Number">
+  <input type="text" id="schoolName" placeholder="School Name (e.g., St. Mary's)">
+  <button onclick="startJourney()">🚀 Start Journey</button>
+  <button class="end" onclick="endJourney()">🛑 End Journey</button>
+  <div id="map"></div>
 
-<h2>🚌 School Bus Tracker (Parent)</h2>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
 
-<input type="text" id="myPhone" placeholder="Your Phone (for alert)">
-<button onclick="saveMyPhone()">✅ Save My Phone</button>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
+      authDomain: "schooltransports-34fd7.firebaseapp.com",
+      databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
+      projectId: "schooltransports-34fd7",
+      storageBucket: "schooltransports-34fd7.appspot.com",
+      messagingSenderId: "125561731802",
+      appId: "1:125561731802:web:745a6ce91863118a4f03e3"
+    };
 
-<select id="schoolFilter" onchange="filterBuses()">
-  <option value="">🎓 Filter by School</option>
-</select>
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-<div id="distanceCard">🚍 Distance from bus: <span id="distanceText">--</span></div>
-<div id="map"></div>
+    let map = L.map('map').setView([-1.29, 36.82], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-<audio id="bell" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+    let watchId = null;
+    const today = new Date().toISOString().split('T')[0];
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+    window.startJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      const name = document.getElementById("driverName").value.trim();
+      const school = document.getElementById("schoolName").value.trim();
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
-    authDomain: "schooltransports-34fd7.firebaseapp.com",
-    databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
-    projectId: "schooltransports-34fd7",
-    storageBucket: "schooltransports-34fd7.appspot.com",
-    messagingSenderId: "125561731802",
-    appId: "1:125561731802:web:745a6ce91863118a4f03e3"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  const map = L.map("map").setView([-1.29, 36.82], 14);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-
-  const bell = document.getElementById("bell");
-  const distanceText = document.getElementById("distanceText");
-  const distanceCard = document.getElementById("distanceCard");
-  const schoolDropdown = document.getElementById("schoolFilter");
-
-  const today = new Date().toISOString().slice(0, 10);
-  let myPhone = localStorage.getItem("myPhone") || "";
-  if (myPhone) document.getElementById("myPhone").value = myPhone;
-
-  let myLatLng = null;
-  let busMarkers = {};
-  let hasRungBell = false;
-  let allDrivers = [];
-
-  // Save phone
-  window.saveMyPhone = () => {
-    myPhone = document.getElementById("myPhone").value.trim();
-    if (!myPhone) return alert("Enter your phone.");
-    localStorage.setItem("myPhone", myPhone);
-    alert("✅ Saved.");
-  };
-
-  // Watch parent live location
-  navigator.geolocation.watchPosition(pos => {
-    myLatLng = [pos.coords.latitude, pos.coords.longitude];
-  }, () => {
-    alert("❌ Please allow location access.");
-  }, {
-    enableHighAccuracy: true,
-    maximumAge: 0,
-    timeout: 10000
-  });
-
-  function filterBuses() {
-    const selectedSchool = schoolDropdown.value;
-    const filtered = selectedSchool ? allDrivers.filter(d => d.school === selectedSchool) : allDrivers;
-    renderDrivers(filtered);
-  }
-
-  function renderDrivers(drivers) {
-    Object.values(busMarkers).forEach(marker => map.removeLayer(marker));
-    busMarkers = {};
-
-    if (!myLatLng) return;
-
-    drivers.forEach((d, index) => {
-      const latlng = [d.lat, d.lng];
-      const dist = map.distance(myLatLng, latlng);
-      const distKm = (dist / 1000).toFixed(2);
-      distanceText.textContent = `${distKm} km`;
-      distanceCard.style.display = "block";
-
-
-
-const busIcon = L.icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/296/296216.png", // bus image
-  iconSize: [40, 40], // adjust size as needed
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20]
-});
-const marker = L.marker(latlng, { icon: busIcon }).addTo(map);
-
-     
-      marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}<br>🏫 ${d.school}`);
-      busMarkers[d.phone] = marker;
-
-      if (index === 0) map.setView(latlng, 16);
-
-      if (dist < 200 && !hasRungBell) {
-        bell.play();
-        hasRungBell = true;
-      } else if (dist >= 200) {
-        hasRungBell = false;
+      if (!phone || !school) {
+        return alert("Please enter both phone number and school name.");
       }
-    });
-  }
 
-  // Load all buses and schools
-  onValue(ref(db, "drivers/" + today), snap => {
-    allDrivers = [];
-    const schools = new Set();
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
 
-    snap.forEach(child => {
-      const d = child.val();
-      if (d.lat && d.lng) {
-        allDrivers.push(d);
-        if (d.school) schools.add(d.school);
-      }
-    });
+        set(ref(db, `drivers/${today}/${phone}`), {
+          name,
+          phone,
+          school,
+          lat,
+          lng,
+          timestamp: Date.now()
+        });
 
-    // Update dropdown
-    const current = schoolDropdown.value;
-    schoolDropdown.innerHTML = `<option value="">🎓 Filter by School</option>`;
-    Array.from(schools).sort().forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s;
-      opt.textContent = s;
-      schoolDropdown.appendChild(opt);
-    });
-    schoolDropdown.value = current;
+      }, () => alert("❌ Cannot track location."), {
+        enableHighAccuracy: true
+      });
 
-    filterBuses();
-  });
+      alert("📍 Tracking started.");
+    };
 
-</script>
-
+    window.endJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      if (!phone) return alert("Enter your phone number.");
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      remove(ref(db, `drivers/${today}/${phone}`));
+      alert("🛑 Journey ended.");
+    };
+  </script>
 </body>
 </html>
