@@ -1,26 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Parent – Track School Bus</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parent – School Bus Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body { font-family: sans-serif; background: #eef2f3; padding: 10px; }
-    h2 { text-align: center; }
-    #map { height: 70vh; border-radius: 10px; margin-top: 10px; }
-    input, button {
-      width: 100%; padding: 12px; font-size: 16px; margin: 5px 0;
-      border-radius: 8px; border: 1px solid #ccc;
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f0f0f0;
     }
-    button { background: #2196F3; color: white; border: none; }
+    h2 {
+      text-align: center;
+    }
+    #map {
+      height: 70vh;
+      border-radius: 10px;
+    }
+    input, button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
   </style>
 </head>
 <body>
 
-<h2>🚸 Parent – Track School Bus</h2>
-<input type="text" id="parentPhone" placeholder="Enter Your Phone Number" />
-<button onclick="setHomeLocation()">🏠 Set Home Location</button>
+<h2>🚌 School Bus Tracker (Parents)</h2>
+<input type="text" id="myPhone" placeholder="Your Phone (for proximity alert)">
+<button onclick="saveMyPhone()">✅ Save My Phone</button>
+
 <div id="map"></div>
 <audio id="bell" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
@@ -42,57 +61,47 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  let map = L.map('map').setView([-1.29, 36.82], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  const map = L.map("map").setView([-1.29, 36.82], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
   const bell = document.getElementById("bell");
-  const today = new Date().toISOString().split('T')[0];
-  let homeMarker = null;
-  let busMarkers = {};
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  let markers = {};
 
-  window.setHomeLocation = () => {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      localStorage.setItem("homeLat", lat);
-      localStorage.setItem("homeLng", lng);
-      alert("✅ Home location saved.");
-      drawHomeMarker();
-    }, () => alert("❌ Please allow location access."));
+  let myPhone = localStorage.getItem("myPhone") || "";
+
+  window.saveMyPhone = () => {
+    myPhone = document.getElementById("myPhone").value.trim();
+    if (!myPhone) return alert("Please enter your phone number.");
+    localStorage.setItem("myPhone", myPhone);
+    alert("Saved!");
   };
 
-  function drawHomeMarker() {
-    const lat = localStorage.getItem("homeLat");
-    const lng = localStorage.getItem("homeLng");
-    if (!lat || !lng) return;
-    if (homeMarker) map.removeLayer(homeMarker);
-    homeMarker = L.marker([lat, lng], { icon: L.icon({ iconUrl: "https://cdn-icons-png.flaticon.com/512/25/25694.png", iconSize: [30, 30] }) }).addTo(map).bindPopup("🏠 Your Home");
-  }
+  if (myPhone) document.getElementById("myPhone").value = myPhone;
 
-  function watchDrivers() {
-    const path = ref(db, `drivers/${today}`);
-    onValue(path, snap => {
-      const homeLat = parseFloat(localStorage.getItem("homeLat"));
-      const homeLng = parseFloat(localStorage.getItem("homeLng"));
-      for (let key in busMarkers) map.removeLayer(busMarkers[key]);
-      busMarkers = {};
-      snap.forEach(child => {
-        const d = child.val();
-        const marker = L.marker([d.lat, d.lng]).addTo(map);
-        marker.bindPopup(`🚌 ${d.name || 'Driver'}<br>📞 ${d.phone}`);
-        busMarkers[d.phone] = marker;
+  // Watch location to compare with bus
+  let myLatLng = null;
+  navigator.geolocation.watchPosition(pos => {
+    myLatLng = [pos.coords.latitude, pos.coords.longitude];
+  });
 
-        if (!isNaN(homeLat) && !isNaN(homeLng)) {
-          const dist = map.distance([d.lat, d.lng], [homeLat, homeLng]);
-          if (dist < 100) bell.play();
-        }
-      });
+  onValue(ref(db, "drivers/" + today), snap => {
+    for (let id in markers) map.removeLayer(markers[id]);
+    markers = {};
+
+    snap.forEach(child => {
+      const d = child.val();
+      const marker = L.marker([d.lat, d.lng]).addTo(map);
+      marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}`);
+      markers[d.phone] = marker;
+
+      // Bell proximity if parent shared location
+      if (myLatLng) {
+        const distance = map.distance(myLatLng, [d.lat, d.lng]);
+        if (distance < 100) bell.play(); // rings if within 100 meters
+      }
     });
-  }
-
-  drawHomeMarker();
-  watchDrivers();
+  });
 </script>
 </body>
 </html>
-
