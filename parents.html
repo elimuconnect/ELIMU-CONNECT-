@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Parent – School Bus Tracker</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -16,8 +16,9 @@
       text-align: center;
     }
     #map {
-      height: 70vh;
+      height: 60vh;
       border-radius: 10px;
+      margin-top: 10px;
     }
     input, button {
       width: 100%;
@@ -32,6 +33,15 @@
       color: white;
       border: none;
     }
+    #distanceCard {
+      background: #fff3cd;
+      padding: 15px;
+      margin-top: 10px;
+      border-left: 5px solid #ffc107;
+      border-radius: 8px;
+      font-size: 18px;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -40,7 +50,9 @@
 <input type="text" id="myPhone" placeholder="Your Phone (for proximity alert)">
 <button onclick="saveMyPhone()">✅ Save My Phone</button>
 
+<div id="distanceCard">🚍 Distance from bus: <span id="distanceText">--</span></div>
 <div id="map"></div>
+
 <audio id="bell" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -65,29 +77,31 @@
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
   const bell = document.getElementById("bell");
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  let markers = {};
+  const distanceText = document.getElementById("distanceText");
+  const distanceCard = document.getElementById("distanceCard");
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
   let myPhone = localStorage.getItem("myPhone") || "";
+  if (myPhone) document.getElementById("myPhone").value = myPhone;
 
   window.saveMyPhone = () => {
     myPhone = document.getElementById("myPhone").value.trim();
-    if (!myPhone) return alert("Please enter your phone number.");
+    if (!myPhone) return alert("Enter your phone.");
     localStorage.setItem("myPhone", myPhone);
-    alert("Saved!");
+    alert("✅ Saved.");
   };
 
-  if (myPhone) document.getElementById("myPhone").value = myPhone;
-
-  // Watch location to compare with bus
   let myLatLng = null;
   navigator.geolocation.watchPosition(pos => {
     myLatLng = [pos.coords.latitude, pos.coords.longitude];
   });
 
+  let markers = {};
+
   onValue(ref(db, "drivers/" + today), snap => {
     for (let id in markers) map.removeLayer(markers[id]);
     markers = {};
+    distanceCard.style.display = "none";
 
     snap.forEach(child => {
       const d = child.val();
@@ -95,13 +109,17 @@
       marker.bindPopup(`🚌 ${d.name || "Driver"}<br>📞 ${d.phone}`);
       markers[d.phone] = marker;
 
-      // Bell proximity if parent shared location
       if (myLatLng) {
-        const distance = map.distance(myLatLng, [d.lat, d.lng]);
-        if (distance < 100) bell.play(); // rings if within 100 meters
+        const dist = map.distance(myLatLng, [d.lat, d.lng]);
+        const distKm = (dist / 1000).toFixed(2);
+        distanceText.textContent = `${distKm} km`;
+        distanceCard.style.display = "block";
+
+        if (dist < 200) bell.play(); // Ring bell under 200m
       }
     });
   });
 </script>
+
 </body>
 </html>
