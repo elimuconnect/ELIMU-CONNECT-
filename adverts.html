@@ -65,35 +65,37 @@
 
 <script>
 const lessonsArray = [
-  `Grade 9 Mathematics: Linear Equations
+  `Grade 9 Mathematics: Linear Equations.
 In this lesson, we explore how to work with simple linear equations. You’ll learn the basics of solving for unknowns and how equations can model everyday problems.`,
 
-  `Grade 9 Mathematics: Geometry – Angles
+  `Grade 9 Mathematics: Geometry – Angles.
 Today’s lesson introduces angles in triangles and quadrilaterals. You'll understand how to measure and calculate angles and apply these skills in real life situations.`,
 
-  `Grade 9 Mathematics: Statistics
+  `Grade 9 Mathematics: Statistics.
 Let’s learn about data collection and interpretation. We cover charts, mean, median, and how to analyze trends from everyday data.
-📲 Learn more on Elimu Connect.`
+Learn more on Elimu Connect.`
 ];
 
 let currentLesson = 0;
 let tutorStarted = false;
+let selectedVoice = null;
 
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
 
-function getVoice() {
+// Prioritize voice selection after voices are loaded
+function loadVoice() {
   const voices = speechSynthesis.getVoices();
   const kenyan = voices.find(v => v.lang === 'en-KE' && v.name.toLowerCase().includes('female'));
   const nigerian = voices.find(v => v.lang === 'en-NG' && v.name.toLowerCase().includes('female'));
   const british = voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('female'));
-  return kenyan || nigerian || british || voices[0];
+  selectedVoice = kenyan || nigerian || british || voices[0];
 }
 
 function speak(text, onEnd) {
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = getVoice();
+  utter.voice = selectedVoice;
   utter.rate = 0.88;
   utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
@@ -121,8 +123,10 @@ function startTutor() {
   showLesson(currentLesson);
 }
 
-// Load voices on start
-window.speechSynthesis.onvoiceschanged = getVoice;
+// Wait for voices to load fully
+window.speechSynthesis.onvoiceschanged = () => {
+  loadVoice();
+};
 </script>
 
 </body>
