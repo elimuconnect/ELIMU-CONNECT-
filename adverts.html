@@ -181,6 +181,19 @@ function showLesson(index) {
   const lesson = lessonsArray[index];
   editor.innerHTML = `
     <div class="card">
+      <pre>${lesson}</pre>
+    </div>
+  `;
+  status.textContent = `📖 Reading Lesson ${index + 1}`;
+  speak(lesson, () => {
+    currentLesson++;
+    setTimeout(() => showLesson(currentLesson), 3000);
+  });
+}
+
+  const lesson = lessonsArray[index];
+  editor.innerHTML = `
+    <div class="card">
       <h2>${lesson.title}</h2>
       <p>${lesson.content}</p>
     </div>
