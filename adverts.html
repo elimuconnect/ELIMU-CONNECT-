@@ -2,54 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tutor: Elimu Connect</title>
+  <title>Smart Tutor – Elimu Connect Ads</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       font-family: 'Segoe UI', sans-serif;
-      background: #eef1f5;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
     }
+
     #app {
       display: flex;
       flex-direction: column;
       height: 100%;
     }
+
     #toolbar {
       padding: 15px;
       background: #1976d2;
       color: white;
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: center;
+      gap: 12px;
     }
+
     #toolbar button {
       background: white;
       color: #1976d2;
-      padding: 10px 16px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
     }
+
+    #toolbar button:hover {
+      background: #f0f0f0;
+    }
+
     #editor {
       flex: 1;
-      padding: 30px;
-      font-size: 1.6em;
-      background: #fff;
-      overflow-y: auto;
-      outline: none;
-      white-space: pre-wrap;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      transition: all 0.4s ease;
     }
+
+    .card {
+      max-width: 800px;
+      padding: 40px;
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      font-size: 1.4em;
+      line-height: 1.6;
+      animation: fadeIn 1s ease;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #d81b60;
+    }
+
     #status {
-      padding: 10px;
+      padding: 15px;
       background: #388e3c;
       color: white;
       font-weight: bold;
       text-align: center;
+      font-size: 18px;
     }
-    .question { color: #333; margin-bottom: 20px; font-weight: bold; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -60,8 +96,11 @@
     <button onclick="skipLesson()">⏭️ Skip</button>
   </div>
 
-  <div id="editor" contenteditable="false">
-    <p>Click "Start Tutor" to begin.</p>
+  <div id="editor">
+    <div class="card">
+      <h2>Welcome to Smart Tutor</h2>
+      <p>Click "Start Tutor" to begin reading CBC Grade 9 Math lessons aloud. Elimu Connect helps you learn anywhere, anytime.</p>
+    </div>
   </div>
 
   <div id="status">⏳ Ready when you are!</div>
@@ -69,20 +108,24 @@
 
 <script>
 const lessonsArray = [
-  `Lesson 1: Solving Linear Equations – Grade 9 Mathematics
-In this lesson, we learn how to solve simple equations such as 3x - 5 = 10.
-We isolate the variable x and find its value.
-Elimu Connect helps you learn this with ease.`,
-
-  `Lesson 2: Perimeter of a Rectangle – Grade 9 Mathematics
-To find the perimeter, we add all sides.
-Use the formula: Perimeter equals 2 times length plus width.
-Let’s practice using real-life shapes around you.`,
-
-  `Lesson 3: Probability – Grade 9 Mathematics
-Probability helps us understand chances.
-If a bag has 3 blue balls out of 10, the chance is 3 out of 10.
-Get more interactive math tools on Elimu Connect!`
+  {
+    title: "Lesson 1: Solving Linear Equations",
+    content: `In this lesson, we learn how to solve simple equations like 3x - 5 = 10.
+We isolate x and solve it using inverse operations.
+Start mastering algebra today with Elimu Connect.`
+  },
+  {
+    title: "Lesson 2: Perimeter of a Rectangle",
+    content: `Perimeter means the total length around a shape.
+We use the formula: Perimeter = 2 × (length + width).
+Discover how math applies in real-world buildings and farms.`
+  },
+  {
+    title: "Lesson 3: Understanding Probability",
+    content: `Probability helps you calculate chances.
+If a bag has 3 blue out of 10 balls, the chance is 3 out of 10.
+Learn practical stats with Elimu Connect quizzes and tools.`
+  }
 ];
 
 let currentLesson = 0;
@@ -111,24 +154,33 @@ function speak(text, onEnd) {
 
 function showLesson(index) {
   if (index >= lessonsArray.length) {
-    editor.innerHTML = "✅ All lessons completed.";
+    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You're done! Download more CBC resources on Elimu Connect.</p></div>`;
     status.textContent = "✅ Done.";
     return;
   }
 
-  const text = lessonsArray[index];
-  editor.innerHTML = `<div class="question">${text}</div>`;
-  status.textContent = `📖 Lesson ${index + 1}: Reading...`;
-
-  speak(text, () => {
+  const lesson = lessonsArray[index];
+  editor.innerHTML = `
+    <div class="card">
+      <h2>${lesson.title}</h2>
+      <p>${lesson.content}</p>
+    </div>
+  `;
+  status.textContent = `📖 Reading ${lesson.title}`;
+  speak(`${lesson.title}. ${lesson.content}`, () => {
     currentLesson++;
-    setTimeout(() => showLesson(currentLesson), 3000);
+    setTimeout(() => showLesson(currentLesson), 3500);
   });
 }
 
 function startTutor() {
   if (tutorStarted) return;
   tutorStarted = true;
+  selectedVoice = getVoice();
+  if (!selectedVoice) {
+    status.textContent = "❌ No voice found.";
+    return;
+  }
   status.textContent = "🟢 Starting lesson...";
   showLesson(currentLesson);
 }
@@ -138,7 +190,6 @@ function skipLesson() {
   showLesson(currentLesson);
 }
 
-// Wait for voices to load before selecting
 speechSynthesis.onvoiceschanged = () => {
   selectedVoice = getVoice();
 };
@@ -146,4 +197,3 @@ speechSynthesis.onvoiceschanged = () => {
 
 </body>
 </html>
-
