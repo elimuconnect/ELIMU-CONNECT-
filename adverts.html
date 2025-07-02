@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tutor – AI Voice Lessons</title>
+  <title>Smart Tutor: Elimu Connect</title>
   <style>
     html, body {
       margin: 0;
@@ -21,6 +21,7 @@
       background: #1976d2;
       color: white;
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
     #toolbar button {
@@ -38,6 +39,7 @@
       font-size: 1.6em;
       background: #fff;
       overflow-y: auto;
+      outline: none;
       white-space: pre-wrap;
     }
     #status {
@@ -47,6 +49,7 @@
       font-weight: bold;
       text-align: center;
     }
+    .question { color: #333; margin-bottom: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -54,10 +57,11 @@
 <div id="app">
   <div id="toolbar">
     <button onclick="startTutor()">▶️ Start Tutor</button>
+    <button onclick="skipLesson()">⏭️ Skip</button>
   </div>
 
   <div id="editor" contenteditable="false">
-    <p>Click "Start Tutor" to begin the voice lesson.</p>
+    <p>Click "Start Tutor" to begin.</p>
   </div>
 
   <div id="status">⏳ Ready when you are!</div>
@@ -65,15 +69,20 @@
 
 <script>
 const lessonsArray = [
-  `Grade 9 Mathematics: Linear Equations.
-In this lesson, we explore how to work with simple linear equations. You’ll learn the basics of solving for unknowns and how equations can model everyday problems.`,
+  `Lesson 1: Solving Linear Equations – Grade 9 Mathematics
+In this lesson, we learn how to solve simple equations such as 3x - 5 = 10.
+We isolate the variable x and find its value.
+Elimu Connect helps you learn this with ease.`,
 
-  `Grade 9 Mathematics: Geometry – Angles.
-Today’s lesson introduces angles in triangles and quadrilaterals. You'll understand how to measure and calculate angles and apply these skills in real life situations.`,
+  `Lesson 2: Perimeter of a Rectangle – Grade 9 Mathematics
+To find the perimeter, we add all sides.
+Use the formula: Perimeter equals 2 times length plus width.
+Let’s practice using real-life shapes around you.`,
 
-  `Grade 9 Mathematics: Statistics.
-Let’s learn about data collection and interpretation. We cover charts, mean, median, and how to analyze trends from everyday data.
-Learn more on Elimu Connect.`
+  `Lesson 3: Probability – Grade 9 Mathematics
+Probability helps us understand chances.
+If a bag has 3 blue balls out of 10, the chance is 3 out of 10.
+Get more interactive math tools on Elimu Connect!`
 ];
 
 let currentLesson = 0;
@@ -83,13 +92,12 @@ let selectedVoice = null;
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
 
-// Prioritize voice selection after voices are loaded
-function loadVoice() {
+function getVoice() {
   const voices = speechSynthesis.getVoices();
   const kenyan = voices.find(v => v.lang === 'en-KE' && v.name.toLowerCase().includes('female'));
   const nigerian = voices.find(v => v.lang === 'en-NG' && v.name.toLowerCase().includes('female'));
   const british = voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('female'));
-  selectedVoice = kenyan || nigerian || british || voices[0];
+  return kenyan || nigerian || british || voices[0];
 }
 
 function speak(text, onEnd) {
@@ -107,12 +115,14 @@ function showLesson(index) {
     status.textContent = "✅ Done.";
     return;
   }
+
   const text = lessonsArray[index];
-  editor.innerHTML = `<div>${text}</div>`;
-  status.textContent = `📖 Lesson ${index + 1}...`;
+  editor.innerHTML = `<div class="question">${text}</div>`;
+  status.textContent = `📖 Lesson ${index + 1}: Reading...`;
+
   speak(text, () => {
     currentLesson++;
-    setTimeout(() => showLesson(currentLesson), 5000);
+    setTimeout(() => showLesson(currentLesson), 3000);
   });
 }
 
@@ -123,11 +133,17 @@ function startTutor() {
   showLesson(currentLesson);
 }
 
-// Wait for voices to load fully
-window.speechSynthesis.onvoiceschanged = () => {
-  loadVoice();
+function skipLesson() {
+  currentLesson++;
+  showLesson(currentLesson);
+}
+
+// Wait for voices to load before selecting
+speechSynthesis.onvoiceschanged = () => {
+  selectedVoice = getVoice();
 };
 </script>
 
 </body>
 </html>
+
