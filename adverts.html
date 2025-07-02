@@ -49,20 +49,26 @@
       justify-content: center;
     }
     .card {
-      max-width: 800px;
-      width: 100%;
-      padding: 30px;
-      background: white;
-      border-radius: 25px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      font-size: 1.3em;
-      line-height: 1.6;
-      animation: fadeIn 1s ease;
-    }
-    .card h2 {
-      margin-top: 0;
-      color: #d81b60;
-      font-size: 1.4em;
+  max-width: 800px;
+  width: 100%;
+  padding: 30px;
+  background: white;
+  border-radius: 25px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-size: 1.3em;
+  line-height: 1.6;
+  animation: fadeIn 1s ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.card pre {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  font-size: 1em;
+}
+
     }
     #status {
       padding: 15px;
