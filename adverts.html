@@ -48,35 +48,39 @@
       align-items: center;
       justify-content: center;
     }
-   .card {
+  .card {
   max-width: 800px;
   width: 100%;
   padding: 30px;
   background: white;
   border-radius: 25px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.2em;
-  line-height: 1.6;
+  font-size: 1.4em;              /* Large base font */
+  line-height: 1.8;              /* Spaced lines */
+  font-weight: bold;             /* Bold text */
   animation: fadeIn 1s ease;
   overflow-wrap: break-word;
   word-break: break-word;
-  color: #333;
+  color: #1a237e;                /* Deep blue for content */
 }
 
 .card h2 {
   margin-top: 0;
-  color: #d81b60; /* Pinkish red title */
-  font-size: 1.5em;
+  color: #d81b60;                /* Bright pink title */
+  font-size: 1.6em;              /* Larger for titles */
+  font-weight: bold;
 }
 
 .card pre {
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
-  font-size: 1em;
-  color: #1a237e;     /* Deep blue for lesson text */
-  font-weight: bold;  /* Bold text for visibility */
+  font-size: 1.3em;              /* Large font inside pre */
+  line-height: 1.8;
+  font-weight: bold;
+  color: #1a237e;
 }
+
 
 
     }
@@ -95,8 +99,11 @@
     @media (max-width: 600px) {
       #toolbar { flex-direction: column; gap: 8px; padding: 10px; }
       #toolbar button { width: 100%; font-size: 16px; padding: 10px; }
-      .card { padding: 20px; font-size: 1em; }
-      .card h2 { font-size: 1.2em; }
+      .card { padding: 20px; font-size: 1.2em; }
+      .card h2 { font-size: 1.4em; }
+      .card pre {
+  font-size: 1.15em;
+}
       #status { font-size: 15px; padding: 10px; }
     }
   </style>
