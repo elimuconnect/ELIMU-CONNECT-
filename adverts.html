@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Smart Tutor – Elimu Connect Ads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     * {
       box-sizing: border-box;
@@ -28,6 +29,7 @@
       color: white;
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       gap: 12px;
     }
 
@@ -53,17 +55,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
-      transition: all 0.4s ease;
     }
 
     .card {
       max-width: 800px;
-      padding: 40px;
+      width: 100%;
+      padding: 30px;
       background: white;
       border-radius: 25px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      font-size: 1.4em;
+      font-size: 1.3em;
       line-height: 1.6;
       animation: fadeIn 1s ease;
     }
@@ -71,6 +72,7 @@
     .card h2 {
       margin-top: 0;
       color: #d81b60;
+      font-size: 1.4em;
     }
 
     #status {
@@ -79,12 +81,40 @@
       color: white;
       font-weight: bold;
       text-align: center;
-      font-size: 18px;
+      font-size: 16px;
     }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      #toolbar {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      #toolbar button {
+        width: 100%;
+        font-size: 16px;
+        padding: 10px;
+      }
+
+      .card {
+        padding: 20px;
+        font-size: 1em;
+      }
+
+      .card h2 {
+        font-size: 1.2em;
+      }
+
+      #status {
+        font-size: 15px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
@@ -99,7 +129,7 @@
   <div id="editor">
     <div class="card">
       <h2>Welcome to Smart Tutor</h2>
-      <p>Click "Start Tutor" to begin reading CBC Grade 9 Math lessons aloud. Elimu Connect helps you learn anywhere, anytime.</p>
+      <p>Click "Start Tutor" to begin CBC Grade 9 Math lessons. Elimu Connect helps you learn from anywhere, with voice lessons and interactive tools.</p>
     </div>
   </div>
 
@@ -110,15 +140,15 @@
 const lessonsArray = [
   {
     title: "Lesson 1: Solving Linear Equations",
-    content: `In this lesson, we learn how to solve simple equations like 3x - 5 = 10.
-We isolate x and solve it using inverse operations.
+    content: `In this lesson, we learn how to solve simple equations like 3x minus 5 equals 10.
+We isolate x using inverse operations.
 Start mastering algebra today with Elimu Connect.`
   },
   {
     title: "Lesson 2: Perimeter of a Rectangle",
     content: `Perimeter means the total length around a shape.
-We use the formula: Perimeter = 2 × (length + width).
-Discover how math applies in real-world buildings and farms.`
+We use the formula: Perimeter equals 2 times length plus width.
+Discover how math applies in buildings and farms.`
   },
   {
     title: "Lesson 3: Understanding Probability",
@@ -169,7 +199,7 @@ function showLesson(index) {
   status.textContent = `📖 Reading ${lesson.title}`;
   speak(`${lesson.title}. ${lesson.content}`, () => {
     currentLesson++;
-    setTimeout(() => showLesson(currentLesson), 3500);
+    setTimeout(() => showLesson(currentLesson), 3000);
   });
 }
 
@@ -190,6 +220,7 @@ function skipLesson() {
   showLesson(currentLesson);
 }
 
+// Ensure voices are loaded
 speechSynthesis.onvoiceschanged = () => {
   selectedVoice = getVoice();
 };
