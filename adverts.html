@@ -191,13 +191,7 @@ function showLesson(index) {
   });
 }
 
-  const lesson = lessonsArray[index];
-  editor.innerHTML = `
-    <div class="card">
-      <h2>${lesson.title}</h2>
-      <p>${lesson.content}</p>
-    </div>
-  `;
+  
   status.textContent = `📖 Reading ${lesson.title}`;
   speak(`${lesson.title}. ${lesson.content}`, () => {
     currentLesson++;
