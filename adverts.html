@@ -5,10 +5,7 @@
   <title>Smart Tutor – Elimu Connect Ads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
@@ -16,13 +13,11 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #e0f7fa, #fce4ec);
     }
-
     #app {
       display: flex;
       flex-direction: column;
       height: 100%;
     }
-
     #toolbar {
       padding: 15px;
       background: #1976d2;
@@ -32,7 +27,6 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-
     #toolbar button {
       background: white;
       color: #1976d2;
@@ -44,11 +38,9 @@
       cursor: pointer;
       transition: all 0.3s ease;
     }
-
     #toolbar button:hover {
       background: #f0f0f0;
     }
-
     #editor {
       flex: 1;
       padding: 40px 20px;
@@ -56,7 +48,6 @@
       align-items: center;
       justify-content: center;
     }
-
     .card {
       max-width: 800px;
       width: 100%;
@@ -68,13 +59,11 @@
       line-height: 1.6;
       animation: fadeIn 1s ease;
     }
-
     .card h2 {
       margin-top: 0;
       color: #d81b60;
       font-size: 1.4em;
     }
-
     #status {
       padding: 15px;
       background: #388e3c;
@@ -83,38 +72,16 @@
       text-align: center;
       font-size: 16px;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     @media (max-width: 600px) {
-      #toolbar {
-        flex-direction: column;
-        gap: 8px;
-        padding: 10px;
-      }
-
-      #toolbar button {
-        width: 100%;
-        font-size: 16px;
-        padding: 10px;
-      }
-
-      .card {
-        padding: 20px;
-        font-size: 1em;
-      }
-
-      .card h2 {
-        font-size: 1.2em;
-      }
-
-      #status {
-        font-size: 15px;
-        padding: 10px;
-      }
+      #toolbar { flex-direction: column; gap: 8px; padding: 10px; }
+      #toolbar button { width: 100%; font-size: 16px; padding: 10px; }
+      .card { padding: 20px; font-size: 1em; }
+      .card h2 { font-size: 1.2em; }
+      #status { font-size: 15px; padding: 10px; }
     }
   </style>
 </head>
@@ -184,7 +151,7 @@ function speak(text, onEnd) {
 
 function showLesson(index) {
   if (index >= lessonsArray.length) {
-    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You're done! Download more CBC resources on Elimu Connect.</p></div>`;
+    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You’re done! Download more CBC resources on Elimu Connect.</p></div>`;
     status.textContent = "✅ Done.";
     return;
   }
@@ -206,24 +173,28 @@ function showLesson(index) {
 function startTutor() {
   if (tutorStarted) return;
   tutorStarted = true;
-  selectedVoice = getVoice();
-  if (!selectedVoice) {
-    status.textContent = "❌ No voice found.";
-    return;
-  }
-  status.textContent = "🟢 Starting lesson...";
-  showLesson(currentLesson);
+
+  // Ensure voices are loaded after user interaction
+  speechSynthesis.onvoiceschanged = () => {
+    selectedVoice = getVoice();
+  };
+
+  const voiceCheck = setInterval(() => {
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      clearInterval(voiceCheck);
+      selectedVoice = getVoice();
+      showLesson(currentLesson);
+    }
+  }, 200);
+
+  status.textContent = "🟢 Loading voice & starting...";
 }
 
 function skipLesson() {
   currentLesson++;
   showLesson(currentLesson);
 }
-
-// Ensure voices are loaded
-speechSynthesis.onvoiceschanged = () => {
-  selectedVoice = getVoice();
-};
 </script>
 
 </body>
