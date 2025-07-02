@@ -48,18 +48,25 @@
       align-items: center;
       justify-content: center;
     }
-    .card {
+   .card {
   max-width: 800px;
   width: 100%;
   padding: 30px;
   background: white;
   border-radius: 25px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.3em;
+  font-size: 1.2em;
   line-height: 1.6;
   animation: fadeIn 1s ease;
   overflow-wrap: break-word;
   word-break: break-word;
+  color: #333;
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #d81b60; /* Pinkish red title */
+  font-size: 1.5em;
 }
 
 .card pre {
@@ -67,7 +74,10 @@
   overflow-wrap: break-word;
   word-break: break-word;
   font-size: 1em;
+  color: #1a237e;     /* Deep blue for lesson text */
+  font-weight: bold;  /* Bold text for visibility */
 }
+
 
     }
     #status {
