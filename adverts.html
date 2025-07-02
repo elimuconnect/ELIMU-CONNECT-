@@ -191,19 +191,11 @@ function showLesson(index) {
   });
 }
 
-  
-  status.textContent = `📖 Reading ${lesson.title}`;
-  speak(`${lesson.title}. ${lesson.content}`, () => {
-    currentLesson++;
-    setTimeout(() => showLesson(currentLesson), 3000);
-  });
-}
-
 function startTutor() {
   if (tutorStarted) return;
   tutorStarted = true;
 
-  // Ensure voices are loaded after user interaction
+  // Load voice after user interaction
   speechSynthesis.onvoiceschanged = () => {
     selectedVoice = getVoice();
   };
@@ -224,6 +216,7 @@ function skipLesson() {
   currentLesson++;
   showLesson(currentLesson);
 }
+
 </script>
 
 </body>
