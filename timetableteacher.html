@@ -2,42 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Timetable Voice Assistant</title>
+  <title>Smart Timetable Voice Assistant</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      text-align: center;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-    }
-    #status {
-      margin-top: 1em;
-      font-weight: bold;
-      color: green;
-    }
+    body { font-family: Arial; padding: 2em; text-align: center; }
+    input, button { padding: 10px; margin: 8px; font-size: 16px; }
+    #status { margin-top: 1em; font-weight: bold; color: green; }
   </style>
 </head>
 <body>
-  <h2>📚 Smart Timetable Voice Assistant</h2>
-  <input type="file" id="pdfUpload" accept="application/pdf"><br>
-  <input type="text" id="teacherName" placeholder="Enter your full name"><br>
+  <h2>📚 Timetable Voice Assistant</h2>
+  <input type="file" id="fileInput" accept=".pdf,.docx"><br>
+  <input type="text" id="teacherName" placeholder="Enter your name e.g. Solomon Ndegwa"><br>
   <button onclick="startAssistant()">Start</button>
-
   <div id="status"></div>
 
   <script>
-    let timetableText = "";
+    let fullText = "";
     let personalLessons = [];
 
     function say(text) {
       const msg = new SpeechSynthesisUtterance(text);
       msg.lang = "en-KE";
-      window.speechSynthesis.speak(msg);
+      speechSynthesis.speak(msg);
     }
 
     function normalizeName(name) {
@@ -45,43 +33,56 @@
     }
 
     function startAssistant() {
-      const file = document.getElementById("pdfUpload").files[0];
+      const file = document.getElementById("fileInput").files[0];
       const teacherInput = document.getElementById("teacherName").value.trim();
 
       if (!file || !teacherInput) {
-        alert("Please upload PDF and enter your full name.");
+        alert("Upload a .pdf or .docx file and enter your name.");
         return;
       }
 
+      const fileName = file.name.toLowerCase();
+      if (fileName.endsWith(".pdf")) {
+        parsePDF(file, teacherInput);
+      } else if (fileName.endsWith(".docx")) {
+        parseDOCX(file, teacherInput);
+      } else {
+        alert("Unsupported file type. Upload a .pdf or .docx file.");
+      }
+    }
+
+    function parsePDF(file, teacherInput) {
       const reader = new FileReader();
       reader.onload = async function () {
         const typedarray = new Uint8Array(reader.result);
         const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
 
-        let fullText = "";
+        fullText = "";
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
           fullText += content.items.map(item => item.str).join(" ") + "\n";
         }
 
-        timetableText = fullText;
-        const found = extractForTeacher(teacherInput);
-        if (found) {
-          monitorTime();
-          document.getElementById("status").textContent = "✅ Assistant is running and monitoring time...";
-        } else {
-          document.getElementById("status").textContent = "❌ No timetable found for " + teacherInput;
-        }
+        finishParsing(teacherInput);
       };
-
       reader.readAsArrayBuffer(file);
     }
 
-    function extractForTeacher(nameInput) {
-      const name = normalizeName(nameInput);
-      const lines = timetableText.split("\n");
+    function parseDOCX(file, teacherInput) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        mammoth.extractRawText({ arrayBuffer: event.target.result }).then(function (result) {
+          fullText = result.value;
+          finishParsing(teacherInput);
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
 
+    function finishParsing(teacherInput) {
+      const name = normalizeName(teacherInput);
+      const lines = fullText.split("\n");
       let sectionFound = false;
       let collecting = false;
       personalLessons = [];
@@ -97,7 +98,7 @@
         }
 
         if (collecting && (line.includes("Tr.") || line.includes("Teacher") || line.trim() === "")) {
-          break; // end of teacher section
+          break; // end of section
         }
 
         if (collecting && /([0-9]{1,2}:[0-9]{2}).*?(Form\s*\w+|[1-4][A-Z]?)?.*?\b([A-Z]{3,}|Math|Eng|Kisw|Bio|Chem|Hist)\b/i.test(line)) {
@@ -113,27 +114,30 @@
       }
 
       if (sectionFound && personalLessons.length > 0) {
-        console.log("✅ Lessons for", nameInput, personalLessons);
-        return true;
+        document.getElementById("status").textContent = "✅ Assistant running... Monitoring your lessons";
+        console.log("Lessons:", personalLessons);
+        monitorTime(teacherInput);
       } else {
-        return false;
+        document.getElementById("status").textContent = "❌ No timetable found for " + teacherInput;
       }
     }
 
-    function monitorTime() {
+    function monitorTime(teacherName) {
       setInterval(() => {
         const now = new Date();
         const current = now.getHours().toString().padStart(2, '0') + ":" +
                         now.getMinutes().toString().padStart(2, '0');
-
         for (let lesson of personalLessons) {
           if (lesson.time.startsWith(current)) {
-            const userName = document.getElementById("teacherName").value;
-            say(`${userName}, go to ${lesson.form}, ${lesson.subject}`);
+            say(`${teacherName}, go to ${lesson.form}, ${lesson.subject}`);
           }
         }
-      }, 60000); // every minute
+      }, 60000); // every 60 seconds
     }
   </script>
 </body>
 </html>
+
+
+
+       
