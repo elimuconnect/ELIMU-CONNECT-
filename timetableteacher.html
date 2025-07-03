@@ -33,7 +33,7 @@
     }
 
     function normalizeName(name) {
-      return name.replace(/(Tr\.?|Mr\.?|Ms\.?|Teacher)/gi, "").trim().toLowerCase();
+      return name.replace(/(Tr\.?|Mr\.?|Ms\.?|Mrs\.?|Teacher)/gi, "").trim().toLowerCase();
     }
 
     function startAssistant() {
@@ -91,16 +91,15 @@
       let sectionFound = false;
       let collecting = false;
       personalLessons = [];
-
+      let previewText = "";
       const previewDiv = document.getElementById("preview");
       previewDiv.innerHTML = "";
-      let previewText = "";
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        const line = lines[i].trim();
         const normalizedLine = normalizeName(line);
 
-        // Look for a teacher name at the top of a block
+        // Match if name is anywhere in the line
         if (!collecting && normalizedLine.includes(name)) {
           sectionFound = true;
           collecting = true;
@@ -108,16 +107,14 @@
           continue;
         }
 
-        // Stop if next block starts
-        if (collecting && (line.includes("Tr.") || line.includes("Teacher") || line.trim() === "")) {
-          break;
+        if (collecting && (line.match(/^(Tr\.|Teacher|Mr\.|Ms\.)/i) || line === "")) {
+          break; // End of this teacher's block
         }
 
         if (collecting) {
-          previewText += line.trim() + "\n";
+          previewText += line + "\n";
 
-          // Extract lesson info
-          const match = line.match(/([0-9]{1,2}:[0-9]{2}).*?(Form\s*\w+|[1-4][A-Z]?)?.*?\b([A-Z]{3,}|Math|Eng|Kisw|Bio|Chem|Hist)\b/i);
+          const match = line.match(/([0-9]{1,2}:[0-9]{2}).*?(Form\s*\w+|[1-4][A-Z]?)?.*?\b([A-Z]{3,}|Math|Eng|Kisw|Bio|Chem|Hist|KISW|ENGL|MAT|PHY|BIO|CRE|AGR|BST)\b/i);
           if (match) {
             personalLessons.push({
               time: match[1],
@@ -140,26 +137,27 @@
     function monitorTime() {
       setInterval(() => {
         const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const mins = now.getMinutes().toString().padStart(2, '0');
-
-        const currentTime = `${hours}:${mins}`;
+        const currentHH = now.getHours();
+        const currentMM = now.getMinutes();
 
         for (let lesson of personalLessons) {
-          const [hh, mm] = lesson.time.split(":");
-          const alertTime = new Date();
-          alertTime.setHours(parseInt(hh));
-          alertTime.setMinutes(parseInt(mm) - 2); // 2 minutes before
+          const [hh, mm] = lesson.time.split(":").map(n => parseInt(n));
+          let alertHH = hh;
+          let alertMM = mm - 2;
 
-          const alertHH = alertTime.getHours().toString().padStart(2, '0');
-          const alertMM = alertTime.getMinutes().toString().padStart(2, '0');
-          const matchTime = `${alertHH}:${alertMM}`;
+          if (alertMM < 0) {
+            alertHH -= 1;
+            alertMM = 60 + alertMM;
+          }
 
-          if (currentTime === matchTime) {
+          if (
+            alertHH === currentHH &&
+            alertMM === currentMM
+          ) {
             say(`${teacherCleanName}, in 2 minutes go to ${lesson.form}, ${lesson.subject}`);
           }
         }
-      }, 60000); // check every minute
+      }, 60000); // every minute
     }
 
     function downloadTimetable() {
@@ -184,10 +182,4 @@
 </body>
 </html>
 
-
       
-
-      
-
-
-       
