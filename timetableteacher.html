@@ -52,12 +52,13 @@
   <input type="file" id="lessonFile" accept=".docx">
   <br>
   <button onclick="loadTimetable()">📥 Load Timetable</button>
+  <button onclick="speakText('Test alert. Your timetable is working.')">🔊 Test Alert</button>
 
   <div id="status"></div>
   <div id="editor"></div>
 
   <script>
-   function normalize(text) {
+    function normalize(text) {
       return (text || "")
         .replace(/(Tr\.?|Mr\.?|Ms\.?|Mrs\.?|Teacher)/gi, "")
         .trim()
@@ -95,8 +96,6 @@
           for (let i = 0; i < elements.length; i++) {
             const el = elements[i];
             const elText = normalize(el.textContent || "");
-            console.log("Checking:", el.textContent);
-
             if (elText.includes(normalizedInput)) {
               for (let j = i + 1; j < elements.length; j++) {
                 if (elements[j].tagName === "TABLE") {
@@ -107,7 +106,8 @@
                   extractedRows = Array.from(rows).map(row =>
                     Array.from(row.querySelectorAll("td,th")).map(cell => cell.textContent.trim())
                   );
-
+                  console.log("📊 Extracted Rows:", extractedRows);
+                  startMonitoring();
                   found = true;
                   return;
                 }
@@ -127,25 +127,15 @@
 
       reader.readAsArrayBuffer(file);
     }
-	
-	
-    const dayMap = {
-      mo: "monday", mon: "monday",
-      tu: "tuesday", tue: "tuesday",
-      we: "wednesday", wed: "wednesday",
-      th: "thursday", thu: "thursday", thur: "thursday",
-      fr: "friday", fri: "friday"
-    };
-  
-    function downloadTimetable() {
-      if (extractedRows.length === 0) return;
-      const lines = extractedRows.map(r => r.join(" | "));
-      const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${teacherFullName.replace(/\s+/g, "_")}_timetable.txt`;
-      a.click();
+
+    function normalizeDay(text) {
+      if (!text) return "";
+      const short = text.trim().slice(0, 2).toLowerCase();
+      const dayMap = {
+        mo: "monday", tu: "tuesday", we: "wednesday",
+        th: "thursday", fr: "friday"
+      };
+      return dayMap[short] || "";
     }
 
     function startMonitoring() {
@@ -154,42 +144,65 @@
         const today = now.toLocaleDateString("en-KE", { weekday: 'long' }).toLowerCase();
         const currentHH = now.getHours();
         const currentMM = now.getMinutes();
+        const currentMinutes = currentHH * 60 + currentMM;
 
-        // Start from row 2 assuming first two rows are time headers
+        console.log("🔔 Checking timetable for today: ", today);
+        console.log("🕒 Current time: ", currentHH, ":", currentMM, "=>", currentMinutes, "minutes");
+
+        let timeHeaders = extractedRows[0].map(cell => cell.trim());
+        if (!/^\d{1,2}[:.]\d{2}/.test(timeHeaders[1])) {
+          timeHeaders = extractedRows[1].map(cell => cell.trim());
+        }
+
         for (let r = 2; r < extractedRows.length; r++) {
           const row = extractedRows[r];
-          const dayName = normalizeDay(row[0]);
-          if (dayName !== today) continue;
+          const rowDay = normalizeDay(row[0]);
+          if (!rowDay || rowDay !== today) continue;
+          console.log(`📅 Row Day: ${row[0]} → ${rowDay} | Today: ${today}`);
 
           for (let c = 1; c < row.length; c++) {
-            const time = extractedRows[0][c] || extractedRows[1][c] || "";
-            const cellContent = row[c];
-            if (!cellContent || /BREAK|PREPS|GAMES|CLUB/i.test(cellContent)) continue;
+            const lesson = row[c];
+            const timeHeader = timeHeaders[c] || "";
 
-            const match = time.match(/(\d{1,2})[:.](\d{2})/);
-            if (!match) continue;
+            if (!lesson || lesson.trim() === "" || /BREAK|PREPS|GAMES|CLUB/i.test(lesson)) continue;
 
-            let [hh, mm] = [parseInt(match[1]), parseInt(match[2])];
-            let alertHH = hh;
-            let alertMM = mm - 2;
-            if (alertMM < 0) {
-              alertHH -= 1;
-              alertMM += 60;
+            const timeMatch = timeHeader.match(/(\d{1,2}[:.]\d{2})/); // first valid time
+            if (!timeMatch) {
+              console.warn(`⚠️ Skipping column ${c} due to invalid time format: "${timeHeader}"`);
+              continue;
             }
 
-            if (currentHH === alertHH && currentMM === alertMM) {
-              const sayText = `Teacher ${teacherFullName}, in 2 minutes go to ${cellContent.replace(/\n/g, ", ")}`;
+            const [hh, mm] = timeMatch[1].split(/[:.]/).map(Number);
+            const lessonStartMinutes = hh * 60 + mm;
+            const alertMinutes = lessonStartMinutes - 2;
+
+            console.log(`🧪 Time Header: "${timeHeader}" → Parsed: "${hh}:${mm}", Lesson: "${lesson}"`);
+
+            if (currentMinutes > lessonStartMinutes) {
+              console.log(`⏩ Skipping lesson "${lesson}" — already passed (${hh}:${mm})`);
+            } else if (currentMinutes === alertMinutes) {
+              const sayText = `Teacher ${teacherFullName}, in 2 minutes go to ${lesson.replace(/\n/g, ", ")}`;
+              console.log("🔔 SPEAK:", sayText);
+              alert("🔔 " + sayText);
               speakText(sayText);
+            } else {
+              console.log(`⏳ Waiting: "${lesson}" starts at ${hh}:${mm}, will alert at ${Math.floor(alertMinutes / 60)}:${alertMinutes % 60}`);
             }
           }
         }
-      }, 60000);
+      }, 60000); // every 1 minute
     }
 
     function speakText(text) {
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = "en-KE";
-      speechSynthesis.speak(msg);
+      if ('speechSynthesis' in window) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "en-US";
+        msg.rate = 0.95;
+        msg.pitch = 1;
+        speechSynthesis.speak(msg);
+      } else {
+        alert("Sorry, your browser does not support speech.");
+      }
     }
   </script>
 </body>
