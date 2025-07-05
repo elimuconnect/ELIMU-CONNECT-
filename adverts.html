@@ -128,172 +128,160 @@
 
 <script>
 const lessonsArray = [
-  `Week 1: Introduction to HTML & Web Structure
+  `Lesson 1: Introduction to HTML & Web Structure
 
-Question:
-What does HTML stand for?
+Lesson Content:
+HTML (Hypertext Markup Language) is the standard language for creating web pages. It provides the basic structure of a webpage using elements (also called tags). 
+Every HTML document begins with the `<!DOCTYPE html>` declaration, followed by the root element `<html>`. Inside the `<html>`, you have the `<head>` section for metadata and the `<body>` section for visible content.
 
-Solution:
-HTML stands for Hypertext Markup Language. It is the standard language used to create web pages.
-
-Final Answer:
-HTML`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the purpose of the <!DOCTYPE html> declaration?
-
-Solution:
-The <!DOCTYPE html> declaration tells the browser that the document is an HTML5 document, ensuring proper rendering.
-
-Final Answer:
-Ensures proper rendering of HTML5 documents`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the difference between the <head> and <body> sections of an HTML document?
-
-Solution:
-<head>: Contains metadata about the webpage, like the title, character set, and links to stylesheets or scripts.  
-<body>: Contains the actual content of the webpage, such as text, images, and links, that is visible to users.
+Example HTML structure:
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My First Webpage</title>
+  </head>
+  <body>
+    <h1>Welcome to My Website</h1>
+    <p>This is a paragraph of text.</p>
+  </body>
+</html>
 
 Final Answer:
-<head> contains metadata; <body> contains visible content.`,
+HTML is used to create the structure of web pages.`
+,
 
-  `Week 1: Introduction to HTML & Web Structure
+  `Lesson 2: Basic HTML Tags
 
-Question:
-How do you create a heading in HTML?
+Lesson Content:
+HTML includes several essential tags for building content, such as headings, paragraphs, links, and images. The `<h1>` to `<h6>` tags are used for headings (where `<h1>` is the largest and `<h6>` is the smallest). The `<p>` tag defines paragraphs. The `<a>` tag is used for creating hyperlinks, and the `<img>` tag is used for embedding images in the webpage.
 
-Solution:
-To create a heading, you use the <h1>–<h6> tags, with <h1> being the largest and <h6> being the smallest.
-
-Example:
-<h1>This is a Heading</h1>
-
-Final Answer:
-Use <h1> to <h6> for headings`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the <a> tag used for?
-
-Solution:
-The <a> tag is used to create hyperlinks that link to other pages or websites.
-
-Example:
+Example HTML tags:
+<h1>My First Heading</h1>
+<p>This is a paragraph of text.</p>
 <a href="https://www.example.com">Click Here</a>
+<img src="image.jpg" alt="My Image">
 
 Final Answer:
-The <a> tag creates hyperlinks`,
+Use appropriate HTML tags to structure text, links, and images on a webpage.`
+,
 
-  `Week 1: Introduction to HTML & Web Structure
+  `Lesson 3: Using Links and Images
 
-Question:
-How do you insert an image in HTML?
+Lesson Content:
+Links in HTML are created using the `<a>` tag with the `href` attribute to specify the destination URL. Images are added using the `<img>` tag, where the `src` attribute defines the image file, and the `alt` attribute provides an alternative description for accessibility.
 
-Solution:
-You use the <img> tag with the src (source) and alt (alternative text) attributes.
-
-Example:
-<img src="image.jpg" alt="Description of the image">
-
-Final Answer:
-Use <img> to insert images with src and alt attributes`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the difference between an unordered list and an ordered list?
-
-Solution:
-Unordered List (<ul>): A list with bullet points.  
-Ordered List (<ol>): A list with numbered items.
-
-Final Answer:
-Unordered lists use <ul>, ordered lists use <ol>`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-How do you link to an external website in HTML?
-
-Solution:
-To link to an external website, you use the <a> tag with the href attribute pointing to the website URL.
-
-Example:
+Example for linking and adding images:
 <a href="https://www.example.com">Visit Example</a>
-
-Final Answer:
-Use <a> with the href attribute to link`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the use of the alt attribute in an image tag?
-
-Solution:
-The alt attribute provides a text description of the image, which is displayed if the image cannot be loaded or for accessibility purposes (e.g., screen readers).
-
-Example:
 <img src="image.jpg" alt="A beautiful sunset">
 
 Final Answer:
-The alt attribute describes the image`,
+Use the `<a>` tag for hyperlinks and the `<img>` tag for embedding images.`
+,
 
-  `Week 1: Introduction to HTML & Web Structure
+  `Lesson 4: Lists in HTML
 
-Question:
-How do you create a paragraph of text in HTML?
+Lesson Content:
+HTML supports two types of lists: unordered lists (`<ul>`) and ordered lists (`<ol>`). Each list item is placed within the `<li>` tag. An unordered list uses bullet points, while an ordered list uses numbered items.
 
-Solution:
-To create a paragraph, use the <p> tag.
-
-Example:
-<p>This is a paragraph of text.</p>
-
-Final Answer:
-Use <p> to create a paragraph`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-What is the purpose of the href attribute in a link tag (<a>) in HTML?
-
-Solution:
-The href attribute specifies the URL that the link points to. It stands for hyperlink reference.
-
-Example:
-<a href="https://www.example.com">Visit Example</a>
-
-Final Answer:
-The href attribute specifies the URL`,
-
-  `Week 1: Introduction to HTML & Web Structure
-
-Question:
-How do you add a list of items in HTML?
-
-Solution:
-You can create a list using either an unordered list (<ul>) or an ordered list (<ol>), with each list item wrapped in <li> tags.
-
-Unordered List Example:
+Example of unordered and ordered lists:
 <ul>
   <li>Item 1</li>
   <li>Item 2</li>
 </ul>
 
-Ordered List Example:
 <ol>
   <li>First item</li>
   <li>Second item</li>
 </ol>
 
 Final Answer:
-Use <ul> for unordered and <ol> for ordered lists`
+Use `<ul>` for unordered (bulleted) lists and `<ol>` for ordered (numbered) lists.`
+,
+
+  `Lesson 5: Your First Project - Bio Page
+
+Lesson Content:
+For this project, create a webpage about yourself using the tags you've learned so far. Include an `<h1>` tag with your name, a paragraph `<p>` introducing yourself, an image of yourself or a placeholder, and an unordered list `<ul>` of your hobbies. Finally, add a link `<a>` to your favorite website.
+
+Final Answer:
+Create a webpage that introduces yourself, with a heading, image, list of hobbies, and a link.`
+,
+
+  `Week 1: Questions
+
+1. What does HTML stand for?
+2. What is the purpose of the <!DOCTYPE html> declaration?
+3. What is the difference between the <head> and <body> sections of an HTML document?
+4. How do you create a heading in HTML?
+5. What is the <a> tag used for?
+6. How do you insert an image in HTML?
+7. What is the difference between an unordered list and an ordered list?
+8. How do you link to an external website in HTML?
+9. What is the use of the alt attribute in an image tag?
+10. How do you create a paragraph of text in HTML?
+11. What is the purpose of the href attribute in a link tag (<a>) in HTML?
+12. How do you add a list of items in HTML?`
+,
+
+  `Week 1: Solutions
+
+1. What does HTML stand for?
+Solution: HTML stands for Hypertext Markup Language. It is the standard language used to create web pages.
+
+2. What is the purpose of the <!DOCTYPE html> declaration?
+Solution: The <!DOCTYPE html> declaration tells the browser that the document is an HTML5 document, ensuring proper rendering.
+
+3. What is the difference between the <head> and <body> sections of an HTML document?
+Solution:
+<head>: Contains metadata about the webpage, like the title, character set, and links to stylesheets or scripts.  
+<body>: Contains the actual content of the webpage, such as text, images, and links, that is visible to users.
+
+4. How do you create a heading in HTML?
+Solution: To create a heading, you use the <h1>–<h6> tags, with <h1> being the largest and <h6> being the smallest.
+Example: <h1>This is a Heading</h1>
+
+5. What is the <a> tag used for?
+Solution: The <a> tag is used to create hyperlinks that link to other pages or websites.
+Example: <a href="https://www.example.com">Click Here</a>
+
+6. How do you insert an image in HTML?
+Solution: You use the <img> tag with the src (source) and alt (alternative text) attributes.
+Example: <img src="image.jpg" alt="Description of the image">
+
+7. What is the difference between an unordered list and an ordered list?
+Solution:
+Unordered List (<ul>): A list with bullet points.  
+Ordered List (<ol>): A list with numbered items.
+
+8. How do you link to an external website in HTML?
+Solution: To link to an external website, you use the <a> tag with the href attribute pointing to the website URL.
+Example: <a href="https://www.example.com">Visit Example</a>
+
+9. What is the use of the alt attribute in an image tag?
+Solution: The alt attribute provides a text description of the image, which is displayed if the image cannot be loaded or for accessibility purposes (e.g., screen readers).
+Example: <img src="image.jpg" alt="A beautiful sunset">
+
+10. How do you create a paragraph of text in HTML?
+Solution: To create a paragraph, use the <p> tag.
+Example: <p>This is a paragraph of text.</p>
+
+11. What is the purpose of the href attribute in a link tag (<a>) in HTML?
+Solution: The href attribute specifies the URL that the link points to. It stands for hyperlink reference.
+Example: <a href="https://www.example.com">Visit Example</a>
+
+12. How do you add a list of items in HTML?
+Solution: You can create a list using either an unordered list (<ul>) or an ordered list (<ol>), with each list item wrapped in <li> tags.
+
+Unordered List Example:
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+</ul>
+Ordered List Example:
+<ol>
+  <li>First item</li>
+  <li>Second item</li>
+</ol>`
 ];
 
 let currentLesson = 0;
