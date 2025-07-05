@@ -128,68 +128,172 @@
 
 <script>
 const lessonsArray = [
-  `Lesson 1: Operations on Whole Numbers – Grade 8 Mathematics
+  `Week 1: Introduction to HTML & Web Structure
 
 Question:
-Evaluate: (25 × 4) + (36 ÷ 6)
+What does HTML stand for?
 
 Solution:
-Step 1: 25 × 4 = 100  
-Step 2: 36 ÷ 6 = 6  
-Step 3: Add the results → 100 + 6 = 106
+HTML stands for Hypertext Markup Language. It is the standard language used to create web pages.
 
 Final Answer:
-106`,
+HTML`,
 
-  `Lesson 2: Fractions – Grade 8 Mathematics
+  `Week 1: Introduction to HTML & Web Structure
 
 Question:
-Simplify: (3/4) + (2/3)
+What is the purpose of the <!DOCTYPE html> declaration?
 
 Solution:
-Step 1: Find LCM of 4 and 3 = 12  
-Step 2: (3/4) = 9/12 and (2/3) = 8/12  
-Step 3: 9/12 + 8/12 = 17/12 = 1 5/12
+The <!DOCTYPE html> declaration tells the browser that the document is an HTML5 document, ensuring proper rendering.
 
 Final Answer:
-1 5/12`,
+Ensures proper rendering of HTML5 documents`,
 
-  `Lesson 3: Area of a Triangle – Grade 8 Mathematics
+  `Week 1: Introduction to HTML & Web Structure
 
 Question:
-Find the area of a triangle with base 10 cm and height 8 cm.
+What is the difference between the <head> and <body> sections of an HTML document?
 
 Solution:
-Area = ½ × base × height  
-= ½ × 10 × 8 = 40 cm²
+<head>: Contains metadata about the webpage, like the title, character set, and links to stylesheets or scripts.  
+<body>: Contains the actual content of the webpage, such as text, images, and links, that is visible to users.
 
 Final Answer:
-40 cm²`,
+<head> contains metadata; <body> contains visible content.`,
 
-  `Lesson 4: Probability – Grade 8 Mathematics
+  `Week 1: Introduction to HTML & Web Structure
 
 Question:
-A box contains 2 red, 3 yellow, and 5 green balls. What is the probability of picking a yellow ball?
+How do you create a heading in HTML?
 
 Solution:
-Total balls = 2 + 3 + 5 = 10  
-Yellow balls = 3  
-Probability = 3/10
+To create a heading, you use the <h1>–<h6> tags, with <h1> being the largest and <h6> being the smallest.
+
+Example:
+<h1>This is a Heading</h1>
 
 Final Answer:
-3/10`,
+Use <h1> to <h6> for headings`,
 
-  `Lesson 5: Ratio – Grade 8 Mathematics
+  `Week 1: Introduction to HTML & Web Structure
 
 Question:
-Simplify the ratio 18:24
+What is the <a> tag used for?
 
 Solution:
-Step 1: Find GCD of 18 and 24 = 6  
-Step 2: Divide both terms by 6 → 18 ÷ 6 = 3, 24 ÷ 6 = 4
+The <a> tag is used to create hyperlinks that link to other pages or websites.
+
+Example:
+<a href="https://www.example.com">Click Here</a>
 
 Final Answer:
-3:4`
+The <a> tag creates hyperlinks`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+How do you insert an image in HTML?
+
+Solution:
+You use the <img> tag with the src (source) and alt (alternative text) attributes.
+
+Example:
+<img src="image.jpg" alt="Description of the image">
+
+Final Answer:
+Use <img> to insert images with src and alt attributes`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+What is the difference between an unordered list and an ordered list?
+
+Solution:
+Unordered List (<ul>): A list with bullet points.  
+Ordered List (<ol>): A list with numbered items.
+
+Final Answer:
+Unordered lists use <ul>, ordered lists use <ol>`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+How do you link to an external website in HTML?
+
+Solution:
+To link to an external website, you use the <a> tag with the href attribute pointing to the website URL.
+
+Example:
+<a href="https://www.example.com">Visit Example</a>
+
+Final Answer:
+Use <a> with the href attribute to link`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+What is the use of the alt attribute in an image tag?
+
+Solution:
+The alt attribute provides a text description of the image, which is displayed if the image cannot be loaded or for accessibility purposes (e.g., screen readers).
+
+Example:
+<img src="image.jpg" alt="A beautiful sunset">
+
+Final Answer:
+The alt attribute describes the image`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+How do you create a paragraph of text in HTML?
+
+Solution:
+To create a paragraph, use the <p> tag.
+
+Example:
+<p>This is a paragraph of text.</p>
+
+Final Answer:
+Use <p> to create a paragraph`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+What is the purpose of the href attribute in a link tag (<a>) in HTML?
+
+Solution:
+The href attribute specifies the URL that the link points to. It stands for hyperlink reference.
+
+Example:
+<a href="https://www.example.com">Visit Example</a>
+
+Final Answer:
+The href attribute specifies the URL`,
+
+  `Week 1: Introduction to HTML & Web Structure
+
+Question:
+How do you add a list of items in HTML?
+
+Solution:
+You can create a list using either an unordered list (<ul>) or an ordered list (<ol>), with each list item wrapped in <li> tags.
+
+Unordered List Example:
+<ul>
+  <li>Item 1</li>
+  <li>Item 2</li>
+</ul>
+
+Ordered List Example:
+<ol>
+  <li>First item</li>
+  <li>Second item</li>
+</ol>
+
+Final Answer:
+Use <ul> for unordered and <ol> for ordered lists`
 ];
 
 let currentLesson = 0;
