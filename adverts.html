@@ -111,9 +111,10 @@
 <body>
 
 <div id="app">
-  <div id="toolbar">
+ <div id="toolbar">
     <button onclick="startTutor()">▶️ Start Tutor</button>
-    <button onclick="skipLesson()">⏭️ Skip</button>
+    <button onclick="prevLesson()">⬅️ Back</button>
+    <button onclick="nextLesson()">➡️ Forward</button>
   </div>
 
   <div id="editor">
@@ -357,6 +358,21 @@ function skipLesson() {
   currentLesson++;
   showLesson(currentLesson);
 }
+
+function nextLesson() {
+  if (currentLesson < lessonsArray.length - 1) {
+    currentLesson++;
+    showLesson(currentLesson);
+  }
+}
+
+function prevLesson() {
+  if (currentLesson > 0) {
+    currentLesson--;
+    showLesson(currentLesson);
+  }
+}
+
 
 </script>
 
