@@ -194,7 +194,7 @@
 <body>
 
   <div class="login-container">
-    <h2>Welcome to ELIMU CONNECT APP</h2>
+    <h2>Welcome to ELIMU CONNECT Website</h2>
     <form class="login-form" onsubmit="event.preventDefault(); sendMessage();">
       <select id="role-select" required>
         <option value="" disabled selected>Select your role</option>
@@ -218,6 +218,9 @@
   <h3>Select a Tool Category</h3>
   <select id="mainDropdown" onchange="showCategory()" style="width:100%; padding:12px; margin-bottom:20px;">
     <option value="">Select a category...</option>
+
+<option value="coding">LEARN TO CODE</option>
+    
     <option value="resources">Past Papers, Videos, eBooks</option>
     <option value="quizes">Quizzes</option>
     <option value="math">Mathematics</option>
@@ -243,10 +246,21 @@
     </select>
   </div>
 
+
+
+  <div id="coding" class="category" style="display:none">
+    <select onchange="openLink(this)">
+      <option value="">LEARN TO CODE...</option>
+      <option value="https://elimuconnect.github.io/ELIMU-CONNECT-/adverts">LEARN TO CODE</option>
+    </select>
+  </div>
+
+
+  
   <div id="math" class="category" style="display:none">
     <select onchange="openLink(this)">
       <option value="">Select a Math tool...</option>
-       <option value="">Select a math tool...</option>
+      
             <option value="mathformulars.html">Math Formulas</option>
             <option value="mathgraphs.html">Math Graphs</option>
             <option value="transformation.html">Transformation</option>
