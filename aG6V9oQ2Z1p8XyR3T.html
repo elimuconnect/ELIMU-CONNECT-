@@ -120,7 +120,7 @@
   <div id="editor">
     <div class="card">
       <h2>Welcome to Smart Tutor</h2>
-      <p>Click "Start Tutor" to explore Elimu Connect video lessons. Students can learn CBC academic subjects and coding, while teachers and other users can access coding lessons and content creation tools – anytime, anywhere. </p>
+      <p> Click "Start Tutor" to explore Elimu Connect video lessons and adverts. Create and preview voice-narrated learning content for all levels – anywhere, anytime.</p>
     </div>
   </div>
 
@@ -296,24 +296,29 @@ let selectedVoice = null;
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
 
+
+
 function getVoice() {
   const voices = speechSynthesis.getVoices();
 
-  const priorities = [
-    v => v.lang === 'en-KE' && v.name.toLowerCase().includes('female'),
-    v => v.lang === 'en-KE' && v.name.toLowerCase().includes('male'),
-    v => v.lang === 'en-NG' && v.name.toLowerCase().includes('female'),
-    v => v.lang === 'en-NG' && v.name.toLowerCase().includes('male'),
-    v => v.lang === 'en-US' || v.lang.startsWith('en')
-  ];
-
-  for (let check of priorities) {
-    const match = voices.find(check);
-    if (match) return match;
-  }
-
-  return voices[0]; // fallback
+  return voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en")
+  ) || voices[0]; // fallback
 }
+
+
+
+
 
 function speak(text, onEnd) {
   speechSynthesis.cancel();
@@ -326,7 +331,7 @@ function speak(text, onEnd) {
 
 function showLesson(index) {
   if (index >= lessonsArray.length) {
-    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You’re done! Explore and download more CBC academic and coding resources on Elimu Connect App or Website.</p></div>`;
+    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You’re done! Download more CBC resources on Elimu Connect.</p></div>`;
     status.textContent = "✅ Done.";
     return;
   }
