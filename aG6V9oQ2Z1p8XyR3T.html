@@ -298,10 +298,21 @@ const status = document.getElementById("status");
 
 function getVoice() {
   const voices = speechSynthesis.getVoices();
-  const kenyan = voices.find(v => v.lang === 'en-KE' && v.name.toLowerCase().includes('female'));
-  const nigerian = voices.find(v => v.lang === 'en-NG' && v.name.toLowerCase().includes('female'));
-  const british = voices.find(v => v.lang === 'en-GB' && v.name.toLowerCase().includes('female'));
-  return kenyan || nigerian || british || voices[0];
+
+  const priorities = [
+    v => v.lang === 'en-KE' && v.name.toLowerCase().includes('female'),
+    v => v.lang === 'en-KE' && v.name.toLowerCase().includes('male'),
+    v => v.lang === 'en-NG' && v.name.toLowerCase().includes('female'),
+    v => v.lang === 'en-NG' && v.name.toLowerCase().includes('male'),
+    v => v.lang === 'en-US' || v.lang.startsWith('en')
+  ];
+
+  for (let check of priorities) {
+    const match = voices.find(check);
+    if (match) return match;
+  }
+
+  return voices[0]; // fallback
 }
 
 function speak(text, onEnd) {
