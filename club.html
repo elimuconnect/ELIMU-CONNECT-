@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Tutor – Elimu Connect Ads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
+    }
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    #toolbar {
+      padding: 15px;
+      background: #1976d2;
+      color: white;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    #toolbar button {
+      background: white;
+      color: #1976d2;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    #toolbar button:hover {
+      background: #f0f0f0;
+    }
+    #editor {
+      flex: 1;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      max-width: 800px;
+      width: 100%;
+      padding: 30px;
+      background: white;
+      border-radius: 25px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      font-size: 1.4em;
+      line-height: 1.8;
+      font-weight: bold;
+      animation: fadeIn 1s ease;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      color: #1a237e;
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #d81b60;
+      font-size: 1.6em;
+      font-weight: bold;
+    }
+    .card pre {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      font-size: 1.3em;
+      line-height: 1.8;
+      font-weight: bold;
+      color: #1a237e;
+    }
+    #status {
+      padding: 15px;
+      background: #388e3c;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+      #toolbar { flex-direction: column; gap: 8px; padding: 10px; }
+      #toolbar button { width: 100%; font-size: 16px; padding: 10px; }
+      .card { padding: 20px; font-size: 1.2em; }
+      .card h2 { font-size: 1.4em; }
+      .card pre { font-size: 1.15em; }
+      #status { font-size: 15px; padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div id="toolbar">
+    <button onclick="startTutor()">▶️ Start Tutor</button>
+    <button onclick="prevLesson()">⬅️ Back</button>
+    <button onclick="nextLesson()">➡️ Forward</button>
+  </div>
+
+  <div id="editor">
+    <div class="card">
+      <h2>Welcome to Smart Tutor</h2>
+      <p>Click "Start Tutor" to explore Elimu Connect video lessons and adverts. Create and preview voice-narrated learning content for all levels – anywhere, anytime.</p>
+    </div>
+  </div>
+
+  <div id="status">⏳ Ready when you are!</div>
+</div>
+
+<script>
+const lessonsArray = [
+ 
+`Lesson 1: Questions (Math, Biology, Chemistry, English)
+
+1. 🧮 Mathematics – Indices:
+Simplify:
+(16x⁶y⁴ ÷ 4x²y)^(3/2) × (x³y²)²
+
+2. 🧬 Biology – Transport in Animals:
+Explain how the structure of the mammalian heart ensures unidirectional flow of blood and prevents mixing of oxygenated and deoxygenated blood.
+
+3. ⚗️ Chemistry – Structure and Bonding:
+Describe how the type of bonding in diamond and graphite relates to their physical properties.
+
+4. 📘 English – Parts of Speech:
+Identify all the parts of speech in the sentence:
+"Surprisingly, the old man quickly ran across the vast, empty field.`,
+
+`Lesson 2: Introduction to HTML & Web Structure
+
+Lesson Content:
+HTML (Hypertext Markup Language) is the standard language for creating web pages. It provides the basic structure of a webpage using elements (also called tags). 
+Every HTML document begins with the &lt;!DOCTYPE html&gt; declaration, followed by the root element &lt;html&gt;. Inside the &lt;html&gt;, you have the &lt;head&gt; section for metadata and the &lt;body&gt; section for visible content.
+
+Example HTML structure:
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;My First Webpage&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+    &lt;p&gt;This is a paragraph of text.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+Q. Create a simple webpage, showing your name.
+
+`,
+
+`Lesson 4: Final Answers
+
+✅ Math Answer:
+(16x⁶y⁴ ÷ 4x²y)^(3/2) × (x³y²)²  
+= (4x⁴y³)^(3/2) × x⁶y⁴  
+= 8x⁶y⁴.⁵ × x⁶y⁴  
+= 8x¹²y⁸.⁵
+
+✅ Biology Answer:
+The mammalian heart has four chambers and valves that prevent backflow. Tricuspid and bicuspid valves prevent reverse flow from ventricles to atria. Semilunar valves prevent blood from returning from arteries. The septum separates oxygenated and deoxygenated blood. Coordinated contractions ensure unidirectional flow.
+
+✅ Chemistry Answer:
+Diamond has a 3D tetrahedral covalent structure, making it hard and non-conductive. Graphite has layered structures with weak van der Waals forces and delocalized electrons, making it soft and conductive.
+
+✅ English Answer:
+Surprisingly (Adverb), the (Determiner), old (Adjective), man (Noun), quickly (Adverb), ran (Verb), across (Preposition), the (Determiner), vast (Adjective), empty (Adjective), field (Noun)
+
+✅HTML ANSWER:
+<pre>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;WEBPAGE&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Welcome to My Website&lt;/h1&gt;
+    &lt;p&gt;My name is Solomon.&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>`
+];
+
+let currentLesson = 0;
+let tutorStarted = false;
+let selectedVoice = null;
+
+const editor = document.getElementById("editor");
+const status = document.getElementById("status");
+
+function getVoice() {
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en")
+  ) || voices[0];
+}
+
+function speak(text, onEnd) {
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.voice = selectedVoice;
+  utter.rate = 0.88;
+  utter.onend = () => onEnd && onEnd();
+  speechSynthesis.speak(utter);
+}
+
+function showLesson(index) {
+  if (index >= lessonsArray.length) {
+    editor.innerHTML = `<div class="card"><h2>✅ All Lessons Complete</h2><p>You’re done! Download more CBC resources on Elimu Connect.</p></div>`;
+    status.textContent = "✅ Done.";
+    return;
+  }
+
+  const lesson = lessonsArray[index];
+  editor.innerHTML = `
+    <div class="card">
+      <pre>${lesson}</pre>
+    </div>
+  `;
+  status.textContent = `📖 Reading Lesson ${index + 1}`;
+  speak(lesson, () => {
+    currentLesson++;
+    setTimeout(() => showLesson(currentLesson), 300000); // ⏳ 5 minutes wait
+  });
+}
+
+function startTutor() {
+  if (tutorStarted) return;
+  tutorStarted = true;
+
+  speechSynthesis.onvoiceschanged = () => {
+    selectedVoice = getVoice();
+  };
+
+  const voiceCheck = setInterval(() => {
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      clearInterval(voiceCheck);
+      selectedVoice = getVoice();
+      showLesson(currentLesson);
+    }
+  }, 200);
+
+  status.textContent = "🟢 Loading voice & starting...";
+}
+
+function nextLesson() {
+  if (currentLesson < lessonsArray.length - 1) {
+    currentLesson++;
+    showLesson(currentLesson);
+  }
+}
+
+function prevLesson() {
+  if (currentLesson > 0) {
+    currentLesson--;
+    showLesson(currentLesson);
+  }
+}
+</script>
+
+</body>
+</html>
