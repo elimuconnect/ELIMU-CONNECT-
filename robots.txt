@@ -1,4 +1,4 @@
 User-agent: *
-Allow: /
+Disallow: /
 
-Sitemap: https://elimuconnect.github.io/ELIMU-CONNECT-/sitemap.xml
+Allow: /ELIMU-CONNECT-/elimu.html
