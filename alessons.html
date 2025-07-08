@@ -199,6 +199,10 @@ function getVoice() {
   const voices = speechSynthesis.getVoices();
 
   return voices.find(v =>
+    v.lang.toLowerCase().startsWith("sw") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("sw")
+  ) || voices.find(v =>
     v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
   ) || voices.find(v =>
     v.lang.toLowerCase().startsWith("en-ke")
@@ -212,6 +216,7 @@ function getVoice() {
     v.lang.toLowerCase().startsWith("en")
   ) || voices[0]; // fallback
 }
+
 
 
 
