@@ -33,14 +33,18 @@
   </form>
 
   <script>
-    // Automatically store the referral code from the URL
+
+// Only run JS after page fully loads
+  window.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
     if (ref) {
       localStorage.setItem("referral_code", ref);
-      console.log("Referral code saved:", ref);
+      console.log("Referral code stored:", ref);
     }
+  });
 
+    
     function showPaymentForm() {
       document.getElementById("payment-form").style.display = "block";
     }
