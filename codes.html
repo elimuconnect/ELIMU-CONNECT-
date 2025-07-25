@@ -26,13 +26,14 @@
   <button onclick="showPaymentImage()">💰 Pay Now</button>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
-  <!-- Payment Image Popup -->
-  <div id="payment-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:white; padding:20px; border-radius:8px; max-width:90%; position:relative;">
-      <button onclick="closePopup()" style="position:absolute; top:5px; right:10px; font-size:20px; background:none; border:none; cursor:pointer;">✖</button>
-      <img src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png" alt="Payment Details" style="max-width:100%;" />
-    </div>
+ <!-- Payment Image Popup -->
+<div id="payment-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center;">
+  <div style="background:white; padding:20px; border-radius:8px; max-width:90%; position:relative;">
+    <button onclick="closePopup()" style="position:absolute; top:5px; right:10px; font-size:20px; background:none; border:none; cursor:pointer;">✖</button>
+    <img src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png" alt="Payment Details" style="max-width:100%; max-height:90vh; object-fit:contain;" />
   </div>
+</div>
+
 
   <!-- Payment Form -->
   <form id="payment-form" style="display:none; margin-top:20px;">
