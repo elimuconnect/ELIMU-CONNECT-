@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elimu Connect Referral</title>
+  <title>Elimu Connect Referrals and Payments</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
     #payment-form { display: none; margin-top: 20px; }
@@ -13,16 +13,16 @@
   </style>
 </head>
 <body>
-  <h2>🎉 Elimu Connect Referral</h2>
-  <p>You’ve been invited! Get started by downloading the app:</p>
+  <h2>🎉 Elimu Connect Referral and Payments</h2>
+  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, i have paid and fill the form:</p>
 
   <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-    <button class="link-btn">📲 Download Elimu Connect App</button>
+    <button class="link-btn">📲 Install Elimu Connect: Learn & Tutor App</button>
   </a>
 
   <hr />
 
-  <p>📲 Pay via MPesa then confirm your payment:</p>
+  <p>📲 Pay here!:</p>
   <button onclick="showPaymentImage()">💰 Pay Now</button>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
@@ -38,7 +38,7 @@
   <form id="payment-form" style="display:none; margin-top:20px;">
     <input type="text" id="name" placeholder="Your Name" required />
     <input type="text" id="phone" placeholder="Phone Number (optional)" />
-    <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
+    <input type="text" id="coop" placeholder="COOP Transaction Code" required />
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
 
