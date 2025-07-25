@@ -38,7 +38,7 @@
   <form id="payment-form" style="display:none; margin-top:20px;">
     <input type="text" id="name" placeholder="Your Name" required />
     <input type="text" id="phone" placeholder="Phone Number (optional)" />
-    <input type="text" id="coop" placeholder="COOP Transaction Code" required />
+    <input type="text" id="coop" placeholder="Mpesa Transaction Code" required />
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
 
@@ -65,18 +65,18 @@
     function submitPaymentProof() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      const mpesaCode = document.getElementById("coop").value.trim();
+      const mpesaCode = document.getElementById("mpesa").value.trim();
       const referral = localStorage.getItem("referral_code") || "none";
 
       if (!mpesaCode || !name) {
-        alert("Please enter your name and COOP code.");
+        alert("Please enter your name and MPESA code.");
         return;
       }
 
       const data = {
         name,
         phone,
-        coopCode,
+        mpesaCode,
         referral,
         timestamp: new Date().toISOString()
       };
