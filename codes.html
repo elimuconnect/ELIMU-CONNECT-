@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elimu Connect Referral</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    #payment-form { display: none; margin-top: 20px; }
+    input, button { padding: 10px; margin: 8px 0; width: 100%; }
+    button { background: green; color: white; border: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>🎉 Elimu Connect Referral Tracker</h2>
+  <p>If you've made payment via MPesa Till, please confirm below:</p>
+
+  <button onclick="showPaymentForm()">✅ I’ve Paid</button>
+
+  <form id="payment-form">
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="text" id="phone" placeholder="Phone Number (optional)" />
+    <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
+    <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
+  </form>
+
+  <script>
+    // Capture referral code from ?ref=XYZ and store
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) localStorage.setItem("referral_code", ref);
+
+    function showPaymentForm() {
+      document.getElementById("payment-form").style.display = "block";
+    }
+
+    function submitPaymentProof() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const mpesaCode = document.getElementById("mpesa").value.trim();
+      const referral = localStorage.getItem("referral_code") || "none";
+
+      if (!mpesaCode || !name) {
+        alert("Please enter your name and MPesa code.");
+        return;
+      }
+
+      const data = {
+        name,
+        phone,
+        mpesaCode,
+        referral,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/", {
+        method: "POST",
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert("✅ Thank you! Your payment has been submitted.");
+        document.getElementById("payment-form").reset();
+        document.getElementById("payment-form").style.display = "none";
+      }).catch(err => {
+        alert("❌ Something went wrong. Try again later.");
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
