@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elimu Connect Referral</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
     #payment-form { display: none; margin-top: 20px; }
     input, button { padding: 10px; margin: 8px 0; width: 100%; }
-    button { background: green; color: white; border: none; font-weight: bold; }
+    button { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
+    .link-btn { background-color: #007bff; }
   </style>
 </head>
 <body>
-  <h2>🎉 Elimu Connect Referral Tracker</h2>
-  <p>If you've made payment via MPesa Till, please confirm below:</p>
+  <h2>🎉 Elimu Connect Referral</h2>
+  <p>You’ve been invited! Get started by downloading the app:</p>
 
+  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
+    <button class="link-btn">📲 Download Elimu Connect App</button>
+  </a>
+
+  <hr />
+
+  <p>If you’ve paid via MPesa Till, confirm your payment here:</p>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
   <form id="payment-form">
@@ -25,10 +33,13 @@
   </form>
 
   <script>
-    // Capture referral code from ?ref=XYZ and store
+    // Automatically store the referral code from the URL
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
-    if (ref) localStorage.setItem("referral_code", ref);
+    if (ref) {
+      localStorage.setItem("referral_code", ref);
+      console.log("Referral code saved:", ref);
+    }
 
     function showPaymentForm() {
       document.getElementById("payment-form").style.display = "block";
@@ -56,12 +67,14 @@
       fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
         method: "POST",
         body: JSON.stringify(data)
-      }).then(() => {
-        alert("✅ Thank you! Your payment has been submitted.");
+      })
+      .then(() => {
+        alert("✅ Thank you! Your payment will be confirmed soon.");
         document.getElementById("payment-form").reset();
         document.getElementById("payment-form").style.display = "none";
-      }).catch(err => {
-        alert("❌ Something went wrong. Try again later.");
+      })
+      .catch(err => {
+        alert("❌ Failed to submit. Please try again later.");
         console.error(err);
       });
     }
