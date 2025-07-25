@@ -5,20 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elimu Connect Referrals and Payments</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
-    #payment-form { display: none; margin-top: 20px; }
-    input, button { padding: 10px; margin: 8px 0; width: 100%; }
-    button { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
-    .link-btn { background-color: #007bff; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 100%; /* Full width */
+      margin: 0;
+      display: flex; /* Use flexbox for layout */
+      flex-wrap: wrap; /* Allow items to wrap */
+      justify-content: space-between; /* Space out items */
+    }
 
-    /* Styling for the static payment image on the left */
+    #content {
+      width: 60%; /* Set content area width */
+      margin-left: 20px;
+    }
+
     #payment-image {
-      float: left;
-      width: 40%; /* You can adjust the width as needed */
-      max-width: 200px; /* Ensure the image doesn't get too large */
-      margin-right: 20px; /* Adds space between the image and text */
-      margin-bottom: 20px; /* Adds space below the image */
+      width: 35%; /* Set the image width to a large size */
+      max-width: 400px; /* Ensure the image doesn't grow too large */
+      height: auto;
       object-fit: contain; /* Maintain aspect ratio */
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .link-btn {
+      background-color: #007bff;
     }
 
   </style>
