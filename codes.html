@@ -5,16 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elimu Connect Referrals and Payments</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
-    #payment-form { display: none; margin-top: 20px; }
-    input, button { padding: 10px; margin: 8px 0; width: 100%; }
-    button { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
-    .link-btn { background-color: #007bff; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      position: relative; /* Add relative positioning to body */
+    }
+
+    #payment-form {
+      display: none;
+      position: absolute; /* Position form above the image */
+      top: 10%; /* Adjust the position of the form */
+      width: 100%;
+      z-index: 10;
+      background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 8px 0;
+      width: 100%;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .link-btn {
+      background-color: #007bff;
+    }
+
+    /* Styling for static payment image */
+    #payment-image {
+      display: block;
+      width: 100%; /* Ensure the image is responsive */
+      max-height: 400px; /* Limit the image size */
+      object-fit: contain; /* Maintain aspect ratio */
+      margin-top: 20px;
+      border-radius: 8px; /* Optional for rounded corners */
+    }
+
+    /* Optional: Add some styling for when the form is displayed */
+    #payment-form.active {
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <h2>🎉 Elimu Connect Referrals and Payments</h2>
-  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, i have paid and fill the form:</p>
+  <h2>🎉 Elimu Connect Referral and Payments</h2>
+  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, I have paid and fill the form:</p>
 
   <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
     <button class="link-btn">📲 Install Elimu Connect: Learn & Tutor App</button>
@@ -23,19 +70,13 @@
   <hr />
 
   <p>📲 Pay here!:</p>
-  <button onclick="showPaymentImage()">💰 Pay Now</button>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
-  <!-- Payment Image Popup -->
-  <div id="payment-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
-    <div style="background:white; padding:20px; border-radius:8px; max-width:90%; position:relative;">
-      <button onclick="closePopup()" style="position:absolute; top:5px; right:10px; font-size:20px; background:none; border:none; cursor:pointer;">✖</button>
-      <img src="https://yourdomain.com/images/payinfo.png" alt="Payment Details" style="max-width:100%;" />
-    </div>
-  </div>
+  <!-- Static Payment Image -->
+  <img id="payment-image" src="https://yourdomain.com/images/payinfo.png" alt="Payment Details" />
 
   <!-- Payment Form -->
-  <form id="payment-form" style="display:none; margin-top:20px;">
+  <form id="payment-form">
     <input type="text" id="name" placeholder="Your Name" required />
     <input type="text" id="phone" placeholder="Phone Number" required />
     <input type="text" id="mpesa" placeholder="Mpesa Transaction Code" required />
