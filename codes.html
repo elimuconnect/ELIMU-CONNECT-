@@ -65,18 +65,18 @@
     function submitPaymentProof() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
-      const mpesaCode = document.getElementById("mpesa").value.trim();
+      const mpesaCode = document.getElementById("coop").value.trim();
       const referral = localStorage.getItem("referral_code") || "none";
 
       if (!mpesaCode || !name) {
-        alert("Please enter your name and MPesa code.");
+        alert("Please enter your name and COOP code.");
         return;
       }
 
       const data = {
         name,
         phone,
-        mpesaCode,
+        coopCode,
         referral,
         timestamp: new Date().toISOString()
       };
@@ -86,10 +86,23 @@
         body: JSON.stringify(data)
       })
       .then(() => {
-        alert("✅ Thank you! Your payment will be confirmed soon.");
-        document.getElementById("payment-form").reset();
-        document.getElementById("payment-form").style.display = "none";
-      })
+  const message = `NEW SUBSCRIPTION 🚀
+Name: ${name}
+Phone: ${phone || "N/A"}
+MPesa Code: ${mpesaCode}
+Referral: ${referral}`;
+
+  const encoded = encodeURIComponent(message);
+  const yourWhatsApp = "254769255782"; // replace with your number (no +)
+
+  // Open WhatsApp message to you
+  window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
+
+  // Optionally reset the form
+  document.getElementById("payment-form").reset();
+  document.getElementById("payment-form").style.display = "none";
+})
+
       .catch(err => {
         alert("❌ Failed to submit. Please try again later.");
         console.error(err);
