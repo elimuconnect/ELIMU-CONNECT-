@@ -77,73 +77,83 @@
     <input type="text" id="mpesa" placeholder="Mpesa Transaction Code" required />
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
+<script>
+  // Load referral code
+  window.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) localStorage.setItem("referral_code", ref);
+  });
 
-  <script>
-    // Load referral code
-    window.addEventListener("DOMContentLoaded", function () {
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref');
-      if (ref) localStorage.setItem("referral_code", ref);
-    });
-
-    function showPaymentImage() {
+  function showPaymentImage() {
+    // Check if the image was already shown and closed
+    if (localStorage.getItem("popupClosed") !== "true") {
       document.getElementById("payment-popup").style.display = "flex";
     }
+  }
 
-    function closePopup() {
-      document.getElementById("payment-popup").style.display = "none";
+  function closePopup() {
+    // Hide the popup and mark it as closed in localStorage
+    document.getElementById("payment-popup").style.display = "none";
+    localStorage.setItem("popupClosed", "true");
+  }
+
+  function resetPopup() {
+    // Reset the "popupClosed" flag in localStorage to show the popup again
+    localStorage.removeItem("popupClosed");
+  }
+
+  function showPaymentForm() {
+    document.getElementById("payment-form").style.display = "block";
+  }
+
+  function submitPaymentProof() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const mpesaCode = document.getElementById("mpesa").value.trim();
+    const referral = localStorage.getItem("referral_code") || "none";
+
+    if (!mpesaCode || !name) {
+      alert("Please enter your name and MPESA code.");
+      return;
     }
 
-    function showPaymentForm() {
-      document.getElementById("payment-form").style.display = "block";
-    }
+    const data = {
+      name,
+      phone,
+      mpesaCode,
+      referral,
+      timestamp: new Date().toISOString()
+    };
 
-    function submitPaymentProof() {
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const mpesaCode = document.getElementById("mpesa").value.trim();
-      const referral = localStorage.getItem("referral_code") || "none";
-
-      if (!mpesaCode || !name) {
-        alert("Please enter your name and MPESA code.");
-        return;
-      }
-
-      const data = {
-        name,
-        phone,
-        mpesaCode,
-        referral,
-        timestamp: new Date().toISOString()
-      };
-
-      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(() => {
-  const message = `NEW SUBSCRIPTION 🚀
+    fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      const message = `NEW SUBSCRIPTION 🚀
 Name: ${name}
 Phone: ${phone || "N/A"}
 MPesa Code: ${mpesaCode}
 Referral: ${referral}`;
 
-  const encoded = encodeURIComponent(message);
-  const yourWhatsApp = "254769255782"; // replace with your number (no +)
+      const encoded = encodeURIComponent(message);
+      const yourWhatsApp = "254769255782"; // replace with your number (no +)
 
-  // Open WhatsApp message to you
-  window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
+      // Open WhatsApp message to you
+      window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
 
-  // Optionally reset the form
-  document.getElementById("payment-form").reset();
-  document.getElementById("payment-form").style.display = "none";
-})
+      // Optionally reset the form
+      document.getElementById("payment-form").reset();
+      document.getElementById("payment-form").style.display = "none";
+    })
+    .catch(err => {
+      alert("❌ Failed to submit. Please try again later.");
+      console.error(err);
+    });
+  }
+</script>
 
-      .catch(err => {
-        alert("❌ Failed to submit. Please try again later.");
-        console.error(err);
-      });
-    }
-  </script>
+  
 </body>
 </html>
