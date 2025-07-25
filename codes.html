@@ -22,10 +22,20 @@
 
   <hr />
 
-  <p>If you’ve paid via MPesa Till, confirm your payment here:</p>
+  <p>📲 Pay via MPesa then confirm your payment:</p>
+  <button onclick="showPaymentImage()">💰 Pay Now</button>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
-  <form id="payment-form">
+  <!-- Payment Image Popup -->
+  <div id="payment-popup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; padding:20px; border-radius:8px; max-width:90%; position:relative;">
+      <button onclick="closePopup()" style="position:absolute; top:5px; right:10px; font-size:20px; background:none; border:none; cursor:pointer;">✖</button>
+      <img src="https://yourdomain.com/images/payinfo.png" alt="Payment Details" style="max-width:100%;" />
+    </div>
+  </div>
+
+  <!-- Payment Form -->
+  <form id="payment-form" style="display:none; margin-top:20px;">
     <input type="text" id="name" placeholder="Your Name" required />
     <input type="text" id="phone" placeholder="Phone Number (optional)" />
     <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
@@ -33,18 +43,21 @@
   </form>
 
   <script>
+    // Load referral code
+    window.addEventListener("DOMContentLoaded", function () {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) localStorage.setItem("referral_code", ref);
+    });
 
-// Only run JS after page fully loads
-  window.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
-    if (ref) {
-      localStorage.setItem("referral_code", ref);
-      console.log("Referral code stored:", ref);
+    function showPaymentImage() {
+      document.getElementById("payment-popup").style.display = "flex";
     }
-  });
 
-    
+    function closePopup() {
+      document.getElementById("payment-popup").style.display = "none";
+    }
+
     function showPaymentForm() {
       document.getElementById("payment-form").style.display = "block";
     }
