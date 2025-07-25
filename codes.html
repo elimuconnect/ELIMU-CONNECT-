@@ -43,71 +43,68 @@
   </form>
 
   <script>
-    // Load referral code
-    window.addEventListener("DOMContentLoaded", function () {
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref');
-      if (ref) localStorage.setItem("referral_code", ref);
-    });
+   // Set referral code in localStorage when the page loads
+window.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);  // Get URL parameters
+  const ref = params.get('ref'); // Look for 'ref' parameter
+  if (ref) {
+    localStorage.setItem("referral_code", ref);  // Save to localStorage
+    console.log("Referral code set:", ref);  // Log for debugging
+  } else {
+    console.log("No referral code found in URL.");
+  }
+});
 
-    function showPaymentImage() {
-      document.getElementById("payment-popup").style.display = "flex";
-    }
+function submitPaymentProof() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const mpesaCode = document.getElementById("mpesa").value.trim();
+  const referral = localStorage.getItem("referral_code") || "none";  // Retrieve referral code from localStorage
 
-    function closePopup() {
-      document.getElementById("payment-popup").style.display = "none";
-    }
+  console.log("Referral code being submitted:", referral);  // Debugging step
 
-    function showPaymentForm() {
-      document.getElementById("payment-form").style.display = "block";
-    }
+  if (!mpesaCode || !name) {
+    alert("Please enter your name and MPESA code.");
+    return;
+  }
 
-    function submitPaymentProof() {
-      const name = document.getElementById("name").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const mpesaCode = document.getElementById("mpesa").value.trim();
-      const referral = localStorage.getItem("referral_code") || "none";
+  const data = {
+    name,
+    phone,
+    mpesaCode,
+    referral,  // Include the referral code
+    timestamp: new Date().toISOString()
+  };
 
-      if (!mpesaCode || !name) {
-        alert("Please enter your name and MPESA code.");
-        return;
-      }
+  console.log("Submitting data to Firebase:", data);  // Debugging step
 
-      const data = {
-        name,
-        phone,
-        mpesaCode,
-        referral,
-        timestamp: new Date().toISOString()
-      };
-
-      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(() => {
-  const message = `NEW SUBSCRIPTION 🚀
+  fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(() => {
+    const message = `NEW SUBSCRIPTION 🚀
 Name: ${name}
 Phone: ${phone || "N/A"}
 MPesa Code: ${mpesaCode}
 Referral: ${referral}`;
 
-  const encoded = encodeURIComponent(message);
-  const yourWhatsApp = "254769255782"; // replace with your number (no +)
+    const encoded = encodeURIComponent(message);
+    const yourWhatsApp = "254769255782"; // replace with your number (no +)
 
-  // Open WhatsApp message to you
-  window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
+    // Open WhatsApp message to you
+    window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
 
-  // Optionally reset the form
-  document.getElementById("payment-form").reset();
-  document.getElementById("payment-form").style.display = "none";
-})
+    // Optionally reset the form
+    document.getElementById("payment-form").reset();
+    document.getElementById("payment-form").style.display = "none";
+  })
+  .catch(err => {
+    alert("❌ Failed to submit. Please try again later.");
+    console.error(err);
+  });
+}
 
-      .catch(err => {
-        alert("❌ Failed to submit. Please try again later.");
-        console.error(err);
-      });
-    }
   </script>
 </body>
 </html>
