@@ -8,21 +8,18 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 100%;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      max-width: 500px;
+      margin: auto;
+      position: relative; /* Add relative positioning to body */
     }
 
     #payment-form {
       display: none;
-      position: absolute;
-      top: 20%; /* Position form above the image */
+      position: absolute; /* Position form above the image */
+      top: 10%; /* Adjust the position of the form */
+      width: 100%;
       z-index: 10;
-      width: 80%; /* Responsive form width */
-      max-width: 400px; /* Max width for larger screens */
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -46,27 +43,23 @@
       background-color: #007bff;
     }
 
+    /* Styling for static payment image */
     #payment-image {
       display: block;
-      width: 100%; /* Ensure the image takes full width of the container */
-      max-height: 400px;
+      width: 100%; /* Ensure the image is responsive */
+      max-height: 400px; /* Limit the image size */
+      object-fit: contain; /* Maintain aspect ratio */
       margin-top: 20px;
-      object-fit: cover; /* Ensure image covers the container */
-      position: relative; /* Relative positioning for form placement */
       border-radius: 8px; /* Optional for rounded corners */
     }
 
-    @media (max-width: 600px) {
-      #payment-form {
-        top: 10%; /* Adjust the form position on smaller screens */
-        width: 90%;
-      }
+    /* Optional: Add some styling for when the form is displayed */
+    #payment-form.active {
+      display: block;
     }
-
   </style>
 </head>
 <body>
-
   <h2>🎉 Elimu Connect Referral and Payments</h2>
   <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, I have paid and fill the form:</p>
 
@@ -76,13 +69,11 @@
 
   <hr />
 
-  <!-- Payment Form Button -->
+  <p>📲 Pay here!:</p>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
   <!-- Static Payment Image -->
-  <div id="image-container">
-    <img id="payment-image" src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png" alt="Payment Details" />
-  </div>
+  <img id="payment-image" src="https://yourdomain.com/images/payinfo.png" alt="Payment Details" />
 
   <!-- Payment Form -->
   <form id="payment-form">
@@ -93,8 +84,15 @@
   </form>
 
   <script>
+    // Load referral code
+    window.addEventListener("DOMContentLoaded", function () {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('ref');
+      if (ref) localStorage.setItem("referral_code", ref);
+    });
+
     function showPaymentForm() {
-      document.getElementById("payment-form").style.display = "block";
+      document.getElementById("payment-form").classList.add("active");
     }
 
     function submitPaymentProof() {
@@ -122,10 +120,10 @@
       })
       .then(() => {
         const message = `NEW SUBSCRIPTION 🚀
-Name: ${name}
-Phone: ${phone || "N/A"}
-MPesa Code: ${mpesaCode}
-Referral: ${referral}`;
+        Name: ${name}
+        Phone: ${phone || "N/A"}
+        MPesa Code: ${mpesaCode}
+        Referral: ${referral}`;
 
         const encoded = encodeURIComponent(message);
         const yourWhatsApp = "254769255782"; // replace with your number (no +)
@@ -143,6 +141,5 @@ Referral: ${referral}`;
       });
     }
   </script>
-
 </body>
 </html>
