@@ -11,42 +11,22 @@
     button { background-color: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; }
     .link-btn { background-color: #007bff; }
 
-
-
-    .close-btn {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  font-size: 30px;  /* Increased size for better visibility */
-  font-weight: bold;
-  background: none;
-  border: none;
-  color: #333;  /* Clear color for better contrast */
-  cursor: pointer;
-}
-
-
-
-
-    #payment-popup {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    /* Styling for static payment image */
+    #payment-image {
+      display: block;
+      max-width: 100%; /* Ensures the image is responsive */
+      max-height: 400px; /* Limit the height */
+      margin: 20px 0; /* Adds some space around the image */
+      object-fit: contain; /* Maintain aspect ratio */
+      margin-left: auto;
+      margin-right: auto;
+    }
 
   </style>
 </head>
 <body>
   <h2>🎉 Elimu Connect Referral and Payments</h2>
-  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, i have paid and fill the form:</p>
+  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, I have paid and fill the form:</p>
 
   <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
     <button class="link-btn">📲 Install Elimu Connect: Learn & Tutor App</button>
@@ -55,20 +35,10 @@
   <hr />
 
   <p>📲 Pay here!:</p>
-  <button onclick="showPaymentImage()">💰 Pay Now</button>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
 
- <!-- Payment Image Popup -->
-<div id="payment-popup">
-  <div>
-    <button class="close-btn" onclick="closePopup()">✖</button>
-    <button class="back-btn" onclick="window.history.back()">← Go Back</button>
-    <img src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png" alt="Payment Details" />
-  </div>
-</div>
-
-
-
+  <!-- Static Payment Image -->
+  <img id="payment-image" src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png" alt="Payment Details" />
 
   <!-- Payment Form -->
   <form id="payment-form" style="display:none; margin-top:20px;">
@@ -77,83 +47,57 @@
     <input type="text" id="mpesa" placeholder="Mpesa Transaction Code" required />
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
-<script>
-  // Load referral code
-  window.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
-    if (ref) localStorage.setItem("referral_code", ref);
-  });
 
-  function showPaymentImage() {
-    // Check if the image was already shown and closed
-    if (localStorage.getItem("popupClosed") !== "true") {
-      document.getElementById("payment-popup").style.display = "flex";
-    }
-  }
-
-  function closePopup() {
-    // Hide the popup and mark it as closed in localStorage
-    document.getElementById("payment-popup").style.display = "none";
-    localStorage.setItem("popupClosed", "true");
-  }
-
-  function resetPopup() {
-    // Reset the "popupClosed" flag in localStorage to show the popup again
-    localStorage.removeItem("popupClosed");
-  }
-
-  function showPaymentForm() {
-    document.getElementById("payment-form").style.display = "block";
-  }
-
-  function submitPaymentProof() {
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const mpesaCode = document.getElementById("mpesa").value.trim();
-    const referral = localStorage.getItem("referral_code") || "none";
-
-    if (!mpesaCode || !name) {
-      alert("Please enter your name and MPESA code.");
-      return;
+  <script>
+    function showPaymentForm() {
+      document.getElementById("payment-form").style.display = "block";
     }
 
-    const data = {
-      name,
-      phone,
-      mpesaCode,
-      referral,
-      timestamp: new Date().toISOString()
-    };
+    function submitPaymentProof() {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const mpesaCode = document.getElementById("mpesa").value.trim();
+      const referral = localStorage.getItem("referral_code") || "none";
 
-    fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
-      method: "POST",
-      body: JSON.stringify(data)
-    })
-    .then(() => {
-      const message = `NEW SUBSCRIPTION 🚀
+      if (!mpesaCode || !name) {
+        alert("Please enter your name and MPESA code.");
+        return;
+      }
+
+      const data = {
+        name,
+        phone,
+        mpesaCode,
+        referral,
+        timestamp: new Date().toISOString()
+      };
+
+      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
+        method: "POST",
+        body: JSON.stringify(data)
+      })
+      .then(() => {
+        const message = `NEW SUBSCRIPTION 🚀
 Name: ${name}
 Phone: ${phone || "N/A"}
 MPesa Code: ${mpesaCode}
 Referral: ${referral}`;
 
-      const encoded = encodeURIComponent(message);
-      const yourWhatsApp = "254769255782"; // replace with your number (no +)
+        const encoded = encodeURIComponent(message);
+        const yourWhatsApp = "254769255782"; // replace with your number (no +)
 
-      // Open WhatsApp message to you
-      window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
+        // Open WhatsApp message to you
+        window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
 
-      // Optionally reset the form
-      document.getElementById("payment-form").reset();
-      document.getElementById("payment-form").style.display = "none";
-    })
-    .catch(err => {
-      alert("❌ Failed to submit. Please try again later.");
-      console.error(err);
-    });
-  }
-</script>
-
-  
+        // Optionally reset the form
+        document.getElementById("payment-form").reset();
+        document.getElementById("payment-form").style.display = "none";
+      })
+      .catch(err => {
+        alert("❌ Failed to submit. Please try again later.");
+        console.error(err);
+      });
+    }
+  </script>
 </body>
 </html>
