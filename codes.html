@@ -3,34 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elimu Connect Referrals and Payments</title>
+  <title>Elimu Connect Referral</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
       max-width: 500px;
       margin: auto;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
-    #payment-form {
-      display: none;
-      position: absolute;
-      top: 10%;
-      width: 100%;
-      z-index: 10;
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
     input, button {
       padding: 10px;
       margin: 8px 0;
       width: 100%;
     }
-
     button {
       background-color: #28a745;
       color: white;
@@ -38,73 +26,62 @@
       font-weight: bold;
       cursor: pointer;
     }
-
-    .link-btn {
-      background-color: #007bff;
-    }
-
-    #payment-image {
-      display: block;
+    .link-btn { background-color: #007bff; }
+    #payment-form {
+      display: none;
       width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      margin-top: 20px;
-      border-radius: 8px;
     }
-
-    #payment-form.active {
-      display: block;
+    #payment-image {
+      margin-top: 30px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
     }
   </style>
 </head>
 <body>
-
-  <h2>🎉 Elimu Connect Referral and Payments</h2>
-  <p>You’ve been invited? Get started by downloading the app, <br>You already have the app, just subscribe and then click, I have paid and fill the form:</p>
+  <h2>🎉 Elimu Connect Referral</h2>
+  <p>You’ve been invited! Download the app and pay via MPesa below:</p>
 
   <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-    <button class="link-btn">📲 Install Elimu Connect: Learn & Tutor App</button>
+    <button class="link-btn">📲 Download Elimu Connect App</button>
   </a>
 
-  <hr />
-
-  <p>📲 Pay here!:</p>
   <button onclick="showPaymentForm()">✅ I’ve Paid</button>
-
-  <!-- Static Payment Image -->
-  <img id="payment-image" src="https://yourdomain.com/images/payinfo.png" alt="Payment Details" />
 
   <!-- Payment Form -->
   <form id="payment-form">
     <input type="text" id="name" placeholder="Your Name" required />
-    <input type="text" id="phone" placeholder="Phone Number" required />
-    <input type="text" id="mpesa" placeholder="Mpesa Transaction Code" required />
+    <input type="text" id="phone" placeholder="Phone Number (optional)" />
+    <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
 
+  <!-- Always visible image -->
+  <img id="payment-image" src="https://yourdomain.com/payinfo.png" alt="MPesa Payment Instructions" />
+
   <script>
-    // Set referral code in localStorage when the page loads
+    // Save referral from URL
     window.addEventListener("DOMContentLoaded", function () {
       const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref'); // Look for 'ref' parameter
-      if (ref) {
-        localStorage.setItem("referral_code", ref);  // Save to localStorage
-        console.log("Referral code set:", ref);  // Log for debugging
-      } else {
-        console.log("No referral code found in URL.");
-      }
+      const ref = params.get('ref');
+      if (ref) localStorage.setItem("referral_code", ref);
     });
+
+    function showPaymentForm() {
+      document.getElementById("payment-form").style.display = "block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     function submitPaymentProof() {
       const name = document.getElementById("name").value.trim();
       const phone = document.getElementById("phone").value.trim();
       const mpesaCode = document.getElementById("mpesa").value.trim();
-      const referral = localStorage.getItem("referral_code") || "none";  // Retrieve referral code from localStorage
-
-      console.log("Referral code being submitted:", referral);  // Debugging step
+      const referral = localStorage.getItem("referral_code") || "none";
 
       if (!mpesaCode || !name) {
-        alert("Please enter your name and MPESA code.");
+        alert("Please enter your name and MPesa code.");
         return;
       }
 
@@ -112,30 +89,23 @@
         name,
         phone,
         mpesaCode,
-        referral,  // Include the referral code
+        referral,
         timestamp: new Date().toISOString()
       };
 
-      console.log("Submitting data to Firebase:", data);  // Debugging step
-
+      // Send to Firebase
       fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
         method: "POST",
         body: JSON.stringify(data)
       })
       .then(() => {
-        const message = `NEW SUBSCRIPTION 🚀
-        Name: ${name}
-        Phone: ${phone || "N/A"}
-        MPesa Code: ${mpesaCode}
-        Referral: ${referral}`;
-
+        // WhatsApp notification
+        const message = `NEW SUBSCRIPTION 🚀\nName: ${name}\nPhone: ${phone || "N/A"}\nMPesa Code: ${mpesaCode}\nReferral: ${referral}`;
         const encoded = encodeURIComponent(message);
-        const yourWhatsApp = "254769255782"; // replace with your number (no +)
-
-        // Open WhatsApp message to you
+        const yourWhatsApp = "254769255782";
         window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
 
-        // Optionally reset the form
+        // Reset form
         document.getElementById("payment-form").reset();
         document.getElementById("payment-form").style.display = "none";
       })
@@ -145,6 +115,5 @@
       });
     }
   </script>
-
 </body>
 </html>
