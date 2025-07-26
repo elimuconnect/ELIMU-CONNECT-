@@ -26,7 +26,9 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .link-btn { background-color: #007bff; }
+    .link-btn {
+      background-color: #007bff;
+    }
     #payment-form {
       display: none;
       width: 100%;
@@ -34,6 +36,8 @@
     #payment-image {
       margin-top: 30px;
       width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
     h2 {
       text-align: center;
@@ -58,20 +62,36 @@
     <button type="button" onclick="submitPaymentProof()">Submit Payment</button>
   </form>
 
-  <!-- Always visible image -->
-  <img id="payment-image" src="https://yourdomain.com/payinfo.png" alt="MPesa Payment Instructions" />
+  <!-- Static MPesa Image -->
+  <img
+    id="payment-image"
+    src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png"
+    alt="MPesa Payment Instructions"
+  />
 
   <script>
-    // Save referral from URL
     window.addEventListener("DOMContentLoaded", function () {
       const params = new URLSearchParams(window.location.search);
-      const ref = params.get('ref');
-      if (ref) localStorage.setItem("referral_code", ref);
+      const ref = params.get("ref");
+      if (ref) {
+        localStorage.setItem("referral_code", ref);
+
+        // Also save referral visit to Firebase
+        fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/visits.json", {
+          method: "POST",
+          body: JSON.stringify({
+            referral: ref,
+            timestamp: new Date().toISOString()
+          })
+        }).then(() => {
+          console.log("Referral visit logged:", ref);
+        });
+      }
     });
 
     function showPaymentForm() {
       document.getElementById("payment-form").style.display = "block";
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function submitPaymentProof() {
@@ -99,17 +119,16 @@
         body: JSON.stringify(data)
       })
       .then(() => {
-        // WhatsApp notification
+        // WhatsApp alert
         const message = `NEW SUBSCRIPTION 🚀\nName: ${name}\nPhone: ${phone || "N/A"}\nMPesa Code: ${mpesaCode}\nReferral: ${referral}`;
         const encoded = encodeURIComponent(message);
         const yourWhatsApp = "254769255782";
         window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
 
-        // Reset form
         document.getElementById("payment-form").reset();
         document.getElementById("payment-form").style.display = "none";
       })
-      .catch(err => {
+      .catch((err) => {
         alert("❌ Failed to submit. Please try again later.");
         console.error(err);
       });
