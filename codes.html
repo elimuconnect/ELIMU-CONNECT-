@@ -100,7 +100,7 @@
       const mpesaCode = document.getElementById("mpesa").value.trim();
       const referral = localStorage.getItem("referral_code") || "none";
 
-      if (!mpesaCode || !name) {
+      if (!mpesaCode || !name || !phone) {
         alert("Please enter your name and MPesa code.");
         return;
       }
