@@ -1,0 +1,69 @@
+<script>
+  // Step 1: Save referral code if present in URL
+  window.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+
+    if (ref) {
+      localStorage.setItem("referral_code", ref);
+
+      // Log referral visit in Firebase
+      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/visits.json", {
+        method: "POST",
+        body: JSON.stringify({
+          referral: ref,
+          timestamp: new Date().toISOString()
+        })
+      }).then(() => {
+        console.log("Referral visit logged:", ref);
+      });
+    }
+  });
+
+  // Step 2: Show payment form when button is clicked
+  function showPaymentForm() {
+    document.getElementById("payment-form").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Step 3: Submit payment info and include referral
+  function submitPaymentProof() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const mpesaCode = document.getElementById("mpesa").value.trim();
+    const referral = localStorage.getItem("referral_code") || "none";
+
+    if (!mpesaCode || !name || !phone) {
+      alert("Please enter your name, phone number, and MPesa code.");
+      return;
+    }
+
+    const data = {
+      name,
+      phone,
+      mpesaCode,
+      referral,
+      timestamp: new Date().toISOString()
+    };
+
+    // Save to Firebase
+    fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      // Compose WhatsApp message
+      const message = `NEW SUBSCRIPTION 🚀\nName: ${name}\nPhone: ${phone}\nMPesa Code: ${mpesaCode}\nReferral: ${referral}`;
+      const encoded = encodeURIComponent(message);
+      const yourWhatsApp = "254769255782";
+      window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
+
+      document.getElementById("payment-form").reset();
+      document.getElementById("payment-form").style.display = "none";
+    })
+    .catch((err) => {
+      alert("❌ Failed to submit. Please try again later.");
+      console.error(err);
+    });
+  }
+</script>
