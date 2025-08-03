@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Referrer Dashboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔍 Referrer Dashboard</h2>
+  <p>Enter your referral code to see visits and payments:</p>
+  <input type="text" id="refCode" placeholder="Enter your referral code (e.g. benta2)" />
+  <button onclick="loadReferrals()">View My Referrals</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function loadReferrals() {
+      const code = document.getElementById("refCode").value.trim();
+      if (!code) return alert("Please enter your referral code");
+
+      const visitsRes = await fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/visits.json");
+      const paymentsRes = await fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json");
+
+      const visitsData = await visitsRes.json();
+      const paymentsData = await paymentsRes.json();
+
+      const visits = Object.values(visitsData || {}).filter(v => v.referral === code);
+      const payments = Object.values(paymentsData || {}).filter(p => p.referral === code);
+
+      let html = `<h3>📈 Total Visits: ${visits.length}</h3>`;
+      html += `<h3>💰 Total Payments: ${payments.length}</h3>`;
+
+      if (payments.length) {
+        html += `<table>
+          <tr><th>Name</th><th>Phone</th><th>MPesa Code</th><th>Time</th></tr>`;
+        payments.forEach(p => {
+          html += `<tr>
+            <td>${p.name}</td>
+            <td>${p.phone}</td>
+            <td>${p.mpesaCode}</td>
+            <td>${new Date(p.timestamp).toLocaleString()}</td>
+          </tr>`;
+        });
+        html += `</table>`;
+      }
+
+      document.getElementById("result").innerHTML = html;
+    }
+  </script>
+</body>
+</html>
