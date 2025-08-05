@@ -97,15 +97,25 @@
 </head>
 <body>
 
-  <header>📚 CBC JSS VIDEO LESSONS – Grade 7 to 10</header>
+ <header>📚 CBC JSS VIDEO LESSONS – Grade 7 to 10</header>
 
-  <div class="grade-selector">
-    <button onclick="filterGrade('all')">All Grades</button>
-    <button onclick="filterGrade('grade7')">Grade 7</button>
-    <button onclick="filterGrade('grade8')">Grade 8</button>
-    <button onclick="filterGrade('grade9')">Grade 9</button>
-    <button onclick="filterGrade('grade10')">Grade 10</button>
-  </div>
+<div class="grade-selector">
+  <select id="gradeSelect" onchange="populateSubjects()">
+    <option value="">Select Grade</option>
+    <option value="grade7">Grade 7</option>
+    <option value="grade8">Grade 8</option>
+    <option value="grade9">Grade 9</option>
+    <option value="grade10">Grade 10</option>
+  </select>
+
+  <select id="subjectSelect" onchange="populateTopics()" disabled>
+    <option value="">Select Subject</option>
+  </select>
+
+  <select id="topicSelect" onchange="filterVideos()" disabled>
+    <option value="">Select Topic</option>
+  </select>
+</div>
 
   <div class="video-grid" id="videos">
 
@@ -131,17 +141,109 @@
       <div class="video-title">Grade 8: Kiswahili – Vielezi</div>
     </div>
 
-    <!-- GRADE 9 -->
-    <div class="video-card grade9">
-      <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID5" allowfullscreen></iframe>
-      <div class="video-title">Grade 9: Social Studies – Government Structure</div>
-    </div>
+    
 
-    <div class="video-card grade9">
-      <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID6" allowfullscreen></iframe>
-      <div class="video-title">Grade 9: Computer – Internet Safety</div>
-    </div>
 
+
+
+
+
+  <!-- SOCIAL STUDIES -->
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="government">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID1" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Government Structure</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="citizenship">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID2" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Citizenship and Duties</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="democracy">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID3" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Democracy in Kenya</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="colonialism">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID4" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Effects of Colonialism</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="national-values">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID5" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – National Values and Principles</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="conflict-resolution">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID6" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Conflict Resolution</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="rights-responsibilities">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID7" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Rights and Responsibilities</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="leadership">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID8" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Leadership in Society</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="development">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID9" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Development and Planning</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="social" data-topic="civic-education">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID10" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Social Studies – Civic Education</div>
+  </div>
+
+  <!-- COMPUTER STUDIES -->
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="safety">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID11" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Internet Safety</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="coding">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID12" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Introduction to Coding</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="hardware">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID13" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Computer Hardware</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="software">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID14" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Types of Software</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="spreadsheets">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID15" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Spreadsheets Basics</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="word-processing">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID16" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Word Processing</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="presentation">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID17" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Presentation Tools</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="programming">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID18" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Programming Basics</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="internet">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID19" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – The Internet</div>
+  </div>
+  <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="careers">
+    <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID20" allowfullscreen></iframe>
+    <div class="video-title">Grade 9: Computer Studies – Careers in ICT</div>
+  </div>
+
+  <!-- Repeat pattern for MATH, ENGLISH, SCIENCE, etc. -->
+
+
+
+
+
+
+
+
+
+
+    
     <!-- GRADE 10 -->
     <div class="video-card grade10">
       <iframe src="https://www.youtube.com/embed/YOUR_VIDEO_ID7" allowfullscreen></iframe>
