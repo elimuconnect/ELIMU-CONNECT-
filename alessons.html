@@ -410,6 +410,15 @@ function prevLesson() {
 }
 
 
+
+const colors = ['blue', 'green', 'red', 'orange', 'purple'];
+document.querySelectorAll('.card h2').forEach((h2, index) => {
+  h2.classList.add(colors[index % colors.length]);
+});
+
+
+
+  
 </script>
 
 </body>
