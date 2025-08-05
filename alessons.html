@@ -150,6 +150,48 @@
       font-size: 15px;
       padding: 10px;
     }
+
+
+.lesson-title {
+  color: #d32f2f; /* Deep red */
+  font-size: 1.2em;
+  display: block;
+  margin: 10px 0;
+}
+
+.subtopic {
+  color: #1976d2; /* Blue */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.question {
+  color: #f57c00; /* Orange */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.answer {
+  color: #388e3c; /* Green */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.bullet {
+  color: #6a1b9a; /* Purple dot */
+  margin-right: 8px;
+}
+
+.point {
+  color: #1a237e;
+  display: block;
+  margin-left: 20px;
+}
+
+    
   }
 </style>
 
@@ -380,20 +422,21 @@ function showLesson(index) {
     return;
   }
 
-  const lesson = lessonsArray[index];
+  const lessonHTML = lessonsArray[index];
   editor.innerHTML = `
     <div class="card">
-      <pre>${lesson}</pre>
+      <div id="lessonContent">${lessonHTML}</div>
     </div>
   `;
 
-  const plainText = lesson.replace(/<[^>]*>/g, '').replace(/[\*\-]/g, '').replace(/\n/g, '. ');
+  const plainText = document.getElementById("lessonContent").textContent;
   status.textContent = `📖 Reading Lesson ${index + 1}`;
   speak(plainText, () => {
     currentLesson++;
     setTimeout(() => showLesson(currentLesson), 3000);
   });
 }
+
 
 function startTutor() {
   if (tutorStarted) return;
