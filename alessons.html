@@ -129,146 +129,137 @@
 
 <script>
 
+const lessonsArray = [
+  `Install Elimu Connect App from Play Store or visit https://elimuconnect.github.io/ELIMU-CONNECT-/elimu for CBC academic & CODING lessons
 
-const lessonsArray = {
-  "topic": "Mixtures, Elements and Compounds",
-  "subtopic": "Structure of the Atom",
-  "level": "Upper Primary / Lower Secondary (CBC Grade 7/8 or KS3)",
-  "sections": [
-    {
-      "title": "1. Atomic Structure Overview",
-      "content": [
-        "An atom is the smallest particle of an element that retains the chemical properties of that element.",
-        "Each atom is made up of 3 subatomic particles:",
-        "- Protons: Positively charged (+), found in the nucleus.",
-        "- Neutrons: No charge (neutral), found in the nucleus.",
-        "- Electrons: Negatively charged (-), found in energy levels (shells) around the nucleus."
-      ]
-    },
-    {
-      "title": "2. Atomic Number and Mass Number",
-      "content": [
-        "a) Atomic Number (Z): The atomic number is the number of protons in the nucleus of an atom.",
-        "It is unique for each element and determines the element's identity.",
-        "Example: Hydrogen has 1 proton → Atomic number = 1; Oxygen has 8 protons → Atomic number = 8",
-        "b) Mass Number (A): The mass number is the total number of protons and neutrons in an atom.",
-        "Mass number (A) = Number of protons + Number of neutrons"
-      ],
-      "questions": [
-        {
-          "question": "An atom has 6 protons and 6 neutrons. (a) What is its atomic number? (b) What is its mass number?",
-          "answer": "(a) Atomic number = 6\n(b) Mass number = 6 + 6 = 12"
-        },
-        {
-          "question": "Sodium has an atomic number of 11 and a mass number of 23. How many neutrons does it have?",
-          "answer": "Neutrons = 23 - 11 = 12"
-        }
-      ]
-    },
-    {
-      "title": "3. Electron Arrangement of Elements",
-      "content": [
-        "Electrons are arranged in energy levels or shells around the nucleus.",
-        "First shell (K): Max 2 electrons",
-        "Second shell (L): Max 8 electrons",
-        "Third shell (M): Max 8 electrons (for first 20 elements)",
-        "Examples:",
-        "Hydrogen (1): 1",
-        "Helium (2): 2",
-        "Lithium (3): 2, 1",
-        "Carbon (6): 2, 4",
-        "Oxygen (8): 2, 6",
-        "Sodium (11): 2, 8, 1",
-        "Calcium (20): 2, 8, 8, 2"
-      ],
-      "questions": [
-        {
-          "question": "What is the electron arrangement of: (a) Oxygen (8) (b) Magnesium (12)",
-          "answer": "(a) 2, 6\n(b) 2, 8, 2"
-        },
-        {
-          "question": "Which element has the configuration 2, 8, 1?",
-          "answer": "Sodium (11)"
-        }
-      ]
-    },
-    {
-      "title": "4. Energy Level Diagrams (Bohr Diagrams)",
-      "content": [
-        "Energy level diagrams (Bohr models) show how electrons are arranged around the nucleus.",
-        "Steps to draw:",
-        "- Draw a small circle (nucleus) at the center.",
-        "- Indicate the number of protons and neutrons inside the nucleus.",
-        "- Draw concentric circles for energy levels.",
-        "- Place electrons in correct shells.",
-        "Example (Carbon, Atomic number 6):",
-        "Protons = 6, Neutrons = 6, Electrons = 2 in first shell, 4 in second",
-        "Nucleus: 6p, 6n; Shells: 2e⁻, 4e⁻"
-      ],
-      "questions": [
-        {
-          "question": "Draw a Bohr model for Neon (10). How are the electrons arranged?",
-          "answer": "Nucleus: 10p, 10n; Electron shells: 2, 8"
-        },
-        {
-          "question": "How many energy levels does magnesium have?",
-          "answer": "3 (2, 8, 2)"
-        }
-      ]
-    },
-    {
-      "title": "5. Classification of Elements into Metals and Non-Metals",
-      "content": [
-        "Metals:",
-        "- Found on the left and center of the Periodic Table.",
-        "- Good conductors, malleable, shiny, form positive ions.",
-        "Examples: Sodium, Iron, Aluminum",
-        "Non-Metals:",
-        "- Found on the right side.",
-        "- Poor conductors, brittle, dull, form negative ions.",
-        "Examples: Oxygen, Nitrogen, Chlorine"
-      ],
-      "questions": [
-        {
-          "question": "State three differences between metals and non-metals.",
-          "answer": "Metals: Good conductors, Malleable, Shiny\nNon-Metals: Poor conductors, Brittle, Dull"
-        },
-        {
-          "question": "Classify the following: (a) Sulfur (b) Magnesium (c) Chlorine (d) Iron",
-          "answer": "(a) Non-metal\n(b) Metal\n(c) Non-metal\n(d) Metal"
-        }
-      ]
-    },
-    {
-      "title": "Summary Table",
-      "content": [
-        "Concept - Key Points",
-        "Atomic Number - Number of protons",
-        "Mass Number - Protons + Neutrons",
-        "Electron Arrangement - 2, 8, 8 rule",
-        "Energy Level Diagram - Visual of atomic structure",
-        "Metals vs Non-Metals - Physical & chemical properties"
-      ]
-    },
-    {
-      "title": "Revision Questions (Mixed)",
-      "questions": [
-        {
-          "question": "The atomic number of nitrogen is 7. (a) What is the number of electrons? (b) What is its electron arrangement?",
-          "answer": "(a) 7 electrons\n(b) 2, 5"
-        },
-        {
-          "question": "Classify each as a metal or non-metal: Sodium, Oxygen, Aluminum, Carbon",
-          "answer": "Sodium → Metal\nOxygen → Non-metal\nAluminum → Metal\nCarbon → Non-metal"
-        },
-        {
-          "question": "Draw and label the Bohr diagram of Lithium (Atomic number = 3)",
-          "answer": "Protons: 3, Neutrons: 4 (mass number 7), Electrons: 2, 1"
-        }
-      ]
-    }
-  ]
-}
+Lesson 1: Atomic Structure Overview
+
+Lesson Content:
+An atom is the smallest particle of an element that can take part in a chemical reaction.
+Each atom is made up of 3 subatomic particles:
+- Protons: Positively charged (+), found in the nucleus.
+- Neutrons: No charge (neutral), found in the nucleus.
+- Electrons: Negatively charged (-), found in energy levels  around the nucleus.
+
+Question:
+Name the three subatomic particles and their charges.
+
+Final Answer:
+- Protons: Positive (+)
+- Neutrons: Neutral (0)
+- Electrons: Negative (-)
+`,
+
+  `Lesson 2: Atomic Number and Mass Number
+
+Lesson Content:
+- Atomic Number - is the number of protons in the nucleus of an atom.
+- Mass Number is the total number of protons and neutrons in the nucleus of an atom.
+
+Examples:
+- Hydrogen: Atomic number = 1
+- Oxygen: Atomic number = 8
+
+Formula:
+Mass number = Protons + Neutrons
+
+Question:
+An atom has 6 protons and 6 neutrons. What are:
+(a) Atomic number?
+(b) Mass number?
+
+Final Answer:
+(a) Atomic number = 6
+(b) Mass number = 6 + 6 = 12
+`,
+
+  `Lesson 3: Electron Arrangement of Elements
+
+Lesson Content:
+Electrons are arranged in energy levels:
+- First energy levels: max 2
+- Second energy levels: max 8
+- Third energy levels: max 8 (for first 20 elements)
+
+Examples:
+- Oxygen (8): 2, 6
+- Sodium (11): 2, 8, 1
+
+Question:
+What is the electron arrangement of:
+(a) Oxygen (Atomic number 8)
+(b) Magnesium (Atomic number 12)
+
+Final Answer:
+(a) 2, 6
+(b) 2, 8, 2
+`,
+
+  `Lesson 4: Energy Level Diagrams (Bohr Models)
+
+Lesson Content:
+Bohr diagrams show electrons in circular energy levels around the nucleus.
+- Draw nucleus with protons and neutrons.
+- Draw energy levels with electrons.
+
+Example: Carbon (6): 2 in first shell, 4 in second
+
+Question:
+Draw an Energy Level Diagrams  for Neon (Atomic number 10).
+
+Final Answer:
+Nucleus: 10p, 10n
+Energy Levels: 2 electrons in first shell, 8 in second → 2, 8`,
+`Lesson 5: Classification of Elements into Metals and Non-Metals
+
+Lesson Content:
+Metals:
+- Found on the left and center of the Periodic Table.
+- Good conductors, shiny, malleable, lose electrons to form positive ions.
+
+Non-Metals:
+- Found on the right side of the Periodic Table.
+- Poor conductors, brittle, dull, gain electrons to form negative ions.
+
+Examples of Metals:
+- Sodium (Na)
+- Iron (Fe)
+- Aluminum (Al)
+- Magnesium (Mg)
+- Copper (Cu)
+
+Examples of Non-Metals:
+- Oxygen (O)
+- Nitrogen (N)
+- Chlorine (Cl)
+- Sulfur (S)
+- Carbon (C)
+
+Question:
+Classify the following as metals or non-metals:
+1. Sulfur
+2. Magnesium
+3. Chlorine
+4. Iron
+5. Oxygen
+6. Copper
+7. Carbon
+8. Aluminum
+9. Nitrogen
+10. Sodium
+
+Final Answer:
+1. Sulfur - Non-metal
+2. Magnesium - Metal
+3. Chlorine - Non-metal
+4. Iron - Metal
+5. Oxygen - Non-metal
+6. Copper - Metal
+7. Carbon - Non-metal
+8. Aluminum - Metal
+9. Nitrogen - Non-metal
+10. Sodium - Metal `
+];
 
 
 let currentLesson = 0;
