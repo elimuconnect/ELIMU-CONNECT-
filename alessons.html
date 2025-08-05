@@ -4,111 +4,155 @@
   <meta charset="UTF-8" />
   <title>Smart Tutor – Elimu Connect Ads</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e0f7fa, #fce4ec);
-    }
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
+ <style>
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #e0f7fa, #fce4ec);
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  #toolbar {
+    padding: 15px;
+    background: #1976d2;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  #toolbar button {
+    background: white;
+    color: #1976d2;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #toolbar button:hover {
+    background: #f0f0f0;
+  }
+
+  #editor {
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card {
+    max-width: 90vw;
+    width: 100%;
+    margin: 20px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 25px;
+    border: 2px solid #ccc; /* 💥 Added border for prominence */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    font-size: 1.8em;
+    line-height: 2;
+    font-weight: bold;
+    animation: fadeIn 1s ease;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    color: #1a237e;
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out; /* 💫 Smooth hover or layout changes */
+  }
+
+  /* Headings inside cards */
+  .card h2 {
+    margin-top: 0;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  /* Optional manual title colors */
+  .card h2.red    { color: #d81b60; }
+  .card h2.green  { color: #2e7d32; }
+  .card h2.blue   { color: #1565c0; }
+  .card h2.orange { color: #ef6c00; }
+  .card h2.purple { color: #6a1b9a; }
+
+  /* 💡 Automatic color cycling for h2s inside cards */
+  .card h2:nth-child(5n+1) { color: #d81b60; }
+  .card h2:nth-child(5n+2) { color: #2e7d32; }
+  .card h2:nth-child(5n+3) { color: #1565c0; }
+  .card h2:nth-child(5n+4) { color: #ef6c00; }
+  .card h2:nth-child(5n+5) { color: #6a1b9a; }
+
+  .card pre {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    font-size: 1.6em;
+    line-height: 2;
+    font-weight: bold;
+    color: #1a237e;
+  }
+
+  #status {
+    padding: 15px;
+    background: #388e3c;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
     #toolbar {
-      padding: 15px;
-      background: #1976d2;
-      color: white;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
     }
+
     #toolbar button {
-      background: white;
-      color: #1976d2;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    #toolbar button:hover {
-      background: #f0f0f0;
-    }
-    #editor {
-      flex: 1;
-      padding: 40px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
- 
-.card {
-  max-width: 90vw;                 /* Almost full width on large screens */
-  width: 100%;
-  margin: 20px auto;               /* Center with top/bottom and side margin */
-  padding: 30px;
-  background: white;
-  border-radius: 25px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.4em;
-  line-height: 1.8;
-  font-weight: bold;
-  animation: fadeIn 1s ease;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  color: #1a237e;
-  box-sizing: border-box;         /* Prevents padding from exceeding width */
-}
-
-.card h2 {
-  margin-top: 0;
-  color: #d81b60;
-  font-size: 1.6em;
-  font-weight: bold;
-}
-
-.card pre {
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  font-size: 1.3em;
-  line-height: 1.8;
-  font-weight: bold;
-  color: #1a237e;
-}
-
-
-    
-    #status {
-      padding: 15px;
-      background: #388e3c;
-      color: white;
-      font-weight: bold;
-      text-align: center;
+      width: 100%;
       font-size: 16px;
+      padding: 10px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    .card {
+      padding: 20px;
+      font-size: 1.2em;
     }
-    @media (max-width: 600px) {
-      #toolbar { flex-direction: column; gap: 8px; padding: 10px; }
-      #toolbar button { width: 100%; font-size: 16px; padding: 10px; }
-      .card { padding: 20px; font-size: 1.2em; }
-      .card h2 { font-size: 1.4em; }
-      .card pre {
-  font-size: 1.15em;
-}
-      #status { font-size: 15px; padding: 10px; }
+
+    .card h2 {
+      font-size: 1.4em;
     }
-  </style>
+
+    .card pre {
+      font-size: 1.15em;
+    }
+
+    #status {
+      font-size: 15px;
+      padding: 10px;
+    }
+  }
+</style>
+
 </head>
 <body>
 
