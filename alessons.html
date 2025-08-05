@@ -357,17 +357,24 @@ function showLesson(index) {
   }
 
   const lesson = lessonsArray[index];
+  const colorClasses = ['red', 'green', 'blue', 'orange', 'purple'];
+  const colorClass = colorClasses[index % colorClasses.length];
+
   editor.innerHTML = `
     <div class="card">
+      <h2 class="${colorClass}">Lesson ${index + 1}</h2>
       <pre>${lesson}</pre>
     </div>
   `;
+
   status.textContent = `📖 Reading Lesson ${index + 1}`;
   speak(lesson, () => {
     currentLesson++;
     setTimeout(() => showLesson(currentLesson), 3000);
   });
 }
+
+
 
 function startTutor() {
   if (tutorStarted) return;
@@ -409,12 +416,6 @@ function prevLesson() {
   }
 }
 
-
-
-const colors = ['blue', 'green', 'red', 'orange', 'purple'];
-document.querySelectorAll('.card h2').forEach((h2, index) => {
-  h2.classList.add(colors[index % colors.length]);
-});
 
 
 
