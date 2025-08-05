@@ -48,26 +48,29 @@
       align-items: center;
       justify-content: center;
     }
-  .card {
-  max-width: 800px;
+ 
+.card {
+  max-width: 90vw;                 /* Almost full width on large screens */
   width: 100%;
+  margin: 20px auto;               /* Center with top/bottom and side margin */
   padding: 30px;
   background: white;
   border-radius: 25px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.4em;              /* Large base font */
-  line-height: 1.8;              /* Spaced lines */
-  font-weight: bold;             /* Bold text */
+  font-size: 1.4em;
+  line-height: 1.8;
+  font-weight: bold;
   animation: fadeIn 1s ease;
   overflow-wrap: break-word;
   word-break: break-word;
-  color: #1a237e;                /* Deep blue for content */
+  color: #1a237e;
+  box-sizing: border-box;         /* Prevents padding from exceeding width */
 }
 
 .card h2 {
   margin-top: 0;
-  color: #d81b60;                /* Bright pink title */
-  font-size: 1.6em;              /* Larger for titles */
+  color: #d81b60;
+  font-size: 1.6em;
   font-weight: bold;
 }
 
@@ -75,12 +78,11 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
-  font-size: 1.3em;              /* Large font inside pre */
+  font-size: 1.3em;
   line-height: 1.8;
   font-weight: bold;
   color: #1a237e;
 }
-
 
 
     
@@ -202,14 +204,14 @@ Bohr diagrams show electrons in circular energy levels around the nucleus.
 - Draw nucleus with protons and neutrons.
 - Draw energy levels with electrons.
 
-Example: Carbon (6): 2 in first shell, 4 in second
+Example: Carbon (6): 2 in first energy level, 4 in second
 
 Question:
 Draw an Energy Level Diagrams  for Neon (Atomic number 10).
 
 Final Answer:
 Nucleus: 10p, 10n
-Energy Levels: 2 electrons in first shell, 8 in second → 2, 8`,
+Energy Levels: 2 electrons in first energy level, 8 in second → 2, 8`,
 `Lesson 5: Classification of Elements into Metals and Non-Metals
 
 Lesson Content:
