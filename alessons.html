@@ -130,69 +130,145 @@
 <script>
 
 
-const lessonsArray = [
-  `Install Elimu Connect App from Play Store or visit https://elimuconnect.github.io/ELIMU-CONNECT-/elimu for CBC academic & CODING lessons
-
-Lesson 1: Parts of Speech – Nouns
-
-Lesson Content:
-Nouns are words used to name people, places, things, or ideas. Types of nouns include proper nouns, common nouns, collective nouns, and abstract nouns.
-
-Examples:
-- Proper noun: Nairobi, John
-- Common noun: book, car
-- Collective noun: team, flock
-- Abstract noun: honesty, fear
-
-Question:
-Identify the type of noun in the sentence below:  
-Bravery is a quality of a good leader.
-
-Final Answer:  
-The word “Bravery” is an **abstract noun**, because it names an idea or quality.`,
-
-  `Install Elimu Connect App from Play Store or visit https://elimuconnect.github.io/ELIMU-CONNECT-/elimu for CBC academic & CODING lessons
-
-Lesson 2: Sentence Types
-
-Lesson Content:
-A sentence is a group of words that expresses a complete thought. There are four main types:
-- Declarative: makes a statement  
-- Interrogative: asks a question  
-- Imperative: gives a command  
-- Exclamatory: shows strong emotion
-
-Examples:
-- Declarative: She likes reading.  
-- Interrogative: Do you enjoy music?  
-- Imperative: Close the window.  
-- Exclamatory: What a beautiful day!
-
-Question:
-What type of sentence is this:  
-Can you help me with my homework?
-
-Final Answer:  
-That is an interrogative sentence, because it asks a question.`,
-
-  `Install Elimu Connect App from Play Store or visit https://elimuconnect.github.io/ELIMU-CONNECT-/elimu for CBC academic & CODING lessons
-
-Lesson 3: Direct and Indirect Speech
-
-Lesson Content:
-Direct speech quotes the exact words someone said. Indirect speech reports what was said without quoting directly.
-
-Examples:
-- Direct: He said, “I am tired.”  
-- Indirect: He said that he was tired.
-
-Question:
-Change this sentence to indirect speech:  
-“I love reading,” said Sarah.
-
-Final Answer:  
-Indirect speech: Sarah said that she loved reading.`
-];
+const lessonsArray = {
+  "topic": "Mixtures, Elements and Compounds",
+  "subtopic": "Structure of the Atom",
+  "level": "Upper Primary / Lower Secondary (CBC Grade 7/8 or KS3)",
+  "sections": [
+    {
+      "title": "1. Atomic Structure Overview",
+      "content": [
+        "An atom is the smallest particle of an element that retains the chemical properties of that element.",
+        "Each atom is made up of 3 subatomic particles:",
+        "- Protons: Positively charged (+), found in the nucleus.",
+        "- Neutrons: No charge (neutral), found in the nucleus.",
+        "- Electrons: Negatively charged (-), found in energy levels (shells) around the nucleus."
+      ]
+    },
+    {
+      "title": "2. Atomic Number and Mass Number",
+      "content": [
+        "a) Atomic Number (Z): The atomic number is the number of protons in the nucleus of an atom.",
+        "It is unique for each element and determines the element's identity.",
+        "Example: Hydrogen has 1 proton → Atomic number = 1; Oxygen has 8 protons → Atomic number = 8",
+        "b) Mass Number (A): The mass number is the total number of protons and neutrons in an atom.",
+        "Mass number (A) = Number of protons + Number of neutrons"
+      ],
+      "questions": [
+        {
+          "question": "An atom has 6 protons and 6 neutrons. (a) What is its atomic number? (b) What is its mass number?",
+          "answer": "(a) Atomic number = 6\n(b) Mass number = 6 + 6 = 12"
+        },
+        {
+          "question": "Sodium has an atomic number of 11 and a mass number of 23. How many neutrons does it have?",
+          "answer": "Neutrons = 23 - 11 = 12"
+        }
+      ]
+    },
+    {
+      "title": "3. Electron Arrangement of Elements",
+      "content": [
+        "Electrons are arranged in energy levels or shells around the nucleus.",
+        "First shell (K): Max 2 electrons",
+        "Second shell (L): Max 8 electrons",
+        "Third shell (M): Max 8 electrons (for first 20 elements)",
+        "Examples:",
+        "Hydrogen (1): 1",
+        "Helium (2): 2",
+        "Lithium (3): 2, 1",
+        "Carbon (6): 2, 4",
+        "Oxygen (8): 2, 6",
+        "Sodium (11): 2, 8, 1",
+        "Calcium (20): 2, 8, 8, 2"
+      ],
+      "questions": [
+        {
+          "question": "What is the electron arrangement of: (a) Oxygen (8) (b) Magnesium (12)",
+          "answer": "(a) 2, 6\n(b) 2, 8, 2"
+        },
+        {
+          "question": "Which element has the configuration 2, 8, 1?",
+          "answer": "Sodium (11)"
+        }
+      ]
+    },
+    {
+      "title": "4. Energy Level Diagrams (Bohr Diagrams)",
+      "content": [
+        "Energy level diagrams (Bohr models) show how electrons are arranged around the nucleus.",
+        "Steps to draw:",
+        "- Draw a small circle (nucleus) at the center.",
+        "- Indicate the number of protons and neutrons inside the nucleus.",
+        "- Draw concentric circles for energy levels.",
+        "- Place electrons in correct shells.",
+        "Example (Carbon, Atomic number 6):",
+        "Protons = 6, Neutrons = 6, Electrons = 2 in first shell, 4 in second",
+        "Nucleus: 6p, 6n; Shells: 2e⁻, 4e⁻"
+      ],
+      "questions": [
+        {
+          "question": "Draw a Bohr model for Neon (10). How are the electrons arranged?",
+          "answer": "Nucleus: 10p, 10n; Electron shells: 2, 8"
+        },
+        {
+          "question": "How many energy levels does magnesium have?",
+          "answer": "3 (2, 8, 2)"
+        }
+      ]
+    },
+    {
+      "title": "5. Classification of Elements into Metals and Non-Metals",
+      "content": [
+        "Metals:",
+        "- Found on the left and center of the Periodic Table.",
+        "- Good conductors, malleable, shiny, form positive ions.",
+        "Examples: Sodium, Iron, Aluminum",
+        "Non-Metals:",
+        "- Found on the right side.",
+        "- Poor conductors, brittle, dull, form negative ions.",
+        "Examples: Oxygen, Nitrogen, Chlorine"
+      ],
+      "questions": [
+        {
+          "question": "State three differences between metals and non-metals.",
+          "answer": "Metals: Good conductors, Malleable, Shiny\nNon-Metals: Poor conductors, Brittle, Dull"
+        },
+        {
+          "question": "Classify the following: (a) Sulfur (b) Magnesium (c) Chlorine (d) Iron",
+          "answer": "(a) Non-metal\n(b) Metal\n(c) Non-metal\n(d) Metal"
+        }
+      ]
+    },
+    {
+      "title": "Summary Table",
+      "content": [
+        "Concept - Key Points",
+        "Atomic Number - Number of protons",
+        "Mass Number - Protons + Neutrons",
+        "Electron Arrangement - 2, 8, 8 rule",
+        "Energy Level Diagram - Visual of atomic structure",
+        "Metals vs Non-Metals - Physical & chemical properties"
+      ]
+    },
+    {
+      "title": "Revision Questions (Mixed)",
+      "questions": [
+        {
+          "question": "The atomic number of nitrogen is 7. (a) What is the number of electrons? (b) What is its electron arrangement?",
+          "answer": "(a) 7 electrons\n(b) 2, 5"
+        },
+        {
+          "question": "Classify each as a metal or non-metal: Sodium, Oxygen, Aluminum, Carbon",
+          "answer": "Sodium → Metal\nOxygen → Non-metal\nAluminum → Metal\nCarbon → Non-metal"
+        },
+        {
+          "question": "Draw and label the Bohr diagram of Lithium (Atomic number = 3)",
+          "answer": "Protons: 3, Neutrons: 4 (mass number 7), Electrons: 2, 1"
+        }
+      ]
+    }
+  ]
+}
 
 
 let currentLesson = 0;
