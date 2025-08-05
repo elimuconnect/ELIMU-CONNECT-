@@ -355,19 +355,25 @@ function speak(text, onEnd) {
 
 function showLesson(index) {
   if (index >= lessonsArray.length) {
-    editor.innerHTML = <div class="card"><h2>✅ All Lessons Complete</h2><p>You’re done! Download more CBC resources and coding lessons on Elimu Connect App.</p></div>;
+    editor.innerHTML = `
+      <div class="card">
+        <h2>✅ All Lessons Complete</h2>
+        <p>You’re done! Download more CBC resources and coding lessons on Elimu Connect App.</p>
+      </div>`;
     status.textContent = "✅ Done.";
     return;
   }
 
   const lesson = lessonsArray[index];
-  editor.innerHTML = 
+  editor.innerHTML = `
     <div class="card">
       <pre>${lesson}</pre>
     </div>
-  ;
-  status.textContent = 📖 Reading Lesson ${index + 1};
-  speak(lesson, () => {
+  `;
+
+  const plainText = lesson.replace(/<[^>]*>/g, '').replace(/[\*\-]/g, '').replace(/\n/g, '. ');
+  status.textContent = `📖 Reading Lesson ${index + 1}`;
+  speak(plainText, () => {
     currentLesson++;
     setTimeout(() => showLesson(currentLesson), 3000);
   });
