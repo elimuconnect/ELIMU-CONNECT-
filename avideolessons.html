@@ -89,6 +89,12 @@
 
   <header>📚 CBC JSS VIDEO LESSONS – Grade 7 to 10</header>
 
+
+<p id="noResult" style="text-align:center; color:red; display:none;">
+  No video found. Please select another topic.
+</p>
+
+  
   <div class="grade-selector">
     <select id="gradeSelect" onchange="populateSubjects()">
       <option value="">Select Grade</option>
@@ -182,21 +188,32 @@
     }
 
     function filterVideos() {
-      const grade = document.getElementById("gradeSelect").value;
-      const subject = document.getElementById("subjectSelect").value;
-      const topic = document.getElementById("topicSelect").value;
-      const cards = document.querySelectorAll(".video-card");
+  const grade = document.getElementById("gradeSelect").value;
+  const subject = document.getElementById("subjectSelect").value;
+  const topic = document.getElementById("topicSelect").value;
+  const cards = document.querySelectorAll(".video-card");
+  let anyShown = false;
 
-      cards.forEach(card => {
-        const matchesGrade = card.dataset.grade === grade;
-        const matchesSubject = card.dataset.subject === subject;
-        const matchesTopic = card.dataset.topic === topic;
+  cards.forEach(card => {
+    const matchesGrade = card.dataset.grade === grade;
+    const matchesSubject = card.dataset.subject === subject;
+    const matchesTopic = card.dataset.topic === topic;
 
-        card.style.display = (grade && subject && topic && matchesGrade && matchesSubject && matchesTopic)
-          ? "block"
-          : "none";
-      });
-    }
+    const shouldShow = grade && subject && topic && matchesGrade && matchesSubject && matchesTopic;
+    card.style.display = shouldShow ? "block" : "none";
+    if (shouldShow) anyShown = true;
+  });
+
+  document.getElementById("noResult").style.display = anyShown ? "none" : "block";
+
+  // ✅ Scroll to video section (useful on phones)
+  if (anyShown) {
+    setTimeout(() => {
+      document.getElementById("videos").scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }
+}
+
 
     function capitalize(text) {
       return text.charAt(0).toUpperCase() + text.slice(1);
