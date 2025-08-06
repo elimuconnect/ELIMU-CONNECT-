@@ -100,6 +100,12 @@
   font-size: 1em;
   margin: 5px;
 }
+@media screen and (max-width: 600px) {
+  .grade-selector {
+    flex-direction: column;
+    align-items: center;
+  }
+
 
       
     }
@@ -480,24 +486,36 @@
   }
 
   function filterVideos() {
-    const grade = document.getElementById("gradeSelect").value;
-    const subject = document.getElementById("subjectSelect").value;
-    const topic = document.getElementById("topicSelect").value;
+  const grade = document.getElementById("gradeSelect").value;
+  const subject = document.getElementById("subjectSelect").value;
+  const topic = document.getElementById("topicSelect").value;
+  const cards = document.querySelectorAll(".video-card");
 
-    const cards = document.querySelectorAll(".video-card");
+  cards.forEach(card => {
+    const matchesGrade = card.dataset.grade === grade;
+    const matchesSubject = card.dataset.subject === subject;
+    const matchesTopic = card.dataset.topic === topic;
 
-    cards.forEach(card => {
-      const matchesGrade = !grade || card.dataset.grade === grade;
-      const matchesSubject = !subject || card.dataset.subject === subject;
-      const matchesTopic = !topic || card.dataset.topic === topic;
+    // Show only if all match and topic is selected
+    card.style.display = (grade && subject && topic && matchesGrade && matchesSubject && matchesTopic)
+      ? "block"
+      : "none";
+  });
+}
 
-      card.style.display = (matchesGrade && matchesSubject && matchesTopic) ? "block" : "none";
-    });
-  }
 
   function capitalize(text) {
     return text.charAt(0).toUpperCase() + text.slice(1).replace(/-/g, ' ');
   }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".video-card").forEach(card => {
+    card.style.display = "none";
+  });
+});
+
+   
 </script>
  
    
