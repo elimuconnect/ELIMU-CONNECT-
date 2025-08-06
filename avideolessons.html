@@ -26,12 +26,10 @@
 
     .grade-selector {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin: 15px;
       flex-direction: column;
       align-items: center;
+      gap: 10px;
+      margin: 20px 10px;
     }
 
     .grade-selector select {
@@ -52,27 +50,27 @@
     }
 
     .video-card {
+      display: none;
       flex: 1 1 100%;
       max-width: 700px;
       background: white;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: none;
     }
 
     .video-wrapper {
       position: relative;
       width: 100%;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
+      padding-top: 56.25%; /* 16:9 */
     }
 
     .video-wrapper iframe {
       position: absolute;
       top: 0;
       left: 0;
-      height: 100%;
       width: 100%;
+      height: 100%;
       border: none;
     }
 
@@ -83,18 +81,19 @@
       color: #1565c0;
       text-align: center;
     }
+
+    #noResult {
+      text-align: center;
+      color: red;
+      margin-top: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
 
   <header>📚 CBC JSS VIDEO LESSONS – Grade 7 to 10</header>
 
-
-<p id="noResult" style="text-align:center; color:red; display:none;">
-  No video found. Please select another topic.
-</p>
-
-  
   <div class="grade-selector">
     <select id="gradeSelect" onchange="populateSubjects()">
       <option value="">Select Grade</option>
@@ -113,20 +112,17 @@
     </select>
   </div>
 
-  <div class="video-grid" id="videos">
+  <div id="noResult">No video found. Please select another topic.</div>
 
-    <!-- SAMPLE VIDEO FOR GRADE 9: Computer – Internet Safety -->
+  <div class="video-grid" id="videos">
+    <!-- One video example -->
     <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="safety">
       <div class="video-wrapper">
         <iframe src="https://www.youtube.com/embed/S3NaP1gu8Tw" allowfullscreen></iframe>
       </div>
       <div class="video-title">Grade 9: Computer Studies – Internet Safety</div>
     </div>
-
-    <!-- Add more videos like the example above with different data-grade, data-subject, and data-topic -->
-
-
-
+  </div>
 
   <script>
     const subjectOptions = {
@@ -163,7 +159,7 @@
         subjectSelect.disabled = false;
       }
 
-      filterVideos(); // Hide all
+      filterVideos(); // Hide all videos on subject change
     }
 
     function populateTopics() {
@@ -184,36 +180,34 @@
         topicSelect.disabled = false;
       }
 
-      filterVideos(); // Hide all
+      filterVideos(); // Hide all videos on topic change
     }
 
     function filterVideos() {
-  const grade = document.getElementById("gradeSelect").value;
-  const subject = document.getElementById("subjectSelect").value;
-  const topic = document.getElementById("topicSelect").value;
-  const cards = document.querySelectorAll(".video-card");
-  let anyShown = false;
+      const grade = document.getElementById("gradeSelect").value;
+      const subject = document.getElementById("subjectSelect").value;
+      const topic = document.getElementById("topicSelect").value;
+      const cards = document.querySelectorAll(".video-card");
+      let anyShown = false;
 
-  cards.forEach(card => {
-    const matchesGrade = card.dataset.grade === grade;
-    const matchesSubject = card.dataset.subject === subject;
-    const matchesTopic = card.dataset.topic === topic;
+      cards.forEach(card => {
+        const matchesGrade = card.dataset.grade === grade;
+        const matchesSubject = card.dataset.subject === subject;
+        const matchesTopic = card.dataset.topic === topic;
 
-    const shouldShow = grade && subject && topic && matchesGrade && matchesSubject && matchesTopic;
-    card.style.display = shouldShow ? "block" : "none";
-    if (shouldShow) anyShown = true;
-  });
+        const shouldShow = grade && subject && topic && matchesGrade && matchesSubject && matchesTopic;
+        card.style.display = shouldShow ? "block" : "none";
+        if (shouldShow) anyShown = true;
+      });
 
-  document.getElementById("noResult").style.display = anyShown ? "none" : "block";
+      document.getElementById("noResult").style.display = anyShown ? "none" : "block";
 
-  // ✅ Scroll to video section (useful on phones)
-  if (anyShown) {
-    setTimeout(() => {
-      document.getElementById("videos").scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  }
-}
-
+      if (anyShown) {
+        setTimeout(() => {
+          document.getElementById("videos").scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
 
     function capitalize(text) {
       return text.charAt(0).toUpperCase() + text.slice(1);
