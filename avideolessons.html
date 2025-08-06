@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBC JSS Video Lessons – Elimu Connect</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #e1f5fe, #fce4ec);
+    }
+
+    header {
+      background-color: #1976d2;
+      color: white;
+      text-align: center;
+      padding: 20px 10px;
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    .grade-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 15px;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .grade-selector select {
+      padding: 12px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 90%;
+      max-width: 300px;
+    }
+
+    .video-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 10px;
+      gap: 20px;
+    }
+
+    .video-card {
+      flex: 1 1 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
+
+    .video-title {
+      padding: 12px;
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #1565c0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>📚 CBC JSS VIDEO LESSONS – Grade 7 to 10</header>
+
+  <div class="grade-selector">
+    <select id="gradeSelect" onchange="populateSubjects()">
+      <option value="">Select Grade</option>
+      <option value="grade7">Grade 7</option>
+      <option value="grade8">Grade 8</option>
+      <option value="grade9">Grade 9</option>
+      <option value="grade10">Grade 10</option>
+    </select>
+
+    <select id="subjectSelect" onchange="populateTopics()" disabled>
+      <option value="">Select Subject</option>
+    </select>
+
+    <select id="topicSelect" onchange="filterVideos()" disabled>
+      <option value="">Select Topic</option>
+    </select>
+  </div>
+
+  <div class="video-grid" id="videos">
+
+    <!-- SAMPLE VIDEO FOR GRADE 9: Computer – Internet Safety -->
+    <div class="video-card" data-grade="grade9" data-subject="computer" data-topic="safety">
+      <div class="video-wrapper">
+        <iframe src="https://www.youtube.com/embed/S3NaP1gu8Tw" allowfullscreen></iframe>
+      </div>
+      <div class="video-title">Grade 9: Computer Studies – Internet Safety</div>
+    </div>
+
+    <!-- Add more videos like the example above with different data-grade, data-subject, and data-topic -->
+
+  </div>
+
+  <script>
+    const subjectOptions = {
+      grade9: ["computer", "math", "english", "science", "social"]
+    };
+
+    const topicOptions = {
+      grade9: {
+        computer: ["safety", "coding", "hardware", "software", "internet"],
+        math: ["algebra", "geometry", "probability", "fractions"],
+        english: ["writing", "comprehension", "grammar"],
+        science: ["respiration", "cells", "energy"],
+        social: ["government", "democracy", "citizenship"]
+      }
+    };
+
+    function populateSubjects() {
+      const grade = document.getElementById("gradeSelect").value;
+      const subjectSelect = document.getElementById("subjectSelect");
+      const topicSelect = document.getElementById("topicSelect");
+
+      subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
+      topicSelect.innerHTML = `<option value="">Select Topic</option>`;
+      subjectSelect.disabled = true;
+      topicSelect.disabled = true;
+
+      if (subjectOptions[grade]) {
+        subjectOptions[grade].forEach(subject => {
+          const option = document.createElement("option");
+          option.value = subject;
+          option.textContent = capitalize(subject);
+          subjectSelect.appendChild(option);
+        });
+        subjectSelect.disabled = false;
+      }
+
+      filterVideos(); // Hide all
+    }
+
+    function populateTopics() {
+      const grade = document.getElementById("gradeSelect").value;
+      const subject = document.getElementById("subjectSelect").value;
+      const topicSelect = document.getElementById("topicSelect");
+
+      topicSelect.innerHTML = `<option value="">Select Topic</option>`;
+      topicSelect.disabled = true;
+
+      if (topicOptions[grade] && topicOptions[grade][subject]) {
+        topicOptions[grade][subject].forEach(topic => {
+          const option = document.createElement("option");
+          option.value = topic;
+          option.textContent = capitalize(topic.replace(/-/g, " "));
+          topicSelect.appendChild(option);
+        });
+        topicSelect.disabled = false;
+      }
+
+      filterVideos(); // Hide all
+    }
+
+    function filterVideos() {
+      const grade = document.getElementById("gradeSelect").value;
+      const subject = document.getElementById("subjectSelect").value;
+      const topic = document.getElementById("topicSelect").value;
+      const cards = document.querySelectorAll(".video-card");
+
+      cards.forEach(card => {
+        const matchesGrade = card.dataset.grade === grade;
+        const matchesSubject = card.dataset.subject === subject;
+        const matchesTopic = card.dataset.topic === topic;
+
+        card.style.display = (grade && subject && topic && matchesGrade && matchesSubject && matchesTopic)
+          ? "block"
+          : "none";
+      });
+    }
+
+    function capitalize(text) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".video-card").forEach(card => {
+        card.style.display = "none";
+      });
+    });
+  </script>
+
+</body>
+</html>
