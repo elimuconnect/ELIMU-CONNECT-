@@ -1,87 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Smart Tutor Flipbook</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- jQuery + Turn.js -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/lib/turn.min.js"></script>
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #e0f2f1;
-      font-family: 'Georgia', serif;
       overflow: hidden;
+      height: 100%;
+      background: #f0f0f0;
+      font-family: Georgia, serif;
     }
 
     #flipbook {
       width: 100vw;
       height: 100vh;
-      margin: auto;
+      margin: 0 auto;
     }
 
     .page {
       width: 100%;
       height: 100%;
-      background: #fff;
-      padding: 40px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-
-    .page h2 {
-      margin-top: 0;
-      font-size: 1.6em;
-      color: #1565c0;
-    }
-
-    .page p, .page li {
+      background-color: #fffefc;
+      padding: 30px;
       font-size: 1.1em;
-      line-height: 1.6;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      color: #1565c0;
+      margin: 0 0 10px;
+    }
+
+    p, li {
       color: #333;
+      line-height: 1.6;
     }
 
     ul, ol {
       padding-left: 20px;
     }
-
-    @media (max-width: 768px) {
-      .page {
-        padding: 20px;
-      }
-
-      .page h2 {
-        font-size: 1.3em;
-      }
-
-      .page p, .page li {
-        font-size: 1em;
-      }
-    }
   </style>
-
-  <!-- Turn.js dependencies -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/lib/turn.min.js"></script>
 </head>
 <body>
 
 <div id="flipbook">
   <div class="page">
-    <h2>Welcome to Smart Tutor</h2>
-    <p>This is your CBC Chemistry eBook. Swipe right or left to turn pages like a real book. Works great on phones!</p>
-  </div>
-
-  <div class="page">
     <h2>Lesson 1: Physical Properties of Metals</h2>
     <ul>
-      <li>Lustrous (shiny when polished)</li>
-      <li>Good conductors (heat and electricity)</li>
-      <li>Malleable (hammered into sheets)</li>
-      <li>Ductile (drawn into wires)</li>
-      <li>Sonorous (rings when struck)</li>
+      <li>Lustrous – shiny when polished</li>
+      <li>Good conductors – allow heat and electricity to pass</li>
+      <li>Malleable – hammered into sheets</li>
+      <li>Ductile – drawn into wires</li>
     </ul>
-    <p><strong>Question:</strong> State four physical properties of metals.</p>
-    <p><strong>Answer:</strong> Lustrous, Conductive, Malleable, Ductile</p>
   </div>
 
   <div class="page">
@@ -90,55 +69,35 @@
       <li>Brass = Copper + Zinc</li>
       <li>Bronze = Copper + Tin</li>
       <li>Steel = Iron + Carbon</li>
-      <li>Stainless Steel = Iron + Chromium + Nickel</li>
-      <li>Solder = Tin + Lead</li>
     </ul>
-    <p><strong>Question:</strong> Name three alloys and their composition.</p>
-    <p><strong>Answer:</strong> Brass, Bronze, Steel</p>
   </div>
 
   <div class="page">
-    <h2>Lesson 3: Uses of Metals and Alloys</h2>
+    <h2>Lesson 3: Uses of Metals</h2>
     <ul>
-      <li>Iron – construction, tools</li>
-      <li>Aluminum – utensils, aircraft</li>
-      <li>Copper – wiring, cooking pots</li>
-      <li>Brass – taps, musical instruments</li>
-      <li>Bronze – medals, statues</li>
+      <li>Iron – tools and buildings</li>
+      <li>Aluminum – foil and aircraft</li>
+      <li>Copper – wiring</li>
     </ul>
-    <p><strong>Question:</strong> State four common uses of metals.</p>
-    <p><strong>Answer:</strong> Iron – tools, Aluminum – utensils, Copper – wires, Brass – instruments</p>
   </div>
 
   <div class="page">
     <h2>Lesson 4: Rusting of Iron</h2>
-    <p>Rusting is the reaction of iron with water and oxygen.</p>
-    <p><strong>Conditions:</strong></p>
-    <ul>
-      <li>Presence of water</li>
-      <li>Presence of air (oxygen)</li>
-    </ul>
-    <p><strong>Prevention:</strong></p>
-    <ul>
-      <li>Painting</li>
-      <li>Greasing</li>
-      <li>Galvanizing</li>
-      <li>Electroplating</li>
-    </ul>
-    <p><strong>Question:</strong> How can we prevent rust?</p>
-    <p><strong>Answer:</strong> By coating or protecting metal with other substances</p>
+    <p>Rusting needs water and oxygen.</p>
+    <p>Prevention methods: Painting, galvanizing, greasing.</p>
   </div>
 </div>
 
 <script>
-  $('#flipbook').turn({
-    width: window.innerWidth,
-    height: window.innerHeight,
-    autoCenter: true,
-    display: 'single',
-    elevation: 50,
-    gradients: true,
-    acceleration: true
+  $(document).ready(function () {
+    $('#flipbook').turn({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      autoCenter: true,
+      display: 'single',
+      acceleration: true,
+      gradients: true
+    });
   });
 </script>
 
