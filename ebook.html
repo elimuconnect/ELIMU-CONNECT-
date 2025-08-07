@@ -2,215 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Tutor eBook</title>
+  <title>Smart Tutor Flipbook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  <!-- Include jQuery & Turn.js -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/lib/turn.min.js"></script>
+
+  <style>
     body {
-      font-family: 'Georgia', serif;
-      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      background: #eee;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      min-height: 100vh;
-      padding: 20px;
+      font-family: 'Georgia', serif;
     }
 
-    h1 {
-      margin-bottom: 10px;
-      color: #333;
-      font-size: 1.5rem;
-    }
-
-    #book {
-      width: 90%;
-      max-width: 800px;
-      height: 80vh;
-      background: #fffefc;
-      border: 1px solid #ccc;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      padding: 40px;
-      overflow-y: auto;
-      border-radius: 10px;
-      position: relative;
-    }
-
-    .page {
-      display: none;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    #controls {
+    #flipbook {
+      width: 90vw;
+      height: 90vh;
       margin-top: 20px;
     }
 
-    button {
-      background: #1976d2;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 25px;
-      margin: 0 10px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s ease;
+    .page {
+      background: #fffefc;
+      padding: 30px;
+      font-size: 1.1em;
+      line-height: 1.6;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
 
-    button:hover {
-      background: #135ba1;
+    h2 {
+      color: #333;
+      margin-top: 0;
     }
 
-    ol, ul {
+    ul, ol {
       padding-left: 20px;
       margin-top: 10px;
     }
 
     p, li {
-      line-height: 1.6;
       margin-top: 8px;
       color: #333;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    footer {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #888;
-    }
-
   </style>
 </head>
 <body>
 
-  <h1>📘 Smart Tutor eBook</h1>
+<h2>📘 Smart Tutor eBook</h2>
 
-  <div id="book">
-    <div class="page active">
-      <h2>Lesson 1: Physical Properties of Metals</h2>
-      <p><strong>Content:</strong></p>
-      <ul>
-        <li>Lustrous – shiny when polished</li>
-        <li>Good conductors – heat and electricity pass through</li>
-        <li>Malleable – can be hammered into thin sheets</li>
-        <li>Ductile – can be drawn into wires</li>
-        <li>Sonorous – produce a ringing sound when struck</li>
-        <li>High melting and boiling points</li>
-        <li>Strong and hard</li>
-      </ul>
-      <p><strong>Question:</strong> State four physical properties of metals.</p>
-      <p><strong>Answer:</strong></p>
-      <ol>
-        <li>Lustrous</li>
-        <li>Conductive</li>
-        <li>Malleable</li>
-        <li>Ductile</li>
-      </ol>
-    </div>
-
-    <div class="page">
-      <h2>Lesson 2: Composition of Common Alloys</h2>
-      <p><strong>Content:</strong></p>
-      <ul>
-        <li>Brass = Copper + Zinc</li>
-        <li>Bronze = Copper + Tin</li>
-        <li>Steel = Iron + Carbon</li>
-        <li>Stainless Steel = Iron + Chromium + Nickel</li>
-        <li>Solder = Tin + Lead</li>
-      </ul>
-      <p><strong>Question:</strong> Name three alloys and their composition.</p>
-      <p><strong>Answer:</strong></p>
-      <ol>
-        <li>Brass = Copper + Zinc</li>
-        <li>Bronze = Copper + Tin</li>
-        <li>Steel = Iron + Carbon</li>
-      </ol>
-    </div>
-
-    <div class="page">
-      <h2>Lesson 3: Uses of Metals and Alloys</h2>
-      <p><strong>Content:</strong></p>
-      <ul>
-        <li>Iron/Steel – construction, tools</li>
-        <li>Aluminum – foil, utensils, aircraft</li>
-        <li>Copper – wires, pots</li>
-        <li>Brass – taps, instruments</li>
-        <li>Bronze – medals, coins</li>
-        <li>Stainless Steel – surgical tools</li>
-      </ul>
-      <p><strong>Question:</strong> Give four uses of metals or alloys in life.</p>
-      <p><strong>Answer:</strong></p>
-      <ol>
-        <li>Iron – building tools</li>
-        <li>Aluminum – cooking utensils</li>
-        <li>Copper – wiring</li>
-        <li>Brass – musical instruments</li>
-      </ol>
-    </div>
-
-    <div class="page">
-      <h2>Lesson 4: Rusting of Iron</h2>
-      <p>Rusting is the reaction of iron with oxygen and water forming rust.</p>
-      <p><strong>Conditions for rusting:</strong></p>
-      <ul>
-        <li>Presence of water</li>
-        <li>Presence of air (oxygen)</li>
-      </ul>
-      <p><strong>Prevention Methods:</strong></p>
-      <ul>
-        <li>Painting</li>
-        <li>Oiling/Greasing</li>
-        <li>Galvanizing</li>
-        <li>Electroplating</li>
-      </ul>
-      <p><strong>Question:</strong></p>
-      <ol>
-        <li>What are two conditions needed for rusting?</li>
-        <li>Name three methods of preventing rusting.</li>
-      </ol>
-      <p><strong>Answer:</strong> (1) Water and air (2) Painting, galvanizing, electroplating</p>
-    </div>
+<div id="flipbook">
+  <div class="page">
+    <h2>Lesson 1: Physical Properties of Metals</h2>
+    <ul>
+      <li>Lustrous – shiny when polished</li>
+      <li>Good conductors – allow heat and electricity to pass through</li>
+      <li>Malleable – can be hammered into thin sheets</li>
+      <li>Ductile – can be drawn into wires</li>
+      <li>Sonorous – produce ringing sound</li>
+      <li>High melting and boiling points</li>
+      <li>Strong and hard</li>
+    </ul>
+    <p><strong>Q:</strong> State four physical properties of metals.</p>
+    <ol>
+      <li>Lustrous</li>
+      <li>Good conductor</li>
+      <li>Malleable</li>
+      <li>Ductile</li>
+    </ol>
   </div>
 
-  <div id="controls">
-    <button onclick="prevPage()">⬅️ Previous</button>
-    <button onclick="nextPage()">Next ➡️</button>
+  <div class="page">
+    <h2>Lesson 2: Composition of Alloys</h2>
+    <ul>
+      <li>Brass = Copper + Zinc</li>
+      <li>Bronze = Copper + Tin</li>
+      <li>Steel = Iron + Carbon</li>
+      <li>Stainless Steel = Iron + Chromium + Nickel</li>
+      <li>Solder = Tin + Lead</li>
+    </ul>
+    <p><strong>Q:</strong> Name three alloys and their composition.</p>
+    <ol>
+      <li>Brass = Copper + Zinc</li>
+      <li>Bronze = Copper + Tin</li>
+      <li>Steel = Iron + Carbon</li>
+    </ol>
   </div>
 
-  <footer>Smart Tutor – Elimu Connect eBook</footer>
+  <div class="page">
+    <h2>Lesson 3: Uses of Metals</h2>
+    <ul>
+      <li>Iron – buildings, tools</li>
+      <li>Aluminum – utensils, foil, aircraft</li>
+      <li>Copper – electrical wires, pots</li>
+      <li>Brass – taps, musical instruments</li>
+      <li>Bronze – medals, coins</li>
+      <li>Stainless steel – surgical tools</li>
+    </ul>
+    <p><strong>Q:</strong> Give four uses of metals or alloys.</p>
+    <ol>
+      <li>Iron – buildings</li>
+      <li>Aluminum – utensils</li>
+      <li>Copper – wiring</li>
+      <li>Brass – instruments</li>
+    </ol>
+  </div>
 
-  <script>
-    const pages = document.querySelectorAll('.page');
-    let current = 0;
+  <div class="page">
+    <h2>Lesson 4: Rusting of Iron</h2>
+    <p>Rusting is the reaction of iron with oxygen and water forming rust.</p>
+    <p><strong>Conditions:</strong></p>
+    <ul>
+      <li>Water</li>
+      <li>Oxygen</li>
+    </ul>
+    <p><strong>Prevention:</strong></p>
+    <ul>
+      <li>Painting</li>
+      <li>Oiling</li>
+      <li>Galvanizing</li>
+      <li>Electroplating</li>
+    </ul>
+    <p><strong>Q:</strong> What are two conditions for rusting?</p>
+    <p><strong>A:</strong> Water and air</p>
+  </div>
+</div>
 
-    function showPage(index) {
-      pages.forEach((page, i) => {
-        page.classList.toggle('active', i === index);
-      });
-    }
+<script>
+  $("#flipbook").turn({
+    width: '100%',
+    height: '100%',
+    autoCenter: true
+  });
+</script>
 
-    function nextPage() {
-      if (current < pages.length - 1) {
-        current++;
-        showPage(current);
-      }
-    }
-
-    function prevPage() {
-      if (current > 0) {
-        current--;
-        showPage(current);
-      }
-    }
-  </script>
 </body>
 </html>
+
