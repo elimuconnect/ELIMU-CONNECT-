@@ -1,79 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Smart Tutor Flipbook</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Include jQuery & Turn.js -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/lib/turn.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      background: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      background: #e0f2f1;
       font-family: 'Georgia', serif;
+      overflow: hidden;
     }
 
     #flipbook {
-      width: 90vw;
-      height: 90vh;
-      margin-top: 20px;
+      width: 100vw;
+      height: 100vh;
+      margin: auto;
     }
 
     .page {
-      background: #fffefc;
-      padding: 30px;
-      font-size: 1.1em;
-      line-height: 1.6;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      padding: 40px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      overflow: hidden;
     }
 
-    h2 {
-      color: #333;
+    .page h2 {
       margin-top: 0;
+      font-size: 1.6em;
+      color: #1565c0;
+    }
+
+    .page p, .page li {
+      font-size: 1.1em;
+      line-height: 1.6;
+      color: #333;
     }
 
     ul, ol {
       padding-left: 20px;
-      margin-top: 10px;
     }
 
-    p, li {
-      margin-top: 8px;
-      color: #333;
+    @media (max-width: 768px) {
+      .page {
+        padding: 20px;
+      }
+
+      .page h2 {
+        font-size: 1.3em;
+      }
+
+      .page p, .page li {
+        font-size: 1em;
+      }
     }
   </style>
+
+  <!-- Turn.js dependencies -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/blasten/turn.js@master/lib/turn.min.js"></script>
 </head>
 <body>
 
-<h2>📘 Smart Tutor eBook</h2>
-
 <div id="flipbook">
+  <div class="page">
+    <h2>Welcome to Smart Tutor</h2>
+    <p>This is your CBC Chemistry eBook. Swipe right or left to turn pages like a real book. Works great on phones!</p>
+  </div>
+
   <div class="page">
     <h2>Lesson 1: Physical Properties of Metals</h2>
     <ul>
-      <li>Lustrous – shiny when polished</li>
-      <li>Good conductors – allow heat and electricity to pass through</li>
-      <li>Malleable – can be hammered into thin sheets</li>
-      <li>Ductile – can be drawn into wires</li>
-      <li>Sonorous – produce ringing sound</li>
-      <li>High melting and boiling points</li>
-      <li>Strong and hard</li>
+      <li>Lustrous (shiny when polished)</li>
+      <li>Good conductors (heat and electricity)</li>
+      <li>Malleable (hammered into sheets)</li>
+      <li>Ductile (drawn into wires)</li>
+      <li>Sonorous (rings when struck)</li>
     </ul>
-    <p><strong>Q:</strong> State four physical properties of metals.</p>
-    <ol>
-      <li>Lustrous</li>
-      <li>Good conductor</li>
-      <li>Malleable</li>
-      <li>Ductile</li>
-    </ol>
+    <p><strong>Question:</strong> State four physical properties of metals.</p>
+    <p><strong>Answer:</strong> Lustrous, Conductive, Malleable, Ductile</p>
   </div>
 
   <div class="page">
@@ -85,61 +93,54 @@
       <li>Stainless Steel = Iron + Chromium + Nickel</li>
       <li>Solder = Tin + Lead</li>
     </ul>
-    <p><strong>Q:</strong> Name three alloys and their composition.</p>
-    <ol>
-      <li>Brass = Copper + Zinc</li>
-      <li>Bronze = Copper + Tin</li>
-      <li>Steel = Iron + Carbon</li>
-    </ol>
+    <p><strong>Question:</strong> Name three alloys and their composition.</p>
+    <p><strong>Answer:</strong> Brass, Bronze, Steel</p>
   </div>
 
   <div class="page">
-    <h2>Lesson 3: Uses of Metals</h2>
+    <h2>Lesson 3: Uses of Metals and Alloys</h2>
     <ul>
-      <li>Iron – buildings, tools</li>
-      <li>Aluminum – utensils, foil, aircraft</li>
-      <li>Copper – electrical wires, pots</li>
+      <li>Iron – construction, tools</li>
+      <li>Aluminum – utensils, aircraft</li>
+      <li>Copper – wiring, cooking pots</li>
       <li>Brass – taps, musical instruments</li>
-      <li>Bronze – medals, coins</li>
-      <li>Stainless steel – surgical tools</li>
+      <li>Bronze – medals, statues</li>
     </ul>
-    <p><strong>Q:</strong> Give four uses of metals or alloys.</p>
-    <ol>
-      <li>Iron – buildings</li>
-      <li>Aluminum – utensils</li>
-      <li>Copper – wiring</li>
-      <li>Brass – instruments</li>
-    </ol>
+    <p><strong>Question:</strong> State four common uses of metals.</p>
+    <p><strong>Answer:</strong> Iron – tools, Aluminum – utensils, Copper – wires, Brass – instruments</p>
   </div>
 
   <div class="page">
     <h2>Lesson 4: Rusting of Iron</h2>
-    <p>Rusting is the reaction of iron with oxygen and water forming rust.</p>
+    <p>Rusting is the reaction of iron with water and oxygen.</p>
     <p><strong>Conditions:</strong></p>
     <ul>
-      <li>Water</li>
-      <li>Oxygen</li>
+      <li>Presence of water</li>
+      <li>Presence of air (oxygen)</li>
     </ul>
     <p><strong>Prevention:</strong></p>
     <ul>
       <li>Painting</li>
-      <li>Oiling</li>
+      <li>Greasing</li>
       <li>Galvanizing</li>
       <li>Electroplating</li>
     </ul>
-    <p><strong>Q:</strong> What are two conditions for rusting?</p>
-    <p><strong>A:</strong> Water and air</p>
+    <p><strong>Question:</strong> How can we prevent rust?</p>
+    <p><strong>Answer:</strong> By coating or protecting metal with other substances</p>
   </div>
 </div>
 
 <script>
-  $("#flipbook").turn({
-    width: '100%',
-    height: '100%',
-    autoCenter: true
+  $('#flipbook').turn({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    autoCenter: true,
+    display: 'single',
+    elevation: 50,
+    gradients: true,
+    acceleration: true
   });
 </script>
 
 </body>
 </html>
-
