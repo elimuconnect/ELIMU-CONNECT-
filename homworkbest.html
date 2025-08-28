@@ -1,25 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Smart Assignment System</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <style>
-    body { font-family: Arial; margin: 20px; background:#f4f7fb; }
-    h2, h3, h4 { color: darkblue; }
-    .section { border: 1px solid #ccc; padding: 15px; margin: 10px; border-radius:10px; background:#fff; }
-    button { padding: 6px 12px; margin-top: 5px; }
-    textarea, select, input { margin: 5px 0; padding: 6px; width: 95%; }
-    .question { padding: 5px; border-bottom: 1px solid #eee; }
-    .correct { color: green; font-weight: bold; }
-    .wrong { color: red; font-weight: bold; }
-    .student-block { border:1px solid #ddd; padding:5px; margin:5px 0; border-radius:5px; background:#f9f9f9; }
-  </style>
-</head>
-<body>
-
-<h2>Smart Assignment System</h2>
+<h2>📘 School Smart Assignment System</h2>
 
 <!-- Login/Signup -->
 <div id="authDiv" class="section">
@@ -36,27 +15,27 @@
 
 <!-- TEACHER PHASE -->
 <div id="teacherPhase" class="section" style="display:none;">
-  <h3>Teacher Phase</h3>
+  <h3>Teacher Panel</h3>
   
-  <h4>Create Assignment</h4>
-  <input type="text" id="school" placeholder="School"><br>
+  <h4>Create Homework</h4>
+  <select id="teacherSchoolSelect"><option value="">Select School</option></select><br>
   <input type="text" id="grade" placeholder="Grade"><br>
   <input type="text" id="subject" placeholder="Subject"><br>
   
-  <h4>Type New Question:</h4>
+  <h4>Add New Question:</h4>
   <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
   <button onclick="addTypedQuestion()">Add Question</button><br>
   
-  <h4>Or Select From Bank:</h4>
+  <h4>Or Pick From Question Bank:</h4>
   <select id="bankSelect"></select><br>
   <button onclick="addBankQuestion()">Add From Bank</button><br>
   
-  <h4>Assignment Preview:</h4>
+  <h4>Preview Assignment:</h4>
   <div id="assignmentPreview"></div><br>
   <button onclick="saveAssignment()">Save Homework</button>
 
   <hr>
-  <h4>Filter Submissions to Mark:</h4>
+  <h4>Mark Submissions</h4>
   <select id="filterGrade"><option value="">All Grades</option></select><br>
   <select id="filterSubject"><option value="">All Subjects</option></select><br>
   
@@ -66,15 +45,14 @@
 
 <!-- STUDENT PHASE -->
 <div id="studentPhase" class="section" style="display:none;">
-  <h3>Student Phase</h3>
+  <h3>Student Panel</h3>
   <input type="text" id="studentName1" placeholder="Enter First Name" required><br>
   <input type="text" id="studentName2" placeholder="Enter Second Name" required><br>
 
-  <h4>Filter Your Homework:</h4>
+  <h4>Pick Your Homework</h4>
   <select id="studentSchoolSelect"><option value="">Select School</option></select><br>
   <select id="studentGradeSelect"><option value="">Select Grade</option></select><br>
   <select id="studentSubjectSelect"><option value="">Select Subject</option></select><br>
-  <button onclick="filterAssignments()">Show Assignments</button><br>
 
   <div id="studentAssignment"></div>
   <button onclick="submitAnswers()">Submit Answers</button>
@@ -131,14 +109,85 @@ window.login = async function() {
       document.getElementById("authDiv").style.display="none";
       if(currentUserRole==="teacher"){
         document.getElementById("teacherPhase").style.display="block";
+        loadSchools(); // teacher school dropdown
         fillTeacherFilters();
       } else {
         document.getElementById("studentPhase").style.display="block";
+        loadSchools(); // student school dropdown
         loadStudentFilters();
       }
     }
   } catch(err) { alert("Login failed: "+err.message); }
 };
+
+
+
+
+// --------------- Default Schools -----------------
+const defaultSchools = [
+  "Greenwood Academy",
+  "Sunrise Primary",
+  "Riverside High",
+  "Starlight Academy",
+  "Bright Future School"
+];
+
+// Ensure default schools exist in Firebase
+async function seedSchools(){
+  const schoolRef = ref(db, "schools");
+  const snap = await get(schoolRef);
+  if(!snap.exists()){
+    defaultSchools.forEach((s,idx)=>{
+      set(ref(db,"schools/"+idx), { name: s });
+    });
+  }
+}
+
+// ------------------ Login ------------------
+window.login = async function() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    const snap = await get(child(ref(db), "users/" + userCred.user.uid));
+    if(snap.exists()) {
+      currentUserRole = snap.val().role;
+      document.getElementById("authDiv").style.display="none";
+
+      // Seed schools before loading dropdowns
+      await seedSchools();
+
+      if(currentUserRole==="teacher"){
+        document.getElementById("teacherPhase").style.display="block";
+        loadSchools(); // teacher dropdown
+        fillTeacherFilters();
+      } else {
+        document.getElementById("studentPhase").style.display="block";
+        loadSchools(); // student dropdown
+        loadStudentFilters();
+      }
+    }
+  } catch(err) { alert("Login failed: "+err.message); }
+};
+
+// ------------------ Load Schools ------------------
+async function loadSchools(){
+  const schoolSnap = await get(child(ref(db),"schools"));
+  if(schoolSnap.exists()){
+    const teacherSel = document.getElementById("teacherSchoolSelect");
+    const studentSel = document.getElementById("studentSchoolSelect");
+    if(teacherSel) teacherSel.innerHTML = "<option value=''>Select School</option>";
+    if(studentSel) studentSel.innerHTML = "<option value=''>Select School</option>";
+    schoolSnap.forEach(s=>{
+      const school = s.val().name;
+      if(teacherSel) teacherSel.add(new Option(school, school));
+      if(studentSel) studentSel.add(new Option(school, school));
+    });
+  }
+}
+
+
+
 
 // ------------------ Teacher: Add Questions ------------------
 window.addTypedQuestion = function(){
@@ -155,7 +204,7 @@ function updatePreview(){
 
 // ------------------ Save Assignment ------------------
 window.saveAssignment = function(){
-  const school = document.getElementById("school").value.trim();
+  const school = document.getElementById("teacherSchoolSelect").value;
   const grade = document.getElementById("grade").value.trim();
   const subject = document.getElementById("subject").value.trim();
   if(!school || !grade || !subject || assignmentQuestions.length===0){ alert("Fill all fields and add questions."); return; }
@@ -167,73 +216,52 @@ window.saveAssignment = function(){
 };
 
 // ------------------ Student Filters ------------------
-// ------------------ Student Filters ------------------
 async function loadStudentFilters() {
   const snap = await get(child(ref(db),"assignments/"));
   if(!snap.exists()) return;
-  const schools = new Set(), grades = new Set(), subjects = new Set();
+  const grades = new Set(), subjects = new Set();
   snap.forEach(a => {
     const d = a.val();
-    schools.add(d.school); grades.add(d.grade); subjects.add(d.subject);
+    grades.add(d.grade); subjects.add(d.subject);
   });
-  const schoolSel = document.getElementById("studentSchoolSelect");
   const gradeSel = document.getElementById("studentGradeSelect");
   const subjectSel = document.getElementById("studentSubjectSelect");
-  schools.forEach(s => schoolSel.add(new Option(s,s)));
   grades.forEach(g => gradeSel.add(new Option(g,g)));
   subjects.forEach(sub => subjectSel.add(new Option(sub,sub)));
-
-  // Add change listeners to automatically filter assignments
-  schoolSel.onchange = filterAssignments;
   gradeSel.onchange = filterAssignments;
   subjectSel.onchange = filterAssignments;
-
-  // Optional: auto-load if all have only one option
-  if(schoolSel.value && gradeSel.value && subjectSel.value){
-    filterAssignments();
-  }
 }
-
-// Remove the "Show Assignments" button or keep as backup
 
 // ------------------ Student: Filter Assignments ------------------
 async function filterAssignments() {
   const school = document.getElementById("studentSchoolSelect").value;
   const grade = document.getElementById("studentGradeSelect").value;
   const subject = document.getElementById("studentSubjectSelect").value;
-
-  if(!school || !grade || !subject){
+  if (!school || !grade || !subject) {
     document.getElementById("studentAssignment").innerHTML = "<p>Select school, grade, and subject.</p>";
     return;
   }
-
-  const snap = await get(child(ref(db),"assignments/"));
+  const snap = await get(child(ref(db), "assignments/"));
   const container = document.getElementById("studentAssignment");
   container.innerHTML = "";
   assignmentQuestions = [];
-
-  if(snap.exists()){
+  if (snap.exists()) {
     snap.forEach(assign => {
       const d = assign.val();
-      if(d.school === school && d.grade === grade && d.subject === subject){
+      if (d.school === school && d.grade === grade && d.subject === subject) {
         assignmentQuestions = d.questions || [];
-        // Set the current assignment key here
         currentAssignmentKey = assign.key;
-
         container.innerHTML += `<b>School:</b> ${d.school}<br>
                                 <b>Grade:</b> ${d.grade}<br>
                                 <b>Subject:</b> ${d.subject}<br>` +
-          assignmentQuestions.map((q,i) => 
+          assignmentQuestions.map((q, i) =>
             `<div>${q}<br><input id='ans${i}' placeholder='Your Answer'></div>`
           ).join("");
-
-        // Auto-show results if already submitted
-        showResults(auth.currentUser.uid);
+        showResults(auth.currentUser.uid, assign.key);
       }
     });
   }
 }
-
 
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
@@ -241,12 +269,10 @@ window.submitAnswers = async function(){
   const name2 = document.getElementById("studentName2").value.trim();
   if(!name1 || !name2){ alert("Enter both names."); return; }
   if(!currentAssignmentKey){ alert("No assignment selected."); return; }
-
   const answers = assignmentQuestions.map((q,i)=>({
     question: q,
     answer: document.getElementById(`ans${i}`).value || ""
   }));
-
   await set(ref(db,"submissions/"+currentAssignmentKey+"/"+auth.currentUser.uid), {
     name1, name2, answers
   });
@@ -254,12 +280,10 @@ window.submitAnswers = async function(){
   showResults(auth.currentUser.uid);
 };
 
-// ------------------ Teacher: Fill Filter Dropdowns ------------------
+// ------------------ Teacher Filters + Marking ------------------
 async function fillTeacherFilters(){
   const snap = await get(child(ref(db), "assignments/"));
-  const gradeSet = new Set();
-  const subjectSet = {};
-
+  const gradeSet = new Set(); const subjectSet = {};
   if(snap.exists()){
     snap.forEach(assign=>{
       const data = assign.val();
@@ -270,10 +294,8 @@ async function fillTeacherFilters(){
       }
     });
   }
-
   const filterGrade = document.getElementById("filterGrade");
   const filterSubject = document.getElementById("filterSubject");
-
   gradeSet.forEach(g => filterGrade.add(new Option(g,g)));
   filterGrade.onchange = ()=>{
     const selectedGrade = filterGrade.value;
@@ -286,20 +308,17 @@ async function fillTeacherFilters(){
   filterSubject.onchange = loadFilteredSubmissions;
 }
 
-// ------------------ Load Submissions ------------------
 async function loadFilteredSubmissions(){
   const grade = document.getElementById("filterGrade").value;
   const subject = document.getElementById("filterSubject").value;
   const snap = await get(child(ref(db), "assignments/"));
   const area = document.getElementById("markingArea");
   area.innerHTML = "";
-
   if(snap.exists()){
     snap.forEach(assign=>{
-      const d = assign.val();
-      const key = assign.key;
+      const d = assign.val(); const key = assign.key;
       if((grade===""||d.grade===grade) && (subject===""||d.subject===subject)){
-        area.innerHTML += `<h4>Grade: ${d.grade} | Subject: ${d.subject}</h4>
+        area.innerHTML += `<h4>${d.school} - Grade: ${d.grade} | Subject: ${d.subject}</h4>
                            <div id="markingArea_${key}"></div>`;
         loadSubmissionsForAssignment(key, d.questions);
       }
@@ -307,7 +326,6 @@ async function loadFilteredSubmissions(){
   }
 }
 
-// ------------------ Load submissions per assignment ------------------
 async function loadSubmissionsForAssignment(assignKey, questions){
   const snap = await get(child(ref(db), "submissions/" + assignKey));
   let html = "";
@@ -331,13 +349,10 @@ async function loadSubmissionsForAssignment(assignKey, questions){
       });
       html += `</div>`;
     });
-  } else {
-    html = "<p>No submissions yet for this assignment.</p>";
-  }
+  } else { html = "<p>No submissions yet for this assignment.</p>"; }
   document.getElementById("markingArea_" + assignKey).innerHTML = html;
 }
 
-// Show/hide correct answer input
 window.toggleCorrectInput = function(uid,index,assignKey,studAns){
   const sel = document.getElementById(`mark_${uid}_${index}_${assignKey}`);
   const input = document.getElementById(`correct_${uid}_${index}_${assignKey}`);
@@ -345,11 +360,9 @@ window.toggleCorrectInput = function(uid,index,assignKey,studAns){
   if(sel.value==="wrong") input.value = studAns;
 };
 
-// Submit marks
 window.submitMarks = async function(){
   const allSelects = document.querySelectorAll("[id^='mark_']");
   const marksByAssign = {};
-
   allSelects.forEach(sel=>{
     const [_, uid, idx, assignKey] = sel.id.split("_");
     const index = parseInt(idx);
@@ -365,7 +378,6 @@ window.submitMarks = async function(){
       correctAnswer: isCorrect ? correctInput?.dataset.studentAnswer || "" : (correctInput?.value || "")
     });
   });
-
   for(const assignKey in marksByAssign){
     for(const uid in marksByAssign[assignKey]){
       await set(ref(db,"results/"+assignKey+"/"+uid), {
@@ -377,10 +389,9 @@ window.submitMarks = async function(){
   alert("Marks returned!");
 };
 
-// Show student results
-async function showResults(uid){
-  if(!uid || !currentAssignmentKey) return;
-  const resSnap = await get(child(ref(db),"results/"+currentAssignmentKey+"/"+uid));
+async function showResults(uid, assignmentKey){
+  if(!uid || !assignmentKey) return;
+  const resSnap = await get(child(ref(db),"results/"+assignmentKey+"/"+uid));
   const container = document.getElementById("studentResults");
   container.innerHTML="";
   if(resSnap.exists()){
@@ -388,24 +399,32 @@ async function showResults(uid){
       container.innerHTML += `<div style="border:1px solid #ccc; padding:5px; margin:5px;">
         <p><b>Q${i+1}:</b> ${ans.question}</p>
         <p><b>Your Answer:</b> ${ans.answer}</p>
-        <p><b>Marked:</b> ${ans.correct ? "✔ Correct" : "✘ Wrong"}</p>
+        <p><b>Marked:</b> ${ans.correct ? "<span class='correct'>✔ Correct</span>" : "<span class='wrong'>✘ Wrong</span>"}</p>
         <p><b>Correct Answer:</b> ${ans.correctAnswer}</p>
       </div>`;
     });
-  } else {
-    container.innerHTML = "<p>No results yet.</p>";
-  }
-}
+  
 
-// Load question bank
-document.addEventListener("DOMContentLoaded", ()=>{
-  const bankSel = document.getElementById("bankSelect");
-  questionBank.forEach(q=>{
-    let opt = document.createElement("option");
-    opt.text = opt.value = q;
-    bankSel.add(opt);
-  });
-});
-</script>
+
+
+
+
+
+      } else {
+        container.innerHTML = "<p>No results yet for this assignment.</p>";
+      }
+    }
+
+    // Load question bank
+    document.addEventListener("DOMContentLoaded", ()=>{
+      const bankSel = document.getElementById("bankSelect");
+      questionBank.forEach(q=>{
+        let opt = document.createElement("option");
+        opt.text = opt.value = q;
+        bankSel.add(opt);
+      });
+    });
+  </script>
 </body>
 </html>
+
