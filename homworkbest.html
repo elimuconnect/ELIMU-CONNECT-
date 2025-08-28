@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,7 +19,7 @@
 </head>
 <body>
 
-<h2>Smart Assignment System</h2>
+<h2>📘 School Smart Assignment System</h2>
 
 <!-- Login/Signup -->
 <div id="authDiv" class="section">
@@ -39,27 +36,27 @@
 
 <!-- TEACHER PHASE -->
 <div id="teacherPhase" class="section" style="display:none;">
-  <h3>Teacher Phase</h3>
+  <h3>Teacher Panel</h3>
   
-  <h4>Create Assignment</h4>
-  <input type="text" id="school" placeholder="School"><br>
+  <h4>Create Homework</h4>
+  <select id="teacherSchoolSelect"><option value="">Select School</option></select><br>
   <input type="text" id="grade" placeholder="Grade"><br>
   <input type="text" id="subject" placeholder="Subject"><br>
   
-  <h4>Type New Question:</h4>
+  <h4>Add New Question:</h4>
   <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
   <button onclick="addTypedQuestion()">Add Question</button><br>
   
-  <h4>Or Select From Bank:</h4>
+  <h4>Or Pick From Question Bank:</h4>
   <select id="bankSelect"></select><br>
   <button onclick="addBankQuestion()">Add From Bank</button><br>
   
-  <h4>Assignment Preview:</h4>
+  <h4>Preview Assignment:</h4>
   <div id="assignmentPreview"></div><br>
   <button onclick="saveAssignment()">Save Homework</button>
 
   <hr>
-  <h4>Filter Submissions to Mark:</h4>
+  <h4>Mark Submissions</h4>
   <select id="filterGrade"><option value="">All Grades</option></select><br>
   <select id="filterSubject"><option value="">All Subjects</option></select><br>
   
@@ -69,15 +66,14 @@
 
 <!-- STUDENT PHASE -->
 <div id="studentPhase" class="section" style="display:none;">
-  <h3>Student Phase</h3>
+  <h3>Student Panel</h3>
   <input type="text" id="studentName1" placeholder="Enter First Name" required><br>
   <input type="text" id="studentName2" placeholder="Enter Second Name" required><br>
 
-  <h4>Filter Your Homework:</h4>
+  <h4>Pick Your Homework</h4>
   <select id="studentSchoolSelect"><option value="">Select School</option></select><br>
   <select id="studentGradeSelect"><option value="">Select Grade</option></select><br>
   <select id="studentSubjectSelect"><option value="">Select Subject</option></select><br>
-  <button onclick="filterAssignments()">Show Assignments</button><br>
 
   <div id="studentAssignment"></div>
   <button onclick="submitAnswers()">Submit Answers</button>
@@ -86,11 +82,16 @@
   <div id="studentResults"></div>
 </div>
 
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getDatabase, ref, set, push, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDR5lDNlf5yiP57BcgwlD8mZTyugD7SSng",
@@ -112,7 +113,7 @@ let currentAssignmentKey = null;
 
 const questionBank = ["What is 2+2?", "Define photosynthesis.", "Explain gravity."];
 
-// ------------------ Sign up / Login ------------------
+// ------------------ Sign up ------------------
 window.signup = async function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -124,32 +125,57 @@ window.signup = async function() {
   } catch(err) { alert(err.message); }
 };
 
+// ------------------ Login ------------------
 window.login = async function() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    const snap = await get(child(ref(db), "users/" + userCred.user.uid));
-    if(snap.exists()) {
-      currentUserRole = snap.val().role;
-      document.getElementById("authDiv").style.display="none";
-      if(currentUserRole==="teacher"){
-        document.getElementById("teacherPhase").style.display="block";
-        loadSchools(); // teacher school dropdown
-        fillTeacherFilters();
-      } else {
-        document.getElementById("studentPhase").style.display="block";
-        loadSchools(); // student school dropdown
-        loadStudentFilters();
-      }
-    }
+    await signInWithEmailAndPassword(auth, email, password);
+    // no need to manually show panels, handled by onAuthStateChanged
   } catch(err) { alert("Login failed: "+err.message); }
 };
 
+// ------------------ Auto Login (Persistent Session) ------------------
+onAuthStateChanged(auth, async (user) => {
+  if(user){
+    // user is signed in, detect role
+    const snap = await get(child(ref(db), "users/" + user.uid));
+    if(snap.exists()){
+      currentUserRole = snap.val().role;
 
+      // Hide login/signup
+      document.getElementById("authDiv").style.display="none";
 
+      // Seed schools if needed
+      await seedSchools();
 
-// --------------- Default Schools -----------------
+      if(currentUserRole==="teacher"){
+        document.getElementById("teacherPhase").style.display="block";
+        document.getElementById("studentPhase").style.display="none";
+        loadSchools();
+        fillTeacherFilters();
+      } else {
+        document.getElementById("studentPhase").style.display="block";
+        document.getElementById("teacherPhase").style.display="none";
+        loadSchools();
+        loadStudentFilters();
+      }
+    }
+  } else {
+    // user logged out
+    document.getElementById("authDiv").style.display="block";
+    document.getElementById("teacherPhase").style.display="none";
+    document.getElementById("studentPhase").style.display="none";
+  }
+});
+
+// ------------------ Logout ------------------
+window.logout = async function(){
+  await signOut(auth);
+  alert("Logged out!");
+};
+
+// ------------------ Default Schools ------------------
 const defaultSchools = [
   "Greenwood Academy",
   "Sunrise Primary",
@@ -158,7 +184,6 @@ const defaultSchools = [
   "Bright Future School"
 ];
 
-// Ensure default schools exist in Firebase
 async function seedSchools(){
   const schoolRef = ref(db, "schools");
   const snap = await get(schoolRef);
@@ -168,33 +193,6 @@ async function seedSchools(){
     });
   }
 }
-
-// ------------------ Login ------------------
-window.login = async function() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    const snap = await get(child(ref(db), "users/" + userCred.user.uid));
-    if(snap.exists()) {
-      currentUserRole = snap.val().role;
-      document.getElementById("authDiv").style.display="none";
-
-      // Seed schools before loading dropdowns
-      await seedSchools();
-
-      if(currentUserRole==="teacher"){
-        document.getElementById("teacherPhase").style.display="block";
-        loadSchools(); // teacher dropdown
-        fillTeacherFilters();
-      } else {
-        document.getElementById("studentPhase").style.display="block";
-        loadSchools(); // student dropdown
-        loadStudentFilters();
-      }
-    }
-  } catch(err) { alert("Login failed: "+err.message); }
-};
 
 // ------------------ Load Schools ------------------
 async function loadSchools(){
@@ -211,8 +209,6 @@ async function loadSchools(){
     });
   }
 }
-
-
 
 
 // ------------------ Teacher: Add Questions ------------------
@@ -453,4 +449,7 @@ async function showResults(uid, assignmentKey){
   </script>
 </body>
 </html>
+
+
+
 
