@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Assignment System</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <style>
+    body { font-family: Arial; margin: 20px; background:#f4f7fb; }
+    h2 { color: darkblue; }
+    .section { border: 1px solid #ccc; padding: 15px; margin: 10px; border-radius:10px; background:#fff; }
+    button { padding: 6px 12px; margin-top: 5px; }
+    textarea, select, input { margin: 5px 0; padding: 6px; width: 95%; }
+    .question { padding: 5px; border-bottom: 1px solid #eee; }
+    .correct { color: green; font-weight: bold; }
+    .wrong { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Smart Assignment System</h2>
+
+  <!-- Login/Signup Form -->
+  <div id="authDiv" class="section">
+    <h3>Login / Signup</h3>
+    <input type="email" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <select id="role">
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+    </select><br>
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- TEACHER PHASE -->
+  <div id="teacherPhase" class="section" style="display:none;">
+    <h3>Teacher Phase</h3>
+    <input type="text" id="school" placeholder="School"><br>
+    <input type="text" id="grade" placeholder="Grade"><br>
+    <input type="text" id="subject" placeholder="Subject"><br>
+
+    <h4>Type New Question:</h4>
+    <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
+    <button onclick="addTypedQuestion()">Add Question</button><br>
+
+    <h4>Or Select From Bank:</h4>
+    <select id="bankSelect"></select><br>
+    <button onclick="addBankQuestion()">Add From Bank</button><br>
+
+    <h4>Assignment Preview:</h4>
+    <div id="assignmentPreview"></div><br>
+    <button onclick="saveAssignment()">Save Homework</button>
+
+    <h4>Mark Submissions:</h4>
+    <div id="markingArea"></div>
+    <button onclick="submitMarks()">Return Results</button>
+  </div>
+
+  <!-- STUDENT PHASE -->
+  <div id="studentPhase" class="section" style="display:none;">
+    <h3>Student Phase</h3>
+	
+	<input type="text" id="studentName" placeholder="Enter Your Name"><br>
+
+    <div id="studentAssignment"></div>
+    <button onclick="submitAnswers()">Submit Answers</button>
+
+    <h4>Results:</h4>
+    <div id="studentResults"></div>
+  </div>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getDatabase, ref, set, push, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDR5lDNlf5yiP57BcgwlD8mZTyugD7SSng",
+    authDomain: "homework-2e4cf.firebaseapp.com",
+    databaseURL: "https://homework-2e4cf-default-rtdb.firebaseio.com",
+    projectId: "homework-2e4cf",
+    storageBucket: "homework-2e4cf.appspot.com",
+    messagingSenderId: "352776491020",
+    appId: "1:352776491020:web:65f9b37fbe5c1b0f96de29"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  let currentUserRole = null;
+  let currentAssignmentKey = null;
+  let assignmentQuestions = [];
+  const questionBank = ["What is 2+2?", "Define photosynthesis.", "Explain gravity."];
+
+  // ------------------ Sign up / Login ------------------
+  window.signup = async function(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+    try{
+      const userCred = await createUserWithEmailAndPassword(auth,email,password);
+      await set(ref(db,"users/"+userCred.user.uid),{email,role});
+      alert("Signed up! Now login.");
+    }catch(err){ alert(err.message); }
+  };
+
+  window.login = async function(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try{
+      const userCred = await signInWithEmailAndPassword(auth,email,password);
+      const snap = await get(child(ref(db),"users/"+userCred.user.uid));
+      if(snap.exists()){
+        currentUserRole = snap.val().role;
+        document.getElementById("authDiv").style.display="none";
+        if(currentUserRole==="teacher"){
+          document.getElementById("teacherPhase").style.display="block";
+          loadTeacherAssignments();
+        } else {
+          document.getElementById("studentPhase").style.display="block";
+          loadAssignmentForStudent(userCred.user.uid);
+        }
+      }
+    }catch(err){ alert("Login failed: "+err.message); }
+  };
+
+  // ------------------ Teacher: Add Questions ------------------
+  window.addTypedQuestion = function(){
+    let q = document.getElementById("newQuestion").value.trim();
+    if(q){ assignmentQuestions.push(q); updatePreview(); document.getElementById("newQuestion").value=""; }
+  };
+  window.addBankQuestion = function(){
+    let q = document.getElementById("bankSelect").value;
+    if(q){ assignmentQuestions.push(q); updatePreview(); }
+  };
+  function updatePreview(){
+    document.getElementById("assignmentPreview").innerHTML = assignmentQuestions.map(q=>"<div class='question'>"+q+"</div>").join("");
+  }
+
+  window.saveAssignment = function(){
+    let school = document.getElementById("school").value.trim();
+    let grade = document.getElementById("grade").value.trim();
+    let subject = document.getElementById("subject").value.trim();
+    if(!school || !grade || !subject || assignmentQuestions.length===0){ alert("Fill all fields and add questions."); return; }
+    const newAssignRef = push(ref(db,"assignments/"));
+    set(newAssignRef,{ school, grade, subject, questions: assignmentQuestions });
+    currentAssignmentKey = newAssignRef.key;
+    alert("Homework Saved!");
+  };
+
+  // ------------------ Student: Load Assignment ------------------
+  async function loadAssignmentForStudent(uid){
+    const snap = await get(child(ref(db),"assignments/"));
+    if(snap.exists()){
+      snap.forEach(assign=>{
+        currentAssignmentKey = assign.key;
+        assignmentQuestions = assign.val().questions || [];
+        document.getElementById("studentAssignment").innerHTML =
+          `<b>School:</b> ${assign.val().school}<br>
+           <b>Grade:</b> ${assign.val().grade}<br>
+           <b>Subject:</b> ${assign.val().subject}<br>` +
+           assignmentQuestions.map((q,i)=>`<div>${q}<br><input id='ans${i}' placeholder='Your Answer'></div>`).join("");
+      });
+    }
+    showResults(uid);
+  }
+
+  // ------------------ Student: Submit Answers ------------------
+  window.submitAnswers = function(){
+  const studentName = document.getElementById("studentName").value.trim();
+  if(!studentName){ alert("Please enter your name."); return; }
+
+  let answers = [];
+  assignmentQuestions.forEach((q,i)=>{
+    const ans = document.getElementById(`ans${i}`).value || "";
+    answers.push({ question: q, answer: ans });
+  });
+
+  set(ref(db,"submissions/"+currentAssignmentKey+"/"+auth.currentUser.uid),{
+    name: studentName,
+    answers
+  }).then(()=>{
+    alert("Answers Submitted!");
+    showResults(auth.currentUser.uid);
+  });
+};
+
+
+  // ------------------ Teacher: Load Submissions ------------------
+  async function loadTeacherAssignments(){
+    const snap = await get(child(ref(db),"assignments/"));
+    if(snap.exists()){
+      snap.forEach(assign=>{
+        currentAssignmentKey = assign.key;
+        assignmentQuestions = assign.val().questions || [];
+        loadSubmissions();
+      });
+    }
+  }
+
+ async function loadSubmissions(){
+  const snap = await get(child(ref(db),"submissions/"+currentAssignmentKey));
+  const area = document.getElementById("markingArea");
+  area.innerHTML = "";
+
+  if(snap.exists()){
+    snap.forEach(stud=>{
+      const studentName = stud.val().name || "Unknown";
+      const answers = stud.val().answers;
+      area.innerHTML += `<h4>${studentName}</h4>`; // Display student name
+      answers.forEach((a,i)=>{
+        area.innerHTML += `
+          <div style="margin-bottom:10px;">
+            <b>${a.question}</b><br>
+            Student Answer: ${a.answer}<br>
+            Mark: 
+            <select id='mark_${stud.key}_${i}' onchange="toggleCorrectInput('${stud.key}',${i})">
+              <option value="correct">✔ Correct</option>
+              <option value="wrong">✘ Wrong</option>
+            </select><br>
+            <input type="text" id='correct_${stud.key}_${i}' placeholder="Type correct answer" style="display:none; margin-top:3px;">
+          </div>
+        `;
+      });
+    });
+    document.getElementById("markingPhase").style.display="block";
+  } else {
+    area.innerHTML = "<p>No submissions yet.</p>";
+  }
+}
+
+  window.toggleCorrectInput = function(uid,index){
+    const sel = document.getElementById(`mark_${uid}_${index}`);
+    const input = document.getElementById(`correct_${uid}_${index}`);
+    input.style.display = sel.value==="wrong" ? "inline-block" : "none";
+  };
+
+  window.submitMarks = function(){
+    const marks = {};
+    document.querySelectorAll("[id^='mark_']").forEach(sel=>{
+      const [_, uid, idx] = sel.id.split("_");
+      const i = parseInt(idx);
+      const correctInput = document.getElementById(`correct_${uid}_${i}`);
+      const studentAnswer = sel.value==="correct" ? assignmentQuestions[i] : (correctInput?.value || "");
+      const answerObj = {
+        question: assignmentQuestions[i],
+        answer: studentAnswer,
+        correct: sel.value==="correct",
+        correctAnswer: sel.value==="correct" ? assignmentQuestions[i] : (correctInput?.value || "")
+      };
+      if(!marks[uid]) marks[uid] = [];
+      marks[uid].push(answerObj);
+    });
+    for(let uid in marks){
+      set(ref(db,"results/"+currentAssignmentKey+"/"+uid),{ answers: marks[uid], graded:true });
+    }
+    alert("Results returned!");
+  };
+
+  // ------------------ Student: Show Results ------------------
+  async function showResults(uid){
+    if(!uid) uid = auth.currentUser?.uid;
+    if(!uid || !currentAssignmentKey) return;
+    const resSnap = await get(child(ref(db),"results/"+currentAssignmentKey+"/"+uid));
+    const container = document.getElementById("studentResults");
+    container.innerHTML = "";
+    if(resSnap.exists()){
+      resSnap.val().answers.forEach((ans,idx)=>{
+        container.innerHTML += `
+          <div style="border:1px solid #ccc; padding:5px; margin:5px;">
+            <p><b>Q${idx+1}:</b> ${ans.question}</p>
+            <p><b>Your Answer:</b> ${ans.answer}</p>
+            <p><b>Marked:</b> ${ans.correct ? "✔ Correct" : "✘ Wrong"}</p>
+            <p><b>Correct Answer:</b> ${ans.correctAnswer}</p>
+          </div>
+        `;
+      });
+    } else {
+      container.innerHTML = "<p>No results yet.</p>";
+    }
+  }
+
+  // ------------------ Fill Question Bank ------------------
+  document.addEventListener("DOMContentLoaded", ()=>{
+    let bankSel=document.getElementById("bankSelect");
+    questionBank.forEach(q=>{
+      let opt=document.createElement("option");
+      opt.text=q; opt.value=q;
+      bankSel.add(opt);
+    });
+  });
+
+  </script>
+</body>
+</html>
