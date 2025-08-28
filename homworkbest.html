@@ -1,4 +1,28 @@
-<h2>📘 School Smart Assignment System</h2>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Assignment System</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <style>
+    body { font-family: Arial; margin: 20px; background:#f4f7fb; }
+    h2, h3, h4 { color: darkblue; }
+    .section { border: 1px solid #ccc; padding: 15px; margin: 10px; border-radius:10px; background:#fff; }
+    button { padding: 6px 12px; margin-top: 5px; }
+    textarea, select, input { margin: 5px 0; padding: 6px; width: 95%; }
+    .question { padding: 5px; border-bottom: 1px solid #eee; }
+    .correct { color: green; font-weight: bold; }
+    .wrong { color: red; font-weight: bold; }
+    .student-block { border:1px solid #ddd; padding:5px; margin:5px 0; border-radius:5px; background:#f9f9f9; }
+  </style>
+</head>
+<body>
+
+<h2>Smart Assignment System</h2>
 
 <!-- Login/Signup -->
 <div id="authDiv" class="section">
@@ -15,27 +39,27 @@
 
 <!-- TEACHER PHASE -->
 <div id="teacherPhase" class="section" style="display:none;">
-  <h3>Teacher Panel</h3>
+  <h3>Teacher Phase</h3>
   
-  <h4>Create Homework</h4>
-  <select id="teacherSchoolSelect"><option value="">Select School</option></select><br>
+  <h4>Create Assignment</h4>
+  <input type="text" id="school" placeholder="School"><br>
   <input type="text" id="grade" placeholder="Grade"><br>
   <input type="text" id="subject" placeholder="Subject"><br>
   
-  <h4>Add New Question:</h4>
+  <h4>Type New Question:</h4>
   <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
   <button onclick="addTypedQuestion()">Add Question</button><br>
   
-  <h4>Or Pick From Question Bank:</h4>
+  <h4>Or Select From Bank:</h4>
   <select id="bankSelect"></select><br>
   <button onclick="addBankQuestion()">Add From Bank</button><br>
   
-  <h4>Preview Assignment:</h4>
+  <h4>Assignment Preview:</h4>
   <div id="assignmentPreview"></div><br>
   <button onclick="saveAssignment()">Save Homework</button>
 
   <hr>
-  <h4>Mark Submissions</h4>
+  <h4>Filter Submissions to Mark:</h4>
   <select id="filterGrade"><option value="">All Grades</option></select><br>
   <select id="filterSubject"><option value="">All Subjects</option></select><br>
   
@@ -45,14 +69,15 @@
 
 <!-- STUDENT PHASE -->
 <div id="studentPhase" class="section" style="display:none;">
-  <h3>Student Panel</h3>
+  <h3>Student Phase</h3>
   <input type="text" id="studentName1" placeholder="Enter First Name" required><br>
   <input type="text" id="studentName2" placeholder="Enter Second Name" required><br>
 
-  <h4>Pick Your Homework</h4>
+  <h4>Filter Your Homework:</h4>
   <select id="studentSchoolSelect"><option value="">Select School</option></select><br>
   <select id="studentGradeSelect"><option value="">Select Grade</option></select><br>
   <select id="studentSubjectSelect"><option value="">Select Subject</option></select><br>
+  <button onclick="filterAssignments()">Show Assignments</button><br>
 
   <div id="studentAssignment"></div>
   <button onclick="submitAnswers()">Submit Answers</button>
@@ -60,6 +85,7 @@
   <h4>Results:</h4>
   <div id="studentResults"></div>
 </div>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
