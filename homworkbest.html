@@ -47,10 +47,18 @@
   <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
   <button onclick="addTypedQuestion()">Add Question</button><br>
   
-  <h4>Or Pick From Question Bank:</h4>
-  <select id="bankSelect"></select><br>
-  <button onclick="addBankQuestion()">Add From Bank</button><br>
-  
+   <h4>Pick From Question Bank:</h4>
+<select id="subjectSelectBank">
+  <option value="">Select Subject</option>
+  <option value="Mathematics">Mathematics</option>
+  <option value="IntegratedScience">Integrated Science</option>
+  <option value="English">English</option>
+  <option value="Kiswahili">Kiswahili</option>
+</select><br>
+<select id="bankSelect"></select><br>
+<button onclick="addBankQuestion()">Add From Bank</button><br>
+
+
   <h4>Preview Assignment:</h4>
   <div id="assignmentPreview"></div><br>
   <button onclick="saveAssignment()">Save Homework</button>
@@ -111,7 +119,9 @@ let currentUserRole = null;
 let assignmentQuestions = [];
 let currentAssignmentKey = null;
 
-const questionBank = [
+
+const questionBankBySubject = {
+  Mathematics: [
 
 
 
@@ -1116,7 +1126,9 @@ const questionBank = [
 
 
 
-  
+  ],
+
+  IntegratedScience: [
   
   
   "Define matter and give three states of matter with examples.",
@@ -1945,7 +1957,9 @@ const questionBank = [
   "Discuss the importance of trees in reducing carbon dioxide levels.",
 
 
-  
+  ],
+
+  English: [
 
 
 
@@ -2481,7 +2495,9 @@ const questionBank = [
   "Correct the pronoun reference: 'When Anna met her mother, she was crying.' (Who was crying?)",
   
   
-  
+  ],
+
+  Kiswahili: [
   
  
   "Andika sentensi ndefu ukitumia methali inayomaanisha 'pamoja tunaweza kufanikisha zaidi'.",
@@ -2738,10 +2754,9 @@ const questionBank = [
   "Andika insha kuhusu faida za kusoma vitabu vya hadithi.",
   "Tafsiri methali: 'Mkosa wa mtu si mzuri kwa wote.' Toa mfano wa maisha."
 
+]
+};
 
-  
-  
-];
 
 
 // ------------------ Sign up ------------------
@@ -2845,15 +2860,37 @@ async function loadSchools(){
 // ------------------ Teacher: Add Questions ------------------
 window.addTypedQuestion = function(){
   let q = document.getElementById("newQuestion").value.trim();
-  if(q){ assignmentQuestions.push(q); updatePreview(); document.getElementById("newQuestion").value=""; }
+  if(q){ 
+    assignmentQuestions.push(q); 
+    updatePreview(); 
+    document.getElementById("newQuestion").value=""; 
+  }
 };
+
 window.addBankQuestion = function(){
   let q = document.getElementById("bankSelect").value;
-  if(q){ assignmentQuestions.push(q); updatePreview(); }
+  if(q){ 
+    assignmentQuestions.push(q); 
+    updatePreview(); 
+  }
 };
+
+// ✅ New delete function
+window.deleteQuestion = function(index){
+  assignmentQuestions.splice(index, 1); // remove from array
+  updatePreview(); // re-render
+};
+
 function updatePreview(){
-  document.getElementById("assignmentPreview").innerHTML = assignmentQuestions.map(q=>"<div class='question'>"+q+"</div>").join("");
+  document.getElementById("assignmentPreview").innerHTML = 
+    assignmentQuestions.map((q,i)=>
+      `<div class='question'>
+         ${q} 
+         <button onclick="deleteQuestion(${i})" style="margin-left:10px; color:red;">Delete</button>
+       </div>`
+    ).join("");
 }
+
 
 // ------------------ Save Assignment ------------------
 window.saveAssignment = function(){
@@ -3068,19 +3105,24 @@ async function showResults(uid, assignmentKey){
       }
     }
 
-    // Load question bank
-    document.addEventListener("DOMContentLoaded", ()=>{
-      const bankSel = document.getElementById("bankSelect");
-      questionBank.forEach(q=>{
-        let opt = document.createElement("option");
-        opt.text = opt.value = q;
-        bankSel.add(opt);
-      });
+    const subjectSelectBank = document.getElementById("subjectSelectBank");
+const bankSelect = document.getElementById("bankSelect");
+
+// When teacher selects a subject, populate questions
+subjectSelectBank.addEventListener("change", () => {
+  const subject = subjectSelectBank.value;
+  bankSelect.innerHTML = ""; // clear previous questions
+  if(subject && questionBankBySubject[subject]){
+    questionBankBySubject[subject].forEach(q => {
+      let opt = document.createElement("option");
+      opt.value = q;
+      opt.text = q;
+      bankSelect.add(opt);
     });
+  }
+});
+
   </script>
 </body>
 </html>
-
-
-
 
