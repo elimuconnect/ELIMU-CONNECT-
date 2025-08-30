@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Attendance & Behavior Tracker</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; }
+header { background:#2c3e50; color:white; padding:10px; text-align:center; }
+nav button { margin:5px; padding:8px 12px; cursor:pointer; }
+.module { display:none; padding:20px; }
+.module.active { display:block; }
+table { border-collapse: collapse; width: 100%; max-width:1000px; margin-top:10px; }
+table, th, td { border: 1px solid #ccc; }
+th, td { padding:8px; text-align:center; }
+input[type=text], input[type=date] { padding:5px; margin:5px 0; width:150px; }
+button { margin:5px; padding:8px 12px; }
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, child, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// --- Firebase config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDR5lDNlf5yiP57BcgwlD8mZTyugD7SSng",
+  authDomain: "homework-2e4cf.firebaseapp.com",
+  databaseURL: "https://homework-2e4cf-default-rtdb.firebaseio.com",
+  projectId: "homework-2e4cf",
+  storageBucket: "homework-2e4cf.appspot.com",
+  messagingSenderId: "352776491020",
+  appId: "1:352776491020:web:65f9b37fbe5c1b0f96de29"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// --- Helpers ---
+function studentId(name){ return name.toLowerCase().replace(/\s+/g,'_'); }
+function attendanceId(name,dateStr){ return `${studentId(name)}_${dateStr}`; }
+function behaviorId(name,dateStr,type){ return `${studentId(name)}_${dateStr}_${type}`; }
+
+let students = [];
+
+// --- UI ---
+function showModule(module){
+  document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
+  document.getElementById(module).classList.add('active');
+  if(module==='rewards') loadRewards();
+}
+
+function getWeekDates(startDate){
+  const start = new Date(startDate);
+  const dates = [];
+  for(let i=0;i<5;i++){
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
+}
+
+// --- Students ---
+async function loadStudents(){
+  try {
+    const snap = await get(ref(db,'students'));
+    students = snap.exists() ? Object.values(snap.val()).map(s => s.name) : [];
+    renderTable();
+  } catch(e){
+    console.error("Load students failed:", e);
+  }
+}
+
+async function addStudent(){
+  const name = document.getElementById('newStudent').value.trim();
+  if(!name) return alert("Enter student name");
+  if(students.includes(name)) return alert("Already added");
+
+  try {
+    await set(ref(db,'students/' + studentId(name)), { name });
+    document.getElementById('newStudent').value = "";
+    await loadStudents();
+  } catch(e){
+    alert("Error adding student: " + e);
+    console.error(e);
+  }
+}
+
+async function removeStudent(name){
+  try {
+    await remove(ref(db,'students/' + studentId(name)));
+    await loadStudents();
+  } catch(e){
+    alert("Error removing student: " + e);
+    console.error(e);
+  }
+}
+
+// --- Table ---
+async function renderTable(){
+  const startDate = document.getElementById('weekStart').value;
+  const tbody = document.querySelector('#weekTable tbody');
+  tbody.innerHTML = "";
+  if(!startDate || students.length===0) return;
+
+  const dates = getWeekDates(startDate);
+
+  const attSnap = await get(ref(db,'attendance'));
+  const behSnap = await get(ref(db,'behavior'));
+
+  students.forEach(name=>{
+    const row = document.createElement('tr');
+    let rowHTML = `<td>${name}</td>`;
+
+    dates.forEach(dateStr=>{
+      const attRecord = attSnap.exists() && attSnap.val()[attendanceId(name,dateStr)];
+      const behPos = behSnap.exists() && behSnap.val()[behaviorId(name,dateStr,'Positive')];
+      const behNeg = behSnap.exists() && behSnap.val()[behaviorId(name,dateStr,'Negative')];
+      const attValue = attRecord ? attRecord.status : "";
+
+      rowHTML += `<td>
+        <select data-name="${name}" data-date="${dateStr}" class="att">
+          <option value="">-</option>
+          <option value="Present" ${attValue==="Present"?'selected':''}>Present</option>
+          <option value="Absent" ${attValue==="Absent"?'selected':''}>Absent</option>
+          <option value="Late" ${attValue==="Late"?'selected':''}>Late</option>
+          <option value="Excused" ${attValue==="Excused"?'selected':''}>Excused</option>
+        </select>
+        <br>
+        <label>+<input type="checkbox" data-name="${name}" data-date="${dateStr}" class="pos" ${behPos?'checked':''}></label>
+        <label>-<input type="checkbox" data-name="${name}" data-date="${dateStr}" class="neg" ${behNeg?'checked':''}></label>
+      </td>`;
+    });
+
+    rowHTML += `<td><button onclick="removeStudent('${name}')">Remove</button></td>`;
+    row.innerHTML = rowHTML;
+    tbody.appendChild(row);
+  });
+}
+
+// --- Save Week Data ---
+async function saveWeekData(){
+  const selects = document.querySelectorAll('select.att');
+  const posChecks = document.querySelectorAll('input.pos');
+  const negChecks = document.querySelectorAll('input.neg');
+
+  try {
+    for(const sel of selects){
+      const name = sel.dataset.name;
+      const dateStr = sel.dataset.date;
+      const status = sel.value;
+      if(status){
+        await set(ref(db,'attendance/' + attendanceId(name,dateStr)), { name, status, date: dateStr });
+      }
+    }
+
+    for(const check of posChecks){
+      const name = check.dataset.name;
+      const dateStr = check.dataset.date;
+      const id = behaviorId(name,dateStr,'Positive');
+      if(check.checked){
+        await set(ref(db,'behavior/' + id), { name, type:"Positive", note:"Weekly view", date: dateStr });
+      } else {
+        await remove(ref(db,'behavior/' + id));
+      }
+    }
+
+    for(const check of negChecks){
+      const name = check.dataset.name;
+      const dateStr = check.dataset.date;
+      const id = behaviorId(name,dateStr,'Negative');
+      if(check.checked){
+        await set(ref(db,'behavior/' + id), { name, type:"Negative", note:"Weekly view", date: dateStr });
+      } else {
+        await remove(ref(db,'behavior/' + id));
+      }
+    }
+
+    alert("Week data saved!");
+    loadRewards();
+  } catch(e){
+    alert("Error saving data: " + e);
+    console.error(e);
+  }
+}
+
+// --- Rewards ---
+async function loadRewards(){
+  const listDiv = document.getElementById('rewardList');
+  try {
+    const snap = await get(ref(db,'behavior'));
+    const points = {};
+    if(snap.exists()){
+      Object.values(snap.val()).forEach(b=>{
+        if(b.type === "Positive"){
+          points[b.name] = (points[b.name] || 0) + 1;
+        }
+      });
+    }
+    listDiv.innerHTML = "<h3>Reward Points</h3>";
+    for(const student in points){
+      listDiv.innerHTML += `<p>${student}: ${points[student]} point(s)</p>`;
+    }
+  } catch(e){
+    console.error("Load rewards failed:", e);
+  }
+}
+
+// --- Initialize ---
+loadStudents();
+showModule('weekly');
+</script>
+</head>
+<body>
+<header>
+<h1>Weekly Attendance & Behavior Tracker</h1>
+<nav>
+<button onclick="showModule('weekly')">Weekly View</button>
+<button onclick="showModule('rewards')">Rewards</button>
+</nav>
+</header>
+
+<main>
+<div id="weekly" class="module">
+<h2>Weekly Attendance & Behavior</h2>
+<input type="date" id="weekStart" onchange="renderTable()"> Start of Week
+<input type="text" id="newStudent" placeholder="Student Name">
+<button onclick="addStudent()">Add Student</button>
+
+<table id="weekTable">
+<thead>
+<tr>
+<th>Student</th>
+<th>Mon<br>Att/Beh</th>
+<th>Tue<br>Att/Beh</th>
+<th>Wed<br>Att/Beh</th>
+<th>Thu<br>Att/Beh</th>
+<th>Fri<br>Att/Beh</th>
+<th>Remove</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button onclick="saveWeekData()">Save Week</button>
+</div>
+
+<div id="rewards" class="module">
+<h2>Rewards</h2>
+<div id="rewardList"></div>
+</div>
+</main>
+</body>
+</html>
