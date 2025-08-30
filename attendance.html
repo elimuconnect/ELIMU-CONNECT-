@@ -101,6 +101,12 @@
 
     <!-- Computed Week Header -->
     <h3 id="computedWeekRange" class="center">Week:</h3>
+	
+	
+	 <h2>Attendance Register - <span id="weekDisplay">Week 1</span></h2>
+
+  <label for="week">Enter Week Number: </label>
+  <input type="number" id="week" min="1" value="1" />
 
     <!-- REGISTER TABLE -->
     <table id="weekTable">
@@ -151,7 +157,7 @@
     </table>
 
     <p class="legend">
-      <b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
+      <b>KEY:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
     </p>
 
     <div>
@@ -509,90 +515,106 @@ function updateFooterTotals(am=0, pm=0, total=0){
 /* ===========================
    Print (exact table snapshot)
 =========================== */
-function printTable(){
+
+
+function printTable() {
   // Clone table and replace selects by their values
   const orig = document.getElementById('weekTable');
   const table = orig.cloneNode(true);
 
   // Replace selects with plain text; remove Remove column
-  table.querySelectorAll('select').forEach(sel=>{
+  table.querySelectorAll('select').forEach(sel => {
     const span = document.createElement('span');
     span.textContent = sel.value || '-';
     sel.parentNode.replaceChild(span, sel);
   });
   // Remove last column (Remove)
-  table.querySelectorAll('tr').forEach(row=>{
-    if(row.cells.length > 1) row.deleteCell(row.cells.length - 1);
+  table.querySelectorAll('tr').forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(row.cells.length - 1);
   });
 
-  const weekRange = document.getElementById('weekHeader').textContent;
+  // Week number + computed week header
+  const weekNum = document.getElementById("weekDisplay").textContent;  // e.g. "Week 2"
+  const weekRange = document.getElementById('weekHeader').textContent; // e.g. "Week: Aug 26 – Aug 30"
 
   const w = window.open("", "", "width=900,height=700");
   w.document.write("<html><head><title>Print</title>");
   w.document.write(`
     <style>
       body { font-family: Arial, sans-serif; }
-      h2,h3 { text-align:center; }
+      h2,h3 { text-align:center; margin: 4px 0; }
       table { border-collapse:collapse; width:100%; max-width:1200px; margin:10px auto; }
       th,td { border:1px solid #000; padding:6px; text-align:center; }
       .footer-row td { font-weight:bold; background:#fafafa; }
     </style>
   `);
   w.document.write("</head><body>");
-  w.document.write("<h2>Weekly Attendance & Behavior</h2>");
-  w.document.write(`<h3>${weekRange}</h3>`);
+  w.document.write(`<h2>Attendance Register - ${weekNum}</h2>`);  // ✅ shows Week Number
+  w.document.write(`<h3>${weekRange}</h3>`);                     // ✅ shows Week Range
   w.document.body.appendChild(table);
   w.document.write(`<p style="text-align:center;margin-top:8px;">
     <b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
   </p>`);
   w.document.write("</body></html>");
   w.document.close();
-  w.onload = ()=>{ w.print(); w.close(); };
+  w.onload = () => { w.print(); w.close(); };
 }
+
+
 
 /* ===========================
    Download PDF
 =========================== */
-async function downloadRegister(){
+async function downloadRegister() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
-  const weekRange = document.getElementById('weekHeader').textContent;
+  // Get week number + week range
+  const weekNum = document.getElementById("weekDisplay").textContent;   // e.g. "Week 2"
+  const weekRange = document.getElementById("weekHeader").textContent;  // e.g. "Week: Aug 26 – Aug 30"
 
   // Prepare a cleaned DOM snapshot
   const clone = document.getElementById("weekTable").cloneNode(true);
-  clone.querySelectorAll('select').forEach(sel=>{
-    const span = document.createElement('span');
-    span.textContent = sel.value || '-';
+
+  // Replace <select> with plain text
+  clone.querySelectorAll("select").forEach(sel => {
+    const span = document.createElement("span");
+    span.textContent = sel.value || "-";
     sel.parentNode.replaceChild(span, sel);
   });
-  clone.querySelectorAll('tr').forEach(row=>{
-    if(row.cells.length > 1) row.deleteCell(row.cells.length - 1);
+
+  // Remove "Remove" column
+  clone.querySelectorAll("tr").forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(row.cells.length - 1);
   });
 
-  const temp = document.createElement('div');
-  temp.style.position="fixed"; temp.style.left="-9999px";
+  // Temporary container for rendering
+  const temp = document.createElement("div");
+  temp.style.position = "fixed";
+  temp.style.left = "-9999px";
   temp.innerHTML = `
-    <h2 style="text-align:center;">Weekly Attendance & Behavior</h2>
+    <h2 style="text-align:center;">Attendance Register - ${weekNum}</h2>
     <p style="text-align:center;"><b>${weekRange}</b></p>
   `;
   temp.appendChild(clone);
   document.body.appendChild(temp);
 
+  // Render with html2canvas
   const canvas = await html2canvas(temp, { scale: 2 });
   document.body.removeChild(temp);
 
+  // Convert to PDF
   const imgData = canvas.toDataURL("image/png");
   const imgWidth = 190; // A4 width minus margins
   const pageHeight = 297;
-  const imgHeight = canvas.height * imgWidth / canvas.width;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
   let heightLeft = imgHeight;
   let position = 10;
 
   doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
   heightLeft -= pageHeight;
 
-  while(heightLeft > 0){
+  while (heightLeft > 0) {
     position = heightLeft - imgHeight + 10;
     doc.addPage();
     doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
@@ -613,6 +635,12 @@ document.getElementById('weekStart').addEventListener('change', renderTable);
   document.getElementById('weekStart').value = wk;
   await loadStudents();
 })();
+
+
+document.getElementById("week").addEventListener("input", function() {
+    let weekNum = this.value.trim();
+    document.getElementById("weekDisplay").innerText = weekNum ? `Week ${weekNum}` : "Week 1";
+  });
 </script>
 </body>
 </html>
