@@ -159,7 +159,7 @@
       </div>
       <div class="field">
         <label for="newGrade">STREAM</label>
-        <input id="newGrade" placeholder="Stream/Notes e.g., Blue" />
+        <input id="newGrade" placeholder="Stream e.g., Blue" />
       </div>
       <div class="field">
         <label>&nbsp;</label>
@@ -218,12 +218,27 @@
       <b>KEY:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
     </p>
 
-    <div>
-      <button onclick="saveWeekData()">Save Week</button>
-      <button onclick="printTable()">Print</button>
-      <button onclick="downloadRegister()">Download PDF</button>
-      <span id="savingMessage">Saving... Please wait</span>
-    </div>
+   
+   
+   
+   
+   
+<!-- Buttons Block -->
+<div>
+  <button onclick="saveWeekData()">Save Week</button>
+  <button onclick="printTable()">Print This Register</button>
+  <button onclick="downloadRegister()">Download PDF</button>
+  
+  <!-- Only visible to Head/Deputy (toggled in initForUser) -->
+  <button id="printAllBtn" onclick="printAllRegisters()" style="display:none">
+    Print ALL Registers
+  </button>
+
+  <span id="savingMessage" style="display:none">Saving... Please wait</span>
+</div>
+   
+   
+   
   </div>
 
   <div id="rewards" class="module">
@@ -384,8 +399,6 @@ async function assignSchoolAndGrade(user, schoolName, gradeName, role){
 /********************
  * Init for user (locks to assigned school+grade)
  ********************/
-
-
 async function initForUser(user) {
   currentUser = user;
 
@@ -441,8 +454,8 @@ async function initForUser(user) {
     // load students for this assigned class
     await loadStudents();
 
-  } else if (assigned.role === "head") {
-    // If HEAD → lock only school, but allow all streams inside
+  } else if (assigned.role === "head" || assigned.role === "deputy") {
+    // If HEAD/Deputy → lock only school, but allow all streams inside
     sSel.innerHTML = `<option value="${assigned.schoolId}">${assigned.schoolName}</option>`;
     sSel.value = assigned.schoolId;
     sSel.disabled = true;
@@ -451,6 +464,7 @@ async function initForUser(user) {
     // populate gradeSelect with ALL grades from that school
     const gradesSnap = await db.ref(`schools/${assigned.schoolId}/grades`).get();
     gSel.innerHTML = "";
+
     if (gradesSnap.exists()) {
       gradesSnap.forEach(child => {
         const g = child.val();
@@ -458,7 +472,7 @@ async function initForUser(user) {
       });
     }
 
-    // allow head to switch between grades
+    // allow head/deputy to switch between grades
     gSel.disabled = false;
     gSel.classList.remove('readonly');
 
@@ -468,9 +482,14 @@ async function initForUser(user) {
       assigned.gradeName = gSel.options[gSel.selectedIndex].text;
       await loadStudents();
     }
+
+    // ✅ Show Print ALL button
+    const printAllBtn = document.getElementById('printAllBtn');
+    if (printAllBtn) {
+      printAllBtn.style.display = 'inline-block';
+    }
   }
 }
-
 
 
 
@@ -752,28 +771,52 @@ async function saveWeekData(){
 /********************
  * Rewards          *
  ********************/
+
+
+
 async function loadRewards(){
   const sid = assigned.schoolId || getSelectedSchoolId();
   const gid = assigned.gradeId || getSelectedGradeId();
   const weekKey = getWeekKey();
   const listDiv = document.getElementById('rewardList');
   listDiv.innerHTML = '';
+
   if(!sid || !gid){ listDiv.innerHTML = '<p>Select a school and grade.</p>'; return; }
+
   try{
     const snap = await db.ref(`schools/${sid}/grades/${gid}/weeks/${weekKey}/behavior`).get();
-    const points = {};
+    const winners = []; // student ids
+
     if(snap.exists()){
       const data = snap.val();
-      Object.entries(data).forEach(([sid, val])=>{
-        if(val==='Best' || val==='Good'){ points[sid] = (points[sid]||0)+1; }
+      Object.entries(data).forEach(([sidStudent, val])=>{
+        // if stored per-day as object, require every day's value === "Best"
+        if(typeof val === 'object' && val !== null){
+          const allBest = Object.values(val).every(v => v === "Best");
+          if(allBest) winners.push(sidStudent);
+        } else {
+          // if stored as single weekly status, require it === "Best"
+          if(val === "Best") winners.push(sidStudent);
+        }
       });
     }
+
     const namesById = {}; students.forEach(s=> namesById[s.id] = s.name || s.adm || s.id);
-    listDiv.innerHTML = `<h3>Reward Points (This Week)</h3>`;
-    if(Object.keys(points).length===0){ listDiv.innerHTML += '<p>No points yet.</p>'; }
-    else { Object.entries(points).forEach(([sid, pts])=>{ listDiv.innerHTML += `<p>${namesById[sid]||sid}: ${pts} point(s)</p>`; }); }
-  }catch(e){ console.error('Load rewards failed:', e); }
+    listDiv.innerHTML = `<h3>Weekly Rewards</h3>`;
+    if(winners.length === 0) {
+      listDiv.innerHTML += '<p>No students had "Best" behavior for the entire week.</p>';
+    } else {
+      winners.forEach(id => {
+        listDiv.innerHTML += `<p>${namesById[id] || id} — Best all week</p>`;
+      });
+    }
+  }catch(e){
+    console.error('Load rewards failed:', e);
+    listDiv.innerHTML = '<p>Error loading rewards.</p>';
+  }
 }
+
+
 
 /********************
  * Footer totals    *
@@ -795,75 +838,236 @@ function currentSchoolGradeLabels(){
   return { sName, gName };
 }
 
-function printTable(){
+
+
+
+function printTable() {
   const orig = document.getElementById('weekTable');
   const table = orig.cloneNode(true);
-  table.querySelectorAll('select').forEach(sel=>{ const span=document.createElement('span'); span.textContent=sel.value||'-'; sel.parentNode.replaceChild(span,sel); });
-  table.querySelectorAll('tr').forEach(row=>{ if(row.cells.length>1) row.deleteCell(row.cells.length-1); });
+
+  // Replace <select> and <input> elements with their displayed values
+  table.querySelectorAll('select, input').forEach(el => {
+    const span = document.createElement('span');
+    span.textContent = el.value || '-';
+    el.parentNode.replaceChild(span, el);
+  });
+
+  // Remove last column if extra
+  table.querySelectorAll('tr').forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(row.cells.length - 1);
+  });
 
   const { sName, gName } = currentSchoolGradeLabels();
-  const weekNum = document.getElementById('weekDisplay').textContent;  
-  const weekRange = document.getElementById('weekHeader').textContent; 
+  const weekNum = document.getElementById('week')?.value || '1'; // manual week number
+  const weekRange = document.getElementById('weekHeader')?.textContent || '';
 
   const w = window.open("", "", "width=900,height=700");
-  w.document.write("<html><head><title>Print</title>");
-  w.document.write(`
+
+  w.document.write(`<html><head><title>Print Register</title>
     <style>
-      body { font-family: Arial, sans-serif; }
-      h1,h2,h3 { text-align:center; margin: 4px 0; }
-      table { border-collapse:collapse; width:100%; max-width:1200px; margin:10px auto; }
-      th,td { border:1px solid #000; padding:6px; text-align:center; }
+      body { font-family: Arial, sans-serif; margin:0; padding:0; font-size:16px; }
+      h1,h2,h3 { text-align:center; margin:4px 0; }
+      table { border-collapse: collapse; width: 100%; max-width:1200px; margin:10px auto; font-size:16px; }
+      th, td { border:1px solid #000; padding:8px; text-align:center; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr { page-break-inside: avoid; }
       .footer-row td { font-weight:bold; background:#fafafa; }
+      .legend { text-align:center; margin-top:12px; font-size:16px; }
     </style>
-  `);
-  w.document.write("</head><body>");
-  w.document.write(`<h1>${sName||''}</h1>`);
-  w.document.write(`<h2>${gName||''} – Attendance Register ${weekNum}</h2>`);
+  </head><body>`);
+
+  // Header
+  w.document.write(`<h1>${sName || ''}</h1>`);
+  w.document.write(`<h2>${gName || ''} – Attendance Register Week ${weekNum}</h2>`);
   w.document.write(`<h3>${weekRange}</h3>`);
+
+  // Add table
   w.document.body.appendChild(table);
-  w.document.write(`<p style="text-align:center;margin-top:8px;">
+
+  // Legend
+  w.document.write(`<p class="legend">
     <b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
   </p>`);
+
   w.document.write("</body></html>");
   w.document.close();
   w.onload = () => { w.print(); w.close(); };
 }
 
-async function downloadRegister(){
+
+
+
+
+async function printAllRegisters() {
+  if (!confirm("This will print all registers, each on its own page. Continue?")) return;
+
+  const schoolId = assigned.schoolId || getSelectedSchoolId();
+  if (!schoolId) return alert("No school selected.");
+
+  const gradesSnap = await db.ref(`schools/${schoolId}/grades`).get();
+  if (!gradesSnap.exists()) return alert("No grades found.");
+
+  // Get manual week number from input
+  const weekNum = document.getElementById('week')?.value || '1';
+  const weekRange = document.getElementById('weekHeader')?.textContent || '';
+
+  let printWindow = window.open("", "", "width=900,height=700");
+  printWindow.document.write(`<html><head><title>All Registers</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin:0; padding:0; }
+      table { border-collapse: collapse; width: 100%; margin-top:10px; }
+      table, th, td { border:1px solid #ccc; padding:5px; text-align:center; }
+      h2,h3 { text-align:center; }
+      .register-page { page-break-after: always; }
+    </style>
+  </head><body>`);
+
+  const grades = gradesSnap.val();
+  for (const [gid, gradeData] of Object.entries(grades)) {
+    // Load students
+    const studentsSnap = await db.ref(`schools/${schoolId}/grades/${gid}/students`).get();
+    const studentsList = studentsSnap.exists() ? Object.values(studentsSnap.val()) : [];
+
+    // Load attendance & behavior
+    const weekKey = getWeekKey();
+    const attSnap = await db.ref(`schools/${schoolId}/grades/${gid}/weeks/${weekKey}/attendance`).get();
+    const behSnap = await db.ref(`schools/${schoolId}/grades/${gid}/weeks/${weekKey}/behavior`).get();
+    const attendance = attSnap.exists() ? attSnap.val() : {};
+    const behavior   = behSnap.exists() ? behSnap.val() : {};
+
+    // Build table HTML (with manual week number)
+    let tableHtml = `<div class="register-page">
+      <h2>${assigned.schoolName || schoolId}</h2>
+      <h3>${gradeData.name || gid} – Attendance Register Week ${weekNum}</h3>
+      <h3>${weekRange}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ADM/UPI</th><th>DOB</th><th>Age(Y)</th><th>Age(M)</th>
+            <th>Class</th><th>Student</th>
+            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th>
+            <th>Total</th><th>Behavior</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    let footerAM = 0, footerPM = 0, footerTotal = 0;
+
+    for (const st of studentsList) {
+      const sId = st.id;
+      const weekly = attendance[sId] || {};
+      const behVal = behavior[sId] || "";
+
+      let stuAM=0, stuPM=0;
+      let rowHtml = `<tr>
+        <td>${st.adm||''}</td>
+        <td>${st.dob||''}</td>
+        <td>${st.ageY||''}</td>
+        <td>${st.ageM||''}</td>
+        <td>${st.classLabel||''}</td>
+        <td>${st.name||''}</td>`;
+
+      ['Mon','Tue','Wed','Thu','Fri'].forEach((day, i)=>{
+        const val = weekly[getWeekDates(weekKey)[i]] || '';
+        rowHtml += `<td>${val||'-'}</td>`;
+        if(val==='x'){stuAM++; stuPM++;} else if(val==='/0'){stuAM++;} else if(val==='0/'){stuPM++;}
+      });
+
+      const stuTotal = stuAM + stuPM;
+      footerAM += stuAM; footerPM += stuPM; footerTotal += stuTotal;
+
+      rowHtml += `<td>${stuTotal}</td><td>${behVal||'-'}</td></tr>`;
+      tableHtml += rowHtml;
+    }
+
+    tableHtml += `</tbody>
+      <tfoot>
+        <tr><td colspan="6">Present AM</td><td colspan="6">${footerAM}</td><td></td></tr>
+        <tr><td colspan="6">Present PM</td><td colspan="6">${footerPM}</td><td></td></tr>
+        <tr><td colspan="6">Total</td><td colspan="6">${footerTotal}</td><td></td></tr>
+      </tfoot>
+    </table></div>`; // .register-page ensures page-break
+
+    printWindow.document.write(tableHtml);
+  }
+
+  printWindow.document.write("</body></html>");
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+}
+
+
+
+
+
+
+
+async function downloadRegister() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("p","mm","a4");
+  const doc = new jsPDF("p", "mm", "a4");
 
   const { sName, gName } = currentSchoolGradeLabels();
-  const weekNum = document.getElementById('weekDisplay').textContent;  
-  const weekRange = document.getElementById('weekHeader').textContent; 
+  const weekNum = document.getElementById('week')?.value || '1'; // manual week number
+  const weekRange = document.getElementById('weekHeader')?.textContent || '';
 
+  // Clone the table and replace inputs/selects with displayed values
   const clone = document.getElementById('weekTable').cloneNode(true);
-  clone.querySelectorAll('select').forEach(sel=>{ const span=document.createElement('span'); span.textContent=sel.value||'-'; sel.parentNode.replaceChild(span,sel); });
-  clone.querySelectorAll('tr').forEach(row=>{ if(row.cells.length>1) row.deleteCell(row.cells.length-1); });
+  clone.querySelectorAll('select, input').forEach(el => {
+    const span = document.createElement('span');
+    span.textContent = el.value || '-';
+    el.parentNode.replaceChild(span, el);
+  });
+  clone.querySelectorAll('tr').forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(row.cells.length - 1);
+  });
 
+  // Create a hidden div like print style
   const temp = document.createElement('div');
-  temp.style.position='fixed'; temp.style.left='-9999px';
+  temp.style.position = 'fixed';
+  temp.style.left = '-9999px';
+  temp.style.fontFamily = 'Arial, sans-serif';
+  temp.style.fontSize = '16px';
   temp.innerHTML = `
-    <h1 style="text-align:center;">${sName||''}</h1>
-    <h2 style="text-align:center;">${gName||''} – Attendance Register ${weekNum}</h2>
-    <p style="text-align:center;"><b>${weekRange}</b></p>
+    <h1 style="text-align:center;">${sName || ''}</h1>
+    <h2 style="text-align:center;">${gName || ''} – Attendance Register Week ${weekNum}</h2>
+    <h3 style="text-align:center;">${weekRange}</h3>
   `;
   temp.appendChild(clone);
+
+  // Add legend
+  const legend = document.createElement('p');
+  legend.style.textAlign = 'center';
+  legend.style.marginTop = '12px';
+  legend.style.fontSize = '16px';
+  legend.innerHTML = `<b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both`;
+  temp.appendChild(legend);
+
   document.body.appendChild(temp);
 
+  // Use html2canvas to capture
   const canvas = await html2canvas(temp, { scale: 2 });
   document.body.removeChild(temp);
 
   const imgData = canvas.toDataURL('image/png');
-  const imgWidth = 190; // page width - margins
-  const pageHeight = 297;
+  const imgWidth = 190; // page width minus margins
+  const pageHeight = 297; // A4 height in mm
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
   let heightLeft = imgHeight;
   let position = 10;
 
-  doc.addImage(imgData,'PNG',10,position,imgWidth,imgHeight);
+  doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
   heightLeft -= pageHeight;
-  while(heightLeft>0){ position = heightLeft - imgHeight + 10; doc.addPage(); doc.addImage(imgData,'PNG',10,position,imgWidth,imgHeight); heightLeft -= pageHeight; }
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight + 10;
+    doc.addPage();
+    doc.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
   doc.save('Weekly_Register.pdf');
 }
 
