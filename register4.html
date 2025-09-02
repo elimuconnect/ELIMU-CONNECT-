@@ -887,7 +887,7 @@ function printTable() {
 
   // Legend
   w.document.write(`<p class="legend">
-    <b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
+    <b>KEY:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both
   </p>`);
 
   w.document.write("</body></html>");
@@ -1041,7 +1041,7 @@ async function downloadRegister() {
   legend.style.textAlign = 'center';
   legend.style.marginTop = '12px';
   legend.style.fontSize = '16px';
-  legend.innerHTML = `<b>Legend:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both`;
+  legend.innerHTML = `<b>KEY:</b> x = Present (AM & PM), /0 = AM Present, PM Absent, 0/ = AM Absent, PM Present, 00 = Absent Both`;
   temp.appendChild(legend);
 
   document.body.appendChild(temp);
