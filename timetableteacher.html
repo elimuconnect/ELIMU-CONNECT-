@@ -3,45 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>Smart Timetable Voice Alert</title>
+
+  <!-- Mammoth for .docx -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #eef6ff;
-      text-align: center;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-    }
-    #editor {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border: 1px solid #ccc;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: left;
-      overflow-x: auto;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    td, th {
-      border: 1px solid #999;
-      padding: 8px;
-      text-align: center;
-      vertical-align: top;
-    }
-    #status {
-      font-weight: bold;
-      color: green;
-      margin-top: 10px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #eef6ff; text-align: center; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px; }
+    #editor { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc;
+              max-width: 900px; margin-left: auto; margin-right: auto; text-align: left; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #999; padding: 8px; text-align: center; vertical-align: top; }
+    #status { font-weight: bold; color: green; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -59,10 +32,7 @@
 
   <script>
     function normalize(text) {
-      return (text || "")
-        .replace(/(Tr\.?|Mr\.?|Ms\.?|Mrs\.?|Teacher)/gi, "")
-        .trim()
-        .toLowerCase();
+      return (text || "").replace(/(Tr\.?|Mr\.?|Ms\.?|Mrs\.?|Teacher)/gi, "").trim().toLowerCase();
     }
 
     let extractedRows = [];
@@ -71,14 +41,13 @@
     function loadTimetable() {
       const fileInput = document.getElementById("lessonFile");
       const file = fileInput.files[0];
-      const inputName = document.getElementById("teacherName").value.trim();
-      teacherFullName = inputName;
+      teacherFullName = document.getElementById("teacherName").value.trim();
 
       if (!file || !file.name.endsWith(".docx")) {
-        alert("Please upload a .docx file.");
+        alert("Please upload a .docx file only.");
         return;
       }
-      if (!inputName) {
+      if (!teacherFullName) {
         alert("Enter your full name.");
         return;
       }
@@ -90,7 +59,7 @@
           const parser = new DOMParser();
           const doc = parser.parseFromString(rawHTML, "text/html");
           const elements = Array.from(doc.body.children);
-          const normalizedInput = normalize(inputName);
+          const normalizedInput = normalize(teacherFullName);
           let found = false;
 
           for (let i = 0; i < elements.length; i++) {
@@ -99,15 +68,7 @@
             if (elText.includes(normalizedInput)) {
               for (let j = i + 1; j < elements.length; j++) {
                 if (elements[j].tagName === "TABLE") {
-                  document.getElementById("editor").innerHTML = elements[j].outerHTML;
-                  document.getElementById("status").textContent = "✅ Timetable found and loaded for " + teacherFullName;
-
-                  const rows = elements[j].querySelectorAll("tr");
-                  extractedRows = Array.from(rows).map(row =>
-                    Array.from(row.querySelectorAll("td,th")).map(cell => cell.textContent.trim())
-                  );
-                  console.log("📊 Extracted Rows:", extractedRows);
-                  startMonitoring();
+                  loadTable(elements[j].outerHTML);
                   found = true;
                   return;
                 }
@@ -124,17 +85,44 @@
           alert("Error reading file: " + err.message);
         });
       };
-
       reader.readAsArrayBuffer(file);
     }
+
+    function loadTable(html) {
+      document.getElementById("editor").innerHTML = html;
+      document.getElementById("status").textContent = "✅ Timetable loaded for " + teacherFullName;
+
+      const table = document.querySelector("#editor table");
+      const rows = table.querySelectorAll("tr");
+
+      extractedRows = Array.from(rows).map(row =>
+        Array.from(row.querySelectorAll("td,th")).map(cell => cell.textContent.trim())
+      );
+
+      // Expand double lessons → split into two
+      extractedRows = extractedRows.map(row => row.flatMap(cell => {
+        if (/DOUBLE|80\s*MIN/i.test(cell)) {
+          return [
+            cell.replace(/DOUBLE|80\s*MIN/i, "").trim(), // first part
+            cell.trim() // repeat subject for 2nd period
+          ];
+        }
+        return [cell];
+      }));
+
+      startMonitoring();
+    }
+
+    const periodToTimeMap = {
+      "1": "07:10", "REG": "07:50", "2": "08:00", "3": "08:40",
+      "SB": "09:20", "4": "09:35", "5": "10:15", "TB": "10:55",
+      "6": "11:18", "7": "12:16"
+    };
 
     function normalizeDay(text) {
       if (!text) return "";
       const short = text.trim().slice(0, 2).toLowerCase();
-      const dayMap = {
-        mo: "monday", tu: "tuesday", we: "wednesday",
-        th: "thursday", fr: "friday"
-      };
+      const dayMap = { mo: "monday", tu: "tuesday", we: "wednesday", th: "thursday", fr: "friday" };
       return dayMap[short] || "";
     }
 
@@ -142,55 +130,32 @@
       setInterval(() => {
         const now = new Date();
         const today = now.toLocaleDateString("en-KE", { weekday: 'long' }).toLowerCase();
-        const currentHH = now.getHours();
-        const currentMM = now.getMinutes();
-        const currentMinutes = currentHH * 60 + currentMM;
-
-        console.log("🔔 Checking timetable for today: ", today);
-        console.log("🕒 Current time: ", currentHH, ":", currentMM, "=>", currentMinutes, "minutes");
-
-        let timeHeaders = extractedRows[0].map(cell => cell.trim());
-        if (!/^\d{1,2}[:.]\d{2}/.test(timeHeaders[1])) {
-          timeHeaders = extractedRows[1].map(cell => cell.trim());
-        }
+        const HH = now.getHours(), MM = now.getMinutes();
 
         for (let r = 2; r < extractedRows.length; r++) {
           const row = extractedRows[r];
           const rowDay = normalizeDay(row[0]);
           if (!rowDay || rowDay !== today) continue;
-          console.log(`📅 Row Day: ${row[0]} → ${rowDay} | Today: ${today}`);
 
           for (let c = 1; c < row.length; c++) {
+            let timeLabel = extractedRows[0][c]?.trim() || extractedRows[1][c]?.trim() || "";
             const lesson = row[c];
-            const timeHeader = timeHeaders[c] || "";
+            if (!lesson || /BREAK|PREPS|GAMES|CLUB/i.test(lesson)) continue;
 
-            if (!lesson || lesson.trim() === "" || /BREAK|PREPS|GAMES|CLUB/i.test(lesson)) continue;
+            if (!periodToTimeMap[timeLabel]) continue;
+            const [hh, mm] = periodToTimeMap[timeLabel].split(":").map(Number);
 
-            const timeMatch = timeHeader.match(/(\d{1,2}[:.]\d{2})/); // first valid time
-            if (!timeMatch) {
-              console.warn(`⚠️ Skipping column ${c} due to invalid time format: "${timeHeader}"`);
-              continue;
-            }
+            let alertHH = hh, alertMM = mm - 2;
+            if (alertMM < 0) { alertHH -= 1; alertMM += 60; }
 
-            const [hh, mm] = timeMatch[1].split(/[:.]/).map(Number);
-            const lessonStartMinutes = hh * 60 + mm;
-            const alertMinutes = lessonStartMinutes - 2;
-
-            console.log(`🧪 Time Header: "${timeHeader}" → Parsed: "${hh}:${mm}", Lesson: "${lesson}"`);
-
-            if (currentMinutes > lessonStartMinutes) {
-              console.log(`⏩ Skipping lesson "${lesson}" — already passed (${hh}:${mm})`);
-            } else if (currentMinutes === alertMinutes) {
-              const sayText = `Teacher ${teacherFullName}, in 2 minutes go to ${lesson.replace(/\n/g, ", ")}`;
-              console.log("🔔 SPEAK:", sayText);
+            if (HH === alertHH && MM === alertMM) {
+              const sayText = `Teacher ${teacherFullName}, in 2 minutes go to ${lesson}`;
               alert("🔔 " + sayText);
               speakText(sayText);
-            } else {
-              console.log(`⏳ Waiting: "${lesson}" starts at ${hh}:${mm}, will alert at ${Math.floor(alertMinutes / 60)}:${alertMinutes % 60}`);
             }
           }
         }
-      }, 60000); // every 1 minute
+      }, 60000);
     }
 
     function speakText(text) {
@@ -198,12 +163,10 @@
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = "en-US";
         msg.rate = 0.95;
-        msg.pitch = 1;
         speechSynthesis.speak(msg);
-      } else {
-        alert("Sorry, your browser does not support speech.");
       }
     }
   </script>
 </body>
 </html>
+
