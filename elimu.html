@@ -300,75 +300,64 @@
 
 
 </head>
-<body class="bg-white text-gray-800 font-sans leading-relaxed">
+
+    <body class="bg-white text-gray-800 font-sans leading-relaxed">
 
   <!-- Header / Navbar -->
-  
- 
-  <header class="bg-blue-800 text-white p-6 shadow-md">
-  <div class="max-w-7xl mx-auto flex justify-between items-center">
-    <!-- Logo and Company Name -->
-    <div class="flex items-center space-x-4">
-      <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
-           alt="Savina Logo" class="h-12 w-auto rounded shadow-md">
-      <h1 class="text-xl md:text-2xl font-bold">ELIMU CONNECT LTD<br> Hybrid Education<br></h1>
+  <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-6 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      
+      <!-- Logo and Company Name -->
+      <div class="flex items-center space-x-4">
+        <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
+             alt="Elimu Connect Logo" class="h-12 w-auto rounded-lg shadow-md hover:scale-105 transform transition duration-300">
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold tracking-wide">
+            ELIMU CONNECT LTD
+          </h1>
+          <p class="text-sm md:text-base text-blue-200 font-medium">
+            CBC & IGCSE | ICT Integration | Smart Learning Tools
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex space-x-6 text-sm font-semibold">
+        <a href="#about" class="hover:text-yellow-300 transition">About Us</a>
+        <a href="#services" class="hover:text-yellow-300 transition">Services</a>
+        <a href="#cbc-pastpapers" class="hover:text-yellow-300 transition">CBC Past Papers</a>
+        <a href="#keywords" class="hover:text-yellow-300 transition">CBC & IGCSE Tools</a>
+        <a href="#testimonials" class="hover:text-yellow-300 transition">Testimonials</a>
+        <a href="#contact" class="hover:text-yellow-300 transition">Contact</a>
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" 
+           class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg shadow hover:bg-yellow-300 transition">
+          📲 Install App
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
+          ☰
+        </button>
+      </div>
     </div>
 
-    <!-- Desktop Navigation -->
-    <nav class="hidden md:flex space-x-6 text-sm font-medium">
-      <a href="#about" class="hover:underline">About Us</a>
-	  <a href="#services" class="hover:underline">Services</a>
-		  <a href="#cbc-pastpapers" class="hover:underline">pastpapers & Smart Tools</a>
-		
-      <a href="#testimonials" class="block text-sm hover:underline">Testimonials</a>
-	
-	<a href="#sponsor" class="block text-sm hover:underline">Sponsor a student</a>
-	
-    <a href="#sponsor" class="block text-sm hover:underline">Pricing
-  
-    </a>
-	
-	    
-	 
-  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install The App</a>
-  
-	
-	</nav>
-
-    <!-- Mobile Menu Button -->
-    <div class="md:hidden">
-      <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
-        &#x22EE; <!-- Unicode for vertical ellipsis (⋮) -->
-      </button>
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden mt-4 px-4 space-y-3 text-sm">
+      <a href="#about" class="block hover:text-yellow-300">About Us</a>
+      <a href="#services" class="block hover:text-yellow-300">Services</a>
+      <a href="#cbc-pastpapers" class="block hover:text-yellow-300">CBC Past Papers</a>
+      <a href="#keywords" class="block hover:text-yellow-300">CBC & IGCSE Tools</a>
+      <a href="#testimonials" class="block hover:text-yellow-300">Testimonials</a>
+      <a href="#contact" class="block hover:text-yellow-300">Contact</a>
+      <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" 
+         class="block bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg shadow hover:bg-yellow-300 transition">
+        📲 Install App
+      </a>
     </div>
-  </div>
+  </header>
 
-  <!-- Mobile Menu (hidden by default) -->
-  <div id="mobile-menu" class="md:hidden mt-4 px-4 space-y-2 hidden">
-    <a href="#about" class="block text-sm hover:underline">About Us</a>
-    <a href="#services" class="block text-sm hover:underline">Services</a>
-	   <a href="#cbc-pastpapers" class="hover:underline">pastpapers & Smart Tools</a>
-		
-	<a href="#testimonials" class="block text-sm hover:underline">Testimonials</a>
-	 
-	
-	
-	  <a href="#sponsor" class="block text-sm hover:underline">Sponsor a student</a>
-	  
-	<a href="#sponsor" class="block text-sm hover:underline">Pricing
-  
-    </a>
-	
-	 
-    
-  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install our App</a>
-  
- 
-  
-  </div>
-</header>
-
- 
  
  
  <div class="cta">
@@ -739,10 +728,10 @@
 
 
 
-<!-- CBC, IGCSE & ICT Keywords Section (SEO Boost) -->
+
 <section id="keywords" class="px-4 py-12 max-w-7xl mx-auto">
   <h2 class="text-3xl font-bold text-green-700 mb-8 text-center">
-    CBC, IGCSE & ICT Smart Tools FOR SCHOOLS AND TUTORS AND STUDENTS
+    CBC, IGCSE & ICT SMART TOOLS FOR SCHOOLS , TUTORS AND STUDENTS
   </h2>
 
   <div class="grid md:grid-cols-3 gap-8 text-left">
@@ -764,7 +753,7 @@
       </ul>
     </div>
 
-    <!-- IGCSE Long-Tail Keywords -->
+    
     <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-md p-6">
       <h3 class="text-xl font-semibold text-yellow-700 mb-4">🔹 IGCSE Long-Tail Keywords</h3>
       <ul class="list-disc ml-5 space-y-2 text-sm text-yellow-800">
@@ -781,7 +770,7 @@
       </ul>
     </div>
 
-    <!-- ICT Integration & Smart Tools Keywords -->
+  
     <div class="bg-green-50 border-l-4 border-green-400 rounded-lg shadow-md p-6">
       <h3 class="text-xl font-semibold text-green-700 mb-4">🔹 ICT Integration & Smart Tools Keywords</h3>
       <ul class="list-disc ml-5 space-y-2 text-sm text-green-800">
@@ -800,7 +789,7 @@
 
   </div>
 
-  <!-- CTA -->
+ 
   <div class="mt-10 text-center">
     <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank"
        class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition">
@@ -1245,6 +1234,7 @@ Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</
 
   </body>
 </html>
+
 
 
 
