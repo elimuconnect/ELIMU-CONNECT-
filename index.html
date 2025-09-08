@@ -1,319 +1,2144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot with Free Trial</title>
-    <style>
-        /* CSS - Styling the chatbot */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        .chatbox {
-            width: 300px;
-            height: 400px;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-        }
+<!-- Robots: Allow Google to Index This Page -->
+<meta name="robots" content="index, follow" />
 
-        .chatbox-header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            text-align: center;
-        }
+<!-- Google Verification -->
+<meta name="google-site-verification" content="ZuK2pvozDS96vm0_IRjSYEsTqSdC8FJCIgJdAitGf0U" />
 
-        .chatbox-body {
-            padding: 10px;
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
+<!-- Title (70 characters max, keyword-rich) -->
+<title>Elimu Connect – ICT Integration in Schools | Smart Registers, Homework & CBC/IGCSE Tools</title>
 
-        .chatbox-input {
-            display: flex;
-            padding: 10px;
-            background-color: #f4f4f9;
-        }
+<!-- SEO Meta Description (155–160 characters, include main keywords) -->
+<meta name="description" content="Elimu Connect offers ICT integration in schools: smart registers, homework systems, CBC & IGCSE past papers, project/activity generators, live lessons & tutor resources.">
 
-        .chatbox-input select, .chatbox-input input {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 5px;
-        }
+<!-- SEO Keywords (targeted for CBC + IGCSE + smart ICT tools) -->
+<meta name="keywords" content="ICT integration in education Kenya, CBC past papers, IGCSE past papers, CBC project generator, CBC activities Kenya, IGCSE revision resources, smart homework system, digital registers for schools, CBC Grade 1–10, IGCSE learning tools, Elimu Connect app, online lessons Kenya, tutor resources Kenya, school ICT solutions, academic apps Kenya">
 
-        .chatbox-input button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+<!-- Author -->
+<meta name="author" content="Elimu Connect">
 
-        .chatbox-input button:hover {
-            background-color: #45a049;
-        }
+<!-- Open Graph (Social Media Sharing) -->
+<meta property="og:title" content="Elimu Connect – CBC & IGCSE Past Papers and Smart ICT Tools" />
+<meta property="og:description" content="CBC & IGCSE solutions: past papers, activity generators, smart homework systems, ICT integration tools, live lessons & tutor resources." />
+<meta property="og:url" content="https://elimuconnect.github.io/ELIMU-CONNECT-/elimu" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://elimuconnect.github.io/ELIMU-CONNECT-/logo.png" />
 
-        .chat-message {
-            margin: 5px 0;
-        }
+<!-- Optional Favicon -->
+<link rel="icon" href="favicon.ico" />
 
-        .user-message {
-            text-align: right;
-        }
+	
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          montserrat: ['Montserrat', 'sans-serif'],
+        },
+      },
+    }
+  }
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .bot-message {
-            text-align: left;
-            background-color: #f0f0f0;
-            padding: 8px;
-            border-radius: 5px;
-        }
-    </style>
+
+
+
+<style>
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(50px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-fade-in {
+      animation: fadeIn 1s ease-out forwards;
+    }
+    .animate-slide-in-right {
+      animation: slideInRight 1s ease-out forwards;
+    }
+    .animate-zoom-in {
+      animation: zoomIn 1s ease-out forwards;
+    }
+    /* Initially hide all images with animation */
+    img[data-animate] {
+      opacity: 0;
+      transform-style: preserve-3d;
+    }
+	
+	
+	
+	
+	
+	
+	/* Animation classes */
+  .slide-in {
+    animation: slideInFade 4s ease-in-out infinite;
+  }
+  .slide-left {
+    animation: slideLeftFade 4s ease-in-out infinite;
+    animation-delay: 1.33s;
+  }
+  .slide-right {
+    animation: slideRightFade 4s ease-in-out infinite;
+    animation-delay: 2.66s;
+  }
+  .zoom-in {
+    animation: zoomFade 4s ease-in-out infinite;
+    animation-delay: 0s;
+  }
+
+  @keyframes slideInFade {
+    0%, 33% {opacity: 1; transform: translateX(0);}
+    40%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideLeftFade {
+    0%, 33% {opacity: 0; transform: translateX(20px);}
+    40%, 73% {opacity: 1; transform: translateX(0);}
+    80%, 100% {opacity: 0; transform: translateX(-20px);}
+  }
+  @keyframes slideRightFade {
+    0%, 66% {opacity: 0; transform: translateX(-20px);}
+    73%, 100% {opacity: 1; transform: translateX(0);}
+  }
+  @keyframes zoomFade {
+    0%, 33% {opacity: 1; transform: scale(1);}
+    40%, 100% {opacity: 0; transform: scale(1.2);}
+  }
+	
+	
+	
+	.carousel-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+
+  .carousel-image.active {
+    opacity: 1;
+  }
+	
+	
+	
+	
+	
+	
+	.oval-video {
+    width: 640px;
+    height: 360px;
+    border-radius: 50% / 30%;
+    overflow: hidden;
+  }
+
+  .oval-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	.carousel-image {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .carousel-image.active {
+    display: block;
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	.shape-circle {
+    clip-path: circle(50% at 50% 50%);
+  }
+
+  .shape-triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  
+  .shape-star {
+  clip-path: polygon(
+    50% -20%,
+    72% 30%,
+    120% 30%,
+    80% 60%,
+    95% 120%,
+    50% 85%,
+    5% 120%,
+    20% 60%,
+    -20% 30%,
+    28% 30%
+  );
+}
+
+  .shape-hexagon {
+    clip-path: polygon(
+      25% 5%, 75% 5%,
+      100% 50%, 75% 95%,
+      25% 95%, 0% 50%
+    );
+  }
+
+  .shape-diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  .shape-oval {
+    clip-path: ellipse(50% 35% at 50% 50%);
+  }
+
+  .shape-cylinder {
+    clip-path: ellipse(50% 30% at 50% 0%), ellipse(50% 30% at 50% 100%);
+    border-radius: 50% / 30%;
+  }
+
+  .shape-cone {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  }
+
+  .shape-gasjar {
+    clip-path: polygon(
+      30% 0%, 70% 0%, 70% 15%, 80% 20%,
+      80% 80%, 70% 85%, 70% 100%, 30% 100%,
+      30% 85%, 20% 80%, 20% 20%, 30% 15%
+    );
+  }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	.section h2 {
+      text-align: center;
+      color: #0077cc;
+      margin-bottom: 1rem;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+    .features li {
+      list-style: none;
+      background: #e6f2ff;
+      padding: 1rem;
+      border-left: 5px solid #0077cc;
+      border-radius: 5px;
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	 header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .cta {
+      background: #ffd700;
+      text-align: center;
+      padding: 1rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+	
+	
+	
+	
+  </style>
+
+
 </head>
-<body>
 
-    <div class="chatbox">
-        <div class="chatbox-header">
-            <h2>Welcome to Our Tuition App!</h2>
+    <body class="bg-white text-gray-800 font-sans leading-relaxed">
+
+  <!-- Header / Navbar -->
+  <header class="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-6 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      
+      <!-- Logo and Company Name -->
+      <div class="flex items-center space-x-4">
+        <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
+             alt="Elimu Connect Logo" class="h-12 w-auto rounded-lg shadow-md hover:scale-105 transform transition duration-300">
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold tracking-wide">
+            ELIMU CONNECT LTD
+          </h1>
+          <p class="text-sm md:text-base text-blue-200 font-medium">
+            CBC & IGCSE | ICT Integration in Schools | Smart Tools
+          </p>
         </div>
-        <div class="chatbox-body" id="chatbox-body">
-            <!-- Messages will appear here -->
-        </div>
-        <div class="chatbox-input">
-            <select id="role-select">
-                <option value="" disabled selected>Select your role</option>
-                <option value="student-free">I am a Student/Tutor (Free Features)</option>
-                <option value="student-free-trial">I am a Student/Tutor (Free Trial)</option>
-                <option value="student-paid">I am a Student/Tutor (Paid Features)</option>
-                <option value="tutor-free"></option>
-				<option value="tutor-free-trial"></option>
-                <option value="tutor-paid"></option>
-            </select>
-            <button onclick="sendMessage()">Send</button>
-        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="hidden md:flex space-x-6 text-sm font-semibold">
+        <a href="#about" class="hover:text-yellow-300 transition">About Us</a>
+        <a href="#services" class="hover:text-yellow-300 transition">Services</a>
+        <a href="#cbc-pastpapers" class="hover:text-yellow-300 transition">CBC & IGCSE Past Papers</a>
+        <a href="#keywords" class="hover:text-yellow-300 transition">CBC & IGCSE Tools </a>
+        <a href="#testimonials" class="hover:text-yellow-300 transition">Testimonials</a>
+		   <a href="#sponsor" class="hover:text-yellow-300 transition">Students pricing</a>
+       
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" 
+           class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg shadow hover:bg-yellow-300 transition">
+          📲 Install App
+        </a>
+      </nav>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
+          ☰
+        </button>
+      </div>
     </div>
 
-    <script>
-        let chatboxBody = document.getElementById("chatbox-body");
-        let countdownMessageDisplayed = false;  // Track if countdown message has been displayed
-        let countdownMessageElement = null; // Store the countdown message element for later updates
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden mt-4 px-4 space-y-3 text-sm">
+      <a href="#about" class="block hover:text-yellow-300">About Us</a>
+      <a href="#services" class="block hover:text-yellow-300">Services</a>
+      <a href="#cbc-pastpapers" class="block hover:text-yellow-300">CBC and IGCSE Past Papers</a>
+      <a href="#keywords" class="block hover:text-yellow-300">CBC & IGCSE Smart Tools</a>
+      <a href="#testimonials" class="block hover:text-yellow-300">Testimonials</a>
+       <a href="#sponsor" class="hover:text-yellow-300 transition">Students pricing</a>
+       
+      <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" 
+         class="block bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg shadow hover:bg-yellow-300 transition">
+        📲 Install App
+      </a>
+    </div>
+  </header>
 
-        // Array of 100 passwords (can be extended with actual passwords)
-        const passwords = [
-             "pS9hJk!hPmD0bF7T", "Qw4$KiH6dFg8L2Zn", "M5a#Hq9oLpD1g0Fj", "R!3hP8LsE6kZyTf7",
-            "Xj2zU!hYqW8mK9Rn", "ZnD5oFq#XlT1hHs7", "P@0xWq2yLoS3tGb8", "Ym9bZqJk!5R2fX7Tc", "7Vq#9tE0yPjKn3Gs",
-            "B2FpZ#6dSk8CwLJ9", "WmR1!Yd9q8TzJ7p5", "N2xL5rPv@z6oK7iF", "QeJ8iP1#FzR2tCw0", "YpW5L7sT2h3Xo9kG",
-            "O4b6jQsN@r9V3YwT", "R#7yX9sTz0J4wKvG", "i2Xy6D$LqY7CmFvR", "P8yK0sZf9w6N3H2iL", "S3QzT9x5aX7pW!2v",
-            "zT3X1y4Mv#Ls7q0P", "iD7T6H2rX3kVbW9G", "fYz9p0B4ZxK8@W6t", "K5PqX9cL2V3#hYt7", "P9Lm#vF0Q8gR2tJ3",
-            "uZ6fM9jY8t0p5W2S", "F3vPz9hJ7B0Yx2R1", "wG7D5kX2lZ8F1rQj", "q5J7kL0xS3yFz1pY", "A8wQ9P7fK2R1!zTx",
-            "v9H0G7Uq2Z#5nL3F", "Kp2J4tQyR8wV5mF1", "Z3vN6kF2T9Xr4sB0", "wL2vY1X9Z7fTpG3M", "j6sQ8W5P1Fz0iR2C",
-            "bF9Y3kL1Rz5vH2oT", "Q3K7T9vN1g6pFz0m", "s8Yq3oR1V9pLz7gD", "F2mV6iW9zX1P0rT7", "N4g9X3L2sQk7vWzJ",
-            "vR5pY1G2mZ7s9B0W", "Q9X1tK0L2y5mF7Pz", "k8WzN2V7yF3jL0X1", "Y2tM9P1gL6X0vF7R", "f4T3JbK7h9Z2N0pV",
-            "V1m5zP9L8rY3Kj0X", "G6V9oQ2Z1p8XyR3T", "w9Y1gF4Tz2P7H0mL", "L9P7tX2Bq6vY1Wz3", "V1X2L5Tz9rF0b3Y7",
-            "Q7X6t1zP9f3yV2J5", "rP5zK2W8Q1F7yL0t", "v9X2F4T3k7J1Y0Qm", "sR1P7zF6L2X0y9jT", "B2t8kF6X5Zq1V0m7",
-            "Q9W6tL5y1G2s0X3J", "F3z0R7m5B2X8t9Y1", "K6Q4zP7f5R1Xy9T0", "F1T9W7p2Y6kXrL0m", "D9g7B6v1J2F0tX3P",
-            "m8L9F3V1X2pY4W0t", "j0T6X3K9L1B5vP2Y", "Y3R2tP7F1X6L9v0W", "sT5X9yP0F2K1L7Qm", "J2F7vT8P1X5L9Y0k",
-            "B4X2F7W1t9mL3R6p", "L9Y0vX5t2P3J1F6k", "R7B9zF2L1X6P3t0Y", "F5X2mR9Y1pL7V3tK", "K9Y6pR7L3z2F1X0t",
-            "Z4F7T1P9X3Y8L5m0", "V2kX5T1L3F9pY0R7", "qB8R9Y1mX2L5P3F0", "B9F2X1Y5L7T3v0mP", "V1L7X9p2R0Y6B3tF",
-            "L5X2F1T9Y0R6pK3m", "F1R7T6X0P3Y9L2B5", "Y7B2X5L9T1F6m3P0", "Q3X1F7Y5R2L0T9K8", "K9P1X2Y5F3L6R7t0",
-            "T7X9F1L3Y0R2B5k6", "Q1X9T2Y7F3P6L0R5", "Z3T9L2F5Y0X6P1B7", "X5Y9F7L0T2K3R1P6", "B9T1X0Y7L3F5K2R6",
-            "P7Y9X3L2T0F5R6K1", "L2X9Y0P5T6R1F7K3", "Y1L9F7X2T0R5P3K6", "K3X7P1Y0T2F9L6R5", 
-        ];
+<div class="cta">
+  🎁 1 week Free Trial + 40% Referral Commission! 💰
+</div>
 
-        // Function to display messages in chatbox
-        function displayMessage(message, sender, id = '') {
-            const messageDiv = document.createElement("div");
-            messageDiv.classList.add("chat-message", `${sender}-message`);
-            messageDiv.innerHTML = message;
-            if (id) messageDiv.id = id;  // Assign a unique id if provided
-            chatboxBody.appendChild(messageDiv);
-            chatboxBody.scrollTop = chatboxBody.scrollHeight;  // Scroll to the bottom
+<!-- School CTA Section -->
+<section class="bg-gray-100 py-8">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-start gap-8">
+    
+    <!-- Left Content -->
+    <div class="md:w-2/3">
+      <h2 class="text-2xl md:text-3xl font-bold text-blue-800 mb-4">
+        📚 For Schools/Tutors: Book a Demo of Our Smart ICT Tools
+      </h2>
+      <p class="text-gray-700 mb-4 leading-relaxed">
+        Discover how <strong>Elimu Connect</strong> can transform your school with 
+        <span class="font-semibold">smart digital registers</span>, 
+        <span class="font-semibold">homework management systems</span>, 
+        and a <span class="font-semibold">CBC project/activity generator</span>.  
+        Our experts will walk your staff through a live demo of ICT integration in the classroom.
+      </p>
+      <p class="text-gray-700 mb-6">
+        You’ll also get a clear breakdown of <strong>pricing and subscription options</strong> 
+        tailored for your school. Don’t miss the chance to empower teachers and students 
+        with cutting-edge learning tools.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-wrap gap-4">
+        <a href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect,%20I%20would%20like%20to%20book%20a%20demo%20for%20your%20Smart%20ICT%20Tools." 
+           target="_blank"
+           class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition">
+          📅 Book a Free Demo
+        </a>
+        <a href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect,%20please%20share%20your%20pricing%20for%20Smart%20ICT%20Tools." 
+           target="_blank"
+           class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition">
+          💰 View Pricing
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Side Illustration -->
+    <div class="md:w-1/3 flex justify-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+           alt="ICT Smart Tools Demo" class="w-64 h-auto rounded-lg shadow-lg">
+    </div>
+
+  </div>
+</section>
+
+  
+  <!-- Hero Section with Oval Video -->
+<section class="w-full h-96 flex items-center justify-center my-6 mx-auto max-w-6xl" data-animate="zoom-in">
+  <div class="w-[640px] h-[360px] rounded-[50%/30%] overflow-hidden shadow-xl">
+    <video autoplay muted loop playsinline class="w-full h-full object-cover">
+      <source src="https://cdn.pixabay.com/video/2021/09/15/88751-606111298_large.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</section>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section id="ict" class="px-4 py-8 max-w-7xl mx-auto text-center">
+
+  <h2 class="text-3xl font-bold mb-10">ICT INTEGRATION IN EDUCATION</h2>
+  
+  
+  
+  
+
+  
+  	
+	
+  <h3 class="text-5xl font-bold mb-4 text-purple-600">ICT INTEGRATION IN EDUCATION</h3>
+  <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">
+    The integration of ICT in education is revolutionizing the learning experience. From interactive digital classrooms to real-time collaboration tools, technology empowers students to learn beyond the limits of traditional walls. It brings lessons to life, makes learning more engaging, and equips learners with the digital skills needed to thrive in the 21st century. Embracing ICT isn’t just an option—it’s the future of education.
+  </p>
+
+  <div class="relative w-full max-w-6xl mx-auto mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    
+
+    <!-- Oval -->
+    <video class="shape-oval w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/5183278/5183278-hd_1920_1080_30fps.mp4" type="video/mp4">
+    </video>
+
+   
+    <!-- Circle -->
+    <video class="shape-circle w-full h-64 object-cover" autoplay loop muted playsinline>
+      <source src="https://videos.pexels.com/video-files/1422633/1422633-hd_1920_810_24fps.mp4" type="video/mp4">
+    </video>
+
+  
+  </div>
+</section>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <section id="services" class="px-4 py-8 max-w-7xl mx-auto text-center">
+  <h2 class="text-2xl sm:text-3xl font-bold text-green-700 mb-8">Services We Offer</h2>
+
+  <div class="grid md:grid-cols-3 gap-8 text-left">
+
+    <!-- For Students -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">For Students</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-blue-800">
+        <li><strong>Affordable Live Online Lessons</strong> – From just Ksh 200 ($1.6/hour)</li>
+        <li><strong>FREE AI-Powered Virtual Tutor</strong> – 24/7 homework and exam support</li>
+        <li><strong>Find Nearby Private Tutors</strong> – Based on subject and location</li>
+        <li>Evening School-Based Tuition for Class 4–12</li>
+        <li>On-Demand <strong>Homework Help</strong> with AI + human tutors</li>
+        <li>Access over <strong>2000 Video Lessons & 5000 Quizzes</strong></li>
+        <li><strong>Weekly National Tests & Digital Certificates</strong></li>
+        <li>1000+ Question & Answer Pairs from Previous Exams</li>
+        <li>30,000+ KCPE & KCSE Past Papers with Answers</li>
+        <li>200+ Ebooks for Primary & Secondary Students</li>
+        <li>3 Fun Math Games & 3 Kiswahili/English Language Games</li>
+        <li>Peer-to-Peer <strong>Student Forums & Discussion Hubs</strong></li>
+        <li><strong>Career Guidance Tools</strong> for Kenyan Teens</li>
+        <li>AI-Powered Study Timetable Generator</li>
+        <li>Digital Notebook, Notes Organizer & Revision Tracker</li>
+        <li><strong>Scientific Calculator + Graph Plotting Tools</strong></li>
+        <li>Math, Chemistry & Physics Formula Tools</li>
+        <li>Online Dictionary & Kiswahili Kamusi</li>
+        <li>Similes, Metaphors, Methali & Nahau Reference Tools</li>
+        <li>Human, Fish & Plant <strong>3D Anatomy Simulators</strong></li>
+        <li>Interactive Digital Periodic Table</li>
+        <li>Physics Concepts & Mole Calculators</li>
+        <li>Chemical Equations Balancer + Organic Chemistry Guide</li>
+        <li>Math Tools: Area, Volume, Trigonometry, Logarithms</li>
+        <li>Financial Math Tools: Income Tax, Interest, Binomial, Variation</li>
+        <li>Geography Tools: Latitude/Longitude, Errors & Approximations</li>
+        <li>Advanced Statistics & Matrix Solvers</li>
+        <li>Calculus: Differentiation & Integration Calculators</li>
+      </ul>
+    </div>
+
+    <!-- For Tutors -->
+    <div class="bg-green-50 border-l-4 border-green-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-green-700 mb-4">For Tutors</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-green-800">
+        <li><strong>Find Students</strong> Nearby for Physical or Online Lessons</li>
+        <li>Teach in School-Based Evening Programs</li>
+        <li><strong>Get Listed in the Kenya Tutor Directory</strong></li>
+        <li>Join Monthly Math Game Competitions</li>
+        <li>Access TSC Teacher Swaps Platform</li>
+        <li><strong>Forum & File Sharing</strong> for Kenyan Teachers</li>
+        <li>Download Notes, Exams & Teaching Resources</li>
+        <li>Ready-to-Use Schemes of Work & Lesson Plans</li>
+        <li>Track Remedial Lessons & Student Performance</li>
+        <li>Apply for Verified <strong>International Teaching Jobs</strong></li>
+      </ul>
+    </div>
+
+    <!-- For Schools -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-yellow-700 mb-4">For Schools</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-yellow-800">
+        <li><strong>Custom Website Development</strong> for Kenyan Schools</li>
+        <li>Bulk Subscriptions to Learning Apps & Student Tools</li>
+        <li>ICT & Smart Classroom Integration</li>
+        <li>School-Based <strong>STEMLA Clubs</strong> (STEM + Languages)</li>
+        <li>Performance Monitoring, Charts & Tracker Dashboards</li>
+        <li>Support for Tree Planting & CSR Environmental Projects</li>
+        <li>Evening Tuition Program Management System</li>
+        <li>Connect Teachers for <strong>TSC Swaps</strong></li>
+        <li><strong>School Coding Programs</strong> for Students and Teachers (Web & App Development)</li>
+        <li><strong>Smart Registers</strong> – Digital attendance & tracking tools</li>
+        <li><strong>Smart Homework Systems</strong> – Assign, track & grade online homework</li>
+        <li><strong>CBC Activities & Project Generator</strong> – Auto-generate CBC-compliant activities and projects</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+  
+  
+ 
+
+
+
+
+
+
+
+
+<!-- CBC Past Papers Section -->
+<section id="cbc-pastpapers" class="px-4 py-12 max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold text-blue-700 mb-8 text-center">CBC Past Papers (Grade 1–10)</h2>
+  <p class="text-lg text-gray-700 mb-10 text-center max-w-3xl mx-auto">
+    Access CBC past papers for all subjects, Grades 1 to 10. Download via our 
+    <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" 
+       class="text-green-600 font-semibold underline">Elimu Connect App</a>.
+  </p>
+
+  <!-- Grid for Grades -->
+  <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
+   <!-- ================= GRADE 1 ================= -->
+<div class="bg-blue-50 rounded-lg shadow-md p-6 border-l-4 border-blue-400">
+  <h3 class="text-xl font-semibold text-blue-700 mb-4">Grade 1</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-blue-800">
+
+    <!-- Mathematics -->
+    <li>
+      <span class="font-semibold">Mathematics</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      <span class="font-semibold">English</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      <span class="font-semibold">Kiswahili</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Literacy Activities -->
+    <li>
+      <span class="font-semibold">Literacy Activities</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Environmental Activities -->
+    <li>
+      <span class="font-semibold">Environmental Activities</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Creative Arts -->
+    <li>
+      <span class="font-semibold">Creative Arts</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Movement & P.E. -->
+    <li>
+      <span class="font-semibold">Movement & P.E.</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      <span class="font-semibold">Religious Education</span>
+      <ul class="ml-6 list-disc text-blue-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+<!-- ================= GRADE 2 ================= -->
+<div class="bg-green-50 rounded-lg shadow-md p-6 border-l-4 border-green-400">
+  <h3 class="text-xl font-semibold text-green-700 mb-4">Grade 2</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-green-800">
+
+    <!-- Mathematics -->
+    <li>
+      <span class="font-semibold">Mathematics</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      <span class="font-semibold">English</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      <span class="font-semibold">Kiswahili</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Literacy Activities -->
+    <li>
+      <span class="font-semibold">Literacy Activities</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Environmental Activities -->
+    <li>
+      <span class="font-semibold">Environmental Activities</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Creative Arts -->
+    <li>
+      <span class="font-semibold">Creative Arts</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Movement & P.E. -->
+    <li>
+      <span class="font-semibold">Movement & P.E.</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      <span class="font-semibold">Religious Education</span>
+      <ul class="ml-6 list-disc text-green-600 space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+   <!-- ================= GRADE 3 ================= -->
+<div class="bg-yellow-50 rounded-lg shadow-md p-6 border-l-4 border-yellow-400">
+  <h3 class="text-xl font-semibold text-yellow-700 mb-4">Grade 3</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-yellow-800">
+    
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Environmental Activities -->
+    <li>
+      Environmental Activities
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Creative Arts -->
+    <li>
+      Creative Arts
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Movement & P.E. -->
+    <li>
+      Movement & P.E.
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+    
+  </ul>
+</div>
+
+
+  <!-- ================= GRADE 4 ================= -->
+<div class="bg-purple-50 rounded-lg shadow-md p-6 border-l-4 border-purple-400">
+  <h3 class="text-xl font-semibold text-purple-700 mb-4">Grade 4</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-purple-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Integrated Science -->
+    <li>
+      Integrated Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Social Studies -->
+    <li>
+      Social Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Home Science -->
+    <li>
+      Home Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education (CRE/IRE/HRE)
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Art & Craft -->
+    <li>
+      Art & Craft
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Music -->
+    <li>
+      Music
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- P.E. -->
+    <li>
+      P.E.
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+
+<!-- ================= GRADE 5 ================= -->
+<div class="bg-pink-50 rounded-lg shadow-md p-6 border-l-4 border-pink-400">
+  <h3 class="text-xl font-semibold text-pink-700 mb-4">Grade 5</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-pink-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Integrated Science -->
+    <li>
+      Integrated Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Social Studies -->
+    <li>
+      Social Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Home Science -->
+    <li>
+      Home Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Art & Craft -->
+    <li>
+      Art & Craft
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Music -->
+    <li>
+      Music
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- P.E. -->
+    <li>
+      P.E.
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+
+
+	<!-- ================= GRADE 6 ================= -->
+<div class="bg-indigo-50 rounded-lg shadow-md p-6 border-l-4 border-indigo-400">
+  <h3 class="text-xl font-semibold text-indigo-700 mb-4">Grade 6</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-indigo-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Integrated Science -->
+    <li>
+      Integrated Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Social Studies -->
+    <li>
+      Social Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Home Science -->
+    <li>
+      Home Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Art & Craft -->
+    <li>
+      Art & Craft
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Music -->
+    <li>
+      Music
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- P.E. -->
+    <li>
+      P.E.
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+<!-- ================= GRADE 7 (Junior Secondary) ================= -->
+<div class="bg-red-50 rounded-lg shadow-md p-6 border-l-4 border-red-400">
+  <h3 class="text-xl font-semibold text-red-700 mb-4">Grade 7 (Junior Secondary)</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-red-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Integrated Science -->
+    <li>
+      Integrated Science
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Pre-Technical Studies -->
+    <li>
+      Pre-Technical Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Business Studies -->
+    <li>
+      Business Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Social Studies -->
+    <li>
+      Social Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Computer Studies -->
+    <li>
+      Computer Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- History -->
+    <li>
+      History
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Geography -->
+    <li>
+      Geography
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education (CRE/IRE/HRE)
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+ <!-- ================= GRADE 8 ================= -->
+<div class="bg-orange-50 rounded-lg shadow-md p-6 border-l-4 border-orange-400">
+  <h3 class="text-xl font-semibold text-orange-700 mb-4">Grade 8</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-orange-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Biology -->
+    <li>
+      Biology
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Chemistry -->
+    <li>
+      Chemistry
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Physics -->
+    <li>
+      Physics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Business Studies -->
+    <li>
+      Business Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Computer Studies -->
+    <li>
+      Computer Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- History -->
+    <li>
+      History
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Geography -->
+    <li>
+      Geography
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+<!-- ================= GRADE 9 ================= -->
+<div class="bg-teal-50 rounded-lg shadow-md p-6 border-l-4 border-teal-400">
+  <h3 class="text-xl font-semibold text-teal-700 mb-4">Grade 9</h3>
+  <ul class="list-disc ml-5 space-y-4 text-sm text-teal-800">
+
+    <!-- Mathematics -->
+    <li>
+      Mathematics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- English -->
+    <li>
+      English
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Kiswahili -->
+    <li>
+      Kiswahili
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Biology -->
+    <li>
+      Biology
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Chemistry -->
+    <li>
+      Chemistry
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Physics -->
+    <li>
+      Physics
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Agriculture -->
+    <li>
+      Agriculture
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Business Studies -->
+    <li>
+      Business Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Computer Studies -->
+    <li>
+      Computer Studies
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- History -->
+    <li>
+      History
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Geography -->
+    <li>
+      Geography
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+    <!-- Religious Education -->
+    <li>
+      Religious Education
+      <ul class="ml-6 list-disc space-y-1">
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 1</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 2</a></li>
+        <li><a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Term 3</a></li>
+      </ul>
+    </li>
+
+  </ul>
+</div>
+
+
+  <!-- ================= GRADE 10 ================= -->
+<div class="bg-gray-50 rounded-lg shadow-md p-6 border-l-4 border-gray-400">
+  <h3 class="text-xl font-semibold text-gray-700 mb-4">Grade 10</h3>
+  <p class="text-gray-600 italic mb-4">📢 Resources for Grade 10 subjects are coming soon. Stay tuned!</p>
+  <ul class="list-disc ml-5 space-y-2 text-sm text-gray-800 opacity-60">
+    <li>Mathematics (Coming Soon)</li>
+    <li>English (Coming Soon)</li>
+    <li>Kiswahili (Coming Soon)</li>
+    <li>Biology (Coming Soon)</li>
+    <li>Chemistry (Coming Soon)</li>
+    <li>Physics (Coming Soon)</li>
+    <li>Agriculture (Coming Soon)</li>
+    <li>Business Studies (Coming Soon)</li>
+    <li>Computer Studies (Coming Soon)</li>
+    <li>History (Coming Soon)</li>
+    <li>Geography (Coming Soon)</li>
+    <li>Religious Education (Coming Soon)</li>
+  </ul>
+</div>
+
+  <!-- CTA Button -->
+  <div class="mt-10 text-center">
+    <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank"
+       class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition">
+      📲 Install Elimu Connect App to Access All CBC Past Papers
+    </a>
+  </div>
+</section>
+
+
+
+
+
+
+<section id="keywords" class="px-4 py-12 max-w-7xl mx-auto">
+  <h2 class="text-3xl font-bold text-green-700 mb-8 text-center">
+    CBC, IGCSE & ICT SMART TOOLS FOR SCHOOLS , TUTORS AND STUDENTS
+  </h2>
+
+  <div class="grid md:grid-cols-3 gap-8 text-left">
+    
+    <!-- CBC Long-Tail Keywords -->
+    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-blue-700 mb-4">🔹 CBC</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-blue-800">
+        <li>CBC Grade 1–10 past papers with answers</li>
+        <li>Free CBC past papers download Kenya</li>
+        <li>CBC Grade 7 exams and revision materials</li>
+        <li>CBC project ideas for Grade 4–10</li>
+        <li>CBC activity generator online</li>
+        <li>CBC science activities and projects</li>
+        <li>CBC homework help tools Kenya</li>
+        <li>CBC curriculum digital learning tools</li>
+        <li>CBC smart school registers Kenya</li>
+        <li>Best CBC online learning platform</li>
+      </ul>
+    </div>
+
+    
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-yellow-700 mb-4">🔹 IGCSE</h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-yellow-800">
+        <li>IGCSE past papers with answers PDF</li>
+        <li>IGCSE math revision notes Kenya</li>
+        <li>Free IGCSE physics past papers</li>
+        <li>IGCSE chemistry practical past papers</li>
+        <li>IGCSE biology revision resources</li>
+        <li>IGCSE online tuition Kenya</li>
+        <li>IGCSE exam preparation tools</li>
+        <li>IGCSE past papers download app</li>
+        <li>Best IGCSE tutors in Kenya</li>
+        <li>IGCSE digital learning platform</li>
+      </ul>
+    </div>
+
+  
+    <div class="bg-green-50 border-l-4 border-green-400 rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-green-700 mb-4">🔹 ICT Integration & Smart Tools </h3>
+      <ul class="list-disc ml-5 space-y-2 text-sm text-green-800">
+        <li>ICT integration in Kenyan schools</li>
+        <li>Smart digital registers for schools Kenya</li>
+        <li>Online homework management system</li>
+        <li>Digital CBC activity/project generator</li>
+        <li>Smart tutor AI for Kenyan students</li>
+        <li>Live online classes for CBC & IGCSE</li>
+        <li>School website development Kenya</li>
+        <li>AI-powered exam revision tools</li>
+        <li>Smart timetable and attendance tracker</li>
+        <li>ICT solutions for Kenyan schools</li>
+      </ul>
+    </div>
+
+  </div>
+
+ 
+  <div class="mt-10 text-center">
+    <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank"
+       class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition">
+      📲 Install Elimu Connect App – CBC & IGCSE Past Papers + Smart Tools
+    </a>
+  </div>
+</section>
+
+
+	
+  
+  
+  <section id="service5" class="mb-16 text-center px-4">
+  <h3 class="text-4xl sm:text-5xl font-bold mb-4 text-green-700">Explore Elimu Connect in Action</h3>
+  <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto mb-8 text-gray-700">
+    Discover how Elimu Connect is transforming education across Kenya. From interactive tutoring to digital tools and school programs, our work speaks for itself. Browse some of the images showcasing our impact on learners, teachers, and schools.
+  </p>
+
+  <div class="relative w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
+
+    <!-- 30 images with shapes and double height -->
+    <!-- You can replace src URLs with your own -->
+    <!-- Row 1 -->
+    <img src="https://images.pexels.com/photos/3825572/pexels-photo-3825572.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/7723354/pexels-photo-7723354.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-cone" alt="">
+    <img src="https://images.pexels.com/photos/248152/pexels-photo-248152.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/3825379/pexels-photo-3825379.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://images.pexels.com/photos/3825443/pexels-photo-3825443.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 2 -->
+    <img src="https://images.pexels.com/photos/714699/pexels-photo-714699.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/3781338/pexels-photo-3781338.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/5905857/pexels-photo-5905857.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-cylinder" alt="">
+    <img src="https://images.pexels.com/photos/5212316/pexels-photo-5212316.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://images.pexels.com/photos/5775/calculator-scientific.jpg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 3 -->
+    <img src="https://images.pexels.com/photos/6156448/pexels-photo-6156448.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/2678059/pexels-photo-2678059.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/674318/pexels-photo-674318.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/950327/pexels-photo-950327.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    <img src="https://cdn.pixabay.com/photo/2013/07/12/13/50/heart-147389_1280.png" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 4 -->
+    <img src="https://cdn.pixabay.com/photo/2021/07/20/12/10/atom-6480540_640.jpg" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2015/12/19/23/17/albert-einstein-1100449_1280.png" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2015/12/04/14/05/code-1076536_1280.jpg" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://cdn.pixabay.com/photo/2016/07/18/07/39/quantum-mechanics-1525470_640.jpg" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://cdn.pixabay.com/photo/2021/11/09/06/38/physics-6780773_640.jpg" class="object-cover w-full h-80 shape-diamond" alt="">
+
+    <!-- Row 5 -->
+    <img src="https://images.pexels.com/photos/159581/dictionary-reference-book-learning-meaning-159581.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-circle" alt="">
+    <img src="https://images.pexels.com/photos/27240871/pexels-photo-27240871/free-photo-of-a-pile-of-books-with-the-words-the-best-books-to-read-in-2020.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-triangle" alt="">
+    <img src="https://images.pexels.com/photos/1205651/pexels-photo-1205651.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-star" alt="">
+    <img src="https://images.pexels.com/photos/1179229/pexels-photo-1179229.jpeg?auto=compress&cs=tinysrgb&w=600" class="object-cover w-full h-80 shape-hexagon" alt="">
+    
+  </div>
+</section>
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+
+	
+	 
+	 
+	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+  <!-- About Section -->
+  <section id="about" class="bg-gray-100 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        
+
+        <h2 class="text-2xl font-bold mb-2">About Us – Elimu Connect Ltd</h2>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">At Elimu Connect Ltd, we are on a mission to transform education in Kenya and beyond by making quality learning accessible, affordable, and impactful—especially for students in underserved communities.
+
+We are a registered private limited company committed to empowering learners and educators through innovative solutions in academic coaching, educational publishing, ICT integration, school supplies, and teacher recruitment. Our unique approach blends technology, community engagement, and social impact, ensuring that no child is left behind due to financial or geographic barriers.
+
+Whether it’s a student improving in STEM and languages, a teacher getting connected to a job, or a school receiving vital educational tools, Elimu Connect is the bridge to opportunity.</p>
+        
+      </div>
+    <div>
+  <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png"
+       alt="About Image"
+       class="w-64 rounded-xl shadow-lg"
+       data-animate="slide-in-right">
+</div>
+    </div>
+  </section>
+
+  <!-- Commitment Section -->
+  <section id="commitment" class="bg-white py-12">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
+      <div class="h-96 w-full rounded-xl shadow-md bg-cover bg-center"
+           style="background-image: url('https://static.wixstatic.com/media/9ba186_ec5b3eb56d0b47b7b74398a4e0386917~mv2.png');"
+           data-animate="fade-in">
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold mb-4">Our Vision</h2>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">To transform education in Kenya and Africa by providing accessible, innovative, and 
+inclusive learning resources, services, and technologies for all students—regardless of their 
+socioeconomic background. </p>
+
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Mission</h3>
+        <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">To empower learners and educators through affordable tutoring, cutting-edge educational 
+tools, STEM and language enrichment programs, and employment linkages—bridging the 
+gap between potential and opportunity.</p> 
+        <h3 class="text-xl font-bold mt-6 mb-2">Our Company objectives</h3>
+       <ol class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto list-decimal space-y-4">
+  <li>To offer affordable and sponsored academic coaching, especially in STEM and languages.</li>
+  <li>To write, publish, and distribute quality curriculum-aligned books across schools and bookshops.</li>
+  <li>To provide ICT integration tools and digital infrastructure for education.</li>
+  <li>To supply academic charts and essential fast-moving school and office items.</li>
+  <li>To connect teachers with job opportunities locally and internationally.</li>
+  <li>To introduce STEMLA (STEM + Languages) Clubs in primary and secondary schools.</li>
+  <li>To champion environmental awareness through tree planting in schools.</li>
+  <li>To partner with donors and foundations to support needy but bright learners.</li>
+</ol>
+
+
+       
+  
+</div>
+    </div>
+  </section>
+
+  <!-- Why Us Section -->
+  <section class="bg-gray-100 py-12 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+    <h2 class="text-3xl font-bold mb-4">Why Us</h2>
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto"">Our services are dependable, reliable, and efficient—earning us global recommendations.</p>
+      <img src="https://static.wixstatic.com/media/9ba186_26fcd61a48234041893396470003b5c2~mv2.png"
+     alt="Why Us Image"
+     class="w-[32rem] rounded-xl shadow-lg mb-6 mx-auto block"
+     data-animate="fade-in">
+      <p class="font-montserrat text-[18px] leading-relaxed max-w-3xl mx-auto">Student-centered: We design every solution with learners in mind.
+
+Tech-enabled: From mobile apps to smart classroom tools, we embrace innovation.
+
+Impact-driven: We actively seek sponsors for bright but needy students.
+
+Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</p>
+      <p></p>
+    </div>
+  </section>
+
+
+ <section id="testimonials" class="bg-white py-10 px-4">
+  <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 text-green-700">What Our Clients Say</h2>
+  <div class="relative overflow-hidden max-w-3xl mx-auto">
+    <div id="testimonialSlider" class="flex transition-transform duration-700 ease-in-out">
+
+      <!-- Testimonial 1 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-blue-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Elimu Connect helped my daughter improve in math and science within a month. The tutors are top-notch!"</p>
+          <h4 class="font-semibold text-sm mt-2">Josephine Kamau</h4>
+          <p class="text-xs text-gray-500">Parent, Nakuru</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-green-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"I got connected to a teaching job in Rwanda through Elimu Connect. Truly life-changing!"</p>
+          <h4 class="font-semibold text-sm mt-2">Daniel Omondi</h4>
+          <p class="text-xs text-gray-500">Teacher, Kisumu</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-yellow-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Our school received quality books and science charts. The delivery was prompt and professional."</p>
+          <h4 class="font-semibold text-sm mt-2">Headteacher A. Kiprop</h4>
+          <p class="text-xs text-gray-500">Baringo County</p>
+        </div>
+      </div>
+
+      <!-- Testimonial 4 -->
+      <div class="min-w-full px-6 flex justify-center">
+        <div class="bg-red-100 w-80 h-52 rounded-full p-6 shadow flex flex-col items-center justify-center text-center">
+          <p class="italic">"Thanks to a sponsorship from Elimu Connect, I was able to access online tutoring and improve my KCSE score!"</p>
+          <h4 class="font-semibold text-sm mt-2">Faith Wanjiru</h4>
+          <p class="text-xs text-gray-500">Student, Turkana</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+<section id="sponsor" class="py-16 px-6 bg-green-50 text-center">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl sm:text-4xl font-bold text-green-800 mb-4">Sponsor a Student. Empower a Generation/or subscribe.</h2>
+    <p class="text-lg text-gray-700 mb-10">
+      Support access to education for underserved learners or self sponsor/subscribe. Our flexible 3-tier sponsorship/subscription model serves CBC, KCSE, and IGCSE pathways with tailored pricing.
+    </p>
+
+    <div class="grid sm:grid-cols-3 gap-8 mb-12">
+
+      <!-- Category 1 -->
+      <div class="bg-white border-t-4 border-green-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-green-700 mb-2">🟢 Category 1</h3>
+        <p class="text-gray-600 mb-2 text-sm">Digital Access Only</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>App + Website Access</li>
+          <li>AI Academic Assistant</li>
+          <li>Video Lessons & Quizzes</li>
+          <li>Past Papers, eBooks, & Tools</li>
+        </ul>
+        <p class="font-bold text-green-700 text-sm mb-1">CBC / KCSE:</p>
+        <p class="text-lg text-green-700 font-bold">KES 500 / USD ~4</p>
+        <p class="font-bold text-green-700 text-sm mt-4 mb-1">IGCSE / Others:</p>
+        <p class="text-lg text-green-700 font-bold">USD ~8</p>
+        <p class="mt-2 text-xs text-gray-500 italic">Great for independent learners with a device + internet.</p>
+      </div>
+
+      <!-- Category 2 -->
+      <div class="bg-white border-t-4 border-yellow-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-yellow-700 mb-2">🟡 Category 2</h3>
+        <p class="text-gray-600 mb-2 text-sm">Digital Access + Online Tutoring</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>Includes Category 1 features</li>
+          <li>2 Online Tutoring Sessions per Week</li>
+          <li>Interactive Q&A & Assignments</li>
+        </ul>
+        <p class="font-bold text-yellow-700 text-sm mb-1">CBC / KCSE:</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>1 student: KES 700 / USD ~5.40</li>
+          <li>2 students: KES 500 each / USD ~3.85</li>
+          <li>5 students: KES 200 each / USD ~1.55</li>
+        </ul>
+        <p class="font-bold text-yellow-700 text-sm mb-1">IGCSE / Others:</p>
+        <ul class="text-left text-sm text-gray-700 list-disc ml-5">
+          <li>1 student: USD ~10.80</li>
+          <li>2 students: USD ~7.70</li>
+          <li>5 students: USD ~3.10</li>
+        </ul>
+        <p class="mt-2 text-xs text-gray-500 italic">Ideal for guided learning with regular tutor access.</p>
+      </div>
+
+      <!-- Category 3 -->
+      <div class="bg-white border-t-4 border-red-500 rounded-lg shadow-md p-6">
+        <h3 class="font-semibold text-xl text-red-700 mb-2">🔴 Category 3</h3>
+        <p class="text-gray-600 mb-2 text-sm">Full Package (Digital + Online + Physical)</p>
+        <ul class="text-left text-sm text-gray-700 mb-3 list-disc ml-5">
+          <li>Includes all Category 1 features</li>
+          <li>2 Physical Tutoring Sessions per Week</li>
+          <li>Mentorship & Personal Follow-up</li>
+        </ul>
+        <p class="font-bold text-red-700 text-sm mb-1">CBC / KCSE Only:</p>
+        <ul class="text-left text-sm text-gray-700 list-disc ml-5">
+          <li>1 student: KES 700 / USD ~5.40</li>
+          <li>2 students: KES 500 each / USD ~3.85</li>
+        </ul>
+        <p class="mt-2 text-xs text-gray-500 italic">Designed for students who need in-person attention.</p>
+      </div>
+
+    </div>
+
+<a href="https://elimuconnect.github.io/ELIMU-CONNECT-/codes" target="_blank"
+   class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition duration-300 ease-in-out text-center max-w-md w-full">
+  
+  <div class="flex items-center justify-center space-x-3">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 8c1.657 0 3 1.343 3 3S13.657 14 12 14s-3-1.343-3-3 1.343-3 3-3zm0 0V4m0 16v-4m8-4h-4m-8 0H4"/>
+    </svg>
+    <span>Pay with Lipa na M-PESA</span>
+  </div>
+
+  <div class="mt-2 text-xs text-white opacity-90">
+    Secure payments via M-PESA
+  </div>
+</a>
+
+
+  
+  </div>
+</section>
+
+<div class="flex justify-center my-6">
+  <a href="https://drive.google.com/file/d/1UHEcK5TBdg0txvO9i_Mw9MjFs9F7JVjr/view?usp=drive_link" 
+     target="_blank" 
+     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out text-center">
+    View Sponsorship Proposal
+  </a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Footer -->
+<footer class="bg-black text-gray-200 text-center py-4 text-sm">
+  &copy; <span id="year"></span> Elimu Connect LTD.
+  website developed by +254769255782
+</footer>
+  
+  
+  <!-- WhatsApp Floating Button -->
+<a href="https://wa.me/254769255782" target="_blank" aria-label="Chat on WhatsApp"
+   class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-full shadow-lg flex items-center space-x-2 transition duration-300">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 fill-current" viewBox="0 0 24 24">
+    <path d="M20.52 3.48A11.94 11.94 0 0012 0C5.373 0 0 5.373 0 12a11.94 11.94 0 001.7 6.14L0 24l6.26-1.68A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12a11.94 11.94 0 00-3.48-8.52zM12 22a9.93 9.93 0 01-5.28-1.48l-.38-.22-3.72.99.99-3.72-.22-.38A9.93 9.93 0 012 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.15-7.75c-.28-.14-1.65-.81-1.9-.9-.26-.1-.45-.14-.64.14-.18.28-.73.9-.9 1.08-.17.18-.33.2-.6.07-.28-.14-1.2-.44-2.28-1.4-.84-.74-1.4-1.65-1.56-1.92-.16-.28-.02-.43.12-.57.12-.12.28-.33.42-.5.14-.17.18-.28.28-.46.1-.18.05-.35-.02-.5-.07-.14-.64-1.54-.88-2.1-.23-.56-.47-.48-.64-.48h-.55c-.18 0-.46.07-.7.35-.23.28-.9.88-.9 2.15s.92 2.5 1.05 2.68c.14.18 1.82 2.78 4.42 3.9.62.27 1.1.44 1.47.56.62.2 1.18.17 1.62.1.5-.07 1.65-.67 1.88-1.32.23-.64.23-1.2.16-1.32-.07-.1-.26-.17-.54-.3z"/>
+  </svg>
+  <span class="font-semibold text-sm">Contact Us</span>
+</a>
+
+  
+ 
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Mobile menu toggle
+    const btn = document.getElementById('mobile-menu-button');
+    const menu = document.getElementById('mobile-menu');
+    btn?.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+
+    // Animate elements on scroll
+    const animateImages = document.querySelectorAll('img[data-animate], section[data-animate], div[data-animate]');
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const animationType = el.getAttribute('data-animate');
+          el.classList.add(`animate-${animationType}`);
+          observer.unobserve(el);
         }
+      });
+    }, { threshold: 0.2 });
 
+    animateImages.forEach(img => observer.observe(img));
 
-        // Function to validate paid student password
-function validatePassword(password) {
-    return passwords.includes(password);  // Check if password is in the array
-}
-
-function sendMessage() {
-    let role = document.getElementById("role-select").value;
-    if (!role) {
-        alert("Please select your role.");
-        return;
+    // Animate backgrounds for service sections
+    function animateBackgrounds(serviceId, interval = 3000) {
+      const section = document.getElementById(serviceId);
+      if (!section) return;
+      const bgDivs = section.querySelectorAll('div.absolute');
+      let current = 0;
+      setInterval(() => {
+        bgDivs.forEach((div, idx) => {
+          div.style.opacity = (idx === current) ? '1' : '0';
+        });
+        current = (current + 1) % bgDivs.length;
+      }, interval);
     }
 
-    let response = "";
+    for (let i = 1; i <= 9; i++) animateBackgrounds(`service${i}`);
 
-    // Check if the password has already been validated
-    const passwordValidated = localStorage.getItem('passwordValidated');
+    // Generic image carousels
+    function setupCarousel(id) {
+      const container = document.getElementById(id);
+      const images = container?.querySelectorAll('.carousel-image');
+      if (!images || images.length === 0) return;
 
-    if (role === "student-paid" || role === "tutor-paid") {
-        if (!passwordValidated) {
-            // Ask for password only if password hasn't been validated before
-            const inputPassword = prompt("Enter your password:");
-
-            // Check if the entered password is valid
-            if (validatePassword(inputPassword)) {
-                response = `You now have access to PAID features.<br>
-                    Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid Features</a>"; or 
-                    <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutor Paid Features</a>";`;
-                displayMessage(response, "bot");
-
-                response = "Enjoy advanced features and tools to enhance your experience!";
-                displayMessage(response, "bot");
-
-                // Start countdown for paid features
-                startPaidFeaturesCountdown();
-
-                // Store a flag indicating that the password is validated
-                localStorage.setItem('passwordValidated', 'true');
-            } else {
-                response = "Invalid or expired password. Please check your password or subscribe.";
-                displayMessage(response, "bot");
-            }
-        } else {
-            // If password has already been validated
-            response = `You already have access to the PAID features.<br>
-                Click here: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Student Paid Features</a>"; or 
-               <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/tools' target='_blank'>Tutor Paid Features</a>";`;
-            displayMessage(response, "bot");
-
-            startPaidFeaturesCountdown();  // Start countdown for paid features
-        }
-    } else if (role === "student-free-trial" || role === "tutor-free-trial") {
-        response = `You can access the Free Trial for 7 days.<br>
-            Click here to start: <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/freetrial' target='_blank'>Student Free-TRIAL Features</a>"; or 
-            <a href='https://elimuconnect.github.io/ELIMU-CONNECT-/freetrial' target='_blank'>Tutor free-TRIAL Features</a>";`;
-        displayMessage(response, "bot");
-        updateTrialCountdown();  // Start countdown for free trial
-    } else if (role === "student-free" || role === "tutor-free") {
-        response = `You have access to basic features.<br>
-            Click here: <a href='go:free' target='_blank'>Student Free Features</a> or 
-            <a href='go:tutorfree' target='_blank'>Tutor Free Features</a>`;
-        displayMessage(response, "bot");
-    }
-}
-
-// Function to clear the password validation on logout or similar action
-function clearPasswordValidation() {
-    localStorage.removeItem('passwordValidated');
-}
- // Function to update trial countdown every second
-        function updateTrialCountdown() {
-            const trialKey = "student-free-trial-trialStart";
-            let trialStart = localStorage.getItem(trialKey);
-
-            // If trialStart doesn't exist, it's the first time so initialize it
-            if (!trialStart) {
-                trialStart = Date.now(); // Set trial start to the current time
-                localStorage.setItem(trialKey, trialStart);
-            }
-
-            const trialDuration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-            const trialEnd = parseInt(trialStart) + trialDuration;
-            const now = Date.now();
-
-            // Check if the trial is still active
-            if (now < trialEnd) {
-                const remainingTime = trialEnd - now;
-                const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
-                const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-                const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-                const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-
-                const countdownMessage = `Your free trial ends in: <b>${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds</b>`;
-                
-                // Update the trial message only once
-                let existingMessage = document.getElementById("trial-message");
-                if (existingMessage) {
-                    existingMessage.innerHTML = countdownMessage;
-                } else {
-                    displayMessage(countdownMessage, "bot", "trial-message");
-                }
-
-                // Update every second
-                setTimeout(updateTrialCountdown, 1000);
-            } else {
-                const expiryMessage = "Your free trial has ended. Please <a href='https://wa.me/254769255782' target='_blank'>pay here</a> to continue using our services.";
-let existingMessage = document.getElementById("trial-message");
-
-if (!existingMessage) {
-    displayMessage(expiryMessage, "bot", "trial-message");
-}
-            }
-        }
-
-        // Function to handle countdown for paid features
-// Function to start the paid features countdown
-function startPaidFeaturesCountdown() {
-    const paidAccessKey = "student-paid-access-start"; // Key to store the paid access start time
-    const paidDuration = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
-    let paidAccessStart = localStorage.getItem(paidAccessKey);
-
-    // If not already stored, initialize the start time
-    if (!paidAccessStart) {
-        paidAccessStart = Date.now(); // Set current time as the start time
-        localStorage.setItem(paidAccessKey, paidAccessStart);
+      let i = 0;
+      setInterval(() => {
+        images[i].classList.remove('active');
+        images[i].style.opacity = 0;
+        i = (i + 1) % images.length;
+        images[i].classList.add('active');
+        images[i].style.opacity = 1;
+      }, 4000);
     }
 
-    const paidAccessEnd = parseInt(paidAccessStart) + paidDuration; // Calculate the end time
-    const now = Date.now();
+    ["harder-carousel", "beatus-carousel", "grindelwald-carousel", "platte-carousel", "adventure-carousel", "sports-carousel"].forEach(setupCarousel);
 
-    // Function to update the countdown every second
-    function updateCountdown() {
-        const now = Date.now();
-        const remainingTime = paidAccessEnd - now;
-
-        if (remainingTime <= 0) {
-            // When the countdown ends
-            const expiryMessage = "Your paid features have expired. Please <a href='go:subscribe' target='_blank'>renew your subscription</a>.";
-            const existingMessage = document.getElementById("paid-countdown");
-            if (!existingMessage) {
-                displayMessage(expiryMessage, "bot", "paid-countdown");
-            } else {
-                existingMessage.innerHTML = expiryMessage;
-            }
-            clearInterval(countdownInterval);
-            return;
-        }
-
-        // Calculate days, hours, minutes, and seconds
-        const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
-        const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-        const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
-        const seconds = Math.floor((remainingTime % (60 * 1000)) / 1000);
-
-        const countdownMessage = `Your paid features expire in: <b>${days} days, ${hours} hours, ${minutes} minutes, and ${seconds} seconds</b>.`;
-
-        // Update or create the countdown message
-        let existingMessage = document.getElementById("paid-countdown");
-        if (existingMessage) {
-            existingMessage.innerHTML = countdownMessage;
-        } else {
-            displayMessage(countdownMessage, "bot", "paid-countdown");
-        }
+    // Testimonials slider
+    const slider = document.getElementById("testimonialSlider");
+    const testimonials = slider?.children.length || 0;
+    let index = 0;
+    if (slider && testimonials > 0) {
+      setInterval(() => {
+        index = (index + 1) % testimonials;
+        slider.style.transform = `translateX(-${index * 100}%)`;
+      }, 2000);
     }
 
-    // Start the countdown interval
-    updateCountdown(); // Initial call to display countdown immediately
-    const countdownInterval = setInterval(updateCountdown, 1000);
-}
-    </script>
-</body>
+    // Update year
+    const year = document.getElementById('year');
+    if (year) year.textContent = new Date().getFullYear();
+  });
+</script>
+
+  </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
