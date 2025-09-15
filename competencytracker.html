@@ -32,25 +32,30 @@
   <button onclick="chooseRole('teacher')">👨‍🏫 Teacher</button>
   <button onclick="chooseRole('parent')">👨‍👩‍👦 Parent</button>
 </div>
-
 <!-- Teacher Section -->
 <div id="teacherSection" class="card">
   <h3>Teacher Phase</h3>
+
   <label>School Name:</label>
   <input id="schoolName" placeholder="Enter school name">
+
   <label>Grade:</label>
   <input id="gradeName" placeholder="Enter grade (e.g., Grade 6)">
+
   <label>Student Name:</label>
   <input id="studentName" placeholder="Enter student name">
+
   <button onclick="registerStudent()">Register Student</button>
   <button onclick="clearSchoolGrade()">Change School/Grade</button>
   <div class="small">School and grade are saved locally until you press "Change School/Grade".</div>
   <hr>
+
   <h3>Select Student</h3>
   <select id="studentSelect" onchange="teacherViewScores()">
     <option value="">-- Choose Student --</option>
   </select>
   <div class="small">Dropdown updates immediately when students are added.</div>
+
   <label>Competency:</label>
   <select id="competencySelect" onchange="showGuide()">
     <option>Communication and Collaboration</option>
@@ -62,15 +67,32 @@
     <option>Self-Efficacy</option>
   </select>
   <div id="competencyGuide" class="guide"></div>
+
+  <label>Term:</label>
+  <select id="termSelect">
+    <option value="Term 1">Term 1</option>
+    <option value="Term 2">Term 2</option>
+    <option value="Term 3">Term 3</option>
+  </select>
+
   <label>Score (0-100):</label>
   <input type="number" id="score" min="0" max="100">
   <button onclick="addRecord()">Save Progress</button>
+
   <div id="studentList"></div>
   <hr>
+
   <h3>📖 Student Scores (Teacher View)</h3>
   <h4 id="teacherStudentName"></h4>
   <table id="teacherProgressTable">
-    <thead><tr><th>Competency</th><th>Score (%)</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Competency</th>
+        <th>Term 1</th>
+        <th>Term 2</th>
+        <th>Term 3</th>
+      </tr>
+    </thead>
     <tbody></tbody>
   </table>
   <canvas id="teacherChart" width="400" height="200"></canvas>
@@ -80,27 +102,41 @@
 <!-- Parent Section -->
 <div id="parentSection" class="card">
   <h3>Parent Phase</h3>
+
   <label>Select School:</label>
   <select id="parentSchool" onchange="saveParentSchool(); loadParentGrades()">
     <option value="">-- Choose School --</option>
   </select>
   <button onclick="resetParentSchool()">Change School</button>
+
   <label>Select Grade:</label>
   <select id="parentGrade" onchange="loadParentStudents()">
     <option value="">-- Choose Grade --</option>
   </select>
+
   <label>Select Student:</label>
   <select id="parentStudent">
     <option value="">-- Choose Student --</option>
   </select>
+
   <button onclick="viewProgress()">View Progress</button>
+
   <table id="progressTable">
-    <thead><tr><th>Competency</th><th>Score (%)</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Competency</th>
+        <th>Term 1</th>
+        <th>Term 2</th>
+        <th>Term 3</th>
+      </tr>
+    </thead>
     <tbody></tbody>
   </table>
+
   <canvas id="parentChart" width="400" height="200"></canvas>
   <div id="parentGuide" class="guide"></div>
 </div>
+
 
 <script>
 // ---------- Firebase Setup ----------
@@ -254,19 +290,20 @@ function clearSchoolGrade() {
   alert("School and grade reset.");
 }
 
-// ---------- Add Competency ----------
 function addRecord() {
   const { schoolKey, gradeKey } = schoolPath();
   const studentKey = document.getElementById("studentSelect").value;
   const competency = document.getElementById("competencySelect").value;
+  const term = document.getElementById("termSelect").value;
   const score = document.getElementById("score").value;
+
   if (!studentKey) return alert("Select a student.");
   if (score === "" || isNaN(score)) return alert("Enter a numeric score.");
-  db.ref(`cbc_tracker/schools/${schoolKey}/${gradeKey}/students/${studentKey}/competencies/${competency}`)
-    .set(Number(score))
-    .then(() => alert("Progress saved!"));
-}
 
+  db.ref(`cbc_tracker/schools/${schoolKey}/${gradeKey}/students/${studentKey}/competencies/${competency}/${term}`)
+    .set(Number(score))
+    .then(() => alert(`${term} score saved!`));
+}
 
 // ---------- Teacher View Scores ----------
 function teacherViewScores() {
@@ -274,35 +311,40 @@ function teacherViewScores() {
   const studentKey = document.getElementById("studentSelect").value;
   if (!schoolKey || !gradeKey || !studentKey) return;
 
-  // Update student name
   db.ref(`cbc_tracker/schools/${schoolKey}/${gradeKey}/students/${studentKey}/name`).once("value", snap => {
     document.getElementById("teacherStudentName").textContent = snap.exists() ? snap.val() : "(Unnamed Student)";
   });
 
-  // Fetch competencies
   db.ref(`cbc_tracker/schools/${schoolKey}/${gradeKey}/students/${studentKey}/competencies`).once("value", snapshot => {
     const tbody = document.querySelector("#teacherProgressTable tbody");
     tbody.innerHTML = "";
-    const labels = [], data = [];
+    const labels = [], datasets = [];
+
     snapshot.forEach(child => {
+      const termData = child.val(); // object with Term1, Term2, Term3
       labels.push(child.key);
-      data.push(child.val());
-      tbody.innerHTML += `<tr><td>${child.key}</td><td>${child.val()}</td></tr>`;
+
+      const scores = ["Term 1","Term 2","Term 3"].map(t => termData[t] || 0);
+      tbody.innerHTML += `<tr>
+        <td>${child.key}</td>
+        <td>${scores[0]}</td>
+        <td>${scores[1]}</td>
+        <td>${scores[2]}</td>
+      </tr>`;
+
+      datasets.push({ label: child.key, data: scores, backgroundColor: ["#3498db","#2ecc71","#e67e22"] });
     });
 
-    // Chart
+    // Update Chart
     if (teacherChart) teacherChart.destroy();
     const ctx = document.getElementById("teacherChart").getContext("2d");
     teacherChart = new Chart(ctx, {
       type: "bar",
-      data: { labels, datasets: [{ label: "Scores", data, backgroundColor: "#3498db" }] },
-      options: { scales: { y: { beginAtZero: true, max: 100 } } }
+      data: { labels: ["Term 1","Term 2","Term 3"], datasets: datasets },
+      options: { scales: { y: { beginAtZero:true, max:100 } } }
     });
   });
 }
-
-
-
 
 
 
@@ -340,21 +382,45 @@ function loadParentStudents() {
     snapshot.forEach(child=>{ const data=child.val()||{}; const opt=document.createElement("option"); opt.value=child.key; opt.textContent=data.name||child.key; studentSel.appendChild(opt); });
   });
 }
+
+
+
 function viewProgress() {
   const schoolKey = document.getElementById("parentSchool").value;
   const gradeKey = document.getElementById("parentGrade").value;
   const studentKey = document.getElementById("parentStudent").value;
   if(!schoolKey||!gradeKey||!studentKey) return alert("Select school, grade, and student.");
+
   db.ref(`cbc_tracker/schools/${schoolKey}/${gradeKey}/students/${studentKey}/competencies`).once("value", snapshot=>{
     const tbody = document.querySelector("#progressTable tbody");
     tbody.innerHTML="";
-    const labels=[], data=[];
-    snapshot.forEach(child=>{ labels.push(child.key); data.push(child.val()); tbody.innerHTML+=`<tr><td>${child.key}</td><td>${child.val()}</td></tr>`; });
+    const labels = [], datasets = [];
+
+    snapshot.forEach(child=>{
+      const termData = child.val();
+      labels.push(child.key);
+      const scores = ["Term 1","Term 2","Term 3"].map(t => termData[t] || 0);
+
+      tbody.innerHTML += `<tr>
+        <td>${child.key}</td>
+        <td>${scores[0]}</td>
+        <td>${scores[1]}</td>
+        <td>${scores[2]}</td>
+      </tr>`;
+
+      datasets.push({ label: child.key, data: scores, backgroundColor:["#3498db","#2ecc71","#e67e22"] });
+    });
+
     if(parentChart) parentChart.destroy();
     const ctx=document.getElementById("parentChart").getContext("2d");
-    parentChart=new Chart(ctx,{type:"bar",data:{labels, datasets:[{label:"Scores", data, backgroundColor:"#3498db"}]}, options:{scales:{y:{beginAtZero:true,max:100}}}});
+    parentChart=new Chart(ctx,{
+      type:"bar",
+      data:{ labels:["Term 1","Term 2","Term 3"], datasets:datasets },
+      options:{ scales:{ y:{ beginAtZero:true, max:100 } } }
+    });
   });
 }
+
 
 // ---------- Role Toggle ----------
 function chooseRole(role){
