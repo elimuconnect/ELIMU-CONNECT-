@@ -31,31 +31,6 @@
       color: #4CAF50;
     }
 
-    .login-form select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .login-form button {
-      width: 100%;
-      padding: 12px;
-      background-color: #4CAF50;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .login-form button:hover {
-      background-color: #45a049;
-    }
-
     .footer-note {
       margin-top: 20px;
       font-size: 14px;
@@ -139,13 +114,6 @@
 
   <div class="login-container">
     <h2>Welcome to ELIMU CONNECT (Schools Only)</h2>
-    <form class="login-form" onsubmit="event.preventDefault(); sendMessage();">
-      <select id="role-select" required>
-        <option value="" disabled selected>Select your role</option>
-        <option value="school-paid">School Login</option>
-      </select>
-      <button type="submit">Continue</button>
-    </form>
 
     <div id="chatbox-body" class="messages"></div>
 
@@ -156,21 +124,21 @@
       <h3>School Tools (5 Links)</h3>
       <ul>
         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/register4" target="_blank">Smart Register</a></li>
-        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/acbl.html" target="_blank">projects & CBL portfolio</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/acbl.html" target="_blank">Projects & CBL portfolio</a></li>
         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/projects" target="_blank">Activities/Projects generator</a></li>
         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/homeworkbest.html" target="_blank">Homework Smart System</a></li>
         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/driver" target="_blank">School bus tracking-driver phase</a></li>
-         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/parents" target="_blank">School bus tracking-Parents phase</a></li>
-      
-         <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/competencytracker" target="_blank">Competencies Tracker</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/parents" target="_blank">School bus tracking-Parents phase</a></li>
+        <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/competencytracker" target="_blank">Competencies Tracker</a></li>
       </ul>
     </div>
   </div>
 
   <script>
-    let chatboxBody = document.getElementById("chatbox-body");
+    const chatboxBody = document.getElementById("chatbox-body");
     const toolsUI = document.getElementById("tools-ui");
-  const passwords = [ "pS9hJk!hPmD0bF7T", "Qw4$KiH6dFg8L2Zn", "M5a#Hq9oLpD1g0Fj", "R!3hP8LsE6kZyTf7",
+    
+	 const passwords = [ "pS9hJk!hPmD0bF7T", "Qw4$KiH6dFg8L2Zn", "M5a#Hq9oLpD1g0Fj", "R!3hP8LsE6kZyTf7",
             "Xj2zU!hYqW8mK9Rn", "ZnD5oFq#XlT1hHs7", "P@0xWq2yLoS3tGb8", "Ym9bZqJk!5R2fX7Tc", "7Vq#9tE0yPjKn3Gs",
             "B2FpZ#6dSk8CwLJ9", "WmR1!Yd9q8TzJ7p5", "N2xL5rPv@z6oK7iF", "QeJ8iP1#FzR2tCw0", "YpW5L7sT2h3Xo9kG",
             "O4b6jQsN@r9V3YwT", "R#7yX9sTz0J4wKvG", "i2Xy6D$LqY7CmFvR", "P8yK0sZf9w6N3H2iL", "S3QzT9x5aX7pW!2v",
@@ -190,14 +158,10 @@
             "P7Y9X3L2T0F5R6K1", "L2X9Y0P5T6R1F7K3", "Y1L9F7X2T0R5P3K6", "K3X7P1Y0T2F9L6R5", 
         ];
     
+	
 
-    function displayMessage(message, sender, id = '') {
-      const messageDiv = document.createElement("div");
-      messageDiv.classList.add("chat-message", `${sender}-message`);
-      messageDiv.innerHTML = message;
-      if (id) messageDiv.id = id;
-      chatboxBody.appendChild(messageDiv);
-      chatboxBody.scrollTop = chatboxBody.scrollHeight;
+    function displayMessage(message) {
+      chatboxBody.innerHTML = `<div class="bot-message">${message}</div>`;
     }
 
     function validatePassword(password) {
@@ -205,38 +169,27 @@
     }
 
     function showToolsUI() {
-      document.querySelector(".login-form").style.display = "none";
       toolsUI.style.display = "block";
-      chatboxBody.innerHTML = "";
+      displayMessage("Access granted! Welcome to ELIMU CONNECT Schools Tools.");
     }
 
-    function sendMessage() {
-      let role = document.getElementById("role-select").value;
-      if (!role) {
-        alert("Please select your role.");
+    function askPassword() {
+      if (localStorage.getItem("passwordValidated") === "true") {
+        showToolsUI();
+        startPaidFeaturesCountdown();
         return;
       }
 
-      const passwordValidated = localStorage.getItem('passwordValidated');
+      const input = prompt("Enter your password to access Schools Tools:");
+      if (input === null) return; // user pressed cancel
 
-      if (role === "school-paid") {
-        if (!passwordValidated) {
-          const inputPassword = prompt("Enter your password:");
-          if (validatePassword(inputPassword)) {
-            localStorage.setItem('passwordValidated', 'true');
-            displayMessage("Password validated successfully! Access granted.", "bot");
-            showToolsUI();
-            startPaidFeaturesCountdown();
-          } else {
-            displayMessage("Invalid or expired password. Please check your password or subscribe.", "bot");
-          }
-        } else {
-          displayMessage("You already have access.", "bot");
-          showToolsUI();
-          startPaidFeaturesCountdown();
-        }
+      if (validatePassword(input)) {
+        localStorage.setItem("passwordValidated", "true");
+        showToolsUI();
+        startPaidFeaturesCountdown();
       } else {
-        displayMessage("Schools only login is allowed.", "bot");
+        displayMessage("Invalid password. Refresh page to try again.");
+        alert("Invalid password! Refresh the page to retry.");
       }
     }
 
@@ -271,7 +224,7 @@
 
         let countdownEl = document.getElementById("paid-countdown");
         if (!countdownEl) {
-          displayMessage(countdownMessage, "bot", "paid-countdown");
+          displayMessage(countdownMessage);
         } else {
           countdownEl.innerHTML = countdownMessage;
         }
@@ -280,12 +233,7 @@
       const countdownInterval = setInterval(updateCountdown, 1000);
     }
 
-    window.onload = () => {
-      if (localStorage.getItem("passwordValidated") === "true") {
-        showToolsUI();
-        startPaidFeaturesCountdown();
-      }
-    };
+    window.onload = askPassword;
   </script>
 </body>
 </html>
