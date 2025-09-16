@@ -2,3 +2,4 @@ User-agent: *
 Disallow: /
 
 Allow: /ELIMU-CONNECT-/elimu.html
+Allow: /ELIMU-CONNECT-/blog.html
