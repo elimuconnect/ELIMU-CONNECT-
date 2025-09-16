@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Education Blog - ELIMU CONNECT</title>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body style="font-family: Arial, sans-serif; background:#f9f9f9; margin:0; padding:0;">
+
+  <!-- Header -->
+  <header style="background:#0066cc; color:#fff; padding:20px; text-align:center;">
+    <h1 style="margin:0; font-size:28px;">ELIMU CONNECT - Education Blog</h1>
+  </header>
+
+  <!-- Search & Filters -->
+  <section style="max-width:900px; margin:20px auto; padding:10px; text-align:center;">
+    <input id="searchBox" type="text" placeholder="🔍 Search articles..." 
+      style="width:60%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+    
+	<div style="margin-top:10px; text-align:center;">
+  <!-- General -->
+  <button onclick="filterByCategory('all')" style="padding:8px 15px; margin:5px; border:none; background:#333; color:#fff; border-radius:5px;">All</button>
+  
+  <!-- Students -->
+  <button onclick="filterByCategory('students')" style="padding:8px 15px; margin:5px; border:none; background:#0066cc; color:#fff; border-radius:5px;">Students</button>
+  
+  <!-- Schools -->
+  <button onclick="filterByCategory('schools')" style="padding:8px 15px; margin:5px; border:none; background:#009933; color:#fff; border-radius:5px;">Schools</button>
+  
+  <!-- Study Tips -->
+  <button onclick="filterByCategory('tips')" style="padding:8px 15px; margin:5px; border:none; background:#cc6600; color:#fff; border-radius:5px;">Study Tips</button>
+  
+  <!-- Career Guidance -->
+  <button onclick="filterByCategory('career')" style="padding:8px 15px; margin:5px; border:none; background:#9900cc; color:#fff; border-radius:5px;">Career Guidance</button>
+  
+  <!-- Technology in Learning -->
+  <button onclick="filterByCategory('tech')" style="padding:8px 15px; margin:5px; border:none; background:#ff0066; color:#fff; border-radius:5px;">EdTech</button>
+  
+  <!-- Parents -->
+  <button onclick="filterByCategory('parents')" style="padding:8px 15px; margin:5px; border:none; background:#cc0000; color:#fff; border-radius:5px;">Parents</button>
+</div>
+
+	
+	
+  </section>
+
+  <!-- Blog Content -->
+  <main id="blog-content" style="max-width:900px; margin:30px auto; padding:20px;">
+    <div id="post-list"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="background:#333; color:#fff; text-align:center; padding:15px; margin-top:40px;">
+    <p>&copy; 2025 ELIMU CONNECT. All Rights Reserved.</p>
+  </footer>
+
+<script>
+  // ✅ Firebase config (replace with your own)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAYztz7z8L3SFOZgCpbwthzTXeuhojDisM",
+  authDomain: "lead-tracker-a2181.firebaseapp.com",
+  databaseURL: "https://lead-tracker-a2181-default-rtdb.firebaseio.com",
+  projectId: "lead-tracker-a2181",
+  storageBucket: "lead-tracker-a2181.firebasestorage.app",
+  messagingSenderId: "601818438359",
+  appId: "1:601818438359:web:44f4c05db3d732d29dee92"
+};
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // ✅ Blog posts
+  const posts = [
+   {
+ 
+  
+  id: 1,
+  title: "Why Online Learning is the Future of Education in Kenya",
+  preview: "Elimu Connect helps schools, teachers, and tutors in Kenya with websites, digital tools, online tuition, and affordable learning. Try our 7-day free trial today.",
+  full: `
+    <h2>Why Online Learning is the Future of Education in Kenya</h2>
+    <p>Education in Kenya is rapidly transforming. With the growth of digital technology, <strong>online learning platforms</strong> have become the gateway to affordable, flexible, and high-quality education. 
+    One of the leading platforms is <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a>, designed to empower <strong>students, parents, tutors, and schools</strong> with tools that make learning easier, smarter, and more engaging.</p>
+
+    <h3>1. Affordable and Flexible Online Tuition</h3>
+    <p>High tuition costs are a barrier for many parents. With Elimu Connect, families can access <strong>affordable online tutoring</strong> from qualified tutors across Kenya. Learners enjoy a <strong>7-day free trial</strong>, then continue at low-cost subscriptions. Students gain quality education anytime, anywhere, while parents save money.</p>
+
+    <h3>2. Websites & Digital Presence for Schools</h3>
+    <p>Every modern school needs an online presence. Elimu Connect offers <strong>custom website development for Kenyan schools</strong>, allowing institutions to showcase curricula, attract more students, manage admissions online, and improve Google visibility. Schools can also provide <strong>parent portals</strong> for communication and reporting.</p>
+
+    <h3>3. Digital Tools for Schools</h3>
+    <p>Elimu Connect equips schools with <strong>smart tools</strong> for:</p>
+    <ul>
+      <li>📊 Performance monitoring dashboards, charts, and competency trackers</li>
+      <li>📝 Smart registers and digital attendance tracking</li>
+      <li>🏫 Smart homework system – assign, track, and grade online homework</li>
+      <li>🎓 CBC Activities & Project Generator – Auto-generate CBC-compliant activities, projects, and portfolios</li>
+      <li>🚍 School bus tracking (driver and parent phases)</li>
+      <li>💻 ICT & Smart Classroom integration</li>
+      <li>🔬 School STEMLA clubs (STEM + Languages)</li>
+      <li>🌳 Tree planting and CSR environmental projects support</li>
+      <li>🖥️ School coding programs (Web & App development for students and teachers)</li>
+      <li>📱 Bulk subscriptions to learning apps & student tools</li>
+    </ul>
+
+    <h3>4. Powerful Tools for Tutors</h3>
+    <ul>
+      <li>👨‍🏫 Find students nearby for physical or online lessons</li>
+      <li>🏫 Teach in school-based evening programs</li>
+      <li>📂 Join the Kenya Tutor Directory for exposure</li>
+      <li>🎮 Participate in monthly Math game competitions</li>
+      <li>🔄 Access TSC Teacher Swaps platform</li>
+      <li>📁 Forum & file sharing for Kenyan teachers</li>
+      <li>📝 Download notes, exams, and ready-to-use teaching resources</li>
+      <li>📚 Ready-to-use schemes of work & lesson plans</li>
+      <li>📊 Track remedial lessons and student performance</li>
+      <li>🌍 Apply for verified international teaching jobs</li>
+    </ul>
+
+    <h3>5. Smart Study Tools for Students</h3>
+    <p>Students can now access <strong>interactive tools</strong> for:</p>
+    <ul>
+      <li>📊 Statistics: Mean, Median, Variance, Standard Deviation (step-by-step)</li>
+      <li>📐 Vectors, Matrices, Surveying for CBC, IGCSE & A-level</li>
+      <li>⚡ Math & Science Concepts explained step-by-step</li>
+      <li>📱 Online quizzes, video lessons, and resources accessible anytime</li>
+      <li>🎯 AI-Powered Study Timetable Generator & Digital Notebook</li>
+      <li>🧮 Scientific Calculator + Graph plotting tools</li>
+      <li>🧪 Chemistry & Physics formula tools, periodic table simulators</li>
+      <li>🧬 Human, Fish & Plant 3D Anatomy Simulators</li>
+      <li>📖 Online dictionary & Kiswahili Kamusi</li>
+      <li>📝 Similes, Metaphors, Methali & Nahau reference tools</li>
+    </ul>
+
+    <h3>6. Referral Program – Earn 40% Commission</h3>
+    <p>Elimu Connect allows <strong>students, parents, tutors, and schools</strong> to earn money through referrals. For every successful referral, users receive <strong>40% commission</strong>, making education rewarding for the community.</p>
+
+    <h3>7. Preparing Kenyan Learners for the Future</h3>
+    <p>Online learning breaks geographical barriers. Students can access international tutors, AI-assisted tools, digital resources, and <strong>future-ready skills</strong> in technology, entrepreneurship, and innovation. Schools that embrace these tools today prepare learners for tomorrow’s opportunities.</p>
+
+    <h3>Why Choose Elimu Connect?</h3>
+    <ul>
+      <li>✅ <strong>7-day free trial</strong> for students, tutors, and schools</li>
+      <li>✅ Affordable subscription plans for all learners</li>
+      <li>✅ Professional <strong>websites & digital presence for schools</strong></li>
+      <li>✅ Smart digital tools for students, tutors, and schools</li>
+      <li>✅ CBC & IGCSE learning support, quizzes, and past papers</li>
+      <li>✅ Smart registers, homework systems & competency trackers</li>
+      <li>✅ Teacher directories & TSC swaps platform</li>
+      <li>✅ Career guidance & international teaching job access</li>
+      <li>✅ STEMLA clubs, coding programs, and environmental projects</li>
+      <li>✅ 40% referral commission for all users</li>
+      <li>✅ Easy-to-use mobile app on Google Play</li>
+      <li>✅ Parent Connect for real-time updates & engagement</li>
+    </ul>
+
+    <p><strong>Elimu Connect is the future of digital education in Kenya – where schools grow, students excel, and tutors thrive.</strong></p>
+
+    <p>👉 Visit our website: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a><br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "schools"
+},
+
+
+
+
+
+{
+  id: 2,
+  title: "Top 5 Study Hacks for Kenyan Students",
+  preview: "From smart timetables to digital tools, discover how to boost your performance...",
+  full: `
+    <h2>Top 5 Study Hacks for Kenyan Students</h2>
+    <p>Kenyan students face unique challenges balancing <strong>schoolwork, tuition, and home life</strong>. With CBC, IGCSE, and KCSE exams becoming more competitive, students need effective ways to study smarter, not harder. 
+    At <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a>, we provide <strong>digital study tools, online tuition, and AI-powered resources</strong> that make learning easier. 
+    Here are 5 powerful hacks every student should try:</p>
+
+    <h3>1. Use Digital Study Tools</h3>
+    <p>Instead of wasting time flipping through textbooks, students can save time with <strong>interactive tools</strong> like <em>math solvers, science simulations, and past paper resources</em>. 
+    Elimu Connect offers smart tools for <strong>quadratics, vectors, matrices, statistics, motion, chemistry, and physics</strong>—all designed to help CBC, IGCSE, and KCSE learners succeed.</p>
+
+    <h3>2. Break Study Sessions into 25-Minute Pomodoro Cycles</h3>
+    <p>Long hours of study without breaks reduce focus. Use the <strong>Pomodoro technique</strong>: study for 25 minutes, then rest for 5 minutes. After 4 sessions, take a longer 15–20 minute break. 
+    This helps boost concentration and prevents burnout.</p>
+
+    <h3>3. Practice with Past Papers</h3>
+    <p>Past papers remain one of the best ways to prepare for exams in Kenya. They help students understand exam patterns, frequently tested topics, and time management. 
+    Elimu Connect provides access to <strong>30,000+ CBC , KCSE and IGCSE past papers with answers</strong>, plus <strong>weekly national tests with certificates</strong>.</p>
+
+    <h3>4. Form Small Study Groups</h3>
+    <p>Peer-to-peer learning is powerful. Forming study groups with classmates allows students to <strong>discuss difficult concepts, share notes, and motivate each other</strong>. 
+    With Elimu Connect’s <strong>student forums and discussion hubs</strong>, learners can collaborate online even if they are far apart.</p>
+
+    <h3>5. Take Healthy Breaks for Maximum Focus</h3>
+    <p>Studying without rest drains energy. Students should take healthy breaks—exercise, hydrate, or enjoy a quick walk—to recharge the brain. 
+    This increases productivity and ensures better retention of information.</p>
+
+    <h3>More Powerful Tools for Students</h3>
+    <ul>
+      <li>💻 Affordable <strong>Live Online Lessons</strong> – From just Ksh 200 ($1.6/hour)</li>
+      <li>🤖 <strong>FREE AI-Powered Virtual Tutor</strong> – 24/7 homework & exam support</li>
+      <li>👨‍🏫 <strong>Find Nearby Private Tutors</strong> – By subject and location</li>
+      <li>🏫 <strong>Evening School-Based Tuition</strong> – For Class 4–12</li>
+      <li>📚 <strong>On-Demand Homework Help</strong> – With AI + human tutors</li>
+      <li>🎥 <strong>2000+ Video Lessons</strong> & 5000+ Quizzes</li>
+      <li>🏅 Weekly <strong>National Tests & Digital Certificates</strong></li>
+      <li>📝 <strong>1000+ Q&A Pairs</strong> from previous exams</li>
+      <li>📖 <strong>200+ Ebooks</strong> for primary & secondary students</li>
+      <li>🎮 <strong>Fun Games</strong> – 3 Math + 3 Kiswahili/English Language Games</li>
+      <li>💬 <strong>Student Forums & Discussion Hubs</strong></li>
+      <li>🎯 <strong>Career Guidance Tools</strong> for Kenyan teens</li>
+      <li>🕒 <strong>AI-Powered Study Timetable Generator</strong></li>
+      <li>📓 <strong>Digital Notebook, Notes Organizer & Revision Tracker</strong></li>
+      <li>🔢 <strong>Scientific Calculator & Graph Plotting Tools</strong></li>
+      <li>⚗️ <strong>Math, Chemistry & Physics Formula Tools</strong></li>
+      <li>📘 <strong>Online Dictionary & Kiswahili Kamusi</strong></li>
+      <li>📝 <strong>Similes, Metaphors, Methali & Nahau</strong> reference tools</li>
+      <li>🧬 <strong>3D Anatomy Simulators</strong> (Human, Fish & Plant)</li>
+      <li>🧪 <strong>Interactive Digital Periodic Table</strong> & Chemistry tools</li>
+      <li>📐 <strong>Math Tools</strong>: Area, Volume, Trigonometry, Logarithms</li>
+      <li>💰 <strong>Financial Math Tools</strong>: Tax, Interest, Binomial, Variation</li>
+      <li>🌍 <strong>Geography Tools</strong>: Latitude/Longitude, Errors & Approximations</li>
+      <li>📊 <strong>Advanced Statistics & Matrix Solvers</strong></li>
+      <li>➗ <strong>Calculus Calculators</strong>: Differentiation & Integration</li>
+    </ul>
+
+    <h3>Why Elimu Connect is the Best Study Partner</h3>
+    <ul>
+      <li>✅ <strong>7-day free trial</strong> for all students</li>
+      <li>✅ Free student chats for peer learning</li>
+      <li>✅ Access to <strong>digital study tools</strong> for CBC, IGCSE, and KCSE</li>
+      <li>✅ <strong>40% referral commission</strong> for students who invite friends</li>
+      <li>✅ Easy-to-use mobile app on Google Play</li>
+    </ul>
+
+    <p><strong>Studying doesn’t have to be hard—smart students use Elimu Connect to get ahead.</strong></p>
+
+    <p>👉 Visit our website: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a><br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "students"
+},
+
+
+
+
+{
+  id: 3,
+  title: "How Schools Can Use Digital Tools Effectively",
+  preview: "Schools in Kenya are adopting ICT, STEM, and smart digital tools to improve student outcomes and engagement.",
+  full: `
+    <h2>How Schools Can Use Digital Tools Effectively</h2>
+    <p>Kenyan schools that embrace <strong>digital tools</strong> have seen <strong>improved learning outcomes</strong>, higher student engagement, and better administrative efficiency. Integrating ICT and STEM programs transforms classrooms into interactive and future-ready learning environments.</p>
+
+    <h3>1. Real-Time Student Performance Tracking</h3>
+    <p>Teachers can monitor student progress using <strong>smart registers, competency trackers, and analytics dashboards</strong>. Schools can easily identify struggling students and provide targeted support. Parents stay informed with <strong>Parent Connect portals</strong>, receiving instant updates on homework, attendance, and grades.</p>
+
+    <h3>2. Smart Homework & Project Management</h3>
+    <ul>
+      <li>Assign, track, and grade homework online with <strong>smart homework systems</strong></li>
+      <li>Automatically generate CBC-compliant <strong>activities and project portfolios</strong></li>
+      <li>Access ready-to-use schemes of work and lesson plans for teachers</li>
+    </ul>
+
+    <h3>3. STEM & ICT Integration</h3>
+    <ul>
+      <li>Establish <strong>STEMLA clubs</strong> to combine STEM and language learning</li>
+      <li>Provide <strong>coding programs</strong> for students and teachers (Web & App development)</li>
+      <li>Use interactive digital simulations for science and mathematics concepts</li>
+      <li>Leverage <strong>3D anatomy models, chemistry equation balancers, and physics calculators</strong></li>
+    </ul>
+
+    <h3>4. Teacher Support & Collaboration</h3>
+    <ul>
+      <li>Access forums and file-sharing platforms for Kenyan teachers</li>
+      <li>Participate in TSC teacher swaps and professional development</li>
+      <li>Download notes, exams, and teaching resources instantly</li>
+      <li>Track remedial lessons and student performance efficiently</li>
+    </ul>
+
+    <h3>5. School Operations & Management</h3>
+    <ul>
+      <li>Manage school buses with <strong>driver & parent tracking</strong></li>
+      <li>Integrate ICT classrooms with smart tools for lessons</li>
+      <li>Monitor environmental CSR initiatives such as tree planting</li>
+      <li>Handle bulk subscriptions for learning apps and student tools</li>
+    </ul>
+
+    <h3>6. Benefits for Students</h3>
+    <ul>
+      <li>Access interactive quizzes, over 2,000 video lessons, and 5,000 online exercises</li>
+      <li>Use AI-powered study timetable generators and digital notebooks</li>
+      <li>Play educational games for Math, English, and Kiswahili</li>
+      <li>Engage in peer-to-peer discussion forums and study groups</li>
+      <li>Receive career guidance and exam preparation tools</li>
+    </ul>
+
+    <p><strong>By adopting digital tools, schools in Kenya can enhance teaching quality, streamline operations, and empower students to achieve their best academically.</strong></p>
+
+    <p>👉 Visit <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a> to explore smart tools for schools, teachers, and students.<br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "schools"
+},
+
+
+
+   
+  {
+  id: 4,
+  title: "Effective Study Tips for KCSE, CBC & IGCSE Students",
+  preview: "Boost your grades with practical study techniques for KCSE, CBC, and IGCSE learners in Kenya.",
+  full: `
+    <h2>Effective Study Tips for KCSE, CBC & IGCSE Students</h2>
+    <p>Success in school requires <strong>smart study techniques</strong> that save time, improve understanding, and boost exam performance. Here are practical tips tailored for <strong>KCSE, CBC, and IGCSE students</strong> in Kenya.</p>
+
+    <h3>📚 General Study Tips</h3>
+    <ul>
+      <li>✅ Create a <strong>daily and weekly timetable</strong> to organize study sessions</li>
+      <li>✅ Revise regularly in <strong>short focused sessions</strong> to improve retention</li>
+      <li>✅ Test yourself often with past papers and quizzes</li>
+      <li>✅ Use <strong>flashcards, mind maps, and study notes</strong> for key concepts</li>
+      <li>✅ Stay consistent with <strong>homework, assignments, and revision schedules</strong></li>
+      <li>✅ Set <strong>realistic goals</strong> for each study session</li>
+    </ul>
+
+    <h3>📖 CBC (Competency-Based Curriculum) Tips</h3>
+    <ul>
+      <li>✅ Focus on <strong>core competencies</strong> and skill-based learning</li>
+      <li>✅ Engage in <strong>hands-on projects and group activities</strong></li>
+      <li>✅ Use <strong>interactive digital tools</strong> for math, science, and languages</li>
+      <li>✅ Revise <strong>daily exercises, oral presentations, and assessments</strong></li>
+      <li>✅ Participate in <strong>peer discussions and class debates</strong></li>
+    </ul>
+
+    <h3>✏️ KCSE Tips</h3>
+    <ul>
+      <li>✅ Solve <strong>past KCSE papers and marking schemes</strong> regularly</li>
+      <li>✅ Focus on <strong>core subjects: Maths, English, Kiswahili, Sciences</strong></li>
+      <li>✅ Track performance using <strong>exam trackers and mock tests</strong></li>
+      <li>✅ Summarize <strong>topics, formulas, and key concepts</strong> in a notebook</li>
+      <li>✅ Join <strong>study groups, revision forums, and online quizzes</strong></li>
+    </ul>
+
+    <h3>🌍 IGCSE Tips</h3>
+    <ul>
+      <li>✅ Understand <strong>exam syllabus and grading criteria</strong></li>
+      <li>✅ Practice <strong>past IGCSE papers and timed questions</strong></li>
+      <li>✅ Focus on <strong>application of concepts in real-life scenarios</strong></li>
+      <li>✅ Use <strong>digital learning tools and online tutorials</strong></li>
+      <li>✅ Engage in <strong>discussion groups, mock experiments, and science simulations</strong></li>
+    </ul>
+
+    <h3>💡 Additional Tools for Students</h3>
+    <ul>
+      <li>AI-powered study timetable generators</li>
+      <li>Digital notebooks and revision trackers</li>
+      <li>Interactive quizzes, flashcards, and video lessons</li>
+      <li>Math, Chemistry, Physics formula calculators</li>
+      <li>Peer-to-peer forums and discussion hubs</li>
+      <li>Career guidance and exam tips for KCSE, CBC, and IGCSE</li>
+      <li>Access to 30,000+ past papers and 2000+ video lessons</li>
+      <li>Fun educational games for Math, Kiswahili, and English</li>
+    </ul>
+
+    <p><strong>By following these study tips and leveraging smart learning tools, students can excel in KCSE, CBC, and IGCSE exams while developing lifelong learning skills.</strong></p>
+
+    <p>👉 Explore <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a> for interactive study resources, AI tutors, and exam prep tools.<br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "tips"
+},
+
+	
+	
+	{
+  id: 5,
+  title: "Achieve Your Dream Career with Elimu Connect in Kenya",
+  preview: "Learn how Elimu Connect helps students choose the right subjects, prepare for KCSE/CBC/IGCSE, and secure top careers in Kenya.",
+  full: `
+    <h2>Achieve Your Dream Career with Elimu Connect in Kenya</h2>
+    <p>Choosing the right subjects and gaining the right skills is critical for success in today’s competitive job market. <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank"><strong>Elimu Connect</strong></a> empowers Kenyan students to make informed decisions about subjects, exams, and career paths while providing tools to excel academically and professionally.</p>
+
+    <h3>1. Guide to Subject Selection</h3>
+    <ul>
+      <li>✅ Identify subjects required for top careers in Kenya, including Medicine, Engineering, Law, ICT, Accounting, and Entrepreneurship</li>
+      <li>✅ Personalized guidance for KCSE, CBC, and IGCSE students</li>
+      <li>✅ Support in choosing Science, Arts, or Technical subjects for university and vocational success</li>
+      <li>✅ AI-powered recommendations for students based on performance and career interests</li>
+    </ul>
+
+    <h3>2. Preparing for High-Demand Careers</h3>
+    <p>Elimu Connect links academic learning to career outcomes, helping students target high-demand fields:</p>
+    <ul>
+      <li>✅ Medicine & Health Sciences – Biology, Chemistry, Physics</li>
+      <li>✅ Engineering & Technology – Mathematics, Physics, ICT</li>
+      <li>✅ Finance & Business – Mathematics, Accounting, Economics</li>
+      <li>✅ Law & Social Sciences – History, Languages, Literature</li>
+      <li>✅ Creative & ICT Careers – Computer Science, Digital Media, Coding</li>
+      <li>✅ Vocational & Technical Skills – Technical Drawing, Agriculture, Hospitality</li>
+    </ul>
+
+    <h3>3. Study Tools to Achieve Career Goals</h3>
+    <ul>
+      <li>✅ Affordable live online lessons and tutorials for core subjects</li>
+      <li>✅ AI-powered homework and exam support 24/7</li>
+      <li>✅ Interactive quizzes, practice papers, and revision trackers</li>
+      <li>✅ Access to past papers, video lessons, and study guides for KCSE, CBC, and IGCSE</li>
+      <li>✅ Peer discussion forums for collaborative learning</li>
+    </ul>
+
+    <h3>4. Career Skill Development</h3>
+    <ul>
+      <li>✅ Coding, ICT, and digital literacy for tech careers</li>
+      <li>✅ Entrepreneurship, innovation, and leadership skills</li>
+      <li>✅ Communication and language proficiency for Law, Media, and Social Careers</li>
+      <li>✅ Critical thinking and problem-solving for STEM and Finance fields</li>
+      <li>✅ Access to mentorship, internships, and scholarship opportunities</li>
+    </ul>
+
+    <h3>5. How Elimu Connect Bridges Learning and Careers</h3>
+    <ul>
+      <li>✅ Personalized subject & career guidance</li>
+      <li>✅ Step-by-step learning tools for KCSE, CBC, and IGCSE subjects</li>
+      <li>✅ Online tutoring, AI virtual tutor, and interactive lessons</li>
+      <li>✅ Career-ready simulations, projects, and skill-building exercises</li>
+      <li>✅ Access to national competitions, internships, and job prep</li>
+    </ul>
+
+    <h3>Why Elimu Connect is Key for Your Career</h3>
+    <ul>
+      <li>✅ Aligns subjects with desired careers</li>
+      <li>✅ Ensures mastery of core subjects needed for top professions in Kenya</li>
+      <li>✅ Provides AI and human-guided support for exams and projects</li>
+      <li>✅ Builds skills for employability and entrepreneurship</li>
+      <li>✅ Empowers students to achieve personal and professional goals</li>
+    </ul>
+
+    <p><strong>With Elimu Connect, students in Kenya can confidently choose the right subjects, excel in exams, and pursue careers in Medicine, Engineering, ICT, Finance, Law, and more.</strong></p>
+
+    <p>👉 Learn more: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a><br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "career"
+},
+
+	
+	{
+  id: 6,
+  title: "Enhance Learning with ICT and Smart Tools",
+  preview: "Discover how ICT integration and Elimu Connect's smart tools make learning easier and more effective for students and teachers.",
+  full: `
+    <h2>Enhance Learning with ICT and Smart Tools</h2>
+    <p>Integrating ICT in schools transforms the way teachers teach and students learn. With the right digital tools, schools can make lessons more interactive, track student performance efficiently, and provide personalized learning experiences. <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank"><strong>Elimu Connect</strong></a> offers smart tools that empower both students and teachers for success in KCSE, CBC, and IGCSE.</p>
+
+    <h3>1. ICT Integration in Schools</h3>
+    <ul>
+      <li>✅ Use digital whiteboards and interactive lessons for better engagement</li>
+      <li>✅ Implement school-based learning management systems (LMS) for assignments, grading, and competency tracking</li>
+      <li>✅ Integrate multimedia content in STEM, Languages, and Arts subjects</li>
+      <li>✅ Facilitate remote learning and hybrid teaching models</li>
+      <li>✅ Track student progress and competencies in real-time</li>
+    </ul>
+
+    <h3>2. School Smart Tools for Teachers & Schools</h3>
+    <ul>
+      <li>✅ <strong>Smart Register</strong> – Digital attendance and tracking of students</li>
+      <li>✅ <strong>Projects & CBL Portfolio</strong> – Manage student projects and competency-based portfolios</li>
+      <li>✅ <strong>Activities/Projects Generator</strong> – Auto-generate CBC-compliant activities and projects</li>
+      <li>✅ <strong>Homework Smart System</strong> – Assign, track, and grade homework online</li>
+      <li>✅ <strong>School Bus Tracking</strong> – Real-time tracking for drivers and parents</li>
+      <li>✅ <strong>Competencies Tracker</strong> – Monitor student skill progress and performance dashboards</li>
+      <li>✅ <strong>Parent Connect</strong> – Enable seamless communication between parents, teachers, and school management</li>
+      <li>✅ Connect with other teachers for TSC swaps and collaborative teaching</li>
+    </ul>
+
+    <h3>3. Smart Tools for Students</h3>
+    <ul>
+      <li>✅ Interactive study tools for Math, Science, and Languages</li>
+      <li>✅ AI-powered virtual tutor for homework and exam preparation</li>
+      <li>✅ Access to over 2000 video lessons and 5000 quizzes</li>
+      <li>✅ Digital notebooks, notes organizer, and revision tracker</li>
+      <li>✅ Online simulations for Physics, Chemistry, Biology, and 3D anatomy</li>
+      <li>✅ Fun math, Kiswahili, and English language games for better retention</li>
+    </ul>
+
+    <h3>4. Benefits of ICT and Elimu Connect Tools</h3>
+    <ul>
+      <li>✅ Simplifies lesson planning, grading, and student tracking for teachers</li>
+      <li>✅ Makes learning interactive, fun, and effective for students</li>
+      <li>✅ Improves student performance with step-by-step tutorials, quizzes, and digital assessments</li>
+      <li>✅ Prepares students efficiently for KCSE, CBC, and IGCSE exams</li>
+      <li>✅ Enhances digital literacy, coding, and STEM skills for future careers</li>
+      <li>✅ Strengthens parent-teacher-student connectivity and engagement</li>
+      <li>✅ Modernizes school operations with smart administration and performance dashboards</li>
+    </ul>
+
+    <p><strong>By integrating ICT in schools and leveraging Elimu Connect’s School Smart Tools, Kenyan learners gain an edge in academics, practical skills, and career readiness while teachers and schools operate efficiently.</strong></p>
+
+    <p>👉 Learn more: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a><br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "tech"
+},
+
+	
+	{
+  id: 7,
+  title: "Effective Parenting for Better Academic Performance",
+  preview: "Discover how parents can actively support their child's learning and improve academic results with Elimu Connect tools.",
+  full: `
+    <h2>Effective Parenting for Better Academic Performance</h2>
+    <p>Parents play a crucial role in shaping their child's academic success. Active involvement, guidance, and monitoring can significantly improve performance in KCSE, CBC, and IGCSE. <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank"><strong>Elimu Connect</strong></a> provides tools that make parental engagement easy, effective, and impactful.</p>
+
+    <h3>1. Tips for Better Parenting in Academics</h3>
+    <ul>
+      <li>✅ Set clear study schedules and routines for your child</li>
+      <li>✅ Create a quiet, distraction-free learning environment</li>
+      <li>✅ Review homework and assignments regularly</li>
+      <li>✅ Encourage discussion and questioning to develop critical thinking</li>
+      <li>✅ Monitor progress in tests, quizzes, and exams consistently</li>
+      <li>✅ Celebrate achievements to boost confidence and motivation</li>
+      <li>✅ Communicate frequently with teachers to understand learning needs</li>
+      <li>✅ Guide career and subject choices based on your child’s strengths</li>
+    </ul>
+
+    <h3>2. How Elimu Connect Enhances Parental Engagement</h3>
+    <ul>
+      <li>✅ <strong>Parent Connect</strong> – Track your child's attendance, homework, and project submissions</li>
+      <li>✅ View real-time <strong>competencies and performance dashboards</strong> for each subject</li>
+      <li>✅ Receive notifications for assignments, tests, and school activities</li>
+      <li>✅ Access past papers, quizzes, and study resources to guide your child at home</li>
+      <li>✅ Communicate directly with teachers through the app for advice and feedback</li>
+      <li>✅ Monitor school bus tracking and safety notifications</li>
+      <li>✅ Encourage your child to use digital study tools for Math, Science, and Languages</li>
+      <li>✅ Support participation in school projects, CBL portfolios, and activities</li>
+    </ul>
+
+    <h3>3. Benefits of Active Parental Involvement</h3>
+    <ul>
+      <li>✅ Improved academic performance and exam results</li>
+      <li>✅ Higher motivation and engagement from students</li>
+      <li>✅ Early identification of learning challenges</li>
+      <li>✅ Stronger parent-teacher collaboration</li>
+      <li>✅ Enhanced digital literacy and independent learning skills for children</li>
+      <li>✅ Preparation for KCSE, CBC, and IGCSE success</li>
+    </ul>
+
+    <p><strong>By actively participating in your child’s education and leveraging Elimu Connect’s parental tools, you can ensure better academic performance, holistic development, and future-ready skills.</strong></p>
+
+    <p>👉 Learn more: <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/" target="_blank">Elimu Connect</a><br>
+    📲 Download our app: <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">Install on Google Play</a></p>
+  `,
+  category: "parents"
+}
+
+	
+  ];
+
+  const postList = document.getElementById("post-list");
+
+  // ✅ Render blog previews
+  function renderPosts(filterCategory = "all", searchText = "") {
+    postList.innerHTML = "";
+    let filtered = posts;
+
+    if (filterCategory !== "all") {
+      filtered = filtered.filter(p => p.category === filterCategory);
+    }
+
+    if (searchText.trim() !== "") {
+      filtered = filtered.filter(p =>
+        p.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        p.preview.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    if (filtered.length === 0) {
+      postList.innerHTML = `<p style="text-align:center; color:#888;">No articles found.</p>`;
+    } else {
+      filtered.forEach(post => {
+        const article = document.createElement("article");
+        article.style.cssText = "background:#fff; padding:20px; margin:20px 0; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);";
+        article.innerHTML = `
+          <h3 style="color:#0066cc;">${post.title}</h3>
+          <p style="color:#555;">${post.preview}</p>
+          <span style="display:inline-block; margin-bottom:10px; padding:5px 10px; background:#eee; border-radius:5px; font-size:12px; color:#333;">${post.category}</span>
+          <br>
+          <button onclick="openFullPost(${post.id})" style="margin-top:10px; padding:8px 15px; border:none; background:#0066cc; color:#fff; border-radius:5px; cursor:pointer;">Read More →</button>
+        `;
+        postList.appendChild(article);
+      });
+    }
+  }
+
+  // ✅ Open full post at bottom
+  function openFullPost(id) {
+  const post = posts.find(p => p.id === id);
+  if (post) {
+    postList.innerHTML = `
+      <article id="full-post" style="background:#fff; padding:20px; margin:20px 0; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+        <h2 style="color:#0066cc;">${post.title}</h2>
+        <p style="color:#888; font-size:14px;">Published on ${new Date().toDateString()}</p>
+        ${post.full}
+        <p style="margin-top:30px;">
+          <button onclick="renderPosts()" style="padding:8px 15px; border:none; background:#333; color:#fff; border-radius:5px; cursor:pointer;">← Back to Blog</button>
+        </p>
+      </article>
+
+      <!-- Comments Section -->
+      <div id="comments-section" style="margin-top:40px;">
+        <h3>💬 Comments</h3>
+        <div id="comment-list" style="margin-bottom:20px;"></div>
+        <textarea id="comment-input" placeholder="Write a comment..." style="width:100%; height:80px; padding:10px;"></textarea><br>
+        <button onclick="addComment(${post.id})" style="margin-top:10px; padding:8px 15px; background:#0066cc; color:white; border:none; border-radius:5px;">Post Comment</button>
+      </div>
+    `;
+    loadComments(post.id);
+
+    // ✅ Scroll smoothly to the full post title instead of bottom
+    document.getElementById("full-post").scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+
+  // ✅ Filter by category
+  function filterByCategory(cat) {
+    renderPosts(cat, document.getElementById("searchBox").value);
+  }
+
+  // ✅ Search listener
+  document.getElementById("searchBox").addEventListener("input", function() {
+    renderPosts("all", this.value);
+  });
+
+  // ✅ Comments Functions
+   function loadComments(postId) {
+    const commentsRef = db.ref("comments/" + postId);
+    commentsRef.on("value", snapshot => {
+      const list = document.getElementById("comment-list");
+      list.innerHTML = "";
+      if (!snapshot.exists()) {
+        list.innerHTML = `<p style="color:#888;">No comments yet. Be the first!</p>`;
+        return;
+      }
+      snapshot.forEach(child => {
+        const comment = child.val();
+        const key = child.key;
+        const div = document.createElement("div");
+        div.style.cssText = "background:#fff; border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:5px;";
+        div.innerHTML = `
+          <p><strong>${comment.author || "Anonymous"}:</strong> ${comment.text}</p>
+          <button onclick="replyComment(${postId}, '${key}')" style="background:none; border:none; color:#0066cc; cursor:pointer;">↩ Reply</button>
+          <div id="replies-${key}" style="margin-left:20px; margin-top:5px;"></div>
+        `;
+        list.appendChild(div);
+
+        // ✅ Show replies
+        if (comment.replies) {
+          const repliesDiv = div.querySelector(`#replies-${key}`);
+          Object.values(comment.replies).forEach(reply => {
+            const r = document.createElement("p");
+            r.style.cssText = "background:#f1f1f1; padding:5px; border-radius:3px;";
+            r.innerHTML = `<strong>Reply:</strong> ${reply}`;
+            repliesDiv.appendChild(r);
+          });
+        }
+      });
+    });
+  }
+
+  function addComment(postId) {
+    const input = document.getElementById("comment-input");
+    const text = input.value.trim();
+    if (text !== "") {
+      const newCommentRef = db.ref("comments/" + postId).push();
+      newCommentRef.set({
+        text: text,
+        author: "User",   // you can later change this to logged-in user
+        timestamp: Date.now(),
+        replies: {}
+      }).then(() => {
+        input.value = "";
+        // ✅ Show success message
+        const status = document.createElement("p");
+        status.style.color = "green";
+        status.innerText = "✅ Posted successfully!";
+        input.parentNode.insertBefore(status, input.nextSibling);
+        setTimeout(() => status.remove(), 2000);
+      });
+    }
+  }
+
+  function replyComment(postId, commentId) {
+    const reply = prompt("Enter your reply:");
+    if (reply && reply.trim() !== "") {
+      db.ref("comments/" + postId + "/" + commentId + "/replies").push(reply);
+    }
+  }
+
+  // Initial render
+  renderPosts();
+</script>
+
+</body>
+</html>
