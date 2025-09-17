@@ -4098,25 +4098,18 @@ Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</
 
 
 document.querySelectorAll(".faq-question").forEach(button => {
-    button.addEventListener("click", () => {
-      const answer = button.nextElementSibling;
-      answer.style.display = (answer.style.display === "block") ? "none" : "block";
-    });
+  button.addEventListener("click", () => {
+    const answer = button.nextElementSibling;
+    answer.style.display = (answer.style.display === "block") ? "none" : "block";
   });
+});
 
-// Simple toggle for FAQ answers
-  const faqs = document.querySelectorAll('.faq-question');
-  faqs.forEach(button => {
-    button.addEventListener('click', () => {
-      const answer = button.nextElementSibling;
-      answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
-    });
-  });
 	  
 </script>
 
   </body>
 </html>
+
 
 
 
