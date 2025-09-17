@@ -453,62 +453,50 @@
       font-size: 1.1rem;
     }
 	
-	
-	 #faqs { max-width: 800px; margin: auto; padding: 20px; }
-  .faq { border-bottom: 1px solid #ddd; }
-  .faq-question {
-    width: 100%;
-    text-align: left;
-    padding: 12px;
-    font-size: 16px;
-    background: #f9f9f9;
-    border: none;
-    cursor: pointer;
-    outline: none;
-  }
-  .faq-question:hover { background: #eee; }
-  .faq-answer {
-    display: none;
-    padding: 10px 15px;
-    background: #fff;
-  }
-  .faq-answer p { margin: 0; }
-	
+	#faqs {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
 
+.faq {
+  border-bottom: 1px solid #ddd;
+}
 
+/* FAQ questions */
+.faq-question {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  font-size: 16px;
+  background: #f0f4f8;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  border-radius: 6px;
+  margin-bottom: 5px;
+  transition: background 0.3s;
+}
 
-	 /* Style the FAQ question buttons */
-  .faq-question {
-    width: 100%;
-    text-align: left;
-    background: #f0f4f8;
-    border: none;
-    padding: 12px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    transition: background 0.3s;
-  }
+.faq-question:hover {
+  background: #d0e4ff;
+}
 
-  .faq-question:hover {
-    background: #d0e4ff;
-  }
+/* FAQ answers */
+.faq-answer {
+  display: none; /* hidden by default */
+  padding: 10px 15px;
+  background-color: #e6f7ff; /* light blue */
+  border-left: 4px solid #1890ff; /* blue border */
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
 
-  /* Style the FAQ answer */
-  .faq-answer {
-    display: none; /* initially hidden */
-    padding: 10px 15px;
-    background-color: #e6f7ff; /* light blue background */
-    border-left: 4px solid #1890ff; /* blue side border */
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
+.faq-answer p {
+  margin: 0;
+  color: #003366; /* dark blue text */
+}
 
-  .faq-answer p {
-    color: #003366; /* dark blue text for answers */
-    margin: 0;
-  }
 	
   </style>
 
@@ -4129,6 +4117,7 @@ document.querySelectorAll(".faq-question").forEach(button => {
 
   </body>
 </html>
+
 
 
 
