@@ -4073,10 +4073,22 @@ Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</
     const year = document.getElementById('year');
     if (year) year.textContent = new Date().getFullYear();
   });
+
+
+document.querySelectorAll(".faq-question").forEach(button => {
+    button.addEventListener("click", () => {
+      const answer = button.nextElementSibling;
+      answer.style.display = (answer.style.display === "block") ? "none" : "block";
+    });
+  });
+
+
+	  
 </script>
 
   </body>
 </html>
+
 
 
 
