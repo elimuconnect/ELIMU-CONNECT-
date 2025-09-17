@@ -474,7 +474,41 @@
   }
   .faq-answer p { margin: 0; }
 	
-	
+
+
+
+	 /* Style the FAQ question buttons */
+  .faq-question {
+    width: 100%;
+    text-align: left;
+    background: #f0f4f8;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    transition: background 0.3s;
+  }
+
+  .faq-question:hover {
+    background: #d0e4ff;
+  }
+
+  /* Style the FAQ answer */
+  .faq-answer {
+    display: none; /* initially hidden */
+    padding: 10px 15px;
+    background-color: #e6f7ff; /* light blue background */
+    border-left: 4px solid #1890ff; /* blue side border */
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .faq-answer p {
+    color: #003366; /* dark blue text for answers */
+    margin: 0;
+  }
 	
   </style>
 
@@ -4082,12 +4116,20 @@ document.querySelectorAll(".faq-question").forEach(button => {
     });
   });
 
-
+// Simple toggle for FAQ answers
+  const faqs = document.querySelectorAll('.faq-question');
+  faqs.forEach(button => {
+    button.addEventListener('click', () => {
+      const answer = button.nextElementSibling;
+      answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    });
+  });
 	  
 </script>
 
   </body>
 </html>
+
 
 
 
