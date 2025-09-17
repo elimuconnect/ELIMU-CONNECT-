@@ -32,6 +32,142 @@
 
 <!-- Optional Favicon -->
 <link rel="icon" href="favicon.ico" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where can I download CBC & IGCSE past papers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can download free CBC and IGCSE past papers directly from the Past Papers section on Elimu Connect. They are available as PDFs for immediate download."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Elimu Connect free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Elimu Connect provides many free resources for students and teachers, including past papers and lesson plans. A 3-day free trial unlocks all features, and affordable paid plans are available for schools and tutors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I access online tuition and live lessons?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can access live lessons by installing the Elimu Connect app or logging in through the website. Go to the Live Lessons or Tuition section to join. Paid content will prompt you to activate the free trial or subscription."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I use the AI Lesson Reader (AI Smart Tutor)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open the AI Smart Tutor, paste or upload lesson notes (supports .docx), choose your preferred voice in English or Swahili, then play. You can also print or download narrated lessons."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which curricula does Elimu Connect support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Elimu Connect supports CBC, IGCSE and KCSE with past papers, lesson plans, schemes of work, revision resources, and digital learning materials."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do teachers join or create accounts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Teachers can register on the Sign Up / Login page and select the Teacher account type. Schools can also register as institutions for multi-user access."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is STEMLa Club and how can our school join?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "STEMLa Club is Elimu Connect’s virtual STEM and coding club with weekly hands-on activities. Schools can sign up through the STEMLa portal, and teachers can access and deliver activities weekly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can multiple schools run the same STEMLa activities?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. STEMLa activities are centrally shared, so participating schools run the same weekly activities and projects. Teachers simply log in each week to access the materials."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you offer onboarding, demos and staff training?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Elimu Connect provides onboarding, live demos, and staff training for ICT integration, smart registers, competency tracking, and other tools. Schools can book demos via the Contact page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can we integrate Elimu Connect with our existing school systems?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. We offer API integration, custom websites, and data export features. Schools can contact our technical team for integration and white-label solutions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the referral program work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Elimu Connect has a referral program that gives 25% commission. Share your referral link, and when someone subscribes through it, you earn commission. Full terms are on the Referral page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are materials available offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Many resources, including past papers, lesson notes, and revision PDFs, can be downloaded for offline use in the app or directly from the website."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the technical requirements?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Elimu Connect works on modern web browsers and via the Android/iOS app. For best performance, ensure your app or browser is up to date."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is student privacy and data security handled?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Elimu Connect uses secure hosting, encryption, and strict data policies. Student data is only used for learning features and reporting, while schools retain full ownership of their data."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I report a problem or request support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can report issues using the Support / Contact form in the app or website. Include your account email and description, and our team will respond during business hours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can my organisation partner with Elimu Connect?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Partnerships and sponsorships are welcome. Organisations, NGOs, and schools can submit proposals through the Partnerships page or Contact form."
+      }
+    }
+  ]
+}
+</script>
 
 	
 <script>
@@ -295,7 +431,25 @@
     }
 	
 	
-	
+	 #faqs { max-width: 800px; margin: auto; padding: 20px; }
+  .faq { border-bottom: 1px solid #ddd; }
+  .faq-question {
+    width: 100%;
+    text-align: left;
+    padding: 12px;
+    font-size: 16px;
+    background: #f9f9f9;
+    border: none;
+    cursor: pointer;
+    outline: none;
+  }
+  .faq-question:hover { background: #eee; }
+  .faq-answer {
+    display: none;
+    padding: 10px 15px;
+    background: #fff;
+  }
+  .faq-answer p { margin: 0; }
 	
   </style>
 
@@ -327,8 +481,9 @@
       <a href="#about" class="hover:text-yellow-300 transition">About Us</a>
       <a href="#services" class="hover:text-yellow-300 transition">Services</a>
       <a href="#cbc-pastpapers" class="hover:text-yellow-300 transition">CBC & IGCSE Past Papers</a>
-      <a href="#schemes-of-work" class="hover:text-yellow-300 transition">CBC Schemes of work</a>
+      <a href="#schemes-of-work" class="hover:text-yellow-300 transition">Schemes of work</a>
       <a href="#testimonials" class="hover:text-yellow-300 transition">Testimonials</a>
+		
       <a href="#sponsor" class="hover:text-yellow-300 transition">Students pricing</a>
       
       <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/school" target="_blank" 
@@ -347,6 +502,8 @@
       <button id="mobile-menu-button" class="text-white text-3xl focus:outline-none">
         ☰
       </button>
+
+		<a href="#faqs" class="hover:text-yellow-300 transition">FAQS</a>
     </div>
   </div>
 
@@ -368,6 +525,7 @@
        class="block bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg shadow hover:bg-yellow-300 transition">
       📲 Install App-students/tutors
     </a>
+	  <a href="#faqs" class="hover:text-yellow-300 transition">FAQS</a>
   </div>
 </header>
 
@@ -417,6 +575,7 @@
            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition">
           💰 View Pricing
         </a>
+		  
       </div>
     </div>
 
@@ -3650,10 +3809,128 @@ Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</
 
 
 
+<section id="faqs">
+  <h2>Frequently Asked Questions</h2>
+  
+  <div class="faq">
+    <button class="faq-question">What is Elimu Connect Ltd?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect Ltd is a Kenyan education technology company that provides blended learning solutions including online and physical tuition, CBC, IGCSE, and KCSE resources, AI smart tutors, past papers, lesson plans, digital libraries, and ICT tools for schools, teachers, and students.</p>
+    </div>
+  </div>
 
+  <div class="faq">
+    <button class="faq-question">Where can I download CBC & IGCSE past papers?</button>
+    <div class="faq-answer">
+      <p>You can download free CBC and IGCSE past papers directly from the Past Papers section on Elimu Connect. They are available as PDFs for immediate download.</p>
+    </div>
+  </div>
 
+  <div class="faq">
+    <button class="faq-question">Is Elimu Connect free?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect provides many free resources for students and teachers, including past papers and lesson plans. A 3-day free trial unlocks all features, and affordable paid plans are available for schools and tutors.</p>
+    </div>
+  </div>
 
+  <div class="faq">
+    <button class="faq-question">How do I access online tuition and live lessons?</button>
+    <div class="faq-answer">
+      <p>You can access live lessons by installing the Elimu Connect app or logging in through the website. Go to the Live Lessons or Tuition section to join. Paid content will prompt you to activate the free trial or subscription.</p>
+    </div>
+  </div>
 
+  <div class="faq">
+    <button class="faq-question">How do I use the AI Lesson Reader (AI Smart Tutor)?</button>
+    <div class="faq-answer">
+      <p>Open the AI Smart Tutor, paste or upload lesson notes (supports .docx), choose your preferred voice in English or Swahili, then play. You can also print or download narrated lessons.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">Which curricula does Elimu Connect support?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect supports CBC, IGCSE and KCSE with past papers, lesson plans, schemes of work, revision resources, and digital learning materials.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">How do teachers join or create accounts?</button>
+    <div class="faq-answer">
+      <p>Teachers can register on the Sign Up / Login page and select the Teacher account type. Schools can also register as institutions for multi-user access.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">What is STEMLa Club and how can our school join?</button>
+    <div class="faq-answer">
+      <p>STEMLa Club is Elimu Connect’s virtual STEM and coding club with weekly hands-on activities. Schools can sign up through the STEMLa portal, and teachers can access and deliver activities weekly.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">Can multiple schools run the same STEMLa activities?</button>
+    <div class="faq-answer">
+      <p>Yes. STEMLa activities are centrally shared, so participating schools run the same weekly activities and projects. Teachers simply log in each week to access the materials.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">Do you offer onboarding, demos and staff training?</button>
+    <div class="faq-answer">
+      <p>Yes. Elimu Connect provides onboarding, live demos, and staff training for ICT integration, smart registers, competency tracking, and other tools. Schools can book demos via the Contact page.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">Can we integrate Elimu Connect with our existing school systems?</button>
+    <div class="faq-answer">
+      <p>Yes. We offer API integration, custom websites, and data export features. Schools can contact our technical team for integration and white-label solutions.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">How does the referral program work?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect has a referral program that gives 25% commission. Share your referral link, and when someone subscribes through it, you earn commission. Full terms are on the Referral page.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">Are materials available offline?</button>
+    <div class="faq-answer">
+      <p>Yes. Many resources, including past papers, lesson notes, and revision PDFs, can be downloaded for offline use in the app or directly from the website.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">What are the technical requirements?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect works on modern web browsers and via the Android/iOS app. For best performance, ensure your app or browser is up to date.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">How is student privacy and data security handled?</button>
+    <div class="faq-answer">
+      <p>Elimu Connect uses secure hosting, encryption, and strict data policies. Student data is only used for learning features and reporting, while schools retain full ownership of their data.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">How do I report a problem or request support?</button>
+    <div class="faq-answer">
+      <p>You can report issues using the Support / Contact form in the app or website. Include your account email and description, and our team will respond during business hours.</p>
+    </div>
+  </div>
+
+  <div class="faq">
+    <button class="faq-question">How can my organisation partner with Elimu Connect?</button>
+    <div class="faq-answer">
+      <p>Partnerships and sponsorships are welcome. Organisations, NGOs, and schools can submit proposals through the Partnerships page or Contact form.</p>
+    </div>
+  </div>
+</section>
 
 
 
@@ -3750,10 +4027,26 @@ Rooted in Kenya: Our work reflects the realities and dreams of Kenyan schools.</
     const year = document.getElementById('year');
     if (year) year.textContent = new Date().getFullYear();
   });
+
+
+
+
+
+
+document.querySelectorAll(".faq-question").forEach(button => {
+    button.addEventListener("click", () => {
+      const answer = button.nextElementSibling;
+      answer.style.display = (answer.style.display === "block") ? "none" : "block";
+    });
+  });
+
+
+	  
 </script>
 
   </body>
 </html>
+
 
 
 
