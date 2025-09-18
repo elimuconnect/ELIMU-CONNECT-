@@ -49,6 +49,84 @@
       justify-content: center;
     }
    .card {
+    max-width: 90vw;
+    width: 100%;
+    margin: 20px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 25px;
+    border: 2px solid #ccc; /* 💥 Added border for prominence */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    font-size: 1.8em;
+    line-height: 2;
+    font-weight: bold;
+    animation: fadeIn 1s ease;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    color: #1a237e;
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out; /* 💫 Smooth hover or layout changes */
+  }
+
+  /* Headings inside cards */
+  .card h2 {
+    margin-top: 0;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  /* Optional manual title colors */
+  .card h2.red    { color: #d81b60; }
+  .card h2.green  { color: #2e7d32; }
+  .card h2.blue   { color: #1565c0; }
+  .card h2.orange { color: #ef6c00; }
+  .card h2.purple { color: #6a1b9a; }
+
+  /* 💡 Automatic color cycling for h2s inside cards */
+  .card h2:nth-child(5n+1) { color: #d81b60; }
+  .card h2:nth-child(5n+2) { color: #2e7d32; }
+  .card h2:nth-child(5n+3) { color: #1565c0; }
+  .card h2:nth-child(5n+4) { color: #ef6c00; }
+  .card h2:nth-child(5n+5) { color: #6a1b9a; }
+
+  .card pre {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    font-size: 1.6em;
+    line-height: 2;
+    font-weight: bold;
+    color: #1a237e;
+  }
+
+  #status {
+    padding: 15px;
+    background: #388e3c;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    #toolbar {
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    #toolbar button {
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+    }
+
+    .card {
       padding: 20px;
       font-size: 1.2em;
     }
@@ -74,27 +152,40 @@
   margin: 10px 0;
 }
 
-    }
-    #status {
-      padding: 15px;
-      background: #388e3c;
-      color: white;
-      font-weight: bold;
-      text-align: center;
-      font-size: 16px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @media (max-width: 600px) {
-      #toolbar { flex-direction: column; gap: 8px; padding: 10px; }
-      #toolbar button { width: 100%; font-size: 16px; padding: 10px; }
-      .card { padding: 20px; font-size: 1.2em; }
-      .card h2 { font-size: 1.4em; }
-      .card pre { font-size: 1.15em; }
-      #status { font-size: 15px; padding: 10px; }
-    }
+.subtopic {
+  color: #1976d2; /* Blue */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.question {
+  color: #f57c00; /* Orange */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.answer {
+  color: #388e3c; /* Green */
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+.bullet {
+  color: #6a1b9a; /* Purple dot */
+  margin-right: 8px;
+}
+
+.point {
+  color: #1a237e;
+  display: block;
+  margin-left: 20px;
+}
+
+    
+  }
   </style>
 </head>
 <body>
