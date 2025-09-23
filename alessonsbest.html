@@ -1,3 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Tutor – Daily Live Lessons</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(to right,#e0f7fa,#fce4ec);}
+#app{display:flex;flex-direction:column;height:100vh}
+#toolbar{background:#1976d2;color:#fff;padding:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#toolbar button{background:#fff;color:#1976d2;border:none;border-radius:25px;padding:10px 18px;font-weight:bold;cursor:pointer}
+#toolbar button:hover{background:#f0f0f0}
+#editor{flex:1;overflow:auto;padding:20px;display:flex;align-items:center;justify-content:center}
+.card{max-width:900px;width:95%;background:#fff;border-radius:20px;padding:25px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-size:1.2em;text-align:center}
+#status{background:#388e3c;color:#fff;text-align:center;padding:8px;font-weight:bold}
+.rating span{font-size:2em;cursor:pointer;color:#ccc}
+.rating span.active{color:#ff9800}
+@media(max-width:600px){.card{font-size:1em;padding:15px}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="toolbar">
+    <button id="loginBtn">🔑 Google Login</button>
+    <button onclick="startTutor()">▶️ Start</button>
+    <button onclick="pauseTutor()">⏸️ Pause</button>
+    <button onclick="resumeTutor()">▶️ Resume</button>
+    <button onclick="prevLesson()">⬅️ Back</button>
+    <button onclick="nextLesson()">➡️ Next</button>
+    <button onclick="contactWhatsApp()">💬 Customer Care</button>
+  </div>
+
+  <div id="editor">
+    <div class="card">
+      <h2>Welcome to Smart Tutor</h2>
+      <p>Login with Google to follow live daily lessons (Mon–Sat).  
+      • Maths ×3 • Integrated Science ×2 • English ×1</p>
+      <p>Lessons are updated weekly!</p>
+      <div class="rating">
+        <p>Rate this Tutor:</p>
+        <span data-v="1">★</span>
+        <span data-v="2">★</span>
+        <span data-v="3">★</span>
+        <span data-v="4">★</span>
+        <span data-v="5">★</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="status">⏳ Ready…</div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
+
 <script>
 /* ---------- FIREBASE CONFIG ---------- */
 const firebaseConfig = {
