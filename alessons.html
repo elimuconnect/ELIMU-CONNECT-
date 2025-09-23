@@ -298,7 +298,7 @@ function speak(text, onEnd) {
   speechSynthesis.cancel();
   utterInstance = new SpeechSynthesisUtterance(text);
   utterInstance.voice = selectedVoice;
- utterInstance.rate = 0.71;   // slower explanation
+ utterInstance.rate = 0.70;   // slower explanation
 
   utterInstance.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utterInstance);
