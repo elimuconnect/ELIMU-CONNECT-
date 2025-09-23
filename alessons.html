@@ -413,7 +413,7 @@ function speak(text, onEnd) {
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
-  utter.rate = 0.88;
+  utter.rate = 0.70;
   utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
 }
