@@ -209,30 +209,34 @@ html, body {
   </div>
 
   <div id="editor">
-    <div class="card">
-      <h2>Welcome to Smart Tutor</h2>
-      <p>Login with Google to access daily CBC lessons (Mon–Sat) with live voice narration.  
-      Maths ×3 • Integrated Science ×2 • English ×1</p>
-      <p>Lessons open daily 4 PM – 11 PM (Kenya time).</p>
-<div class="rating" id="ratingStars">
-  <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
-  <span data-v="1">★</span>
-  <span data-v="2">★</span>
-  <span data-v="3">★</span>
-  <span data-v="4">★</span>
-  <span data-v="5">★</span>
-</div>
-<p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-  Average Rating: <span id="avgRating">–</span> ★
-</p>
+  <div class="card">
+    <!-- Rating message container -->
+    <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
+         opacity:0; transform:translateY(-10px); transition: all 0.5s ease;"></div>
 
+    <h2>Welcome to Smart Tutor</h2>
+    <p>Login with Google to access daily CBC lessons (Mon–Sat) with live voice narration.  
+    Maths ×3 • Integrated Science ×2 • English ×1</p>
+    <p>Lessons open daily 4 PM – 11 PM (Kenya time).</p>
 
-      
+    <div class="rating" id="ratingStars">
+      <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
+      <span data-v="1">★</span>
+      <span data-v="2">★</span>
+      <span data-v="3">★</span>
+      <span data-v="4">★</span>
+      <span data-v="5">★</span>
     </div>
+
+    <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
+      Average Rating: <span id="avgRating">–</span> ★
+    </p>
   </div>
-<div id="lessonContainer"></div>
-  <div id="status">⏳ Ready…</div>
 </div>
+
+<div id="lessonContainer"></div>
+<div id="status">⏳ Ready…</div>
+
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
@@ -456,6 +460,24 @@ const db = firebase.database();
 const ratingStars = document.querySelectorAll(".rating span");
 const avgRatingEl = document.getElementById("avgRating");
 
+// Add a container for the delayed message
+let ratingTimeout;
+let ratingMessage = document.getElementById("ratingMessage");
+if (!ratingMessage) {
+  ratingMessage = document.createElement("div");
+  ratingMessage.id = "ratingMessage";
+  ratingMessage.style.cssText = `
+    display:none; 
+    color:#388e3c; 
+    font-weight:bold; 
+    margin-bottom:10px; 
+    opacity:0; 
+    transform:translateY(-10px); 
+    transition: all 0.5s ease;
+  `;
+  document.querySelector(".card").prepend(ratingMessage);
+}
+
 // Function to update stars visually
 function updateStars(val) {
   ratingStars.forEach(s => {
@@ -497,19 +519,36 @@ ratingStars.forEach(star => {
       timestamp: Date.now()
     });
 
-    alert(`Thanks! You rated ${val}⭐`);
-
     // Update stars visually for this user
     updateStars(val);
+
+    // Clear previous timeout if any
+    if (ratingTimeout) clearTimeout(ratingTimeout);
+
+    // Delay message 5 seconds
+    ratingTimeout = setTimeout(() => {
+      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
+      ratingMessage.style.display = "block";
+      setTimeout(() => {
+        ratingMessage.style.opacity = 1;
+        ratingMessage.style.transform = "translateY(0)";
+      }, 10);
+
+      // Fade out after 3s
+      setTimeout(() => {
+        ratingMessage.style.opacity = 0;
+        ratingMessage.style.transform = "translateY(-10px)";
+        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+      }, 3000);
+
+      ratingTimeout = null;
+    }, 5000);
   });
 
   // Optional: hover effect
-  star.addEventListener("mouseover", () => {
-    updateStars(star.dataset.v);
-  });
+  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
   star.addEventListener("mouseout", () => {
     if (user) {
-      // show user's rating or leave stars reset
       db.ref("ratings/" + user.uid).once("value", snap => {
         const val = snap.exists() ? snap.val().rating : 0;
         updateStars(val);
@@ -527,6 +566,7 @@ auth.onAuthStateChanged(u => {
     });
   }
 });
+
 
 
 </script>
