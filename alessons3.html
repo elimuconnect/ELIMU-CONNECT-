@@ -58,7 +58,7 @@ body{margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(to ri
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
 
 <script>
-/* ---------- CONFIGURE WITH YOUR FIREBASE PROJECT DETAILS ---------- */
+/* ---------- FIREBASE CONFIG ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
@@ -71,7 +71,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.database();
-/* ------------------------------------------------------------------ */
+/* -------------------------------------- */
 
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
@@ -86,14 +86,12 @@ loginBtn.onclick=()=>{
       })
       .catch(e=>alert(e.message));
 };
-
-// 🔑 Track login state in case user refreshes page
 auth.onAuthStateChanged(u=>{
   user=u;
   if(u){status.textContent=`👋 Hi ${u.displayName}`;}
 });
 
-/* ----- Lessons: update weekly ----- */
+/* ----- Lessons ----- */
 const lessonsArray=[
   {day:"Mon",subject:"Maths",title:"Algebra Basics",content:"Introduction to variables and expressions."},
   {day:"Tue",subject:"Maths",title:"Linear Equations",content:"Solving one-step equations."},
@@ -103,8 +101,7 @@ const lessonsArray=[
   {day:"Sat",subject:"English",title:"Comprehension",content:"Answering inference questions."}
 ];
 
-let currentLesson=0, tutorStarted=false, paused=false, selectedVoice=null, utter=null;
-
+let selectedVoice=null, utter=null, paused=false;
 function getVoice(){
   const voices=speechSynthesis.getVoices();
   return voices.find(v=>v.lang.toLowerCase().startsWith("en-ke"))
@@ -112,51 +109,63 @@ function getVoice(){
       || voices[0];
 }
 
-function speak(text,onEnd){
+function speak(text){
   speechSynthesis.cancel();
   utter=new SpeechSynthesisUtterance(text);
   utter.voice=selectedVoice;
   utter.rate=0.8;
-  utter.onend=()=>onEnd&&onEnd();
   speechSynthesis.speak(utter);
 }
 
-function showLesson(i){
-  if(i>=lessonsArray.length){
-    editor.innerHTML="<div class='card'><h2>✅ Week Complete!</h2></div>";
-    status.textContent="All done";
-    return;
-  }
-  const L=lessonsArray[i];
-  editor.innerHTML=`<div class="card"><h2>${L.day} – ${L.subject}</h2>
-  <h3>${L.title}</h3><p>${L.content}</p></div>`;
-  status.textContent=`📖 ${L.subject} Lesson ${i+1}/${lessonsArray.length}`;
-  speak(`${L.title}. ${L.content}`,()=>{
-    if(!paused){currentLesson++;setTimeout(()=>showLesson(currentLesson),3000);}
-  });
-}
-
-// 🔑 Require login before lessons start
 function startTutor(){
   if(!user){alert("⚠️ Please login with Google before starting lessons.");return;}
-  if(tutorStarted)return;
-  tutorStarted=true;
+
+  // --- Day & Time Checks ---
+  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const now = new Date();
+  const kenyaOffset = 3 * 60; // UTC+3
+  const localOffset = now.getTimezoneOffset();
+  const kenyaTime = new Date(now.getTime() + (kenyaOffset + localOffset) * 60000);
+
+  const dayName = days[kenyaTime.getDay()];
+  const hour    = kenyaTime.getHours();
+
+  // Allow only 4 PM (16) to 10:59 PM (22)
+  if(hour < 16 || hour >= 23){
+    editor.innerHTML = `<div class='card'><h2>⏳ Lessons open 4 PM – 11 PM Kenya time.</h2></div>`;
+    status.textContent="⛔ Outside lesson hours";
+    return;
+  }
+
+  const todayLesson = lessonsArray.find(L=>L.day===dayName);
+  if(!todayLesson){
+    editor.innerHTML = `<div class='card'><h2>🎉 No lessons scheduled for ${dayName}</h2></div>`;
+    status.textContent="No lesson today";
+    return;
+  }
+
+  // Start today's lesson
   const check=setInterval(()=>{
     if(speechSynthesis.getVoices().length){
       clearInterval(check);
       selectedVoice=getVoice();
-      showLesson(currentLesson);
+      showLesson(todayLesson);
     }
   },200);
-  status.textContent="🟢 Starting lessons...";
+  status.textContent=`🟢 Starting ${todayLesson.subject} lesson`;
+}
+
+function showLesson(L){
+  editor.innerHTML=`<div class="card"><h2>${L.day} – ${L.subject}</h2>
+  <h3>${L.title}</h3><p>${L.content}</p></div>`;
+  speak(`${L.title}. ${L.content}`);
 }
 
 function pauseTutor(){paused=true;speechSynthesis.pause();status.textContent="⏸️ Paused";}
 function resumeTutor(){paused=false;speechSynthesis.resume();status.textContent="▶️ Resumed";}
-function nextLesson(){currentLesson++;showLesson(currentLesson);}
-function prevLesson(){if(currentLesson>0){currentLesson--;showLesson(currentLesson);}}
+function nextLesson(){alert("Only today's lesson is available.");}
+function prevLesson(){alert("Only today's lesson is available.");}
 
-/* WhatsApp */
 function contactWhatsApp(){
   window.open("https://wa.me/254769255782","_blank");
 }
@@ -173,5 +182,6 @@ document.querySelectorAll(".rating span").forEach(star=>{
   });
 });
 </script>
+
 </body>
 </html>
