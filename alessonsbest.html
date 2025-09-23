@@ -424,6 +424,19 @@ function nextLesson(){
 function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
+
+
+  /* Rating */
+document.querySelectorAll(".rating span").forEach(star=>{
+  star.addEventListener("click",()=>{
+    const val=star.dataset.v;
+    document.querySelectorAll(".rating span").forEach(s=>s.classList.toggle("active",s.dataset.v<=val));
+    if(user){
+      db.ref("ratings/"+user.uid).set({name:user.displayName,rating:val,timestamp:Date.now()});
+      alert(`Thanks! You rated ${val}⭐`);
+    }else alert("Login first to save rating.");
+  });
+});
 </script>
 </body>
 </html>
