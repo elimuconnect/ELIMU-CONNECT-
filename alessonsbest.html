@@ -449,18 +449,47 @@ function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused"
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
 
-
 // Realtime Database reference
 const db = firebase.database();
 
-// Save rating
-document.querySelectorAll(".rating span").forEach(star => {
+const ratingStars = document.querySelectorAll(".rating span");
+const avgRatingEl = document.getElementById("avgRating");
+
+// Function to update stars visually
+function updateStars(val) {
+  ratingStars.forEach(s => {
+    s.classList.toggle("active", s.dataset.v <= val);
+  });
+}
+
+// Function to update average rating live
+function updateAverageRating() {
+  db.ref("ratings").on("value", snapshot => {
+    let total = 0, count = 0;
+    snapshot.forEach(child => {
+      total += child.val().rating;
+      count++;
+    });
+    const avg = count ? (total / count).toFixed(1) : 0;
+    avgRatingEl.textContent = avg;
+
+    // Optional: update stars to reflect average visually
+    ratingStars.forEach(s => {
+      s.classList.toggle("hover", s.dataset.v <= avg);
+    });
+  });
+}
+
+// Call it once to start listening for live updates
+updateAverageRating();
+
+// Attach click events to stars
+ratingStars.forEach(star => {
   star.addEventListener("click", async () => {
+    if (!user) return alert("⚠️ Login first to save rating.");
     const val = parseInt(star.dataset.v);
 
-    if (!user) return alert("⚠️ Login first to save rating.");
-
-    // Save/update user's rating in Realtime Database
+    // Save/update user's rating
     await db.ref("ratings/" + user.uid).set({
       name: user.displayName,
       rating: val,
@@ -469,40 +498,34 @@ document.querySelectorAll(".rating span").forEach(star => {
 
     alert(`Thanks! You rated ${val}⭐`);
 
-    // Update stars visually
-    document.querySelectorAll(".rating span").forEach(s => {
-      s.classList.toggle("active", s.dataset.v <= val);
-    });
+    // Update stars visually for this user
+    updateStars(val);
+  });
 
-    // Update average rating live
-    updateAverageRating();
+  // Optional: hover effect
+  star.addEventListener("mouseover", () => {
+    updateStars(star.dataset.v);
+  });
+  star.addEventListener("mouseout", () => {
+    if (user) {
+      // show user's rating or leave stars reset
+      db.ref("ratings/" + user.uid).once("value", snap => {
+        const val = snap.exists() ? snap.val().rating : 0;
+        updateStars(val);
+      });
+    }
   });
 });
 
-// Compute and show average rating
-async function updateAverageRating() {
-  const snapshot = await db.ref("ratings").once("value");
-  let total = 0, count = 0;
-  snapshot.forEach(child => {
-    total += child.val().rating;
-    count++;
-  });
-  const avg = count ? (total / count).toFixed(1) : 0;
-
-  document.querySelector(".rating").setAttribute("data-average", avg);
-
-  // Optional: display average visually
-  document.querySelector(".avg-rating")?.remove();
-  const avgEl = document.createElement("p");
-  avgEl.className = "avg-rating";
-  avgEl.textContent = `⭐ Average rating: ${avg}`;
-  document.querySelector(".rating").appendChild(avgEl);
-}
-
-// Load average on page load
-updateAverageRating();
-
-  
+// When user logs in, show their previous rating
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (user) {
+    db.ref("ratings/" + user.uid).once("value", snap => {
+      if (snap.exists()) updateStars(snap.val().rating);
+    });
+  }
+});
 
 
 </script>
