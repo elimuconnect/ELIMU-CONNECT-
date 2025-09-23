@@ -173,6 +173,26 @@ html, body {
   display: block;
   margin-left: 20px;
 }
+
+
+.rating {
+  margin-top: 20px;
+  font-size: 2em;
+  color: #ccc;            /* Default gray */
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+}
+.rating span {
+  transition: color 0.3s;
+}
+.rating span.hover,
+.rating span.selected {
+  color: gold;            /* Highlighted star */
+}
+
+
+  
 </style>
 </head>
 <body>
@@ -194,14 +214,18 @@ html, body {
       <p>Login with Google to access daily CBC lessons (Mon–Sat) with live voice narration.  
       Maths ×3 • Integrated Science ×2 • English ×1</p>
       <p>Lessons open daily 4 PM – 11 PM (Kenya time).</p>
- <div class="rating">
-        <p>Rate this Tutor:</p>
-        <span data-v="1">★</span>
-        <span data-v="2">★</span>
-        <span data-v="3">★</span>
-        <span data-v="4">★</span>
-        <span data-v="5">★</span>
-      </div>
+<div class="rating" id="ratingStars">
+  <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
+  <span data-v="1">★</span>
+  <span data-v="2">★</span>
+  <span data-v="3">★</span>
+  <span data-v="4">★</span>
+  <span data-v="5">★</span>
+</div>
+<p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
+  Average Rating: <span id="avgRating">–</span> ★
+</p>
+
 
       
     </div>
@@ -426,17 +450,61 @@ function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resum
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
 
 
-  /* Rating */
-document.querySelectorAll(".rating span").forEach(star=>{
-  star.addEventListener("click",()=>{
-    const val=star.dataset.v;
-    document.querySelectorAll(".rating span").forEach(s=>s.classList.toggle("active",s.dataset.v<=val));
-    if(user){
-      db.ref("ratings/"+user.uid).set({name:user.displayName,rating:val,timestamp:Date.now()});
-      alert(`Thanks! You rated ${val}⭐`);
-    }else alert("Login first to save rating.");
+// Realtime Database reference
+const db = firebase.database();
+
+// Save rating
+document.querySelectorAll(".rating span").forEach(star => {
+  star.addEventListener("click", async () => {
+    const val = parseInt(star.dataset.v);
+
+    if (!user) return alert("⚠️ Login first to save rating.");
+
+    // Save/update user's rating in Realtime Database
+    await db.ref("ratings/" + user.uid).set({
+      name: user.displayName,
+      rating: val,
+      timestamp: Date.now()
+    });
+
+    alert(`Thanks! You rated ${val}⭐`);
+
+    // Update stars visually
+    document.querySelectorAll(".rating span").forEach(s => {
+      s.classList.toggle("active", s.dataset.v <= val);
+    });
+
+    // Update average rating live
+    updateAverageRating();
   });
 });
+
+// Compute and show average rating
+async function updateAverageRating() {
+  const snapshot = await db.ref("ratings").once("value");
+  let total = 0, count = 0;
+  snapshot.forEach(child => {
+    total += child.val().rating;
+    count++;
+  });
+  const avg = count ? (total / count).toFixed(1) : 0;
+
+  document.querySelector(".rating").setAttribute("data-average", avg);
+
+  // Optional: display average visually
+  document.querySelector(".avg-rating")?.remove();
+  const avgEl = document.createElement("p");
+  avgEl.className = "avg-rating";
+  avgEl.textContent = `⭐ Average rating: ${avg}`;
+  document.querySelector(".rating").appendChild(avgEl);
+}
+
+// Load average on page load
+updateAverageRating();
+
+  
+
+
 </script>
 </body>
 </html>
