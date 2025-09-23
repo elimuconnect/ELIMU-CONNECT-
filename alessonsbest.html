@@ -5,18 +5,67 @@
 <title>Smart Tutor – Daily Live Lessons</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(to right,#e0f7fa,#fce4ec);}
-#app{display:flex;flex-direction:column;height:100vh}
-#toolbar{background:#1976d2;color:#fff;padding:10px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-#toolbar button{background:#fff;color:#1976d2;border:none;border-radius:25px;padding:10px 18px;font-weight:bold;cursor:pointer}
-#toolbar button:hover{background:#f0f0f0}
-#editor{flex:1;overflow:auto;padding:20px;display:flex;align-items:center;justify-content:center}
-.card{max-width:900px;width:95%;background:#fff;border-radius:20px;padding:25px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-size:1.2em;text-align:center}
-#status{background:#388e3c;color:#fff;text-align:center;padding:8px;font-weight:bold}
-.rating span{font-size:2em;cursor:pointer;color:#ccc}
-.rating span.active{color:#ff9800}
-@media(max-width:600px){.card{font-size:1em;padding:15px}}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right,#e0f7fa,#fce4ec);
+}
+#app { display: flex; flex-direction: column; height: 100vh; }
+#toolbar {
+  padding: 15px;
+  background: #1976d2;
+  color: white;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+#toolbar button {
+  background: white;
+  color: #1976d2;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+#toolbar button:hover { background: #f0f0f0; }
+#editor {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card {
+  max-width: 90vw;
+  width: 100%;
+  padding: 30px;
+  background: white;
+  border-radius: 25px;
+  border: 2px solid #ccc;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  font-size: 1.2em;
+  line-height: 1.8;
+  overflow-wrap: break-word;
+  color: #1a237e;
+}
+.card h2 { margin-top:0; color:#6a1b9a; font-size:1.6em; }
+#status {
+  padding: 12px;
+  background: #388e3c;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+@media (max-width:600px){
+  #toolbar{flex-direction:column;}
+  #toolbar button{width:100%;}
+  .card{padding:20px;font-size:1em;}
+}
 </style>
 </head>
 <body>
@@ -29,23 +78,15 @@ body{margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(to ri
     <button onclick="resumeTutor()">▶️ Resume</button>
     <button onclick="prevLesson()">⬅️ Back</button>
     <button onclick="nextLesson()">➡️ Next</button>
-    <button onclick="contactWhatsApp()">💬 Customer Care</button>
+    <button onclick="contactWhatsApp()">💬 WhatsApp</button>
   </div>
 
   <div id="editor">
     <div class="card">
       <h2>Welcome to Smart Tutor</h2>
-      <p>Login with Google to follow live daily lessons (Mon–Sat).  
-      • Maths ×3 • Integrated Science ×2 • English ×1</p>
-      <p>Lessons are updated weekly!</p>
-      <div class="rating">
-        <p>Rate this Tutor:</p>
-        <span data-v="1">★</span>
-        <span data-v="2">★</span>
-        <span data-v="3">★</span>
-        <span data-v="4">★</span>
-        <span data-v="5">★</span>
-      </div>
+      <p>Login with Google to access daily CBC lessons (Mon–Sat) with live voice narration.  
+      Maths ×3 • Integrated Science ×2 • English ×1</p>
+      <p>Lessons open daily 4 PM – 11 PM (Kenya time).</p>
     </div>
   </div>
 
@@ -55,22 +96,16 @@ body{margin:0;font-family:'Segoe UI',sans-serif;background:linear-gradient(to ri
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
 
 <script>
 /* ---------- FIREBASE CONFIG ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
-  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
-  projectId: "cbc-general",
-  storageBucket: "cbc-general.firebasestorage.app",
-  messagingSenderId: "764732839741",
-  appId: "1:764732839741:web:ab829af54839de91359754"
+  projectId: "cbc-general"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db   = firebase.database();
 /* -------------------------------------- */
 
 const editor = document.getElementById("editor");
@@ -88,165 +123,31 @@ loginBtn.onclick=()=>{
 };
 auth.onAuthStateChanged(u=>{
   user=u;
-  if(u){status.textContent=`👋 Hi ${u.displayName}`;}
+  if(u) status.textContent=`👋 Hi ${u.displayName}`;
 });
 
-/* ---------- DAILY LESSON HTML ---------- */
-/*  Mon–Sat lessons, each entry is a full HTML string  */
+/* ---------- LESSONS (Mon–Sat) ---------- */
 const lessonsArray = {
-  "Mon":[
-`<span style="color: purple; font-size: 1.2em;"><b>Install Elimu Connect App</b></span>
- from Play Store or visit 
-<a href="https://elimuconnect.github.io/ELIMU-CONNECT-/elimu" target="_blank">
-https://elimuconnect.github.io/ELIMU-CONNECT-/elimu</a><br><br>
-
-<span style="color:purple;"><b>Lesson 1: Introduction to Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-<b>Integers</b> are the set of whole numbers and their negatives, including zero.<br><br>
-
-<b>Examples:</b>
-<ul>
-  <li>Positive integers: 1, 2, 3, …</li>
-  <li>Negative integers: -1, -2, -3, …</li>
-  <li>Zero: 0 (neutral, not positive or negative)</li>
-</ul><br>
-
-On a number line, integers extend infinitely in both directions.<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-What are integers? Give three examples.<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-Integers are whole numbers and their negatives including zero.<br>
-Examples: -3, 0, 5.<br>`
-  ],
-
-  "Tue":[
-`<span style="color:purple;"><b>Lesson 2: Representing Integers on a Number Line</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-A <b>number line</b> is used to represent integers.<br>
-- Numbers to the right of zero are positive.<br>
-- Numbers to the left of zero are negative.<br><br>
-
-<b>Example:</b>  
-… -4, -3, -2, -1, 0, 1, 2, 3, 4 …<br><br>
-
-Zero separates positive and negative integers.<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-How are positive and negative integers represented on a number line?<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-Positive integers are placed to the right of zero, while negative integers are placed to the left of zero.<br>`
-  ],
-
-  "Wed":[
-`<span style="color:purple;"><b>Lesson 3: Addition of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for addition:
-<ul>
-  <li>If the signs are the same → Add the numbers and keep the sign.</li>
-  <li>If the signs are different → Subtract the smaller number from the larger and take the sign of the larger number.</li>
-</ul><br>
-
-<b>Examples:</b><br>
-(+3) + (+4) = +7<br>
-(-5) + (-2) = -7<br>
-(+6) + (-4) = +2<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Find the sum: (a) -7 + (-5), (b) 9 + (-3)<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -12<br>
-(b) 6<br>`
-  ],
-
-  "Thu":[
-`<span style="color:purple;"><b>Lesson 4: Subtraction of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Subtraction of integers can be changed into addition:
-<b>a - b = a + (-b)</b><br><br>
-
-<b>Examples:</b><br>
-7 - 3 = 7 + (-3) = 4<br>
-(-5) - 4 = (-5) + (-4) = -9<br>
-(-6) - (-2) = (-6) + 2 = -4<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Simplify: (a) -8 - 3, (b) -10 - (-6)<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -11<br>
-(b) -4<br>`
-  ],
-
-  "Fri":[
-`<span style="color:purple;"><b>Lesson 5: Multiplication of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for multiplication:
-<ul>
-  <li>Positive × Positive = Positive</li>
-  <li>Negative × Negative = Positive</li>
-  <li>Positive × Negative = Negative</li>
-</ul><br>
-
-<b>Examples:</b><br>
-4 × 3 = 12<br>
-(-5) × (-2) = 10<br>
-(-6) × 3 = -18<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Evaluate: (a) -7 × 4, (b) -8 × -5<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -28<br>
-(b) 40<br>`
-  ],
-
-  "Sat":[
-`<span style="color:purple;"><b>Lesson 6: Division of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for division:
-<ul>
-  <li>Positive ÷ Positive = Positive</li>
-  <li>Negative ÷ Negative = Positive</li>
-  <li>Positive ÷ Negative = Negative</li>
-</ul><br>
-
-<b>Examples:</b><br>
-12 ÷ 3 = 4<br>
-(-20) ÷ (-5) = 4<br>
-(-15) ÷ 3 = -5<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Simplify: (a) -24 ÷ 6, (b) -30 ÷ -5<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -4<br>
-(b) 6<br>`
-  ]
+  "Mon":["<b>Lesson 1:</b> Introduction to Integers…"],
+  "Tue":["<b>Lesson 2:</b> Representing Integers…"],
+  "Wed":["<b>Lesson 3:</b> Addition of Integers…"],
+  "Thu":["<b>Lesson 4:</b> Subtraction of Integers…"],
+  "Fri":["<b>Lesson 5:</b> Multiplication of Integers…"],
+  "Sat":["<b>Lesson 6:</b> Division of Integers…"]
 };
 
+let currentLesson = 0;
+let todayLessons = [];
+let selectedVoice=null;
+let utter=null;
+
 /* ---------- Voice ---------- */
-let selectedVoice=null, utter=null;
 function getVoice(){
   const v=speechSynthesis.getVoices();
-  return v.find(x=>x.lang.toLowerCase().startsWith("en-ke"))||
-         v.find(x=>x.lang.toLowerCase().startsWith("en-gb"))||
-         v[0];
+  return v.find(x=>x.lang.toLowerCase().startsWith("en-ke")&&x.name.toLowerCase().includes("female"))
+      || v.find(x=>x.lang.toLowerCase().startsWith("en-ke"))
+      || v.find(x=>x.lang.toLowerCase().startsWith("en-gb"))
+      || v[0];
 }
 function speak(html){
   const tmp=document.createElement("div");
@@ -274,45 +175,44 @@ function startTutor(){
     return;
   }
 
-  const todayLessons = lessonsArray[dayName];
-  if(!todayLessons){
+  todayLessons = lessonsArray[dayName] || [];
+  if(!todayLessons.length){
     editor.innerHTML=`<div class='card'><h2>🎉 No lessons scheduled for ${dayName}</h2></div>`;
     status.textContent="No lesson today";
     return;
   }
 
-  // Load voice then show all lessons for today
   const check=setInterval(()=>{
     if(speechSynthesis.getVoices().length){
       clearInterval(check);
       selectedVoice=getVoice();
-      showLessons(todayLessons);
+      currentLesson=0;
+      showLesson();
+      status.textContent=`🟢 Showing lessons for ${dayName}`;
     }
   },200);
-  status.textContent=`🟢 Showing lessons for ${dayName}`;
 }
 
-function showLessons(list){
-  // Join all HTML strings into one scrollable card
-  editor.innerHTML=`<div class="card">${list.join("<hr>")}</div>`;
-  speak(list.join(" "));
+function showLesson(){
+  editor.innerHTML=`<div class="card">${todayLessons[currentLesson]}</div>`;
+  speak(todayLessons[currentLesson]);
 }
 
+function prevLesson(){
+  if(todayLessons.length && currentLesson>0){
+    currentLesson--;
+    showLesson();
+  }
+}
+function nextLesson(){
+  if(todayLessons.length && currentLesson<todayLessons.length-1){
+    currentLesson++;
+    showLesson();
+  }
+}
 function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
-
-/* Rating */
-document.querySelectorAll(".rating span").forEach(star=>{
-  star.addEventListener("click",()=>{
-    const val=star.dataset.v;
-    document.querySelectorAll(".rating span")
-      .forEach(s=>s.classList.toggle("active",s.dataset.v<=val));
-    if(user){
-      db.ref("ratings/"+user.uid)
-        .set({name:user.displayName,rating:val,timestamp:Date.now()});
-      alert(`Thanks! You rated ${val}⭐`);
-    }else alert("Login first to save rating.");
-  });
-});
 </script>
+</body>
+</html>
