@@ -127,7 +127,7 @@ auth.onAuthStateChanged(u=>{
 });
 
 /* ---------- LESSONS (Mon–Sat) ---------- */
-<script>
+
 const lessonsArray = {
   "Mon": [
     `<span style="color:purple;"><b>Lesson 1:</b> Monday Sample Lesson</span>`
@@ -218,10 +218,18 @@ const container = document.getElementById("lessonContainer");
 const todaysLessons = lessonsArray[today] || [];
 
 container.innerHTML = todaysLessons.join("<hr>");
-</script>
+
 
 <div id="lessonContainer"></div>
 
+
+
+
+
+
+
+
+  
 
 let currentLesson = 0;
 let todayLessons = [];
