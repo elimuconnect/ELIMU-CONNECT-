@@ -746,24 +746,20 @@ let utter = null;
 /* ---------- VOICE ---------- */
 function getVoice() {
   const voices = speechSynthesis.getVoices();
-
   return voices.find(v =>
     v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ke")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ng")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en")
-  ) || voices[0]; // fallback
+  ) || voices.find(v => v.lang.toLowerCase().startsWith("en-ke"))
+  || voices.find(v => v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female"))
+  || voices.find(v => v.lang.toLowerCase().startsWith("en-ng"))
+  || voices.find(v => v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female"))
+  || voices.find(v => v.lang.toLowerCase().startsWith("en"))
+  || voices[0];
 }
 
+/* ---------- SPEAK LESSON ---------- */
+function speak(html, onEnd) {
+  if (!selectedVoice) return;
 
-function speak(html) {
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
 
@@ -775,24 +771,23 @@ function speak(html) {
     el.replaceWith(document.createTextNode("\n"));
   });
 
-  // Get cleaned text
-  const text = tmp.textContent || tmp.innerText || "";
-
-  if (!text.trim()) return; // nothing to speak
+  const text = tmp.textContent.trim();
+  if (!text) {
+    onEnd && onEnd();
+    return;
+  }
 
   speechSynthesis.cancel();
   utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
   utter.rate = 0.8;
+  utter.onend = onEnd;
   speechSynthesis.speak(utter);
 }
 
 /* ---------- START TUTOR ---------- */
 function startTutor() {
-  if (!user) { 
-    alert("⚠️ Please login first."); 
-    return; 
-  }
+  if (!user) { alert("⚠️ Please login first."); return; }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || !snap.val().phone) {
@@ -819,31 +814,45 @@ function startTutor() {
       `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
     ];
 
-    const waitVoices = setInterval(() => {
-      if (speechSynthesis.getVoices().length) {
-        clearInterval(waitVoices);
+    // Ensure voices are loaded before starting
+    if (speechSynthesis.getVoices().length) {
+      selectedVoice = getVoice();
+      currentLesson = 0;
+      readNextLesson();
+    } else {
+      speechSynthesis.onvoiceschanged = () => {
         selectedVoice = getVoice();
         currentLesson = 0;
-        showLesson();
-      }
-    }, 100);
+        readNextLesson();
+      };
+    }
   });
 }
 
-/* ---------- SHOW CURRENT LESSON ---------- */
-function showLesson() {
+/* ---------- READ LESSONS IN SEQUENCE ---------- */
+function readNextLesson() {
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
+    status.textContent = "✅ Done";
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-  speak(lessonHtml);
-  currentLesson++;
+  status.textContent = `📖 Reading Lesson ${currentLesson + 1} of ${todayLessons.length}`;
+
+  speak(lessonHtml, () => {
+    currentLesson++;
+    setTimeout(readNextLesson, 1500); // pause 1.5s between lessons
+  });
 }
 
-
+/* ---------- SKIP LESSON ---------- */
+function skipLesson() {
+  speechSynthesis.cancel();
+  currentLesson++;
+  readNextLesson();
+}
 
 
 // Realtime Database reference
