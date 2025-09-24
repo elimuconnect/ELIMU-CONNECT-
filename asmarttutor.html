@@ -744,30 +744,27 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
+/* ---------- VOICE ---------- */
 function getVoice() {
   const voices = speechSynthesis.getVoices();
-
-  return voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ke")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ng")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("en")
-  ) || voices[0]; // fallback
+  return voices.find(v => v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+      || voices.find(v => v.lang.startsWith("en-ke"))
+      || voices.find(v => v.lang.startsWith("en-gb"))
+      || voices[0];
 }
 
-function speak(text, onEnd) {
+/* ---------- SPEAK ---------- */
+function speak(html) {
+  // Convert HTML to text, remove <pre> and <code>
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  tmp.querySelectorAll('pre, code').forEach(el => el.remove());
+  const text = tmp.textContent || tmp.innerText || "";
+
   speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
+  utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
-  utter.rate = 0.70;
-  utter.onend = () => onEnd && onEnd();
+  utter.rate = 0.8;
   speechSynthesis.speak(utter);
 }
 
@@ -823,17 +820,10 @@ function showLesson() {
 
   const lessonHtml = todayLessons[currentLesson];
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-
-  // Extract only text, ignoring <pre> and <code>
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = lessonHtml;
-  tempDiv.querySelectorAll('pre, code').forEach(el => el.remove()); // remove code blocks
-  const textToRead = tempDiv.textContent || tempDiv.innerText || "";
-
-  speak(textToRead);
-
+  speak(lessonHtml);
   currentLesson++;
 }
+
 
 
 
