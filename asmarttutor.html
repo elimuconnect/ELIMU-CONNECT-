@@ -781,7 +781,7 @@ function speak(html, onEnd) {
   utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
   utter.rate = 0.8;
-  utter.onend = onEnd;
+  utter.onend = onEnd; // only now increment after speech
   speechSynthesis.speak(utter);
 }
 
@@ -841,9 +841,10 @@ function readNextLesson() {
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
   status.textContent = `📖 Reading Lesson ${currentLesson + 1} of ${todayLessons.length}`;
 
+  // Increment only after speech ends
   speak(lessonHtml, () => {
-    currentLesson++;
-    setTimeout(readNextLesson, 1500); // pause 1.5s between lessons
+    currentLesson++; 
+    setTimeout(readNextLesson, 500); // small pause between lessons
   });
 }
 
@@ -853,7 +854,6 @@ function skipLesson() {
   currentLesson++;
   readNextLesson();
 }
-
 
 // Realtime Database reference
 const db = firebase.database();
