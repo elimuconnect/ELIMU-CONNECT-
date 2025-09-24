@@ -208,26 +208,28 @@ html, body {
     <button onclick="contactWhatsApp()">💬 Customer Care</button>
   </div>
 
-  <div id="editor">
+<div id="editor">
+
+  <!-- Phone Number Form -->
+  <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; 
+       border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
+    <h2>📱 Enter Your Phone Number</h2>
+    <p id="studentName"></p>
+    <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" 
+           style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
+    <br><br>
+    <button onclick="savePhoneNumber()" 
+            style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">
+      Save & Unlock Lessons
+    </button>
+  </div>
+
+  <!-- Main Tutor Card -->
   <div class="card">
     <!-- Rating message container -->
     <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
          opacity:0; transform:translateY(-10px); transition: all 0.5s ease;"></div>
 
-<div id="phoneForm" style="display:none; text-align:center; padding:20px;">
-  <h2>📱 Enter Your Phone Number</h2>
-  <p id="studentName"></p>
-  <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" 
-         style="padding:10px; font-size:1em; width:80%; max-width:300px;">
-  <br><br>
-  <button onclick="savePhoneNumber()" 
-          style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">
-    Save & Unlock Lessons
-  </button>
-</div>
-
-
-    
     <h2>Welcome to Smart Tutor</h2>
     <p>Login with Google to access daily CBC lessons (Mon–Sat) with live voice narration.  
     Maths ×3 • Integrated Science ×2 • English ×1</p>
@@ -243,15 +245,13 @@ html, body {
     </div>
 
     <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-  Average Rating: <span id="avgRating">–</span> ★
-</p>
-
+      Average Rating: <span id="avgRating">–</span> ★
+    </p>
   </div>
 </div>
 
 <div id="lessonContainer"></div>
 <div id="status">⏳ Ready…</div>
-
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
