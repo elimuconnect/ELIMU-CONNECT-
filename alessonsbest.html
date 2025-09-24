@@ -192,7 +192,37 @@ html, body {
 }
 
 
-  
+  .timetable {
+  margin-top: 16px;
+  background: #f9fbff;
+  padding: 14px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.timetable h3 {
+  margin: 0 0 10px;
+  color: #1976d2;
+  font-size: 1.1em;
+}
+.timetable table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.timetable th {
+  background: #1976d2;
+  color: white;
+  padding: 8px;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+.timetable td {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+.timetable tr:nth-child(even) {
+  background: #f1f6fb;
+}
 </style>
 </head>
 <body>
@@ -229,41 +259,57 @@ html, body {
     <!-- Rating message container -->
     <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
          opacity:0; transform:translateY(-10px); transition: all 0.5s ease;"></div>
-
-    <h2>Welcome to Smart Tutor</h2>
+<h2>Welcome to Smart Tutor</h2>
 <p>Login with Google to access live CBC lessons (Mon–Sat) with voice narration.</p>
 
-<!-- Timetable (Kenya time) -->
-<div style="margin-top:14px; text-align:left; font-size:0.95em; background:#f8f9fb; padding:12px; border-radius:8px;">
-  <h3 style="margin:6px 0 8px 0; color:#1976d2;">📅 Weekly Timetable (Kenya time)</h3>
-
-  <table style="width:100%; max-width:540px; border-collapse:collapse;">
+<!-- Timetable -->
+<div class="timetable">
+  <h3>📅 Weekly Timetable (Kenya time)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Subject</th>
+        <th>Time</th>
+      </tr>
+    </thead>
     <tbody>
       <tr>
-        <td style="vertical-align:top; padding:6px 8px; width:120px;"><strong>Mon – Fri</strong></td>
-        <td style="padding:6px 8px;">
-          <strong>Math</strong> — 5:30 PM – 7:00 PM<br>
-          <strong>Integrated Science</strong> — 7:30 PM – 8:30 PM<br>
-          <strong>English</strong> — 9:00 PM – 10:00 PM
-        </td>
+        <td rowspan="3">Mon – Fri</td>
+        <td>Math</td>
+        <td>5:30 PM – 7:00 PM</td>
+      </tr>
+      <tr>
+        <td>Integrated Science</td>
+        <td>7:30 PM – 8:30 PM</td>
+      </tr>
+      <tr>
+        <td>English</td>
+        <td>9:00 PM – 10:00 PM</td>
       </tr>
 
       <tr>
-        <td style="vertical-align:top; padding:6px 8px;"><strong>Saturday</strong></td>
-        <td style="padding:6px 8px;">
-          <strong>Math</strong> — 8:00 AM – 10:00 AM<br>
-          <strong>Integrated Science</strong> — 10:30 AM – 12:00 PM<br>
-          <strong>English</strong> — 2:00 PM – 3:30 PM
-        </td>
+        <td rowspan="3">Saturday</td>
+        <td>Math</td>
+        <td>8:00 AM – 10:00 AM</td>
+      </tr>
+      <tr>
+        <td>Integrated Science</td>
+        <td>10:30 AM – 12:00 PM</td>
+      </tr>
+      <tr>
+        <td>English</td>
+        <td>2:00 PM – 3:30 PM</td>
       </tr>
 
       <tr>
-        <td style="vertical-align:top; padding:6px 8px;"><strong>Sunday</strong></td>
-        <td style="padding:6px 8px;">No lessons scheduled.</td>
+        <td>Sunday</td>
+        <td colspan="2">No lessons scheduled</td>
       </tr>
     </tbody>
   </table>
 </div>
+
 
 
     <div class="rating" id="ratingStars">
