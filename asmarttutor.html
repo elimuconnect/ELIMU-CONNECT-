@@ -744,22 +744,35 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
-/* ---------- VOICE ---------- */
-function getVoice(){
+
+function getVoice() {
   const voices = speechSynthesis.getVoices();
-  return voices.find(v=>v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
-         || voices.find(v=>v.lang.startsWith("en-ke"))
-         || voices.find(v=>v.lang.startsWith("en-gb"))
-         || voices[0];
+
+  return voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ke")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-ng")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("en")
+  ) || voices[0]; // fallback
 }
 
-function speak(html){
-  const tmp = document.createElement("div");
-  tmp.innerHTML = html;
+
+
+
+
+function speak(text, onEnd) {
   speechSynthesis.cancel();
-  utter = new SpeechSynthesisUtterance(tmp.textContent);
+  const utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
-  utter.rate = 0.8;
+  utter.rate = 0.70;
+  utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
 }
 
