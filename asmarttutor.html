@@ -763,13 +763,22 @@ function getVoice() {
 }
 
 
-/* ---------- SPEAK ---------- */
 function speak(html) {
-  // Convert HTML to text, remove <pre> and <code>
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
-  tmp.querySelectorAll('pre, code').forEach(el => el.remove());
+
+  // Remove <pre> and <code>
+  tmp.querySelectorAll("pre, code").forEach(el => el.remove());
+
+  // Replace <br> and <p> with newlines
+  tmp.querySelectorAll("br, p").forEach(el => {
+    el.replaceWith(document.createTextNode("\n"));
+  });
+
+  // Get cleaned text
   const text = tmp.textContent || tmp.innerText || "";
+
+  if (!text.trim()) return; // nothing to speak
 
   speechSynthesis.cancel();
   utter = new SpeechSynthesisUtterance(text);
