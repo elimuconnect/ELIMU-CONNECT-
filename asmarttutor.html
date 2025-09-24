@@ -815,16 +815,25 @@ function startTutor(){
 }
 
 /* ---------- SHOW CURRENT LESSON ---------- */
-function showLesson(){
-  if(currentLesson >= todayLessons.length) {
+function showLesson() {
+  if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
     return;
   }
+
   const lessonHtml = todayLessons[currentLesson];
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-  speak(lessonHtml);
+
+  // Extract only text
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = lessonHtml;
+  const textToRead = tempDiv.textContent || tempDiv.innerText || "";
+
+  speak(textToRead);
+
   currentLesson++;
 }
+
 
 
 
