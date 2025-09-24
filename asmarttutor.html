@@ -354,6 +354,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.database();
 /* -------------------------------------- */
 
 const editor = document.getElementById("editor");
@@ -362,808 +363,160 @@ const loginBtn = document.getElementById("loginBtn");
 
 let user = null;
 
+/* ---------- LOGIN ---------- */
 loginBtn.onclick = () => {
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .then(res => {
-      user = res.user;
-      status.textContent = `👋 Hi ${user.displayName}`;
-
-      // After login → check if phone exists
-      db.ref("students/" + user.uid).once("value").then(snap => {
-        if (!snap.exists() || !snap.val().phone) {
-          // Show phone number form
-         document.getElementById("studentName").textContent =
-  `Welcome ${user.displayName}, please enter your phone number:`;
-document.getElementById("phoneForm").style.display = "block";
-
-// Hide tutor card instead of deleting everything
-document.querySelector(".card").style.display = "none";
-
-        }
-      });
-    })
+    .then(res => handleLogin(res.user))
     .catch(e => alert(e.message));
 };
 
 auth.onAuthStateChanged(u => {
-  user = u;
-  if (u) {
-    status.textContent = `👋 Hi ${u.displayName}`;
-
-    // Also check if phone is saved on reload
-    db.ref("students/" + u.uid).once("value").then(snap => {
-      if (!snap.exists() || !snap.val().phone) {
-        document.getElementById("studentName").textContent =
-  `Welcome ${user.displayName}, please enter your phone number:`;
-document.getElementById("phoneForm").style.display = "block";
-
-// Hide tutor card instead of deleting everything
-document.querySelector(".card").style.display = "none";
-
-      }
-    });
-  }
+  if (u) handleLogin(u);
 });
 
+function handleLogin(u){
+  user = u;
+  status.textContent = `👋 Hi ${user.displayName}`;
+  
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || !snap.val().phone) {
+      document.getElementById("studentName").textContent =
+        `Welcome ${user.displayName}, please enter your phone number:`;
+      document.getElementById("phoneForm").style.display = "block";
+      document.querySelector(".card").style.display = "none"; // hide tutor card
+    }
+  });
+}
 
 /* ---------- LESSON TIMETABLE ---------- */
 const timetable = {
   Mon: [
     {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Integrated Science", start: "19:30", end: "20:30"},
+    {subject: "Science", start: "19:30", end: "20:30"},
     {subject: "English", start: "21:00", end: "22:00"}
   ],
   Tue: [
     {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Integrated Science", start: "19:30", end: "20:30"},
+    {subject: "Science", start: "19:30", end: "20:30"},
     {subject: "English", start: "21:00", end: "22:00"}
   ],
   Wed: [
     {subject: "Math", start: "15:30", end: "19:00"},
-    {subject: "Integrated Science", start: "19:30", end: "20:30"},
+    {subject: "Science", start: "19:30", end: "20:30"},
     {subject: "English", start: "21:00", end: "22:00"}
   ],
   Thu: [
     {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Integrated Science", start: "19:30", end: "20:30"},
+    {subject: "Science", start: "19:30", end: "20:30"},
     {subject: "English", start: "21:00", end: "22:00"}
   ],
   Fri: [
     {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Integrated Science", start: "19:30", end: "20:30"},
+    {subject: "Science", start: "19:30", end: "20:30"},
     {subject: "English", start: "21:00", end: "22:00"}
   ],
   Sat: [
     {subject: "Math", start: "08:00", end: "10:00"},
-    {subject: "Integrated Science", start: "10:30", end: "12:00"},
+    {subject: "Science", start: "10:30", end: "12:00"},
     {subject: "English", start: "14:00", end: "15:30"}
   ]
 };
 
+/* ---------- HELPER: Check if current time is in a slot ---------- */
+function inTimeRange(start, end, now){
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+  const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
+  const endTime = new Date(now); endTime.setHours(eH, eM, 0, 0);
+  return now >= startTime && now <= endTime;
+}
 
-
-  
-  
-/* ---------- LESSONS (Mon–Sat) ---------- */
-const lessonsArray = {
-  "Mon": {
-    "Math": [
-      `<h2 class="red">Math Lesson 1 (Mon)</h2><p>Surds & Indices practice…</p>`,
-      `<h2 class="red">Math Lesson 2 (Mon)</h2><p>Algebraic Expressions & Simplification…</p>`,
-      `<h2 class="red">Math Lesson 3 (Mon)</h2><p>Linear Equations…</p>`,
-      `<h2 class="red">Math Lesson 4 (Mon)</h2><p>Quadratic Equations – Factorization…</p>`,
-      `<h2 class="red">Math Lesson 5 (Mon)</h2><p>Simultaneous Equations…</p>`,
-      `<h2 class="red">Math Lesson 6 (Mon)</h2><p>Exponents & Powers…</p>`,
-      `<h2 class="red">Math Lesson 7 (Mon)</h2><p>Polynomials – Addition & Subtraction…</p>`,
-      `<h2 class="red">Math Lesson 8 (Mon)</h2><p>Graphs of Linear Equations…</p>`,
-      `<h2 class="red">Math Lesson 9 (Mon)</h2><p>Inequalities & their Solutions…</p>`,
-      `<h2 class="red">Math Lesson 10 (Mon)</h2><p>Word Problems involving Algebra…</p>`
-    ],
-    "Science": [
-      `<h2 class="green">Science Lesson 1 (Mon)</h2><p>Human Digestive System – structure & functions…</p>`,
-      `<h2 class="green">Science Lesson 2 (Mon)</h2><p>Respiration – aerobic & anaerobic…</p>`,
-      `<h2 class="green">Science Lesson 3 (Mon)</h2><p>Photosynthesis – process & importance…</p>`,
-      `<h2 class="green">Science Lesson 4 (Mon)</h2><p>Blood Circulation – heart & blood vessels…</p>`,
-      `<h2 class="green">Science Lesson 5 (Mon)</h2><p>Excretion – kidneys & urinary system…</p>`,
-      `<h2 class="green">Science Lesson 6 (Mon)</h2><p>Nervous System – neurons & reflexes…</p>`,
-      `<h2 class="green">Science Lesson 7 (Mon)</h2><p>Respiratory System – lungs & gas exchange…</p>`,
-      `<h2 class="green">Science Lesson 8 (Mon)</h2><p>Reproduction in Humans – male & female…</p>`,
-      `<h2 class="green">Science Lesson 9 (Mon)</h2><p>Muscular & Skeletal Systems…</p>`,
-      `<h2 class="green">Science Lesson 10 (Mon)</h2><p>Plant Nutrition & Photosynthetic Pigments…</p>`
-    ],
-    "English": [
-      `<h2 class="blue">English Lesson 1 (Mon)</h2><p>Sentence Analysis – subject, verb, object…</p>`,
-      `<h2 class="blue">English Lesson 2 (Mon)</h2><p>Comprehension Practice – reading & questions…</p>`,
-      `<h2 class="blue">English Lesson 3 (Mon)</h2><p>Grammar – tenses & agreement…</p>`,
-      `<h2 class="blue">English Lesson 4 (Mon)</h2><p>Creative Writing – short story practice…</p>`,
-      `<h2 class="blue">English Lesson 5 (Mon)</h2><p>Vocabulary Expansion – synonyms & antonyms…</p>`,
-      `<h2 class="blue">English Lesson 6 (Mon)</h2><p>Paragraph Writing – topic sentences & coherence…</p>`,
-      `<h2 class="blue">English Lesson 7 (Mon)</h2><p>Letter Writing – formal & informal…</p>`,
-      `<h2 class="blue">English Lesson 8 (Mon)</h2><p>Comprehension – poetry analysis…</p>`,
-      `<h2 class="blue">English Lesson 9 (Mon)</h2><p>Editing & Proofreading – correcting errors…</p>`,
-      `<h2 class="blue">English Lesson 10 (Mon)</h2><p>Listening & Speaking Practice – dialogues & discussions…</p>`
-    ]
-  },
-  "Tue": {
-    "Math": [
-      `<h2 class="red">Math Lesson 1 (Tue)</h2><p>Quadratic Equations – Introduction…</p>`,
-      `<h2 class="red">Math Lesson 2 (Tue)</h2><p>Factorization Techniques…</p>`,
-      `<h2 class="red">Math Lesson 3 (Tue)</h2><p>Completing the Square…</p>`,
-      `<h2 class="red">Math Lesson 4 (Tue)</h2><p>Quadratic Formula Application…</p>`,
-      `<h2 class="red">Math Lesson 5 (Tue)</h2><p>Word Problems – Quadratics…</p>`,
-      `<h2 class="red">Math Lesson 6 (Tue)</h2><p>Simultaneous Equations…</p>`,
-      `<h2 class="red">Math Lesson 7 (Tue)</h2><p>Indices & Exponents Revision…</p>`,
-      `<h2 class="red">Math Lesson 8 (Tue)</h2><p>Surds Simplification…</p>`,
-      `<h2 class="red">Math Lesson 9 (Tue)</h2><p>Polynomials Operations…</p>`,
-      `<h2 class="red">Math Lesson 10 (Tue)</h2><p>Graphical Representation – parabolas…</p>`
-    ],
-    "Science": [
-      `<h2 class="green">Science Lesson 1 (Tue)</h2><p>Photosynthesis & Respiration – comparison…</p>`,
-      `<h2 class="green">Science Lesson 2 (Tue)</h2><p>Plant Transport System – xylem & phloem…</p>`,
-      `<h2 class="green">Science Lesson 3 (Tue)</h2><p>Human Digestive System – enzymes & absorption…</p>`,
-      `<h2 class="green">Science Lesson 4 (Tue)</h2><p>Respiratory System – mechanism of breathing…</p>`,
-      `<h2 class="green">Science Lesson 5 (Tue)</h2><p>Blood Circulation – heart & cardiac cycle…</p>`,
-      `<h2 class="green">Science Lesson 6 (Tue)</h2><p>Nervous System – brain & spinal cord…</p>`,
-      `<h2 class="green">Science Lesson 7 (Tue)</h2><p>Excretory System – kidney & urine formation…</p>`,
-      `<h2 class="green">Science Lesson 8 (Tue)</h2><p>Reproductive System – human gametes…</p>`,
-      `<h2 class="green">Science Lesson 9 (Tue)</h2><p>Force & Motion – Newton's Laws…</p>`,
-      `<h2 class="green">Science Lesson 10 (Tue)</h2><p>Energy – forms & conservation…</p>`
-    ],
-    "English": [
-      `<h2 class="blue">English Lesson 1 (Tue)</h2><p>Comprehension – reading passages…</p>`,
-      `<h2 class="blue">English Lesson 2 (Tue)</h2><p>Grammar – sentence types…</p>`,
-      `<h2 class="blue">English Lesson 3 (Tue)</h2><p>Creative Writing – story development…</p>`,
-      `<h2 class="blue">English Lesson 4 (Tue)</h2><p>Vocabulary – word formation…</p>`,
-      `<h2 class="blue">English Lesson 5 (Tue)</h2><p>Paragraph Writing – coherence & cohesion…</p>`,
-      `<h2 class="blue">English Lesson 6 (Tue)</h2><p>Letter Writing – formal letters…</p>`,
-      `<h2 class="blue">English Lesson 7 (Tue)</h2><p>Poetry Analysis – figurative language…</p>`,
-      `<h2 class="blue">English Lesson 8 (Tue)</h2><p>Editing Skills – correcting mistakes…</p>`,
-      `<h2 class="blue">English Lesson 9 (Tue)</h2><p>Listening Comprehension – audio exercises…</p>`,
-      `<h2 class="blue">English Lesson 10 (Tue)</h2><p>Speaking Practice – role plays & dialogues…</p>`
-    ]
-  },
-  "Wed": { 
-     "Math": [
-     `<span style="color: purple; font-size: 1.2em;"><b>Install Elimu Connect App</b></span> from Play Store or visit 
-<a href="https://elimuconnect.github.io/ELIMU-CONNECT-/elimu" target="_blank">https://elimuconnect.github.io/ELIMU-CONNECT-/elimu</a> 
-for CBC academic & CODING lessons<br>
-
-<span style="color:purple;"><b>Lesson 1: Introduction to Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-<b>Integers</b> are the set of whole numbers and their negatives, including zero.<br><br>
-
-<b>Examples:</b><br>
-<ul>
-  <li>Positive integers: 1, 2, 3, …</li>
-  <li>Negative integers: -1, -2, -3, …</li>
-  <li>Zero: 0 (neutral, not positive or negative)</li>
-</ul><br>
-
-On a number line, integers extend infinitely in both directions.<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-What are integers? Give three examples.<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-Integers are whole numbers and their negatives including zero.<br>
-Examples: -3, 0, 5.<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 2: Representing Integers on a Number Line</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-A <b>number line</b> is used to represent integers.<br>
-- Numbers to the right of zero are positive.<br>
-- Numbers to the left of zero are negative.<br><br>
-
-<b>Example:</b>  
-… -4, -3, -2, -1, 0, 1, 2, 3, 4 …<br><br>
-
-Zero separates positive and negative integers.<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-How are positive and negative integers represented on a number line?<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-Positive integers are placed to the right of zero, while negative integers are placed to the left of zero.<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 3: Addition of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for addition:<br>
-<ul>
-  <li>If the signs are the same → Add the numbers and keep the sign.</li>
-  <li>If the signs are different → Subtract the smaller number from the larger and take the sign of the larger number.</li>
-</ul><br>
-
-<b>Examples:</b><br>
-- (+3) + (+4) = +7<br>
-- (-5) + (-2) = -7<br>
-- (+6) + (-4) = +2<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Find the sum: (a) -7 + (-5), (b) 9 + (-3)<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -12<br>
-(b) 6<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 4: Subtraction of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Subtraction of integers can be changed into addition:<br>
-<b>a - b = a + (-b)</b><br><br>
-
-<b>Examples:</b><br>
-- 7 - 3 = 7 + (-3) = 4<br>
-- (-5) - 4 = (-5) + (-4) = -9<br>
-- (-6) - (-2) = (-6) + 2 = -4<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Simplify: (a) -8 - 3, (b) -10 - (-6)<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -11<br>
-(b) -4<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 5: Multiplication of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for multiplication:<br>
-<ul>
-  <li>Positive × Positive = Positive</li>
-  <li>Negative × Negative = Positive</li>
-  <li>Positive × Negative = Negative</li>
-</ul><br>
-
-<b>Examples:</b><br>
-- 4 × 3 = 12<br>
-- (-5) × (-2) = 10<br>
-- (-6) × 3 = -18<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Evaluate: (a) -7 × 4, (b) -8 × -5<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -28<br>
-(b) 40<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 6: Division of Integers</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Rules for division:<br>
-<ul>
-  <li>Positive ÷ Positive = Positive</li>
-  <li>Negative ÷ Negative = Positive</li>
-  <li>Positive ÷ Negative = Negative</li>
-</ul><br>
-
-<b>Examples:</b><br>
-- 12 ÷ 3 = 4<br>
-- (-20) ÷ (-5) = 4<br>
-- (-15) ÷ 3 = -5<br><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Simplify: (a) -24 ÷ 6, (b) -30 ÷ -5<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-(a) -4<br>
-(b) 6<br>
-`,
-
-`<span style="color:purple;"><b>Lesson 7: Application of Integers in Real Life</b></span><br><br>
-
-<span style="color:green;"><b>Lesson Content:</b></span><br><br>
-
-Integers are used in everyday life:<br>
-<ul>
-  <li>Temperature: -5°C means 5 degrees below zero.</li>
-  <li>Banking: Negative numbers represent debts or withdrawals.</li>
-  <li>Elevations: Negative heights represent positions below sea level.</li>
-  <li>Sports: Scores may involve positive or negative points.</li>
-</ul><br>
-
-<span style="color:orange;"><b>Question:</b></span><br>
-Give two examples of how integers are used in daily life.<br><br>
-
-<span style="color:blue;"><b>Final Answer:</b></span><br>
-Integers are used to show temperatures below zero and bank account debts.<br>
-`
-    ],
-  "Science": [
-  `<h2 class="green">Science Lesson 1 (Wed)</h2><p>Photosynthesis & Respiration – comparison…</p>`,
-  `<h2 class="green">Science Lesson 2 (Wed)</h2><p>Plant Transport System – xylem & phloem…</p>`,
-  `<h2 class="green">Science Lesson 3 (Wed)</h2><p>Human Digestive System – enzymes & absorption…</p>`,
-  `<h2 class="green">Science Lesson 4 (Wed)</h2><p>Respiratory System – mechanism of breathing…</p>`,
-  `<h2 class="green">Science Lesson 5 (Wed)</h2><p>Blood Circulation – heart & cardiac cycle…</p>`,
-  `<h2 class="green">Science Lesson 6 (Wed)</h2><p>Nervous System – brain & spinal cord…</p>`,
-  `<h2 class="green">Science Lesson 7 (Wed)</h2><p>Excretory System – kidney & urine formation…</p>`,
-  `<h2 class="green">Science Lesson 8 (Wed)</h2><p>Reproductive System – human gametes…</p>`,
-  `<h2 class="green">Science Lesson 9 (Wed)</h2><p>Force & Motion – Newton's Laws…</p>`,
-  `<h2 class="green">Science Lesson 10 (Wed)</h2><p>Energy – forms & conservation…</p>`
-],
-"English": [
-  `<h2 class="blue">English Lesson 1 (Wed)</h2><p>Comprehension – reading passages…</p>`,
-  `<h2 class="blue">English Lesson 2 (Wed)</h2><p>Grammar – sentence types…</p>`,
-  `<h2 class="blue">English Lesson 3 (Wed)</h2><p>Creative Writing – story development…</p>`,
-  `<h2 class="blue">English Lesson 4 (Wed)</h2><p>Vocabulary – word formation…</p>`,
-  `<h2 class="blue">English Lesson 5 (Wed)</h2><p>Paragraph Writing – coherence & cohesion…</p>`,
-  `<h2 class="blue">English Lesson 6 (Wed)</h2><p>Letter Writing – formal letters…</p>`,
-  `<h2 class="blue">English Lesson 7 (Wed)</h2><p>Poetry Analysis – figurative language…</p>`,
-  `<h2 class="blue">English Lesson 8 (Wed)</h2><p>Editing Skills – correcting mistakes…</p>`,
-  `<h2 class="blue">English Lesson 9 (Wed)</h2><p>Listening Comprehension – audio exercises…</p>`,
-  `<h2 class="blue">English Lesson 10 (Wed)</h2><p>Speaking Practice – role plays & dialogues…</p>`
-]
-
-  },
-
-  "Thu": {
-    "Math": [
-      `<h2 class="red">Math Lesson 1 (Tue)</h2><p>Quadratic Equations – Introduction…</p>`,
-      `<h2 class="red">Math Lesson 2 (Tue)</h2><p>Factorization Techniques…</p>`,
-      `<h2 class="red">Math Lesson 3 (Tue)</h2><p>Completing the Square…</p>`,
-      `<h2 class="red">Math Lesson 4 (Tue)</h2><p>Quadratic Formula Application…</p>`,
-      `<h2 class="red">Math Lesson 5 (Tue)</h2><p>Word Problems – Quadratics…</p>`,
-      `<h2 class="red">Math Lesson 6 (Tue)</h2><p>Simultaneous Equations…</p>`,
-      `<h2 class="red">Math Lesson 7 (Tue)</h2><p>Indices & Exponents Revision…</p>`,
-      `<h2 class="red">Math Lesson 8 (Tue)</h2><p>Surds Simplification…</p>`,
-      `<h2 class="red">Math Lesson 9 (Tue)</h2><p>Polynomials Operations…</p>`,
-      `<h2 class="red">Math Lesson 10 (Tue)</h2><p>Graphical Representation – parabolas…</p>`
-    ],
-    "Science": [
-      `<h2 class="green">Science Lesson 1 (Tue)</h2><p>Photosynthesis & Respiration – comparison…</p>`,
-      `<h2 class="green">Science Lesson 2 (Tue)</h2><p>Plant Transport System – xylem & phloem…</p>`,
-      `<h2 class="green">Science Lesson 3 (Tue)</h2><p>Human Digestive System – enzymes & absorption…</p>`,
-      `<h2 class="green">Science Lesson 4 (Tue)</h2><p>Respiratory System – mechanism of breathing…</p>`,
-      `<h2 class="green">Science Lesson 5 (Tue)</h2><p>Blood Circulation – heart & cardiac cycle…</p>`,
-      `<h2 class="green">Science Lesson 6 (Tue)</h2><p>Nervous System – brain & spinal cord…</p>`,
-      `<h2 class="green">Science Lesson 7 (Tue)</h2><p>Excretory System – kidney & urine formation…</p>`,
-      `<h2 class="green">Science Lesson 8 (Tue)</h2><p>Reproductive System – human gametes…</p>`,
-      `<h2 class="green">Science Lesson 9 (Tue)</h2><p>Force & Motion – Newton's Laws…</p>`,
-      `<h2 class="green">Science Lesson 10 (Tue)</h2><p>Energy – forms & conservation…</p>`
-    ],
-    "English": [
-      `<h2 class="blue">English Lesson 1 (Tue)</h2><p>Comprehension – reading passages…</p>`,
-      `<h2 class="blue">English Lesson 2 (Tue)</h2><p>Grammar – sentence types…</p>`,
-      `<h2 class="blue">English Lesson 3 (Tue)</h2><p>Creative Writing – story development…</p>`,
-      `<h2 class="blue">English Lesson 4 (Tue)</h2><p>Vocabulary – word formation…</p>`,
-      `<h2 class="blue">English Lesson 5 (Tue)</h2><p>Paragraph Writing – coherence & cohesion…</p>`,
-      `<h2 class="blue">English Lesson 6 (Tue)</h2><p>Letter Writing – formal letters…</p>`,
-      `<h2 class="blue">English Lesson 7 (Tue)</h2><p>Poetry Analysis – figurative language…</p>`,
-      `<h2 class="blue">English Lesson 8 (Tue)</h2><p>Editing Skills – correcting mistakes…</p>`,
-      `<h2 class="blue">English Lesson 9 (Tue)</h2><p>Listening Comprehension – audio exercises…</p>`,
-      `<h2 class="blue">English Lesson 10 (Tue)</h2><p>Speaking Practice – role plays & dialogues…</p>`
-    ]
-  },
- 
-  "Fri": {
-    "Math": [
-      `<h2 class="red">Math Lesson 1 (Tue)</h2><p>Quadratic Equations – Introduction…</p>`,
-      `<h2 class="red">Math Lesson 2 (Tue)</h2><p>Factorization Techniques…</p>`,
-      `<h2 class="red">Math Lesson 3 (Tue)</h2><p>Completing the Square…</p>`,
-      `<h2 class="red">Math Lesson 4 (Tue)</h2><p>Quadratic Formula Application…</p>`,
-      `<h2 class="red">Math Lesson 5 (Tue)</h2><p>Word Problems – Quadratics…</p>`,
-      `<h2 class="red">Math Lesson 6 (Tue)</h2><p>Simultaneous Equations…</p>`,
-      `<h2 class="red">Math Lesson 7 (Tue)</h2><p>Indices & Exponents Revision…</p>`,
-      `<h2 class="red">Math Lesson 8 (Tue)</h2><p>Surds Simplification…</p>`,
-      `<h2 class="red">Math Lesson 9 (Tue)</h2><p>Polynomials Operations…</p>`,
-      `<h2 class="red">Math Lesson 10 (Tue)</h2><p>Graphical Representation – parabolas…</p>`
-    ],
-    "Science": [
-      `<h2 class="green">Science Lesson 1 (Tue)</h2><p>Photosynthesis & Respiration – comparison…</p>`,
-      `<h2 class="green">Science Lesson 2 (Tue)</h2><p>Plant Transport System – xylem & phloem…</p>`,
-      `<h2 class="green">Science Lesson 3 (Tue)</h2><p>Human Digestive System – enzymes & absorption…</p>`,
-      `<h2 class="green">Science Lesson 4 (Tue)</h2><p>Respiratory System – mechanism of breathing…</p>`,
-      `<h2 class="green">Science Lesson 5 (Tue)</h2><p>Blood Circulation – heart & cardiac cycle…</p>`,
-      `<h2 class="green">Science Lesson 6 (Tue)</h2><p>Nervous System – brain & spinal cord…</p>`,
-      `<h2 class="green">Science Lesson 7 (Tue)</h2><p>Excretory System – kidney & urine formation…</p>`,
-      `<h2 class="green">Science Lesson 8 (Tue)</h2><p>Reproductive System – human gametes…</p>`,
-      `<h2 class="green">Science Lesson 9 (Tue)</h2><p>Force & Motion – Newton's Laws…</p>`,
-      `<h2 class="green">Science Lesson 10 (Tue)</h2><p>Energy – forms & conservation…</p>`
-    ],
-    "English": [
-      `<h2 class="blue">English Lesson 1 (Tue)</h2><p>Comprehension – reading passages…</p>`,
-      `<h2 class="blue">English Lesson 2 (Tue)</h2><p>Grammar – sentence types…</p>`,
-      `<h2 class="blue">English Lesson 3 (Tue)</h2><p>Creative Writing – story development…</p>`,
-      `<h2 class="blue">English Lesson 4 (Tue)</h2><p>Vocabulary – word formation…</p>`,
-      `<h2 class="blue">English Lesson 5 (Tue)</h2><p>Paragraph Writing – coherence & cohesion…</p>`,
-      `<h2 class="blue">English Lesson 6 (Tue)</h2><p>Letter Writing – formal letters…</p>`,
-      `<h2 class="blue">English Lesson 7 (Tue)</h2><p>Poetry Analysis – figurative language…</p>`,
-      `<h2 class="blue">English Lesson 8 (Tue)</h2><p>Editing Skills – correcting mistakes…</p>`,
-      `<h2 class="blue">English Lesson 9 (Tue)</h2><p>Listening Comprehension – audio exercises…</p>`,
-      `<h2 class="blue">English Lesson 10 (Tue)</h2><p>Speaking Practice – role plays & dialogues…</p>`
-    ]
-  },
-
-  "Sat": { 
-     "Math": [
-      `<h2 class="red">Math Lesson 1 (Tue)</h2><p>Quadratic Equations – Introduction…</p>`,
-      `<h2 class="red">Math Lesson 2 (Tue)</h2><p>Factorization Techniques…</p>`,
-      `<h2 class="red">Math Lesson 3 (Tue)</h2><p>Completing the Square…</p>`,
-      `<h2 class="red">Math Lesson 4 (Tue)</h2><p>Quadratic Formula Application…</p>`,
-      `<h2 class="red">Math Lesson 5 (Tue)</h2><p>Word Problems – Quadratics…</p>`,
-      `<h2 class="red">Math Lesson 6 (Tue)</h2><p>Simultaneous Equations…</p>`,
-      `<h2 class="red">Math Lesson 7 (Tue)</h2><p>Indices & Exponents Revision…</p>`,
-      `<h2 class="red">Math Lesson 8 (Tue)</h2><p>Surds Simplification…</p>`,
-      `<h2 class="red">Math Lesson 9 (Tue)</h2><p>Polynomials Operations…</p>`,
-      `<h2 class="red">Math Lesson 10 (Tue)</h2><p>Graphical Representation – parabolas…</p>`
-    ],
-    "Science": [
-      `<h2 class="green">Science Lesson 1 (Tue)</h2><p>Photosynthesis & Respiration – comparison…</p>`,
-      `<h2 class="green">Science Lesson 2 (Tue)</h2><p>Plant Transport System – xylem & phloem…</p>`,
-      `<h2 class="green">Science Lesson 3 (Tue)</h2><p>Human Digestive System – enzymes & absorption…</p>`,
-      `<h2 class="green">Science Lesson 4 (Tue)</h2><p>Respiratory System – mechanism of breathing…</p>`,
-      `<h2 class="green">Science Lesson 5 (Tue)</h2><p>Blood Circulation – heart & cardiac cycle…</p>`,
-      `<h2 class="green">Science Lesson 6 (Tue)</h2><p>Nervous System – brain & spinal cord…</p>`,
-      `<h2 class="green">Science Lesson 7 (Tue)</h2><p>Excretory System – kidney & urine formation…</p>`,
-      `<h2 class="green">Science Lesson 8 (Tue)</h2><p>Reproductive System – human gametes…</p>`,
-      `<h2 class="green">Science Lesson 9 (Tue)</h2><p>Force & Motion – Newton's Laws…</p>`,
-      `<h2 class="green">Science Lesson 10 (Tue)</h2><p>Energy – forms & conservation…</p>`
-    ],
-    "English": [
-      `<h2 class="blue">English Lesson 1 (Tue)</h2><p>Comprehension – reading passages…</p>`,
-      `<h2 class="blue">English Lesson 2 (Tue)</h2><p>Grammar – sentence types…</p>`,
-      `<h2 class="blue">English Lesson 3 (Tue)</h2><p>Creative Writing – story development…</p>`,
-      `<h2 class="blue">English Lesson 4 (Tue)</h2><p>Vocabulary – word formation…</p>`,
-      `<h2 class="blue">English Lesson 5 (Tue)</h2><p>Paragraph Writing – coherence & cohesion…</p>`,
-      `<h2 class="blue">English Lesson 6 (Tue)</h2><p>Letter Writing – formal letters…</p>`,
-      `<h2 class="blue">English Lesson 7 (Tue)</h2><p>Poetry Analysis – figurative language…</p>`,
-      `<h2 class="blue">English Lesson 8 (Tue)</h2><p>Editing Skills – correcting mistakes…</p>`,
-      `<h2 class="blue">English Lesson 9 (Tue)</h2><p>Listening Comprehension – audio exercises…</p>`,
-      `<h2 class="blue">English Lesson 10 (Tue)</h2><p>Speaking Practice – role plays & dialogues…</p>`
-    ]
-  }  
+/* ---------- LESSONS ---------- */
+let lessonsArray = {
+  Mon: { Math: ["<h2>Math Lesson 1</h2><p>Surds & Indices practice…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Human Digestive System…</p>"], English: ["<h2>English Lesson 1</h2><p>Sentence Analysis…</p>"] },
+  Tue: { Math: ["<h2>Math Lesson 1</h2><p>Quadratic Equations…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Photosynthesis…</p>"], English: ["<h2>English Lesson 1</h2><p>Comprehension…</p>"] },
+  Wed: { Math: ["<h2>Math Lesson 1</h2><p>Integers Intro…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Photosynthesis…</p>"], English: ["<h2>English Lesson 1</h2><p>Grammar…</p>"] },
+  Thu: { Math: ["<h2>Math Lesson 1</h2><p>Quadratic Equations…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Plant Transport…</p>"], English: ["<h2>English Lesson 1</h2><p>Writing…</p>"] },
+  Fri: { Math: ["<h2>Math Lesson 1</h2><p>Quadratics…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Circulation…</p>"], English: ["<h2>English Lesson 1</h2><p>Comprehension…</p>"] },
+  Sat: { Math: ["<h2>Math Lesson 1</h2><p>Quadratics…</p>"], Science: ["<h2>Science Lesson 1</h2><p>Respiration…</p>"], English: ["<h2>English Lesson 1</h2><p>Grammar…</p>"] }
 };
-
 
 let currentLesson = 0;
 let todayLessons = [];
-let selectedVoice=null;
-let utter=null;
+let selectedVoice = null;
+let utter = null;
 
-/* ---------- Voice ---------- */
+/* ---------- VOICE ---------- */
 function getVoice(){
-  const v=speechSynthesis.getVoices();
-  return v.find(x=>x.lang.toLowerCase().startsWith("en-ke")&&x.name.toLowerCase().includes("female"))
-      || v.find(x=>x.lang.toLowerCase().startsWith("en-ke"))
-      || v.find(x=>x.lang.toLowerCase().startsWith("en-gb"))
-      || v[0];
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v=>v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+         || voices.find(v=>v.lang.startsWith("en-ke"))
+         || voices.find(v=>v.lang.startsWith("en-gb"))
+         || voices[0];
 }
+
 function speak(html){
-  const tmp=document.createElement("div");
-  tmp.innerHTML=html;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
   speechSynthesis.cancel();
-  utter=new SpeechSynthesisUtterance(tmp.textContent);
-  utter.voice=selectedVoice;
-  utter.rate=0.8;
+  utter = new SpeechSynthesisUtterance(tmp.textContent);
+  utter.voice = selectedVoice;
+  utter.rate = 0.8;
   speechSynthesis.speak(utter);
 }
 
-/* ---------- Start Tutor ---------- */
+/* ---------- START TUTOR ---------- */
 function startTutor(){
-  if(!user){alert("⚠️ Please login with Google first.");return;}
+  if(!user){ alert("⚠️ Please login first."); return; }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || !snap.val().phone) {
-      alert("⚠️ Please enter your phone number before accessing lessons.");
+    if(!snap.exists() || !snap.val().phone){
+      alert("⚠️ Enter your phone number first.");
       document.getElementById("phoneForm").style.display = "block";
       return;
     }
 
-    const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    const nowUTC=new Date();
-    const kenyaTime=new Date(nowUTC.getTime()+(3*60+nowUTC.getTimezoneOffset())*60000);
-    const dayName=days[kenyaTime.getDay()];
+    const now = new Date();
+    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const todayName = days[kenyaTime.getDay()];
 
-    const slots = timetable[dayName] || [];
+    const slots = timetable[todayName] || [];
     const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
-    if (!currentSlot) {
-      editor.innerHTML=`<div class='card'><h2>⏳ No active lesson right now.<br>Check the timetable.</h2></div>`;
-      status.textContent="No active lesson";
+    if(!currentSlot){
+      editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
+      status.textContent = "No active lesson";
       return;
     }
 
+    todayLessons = lessonsArray[todayName][currentSlot.subject] || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
     
-
-
-todayLessons = lessonsArray[currentSlot.subject] || [
-  `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
-];
-
-    
-    const check=setInterval(()=>{
+    const waitVoices = setInterval(()=>{
       if(speechSynthesis.getVoices().length){
-        clearInterval(check);
-        selectedVoice=getVoice();
-        currentLesson=0;
+        clearInterval(waitVoices);
+        selectedVoice = getVoice();
+        currentLesson = 0;
         showLesson();
-        status.textContent=`🟢 ${currentSlot.subject} (${currentSlot.start} – ${currentSlot.end})`;
       }
-    },200);
+    }, 100);
   });
 }
 
-
+/* ---------- SHOW CURRENT LESSON ---------- */
 function showLesson(){
-  editor.innerHTML=`<div class="card">${todayLessons[currentLesson]}</div>`;
-  speak(todayLessons[currentLesson]);
-}
-
-function prevLesson(){
-  if(todayLessons.length && currentLesson>0){
-    currentLesson--;
-    showLesson();
-  }
-}
-function nextLesson(){
-  if(todayLessons.length && currentLesson<todayLessons.length-1){
-    currentLesson++;
-    showLesson();
-  }
-}
-function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
-function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
-function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
-
-// Realtime Database reference
-const db = firebase.database();
-
-const ratingStars = document.querySelectorAll(".rating span");
-const avgRatingEl = document.getElementById("avgRating");
-
-// Add a container for the delayed message
-let ratingTimeout;
-let ratingMessage = document.getElementById("ratingMessage");
-if (!ratingMessage) {
-  ratingMessage = document.createElement("div");
-  ratingMessage.id = "ratingMessage";
-  ratingMessage.style.cssText = `
-    display:none; 
-    color:#388e3c; 
-    font-weight:bold; 
-    margin-bottom:10px; 
-    opacity:0; 
-    transform:translateY(-10px); 
-    transition: all 0.5s ease;
-  `;
-  document.querySelector(".card").prepend(ratingMessage);
-}
-
-// Function to update stars visually
-function updateStars(val) {
-  ratingStars.forEach(s => {
-    s.classList.toggle("active", s.dataset.v <= val);
-  });
-}
-
-// Function to update average rating live
-function updateAverageRating() {
-  db.ref("ratings").on("value", snapshot => {
-    let total = 0, count = 0;
-    snapshot.forEach(child => {
-      total += child.val().rating;
-      count++;
-    });
-
-    const avg = count ? (total / count).toFixed(1) : 0;
-
-    // Update the display with average and number of ratings
-    avgRatingEl.textContent = count 
-      ? `${avg} (${count} students)` 
-      : "No ratings yet";
-
-    // Optional: update stars to reflect average visually
-    ratingStars.forEach(s => {
-      s.classList.toggle("hover", s.dataset.v <= avg);
-    });
-  });
-}
-
-// Call it once to start listening for live updates
-updateAverageRating();
-
-// Attach click events to stars
-ratingStars.forEach(star => {
-  star.addEventListener("click", async () => {
-    if (!user) return alert("⚠️ Login first to save rating.");
-    const val = parseInt(star.dataset.v);
-
-    // Save/update user's rating
-    await db.ref("ratings/" + user.uid).set({
-      name: user.displayName,
-      rating: val,
-      timestamp: Date.now()
-    });
-
-    // Update stars visually for this user
-    updateStars(val);
-
-    // Clear previous timeout if any
-    if (ratingTimeout) clearTimeout(ratingTimeout);
-
-    // Delay message 5 seconds
-    ratingTimeout = setTimeout(() => {
-      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
-      ratingMessage.style.display = "block";
-      setTimeout(() => {
-        ratingMessage.style.opacity = 1;
-        ratingMessage.style.transform = "translateY(0)";
-      }, 10);
-
-      // Fade out after 3s
-      setTimeout(() => {
-        ratingMessage.style.opacity = 0;
-        ratingMessage.style.transform = "translateY(-10px)";
-        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-      }, 3000);
-
-      ratingTimeout = null;
-    }, 5000);
-  });
-
-  // Optional: hover effect
-  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
-  star.addEventListener("mouseout", () => {
-    if (user) {
-      db.ref("ratings/" + user.uid).once("value", snap => {
-        const val = snap.exists() ? snap.val().rating : 0;
-        updateStars(val);
-      });
-    }
-  });
-});
-
-// When user logs in, show their previous rating
-auth.onAuthStateChanged(u => {
-  user = u;
-  if (user) {
-    db.ref("ratings/" + user.uid).once("value", snap => {
-      if (snap.exists()) updateStars(snap.val().rating);
-    });
-  }
-});
-
-
-
-function savePhoneNumber() {
-  const phone = document.getElementById("phoneInput").value.trim();
-  if (!phone) {
-    alert("⚠️ Please enter your phone number.");
+  if(currentLesson >= todayLessons.length) {
+    editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
     return;
   }
-
-  db.ref("students/" + user.uid).update({
-    phone: phone,
-    timestamp: Date.now()
-  }).then(() => {
-    alert("✅ Phone number saved! Lessons unlocked.");
-    document.getElementById("phoneForm").style.display = "none";
-    document.querySelector(".card").style.display = "block";
-    editor.scrollIntoView({behavior: "smooth"});
-  });
+  const lessonHtml = todayLessons[currentLesson];
+  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
+  speak(lessonHtml);
+  currentLesson++;
 }
 
 
 
-  function inTimeRange(start, end, now) {
-  const [sh, sm] = start.split(":").map(Number);
-  const [eh, em] = end.split(":").map(Number);
-  const startMins = sh * 60 + sm;
-  const endMins = eh * 60 + em;
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  return nowMins >= startMins && nowMins < endMins;
-}
-
-
-
-function isLessonLive(day, lesson) {
-  const now = new Date();
-  const [startH, startM] = lesson.start.split(":").map(Number);
-  const [endH, endM] = lesson.end.split(":").map(Number);
-
-  const startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startH, startM);
-  const endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH, endM);
-
-  return now >= startTime && now <= endTime;
-}
-
-// Example usage
-const lesson = { start: "10:00", end: "11:00" };
-console.log(isLessonLive("Monday", lesson)); // true/false
-
-
-
-function showTodaysLessons() {
-  if (!user) return;
-
-  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const today = new Date();
-  const dayName = days[today.getDay()];
-
-  const container = document.getElementById("lessonContainer");
-  container.innerHTML = ""; // Clear previous
-
-  if (dayName === "Sun") {
-    container.innerHTML = `<div class="card"><h2>No lessons today!</h2><p>Enjoy your day off 😎</p></div>`;
-    return;
-  }
-
-  // Get lessons only for today
-  const todaysLessons = lessonsArray[dayName];
-  if (!todaysLessons) {
-    container.innerHTML = `<div class="card"><h2>No lessons scheduled for today</h2></div>`;
-    return;
-  }
-
-  for (const subject in todaysLessons) {
-    // Only loop through today's subjects
-    todaysLessons[subject].forEach(lessonHTML => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `<h2>${subject}</h2>${lessonHTML}`;
-      container.appendChild(card);
-    });
-  }
-}
-
-// Call after login or page load if already logged in
-auth.onAuthStateChanged(u => {
-  user = u;
-  if (u && u.uid) {
-    showTodaysLessons();
-  }
-});
-
-  
-function showCurrentLesson() {
-  const now = new Date();
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const day = dayNames[now.getDay()]; // e.g., "Wed"
-  const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-
-  const todaySchedule = timetable[day];
-  if (!todaySchedule) {
-    document.getElementById("lessonContainer").innerHTML = "<p>No lessons today.</p>";
-    return;
-  }
-
-  // Find the current lesson based on time
-  let currentLesson = null;
-  for (const lesson of todaySchedule) {
-    if (timeStr >= lesson.start && timeStr <= lesson.end) {
-      currentLesson = lesson.subject;
-      break;
-    }
-  }
-
-  if (!currentLesson) {
-    document.getElementById("lessonContainer").innerHTML = "<p>No active lesson at this time.</p>";
-    return;
-  }
-
-  // Pick first lesson from lessonsArray for simplicity
-  const lessonContent = lessonsArray[day][currentLesson][0]; 
-  document.getElementById("lessonContainer").innerHTML = lessonContent;
-}
-
-// Auto-update every minute
-setInterval(showCurrentLesson, 60000);
-showCurrentLesson();
-
-
-  
 </script>
 </body>
 </html>
