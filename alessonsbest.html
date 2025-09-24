@@ -229,8 +229,9 @@ html, body {
     </div>
 
     <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-      Average Rating: <span id="avgRating">–</span> ★
-    </p>
+  Average Rating: <span id="avgRating">–</span> ★
+</p>
+
   </div>
 </div>
 
@@ -493,8 +494,13 @@ function updateAverageRating() {
       total += child.val().rating;
       count++;
     });
+
     const avg = count ? (total / count).toFixed(1) : 0;
-    avgRatingEl.textContent = avg;
+
+    // Update the display with average and number of ratings
+    avgRatingEl.textContent = count 
+      ? `${avg} (${count} students)` 
+      : "No ratings yet";
 
     // Optional: update stars to reflect average visually
     ratingStars.forEach(s => {
