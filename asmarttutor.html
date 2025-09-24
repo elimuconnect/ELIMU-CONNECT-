@@ -746,47 +746,33 @@ let utter = null;
 /* ---------- VOICE ---------- */
 function getVoice() {
   const voices = speechSynthesis.getVoices();
-  return voices.find(v =>
-    v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v => v.lang.toLowerCase().startsWith("en-ke"))
-  || voices.find(v => v.lang.toLowerCase().startsWith("en-ng") && v.name.toLowerCase().includes("female"))
-  || voices.find(v => v.lang.toLowerCase().startsWith("en-ng"))
-  || voices.find(v => v.lang.toLowerCase().startsWith("en-us") && v.name.toLowerCase().includes("female"))
-  || voices.find(v => v.lang.toLowerCase().startsWith("en"))
-  || voices[0];
+  return voices.find(v => v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+      || voices.find(v => v.lang.startsWith("en-ke"))
+      || voices.find(v => v.lang.startsWith("en-gb"))
+      || voices[0];
 }
 
 /* ---------- SPEAK ---------- */
-function speak(html, onEnd) {
-  if (!selectedVoice) return;
-
+function speak(html) {
+  // Convert HTML to text, remove <pre> and <code>
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
-
-  // Remove <pre> and <code>
-  tmp.querySelectorAll("pre, code").forEach(el => el.remove());
-
-  // Replace <br> and <p> with spaces or newlines
-  tmp.querySelectorAll("br, p").forEach(el => el.replaceWith(document.createTextNode(" ")));
-
-  const text = tmp.textContent.replace(/\s+/g, " ").trim();
-  if (!text) {
-    onEnd && onEnd();
-    return;
-  }
+  tmp.querySelectorAll('pre, code').forEach(el => el.remove());
+  const text = tmp.textContent || tmp.innerText || "";
 
   speechSynthesis.cancel();
   utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
   utter.rate = 0.8;
-
-  utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
 }
 
 /* ---------- START TUTOR ---------- */
 function startTutor() {
-  if (!user) { alert("⚠️ Please login first."); return; }
+  if (!user) { 
+    alert("⚠️ Please login first."); 
+    return; 
+  }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || !snap.val().phone) {
@@ -813,47 +799,29 @@ function startTutor() {
       `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
     ];
 
-    // Wait for voices to load before starting
-    const startReading = () => {
-      selectedVoice = getVoice();
-      currentLesson = 0;
-      readLesson();
-    };
-
-    if (speechSynthesis.getVoices().length) {
-      startReading();
-    } else {
-      speechSynthesis.onvoiceschanged = startReading;
-    }
+    const waitVoices = setInterval(() => {
+      if (speechSynthesis.getVoices().length) {
+        clearInterval(waitVoices);
+        selectedVoice = getVoice();
+        currentLesson = 0;
+        showLesson();
+      }
+    }, 100);
   });
 }
 
-/* ---------- READ LESSON ---------- */
-function readLesson() {
+/* ---------- SHOW CURRENT LESSON ---------- */
+function showLesson() {
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
-    status.textContent = "✅ Done";
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-  status.textContent = `📖 Reading Lesson ${currentLesson + 1} of ${todayLessons.length}`;
-
-  // Only increment after speech ends
-  speak(lessonHtml, () => {
-    currentLesson++;
-    setTimeout(readLesson, 300); // short pause before next
-  });
-}
-
-/* ---------- SKIP LESSON ---------- */
-function skipLesson() {
-  speechSynthesis.cancel();
+  speak(lessonHtml);
   currentLesson++;
-  readLesson();
 }
-
 
   
 // Realtime Database reference
