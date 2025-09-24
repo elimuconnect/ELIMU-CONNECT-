@@ -263,7 +263,11 @@ html, body {
 const firebaseConfig = {
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
-  projectId: "cbc-general"
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
