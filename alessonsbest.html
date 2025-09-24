@@ -446,28 +446,6 @@ const lessonsArray = {
     `<h2 class="blue">English Lesson 4</h2><p>Creative Writing – short story exercise.</p>`
   ]
 };
-
-
-  
-
-
-// Display lessons only for **today**
-const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const today = dayNames[new Date().getDay()];
-const container = document.getElementById("lessonContainer");
-const todaysLessons = lessonsArray[today] || [];
-
-
-
-
-
-
-
-
-
-
-
-
   
 
 let currentLesson = 0;
@@ -518,10 +496,14 @@ function startTutor(){
       return;
     }
 
-    // ✅ Pick lesson content from lessonsArray using subject
-    todayLessons = [ lessonsArray[currentSlot.subject] || 
-      `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson content coming soon.</p></div>` ];
+    
 
+
+todayLessons = lessonsArray[currentSlot.subject] || [
+  `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
+];
+
+    
     const check=setInterval(()=>{
       if(speechSynthesis.getVoices().length){
         clearInterval(check);
