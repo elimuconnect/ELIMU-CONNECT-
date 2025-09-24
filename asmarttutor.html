@@ -776,41 +776,49 @@ function speak(text, onEnd) {
   speechSynthesis.speak(utter);
 }
 
-/* ---------- START TUTOR ---------- */
-function startTutor(){
-  if(!user){ alert("⚠️ Please login first."); return; }
+function startTutor() {
+  if (!user) { 
+    alert("⚠️ Please login first."); 
+    return; 
+  }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
-    if(!snap.exists() || !snap.val().phone){
+    if (!snap.exists() || !snap.val().phone) {
       alert("⚠️ Enter your phone number first.");
       document.getElementById("phoneForm").style.display = "block";
       return;
     }
 
-    const now = new Date();
-    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
+    // Kenya time using timezone
+    const kenyaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
     const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const todayName = days[kenyaTime.getDay()];
 
     const slots = timetable[todayName] || [];
     const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
-    if(!currentSlot){
+    if (!currentSlot) {
       editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
       status.textContent = "No active lesson";
       return;
     }
 
-    todayLessons = lessonsArray[todayName][currentSlot.subject] || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
-    
-    const waitVoices = setInterval(()=>{
-      if(speechSynthesis.getVoices().length){
-        clearInterval(waitVoices);
-        selectedVoice = getVoice();
-        currentLesson = 0;
-        showLesson();
-      }
-    }, 100);
+    todayLessons = lessonsArray[todayName][currentSlot.subject] || [
+      `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
+    ];
+
+    // Wait for voices to be ready
+    if (speechSynthesis.getVoices().length) {
+      initLesson();
+    } else {
+      speechSynthesis.onvoiceschanged = initLesson;
+    }
+
+    function initLesson() {
+      selectedVoice = getVoice();
+      currentLesson = 0;
+      showLesson();
+    }
   });
 }
 
@@ -818,23 +826,36 @@ function startTutor(){
 function showLesson() {
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
+    status.textContent = "All lessons completed";
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
-  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-
-  // Extract only text
+  // Create temp div to extract only text
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = lessonHtml;
+
+  // Remove <code> or <pre> elements
+  tempDiv.querySelectorAll("code, pre").forEach(el => el.remove());
+
   const textToRead = tempDiv.textContent || tempDiv.innerText || "";
 
-  speak(textToRead);
+  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
+  status.textContent = `Active Lesson: ${currentLesson + 1} / ${todayLessons.length}`;
 
-  currentLesson++;
+  // Speak the text
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+  utterance.voice = selectedVoice;
+  utterance.rate = 1;
+  utterance.pitch = 1;
+
+  utterance.onend = () => {
+    currentLesson++;
+    showLesson(); // Automatically move to next lesson
+  };
+
+  speechSynthesis.speak(utterance);
 }
-
-
 
 
 
