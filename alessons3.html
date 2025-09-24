@@ -285,10 +285,13 @@ loginBtn.onclick = () => {
       db.ref("users/" + user.uid).once("value").then(snap => {
         if (!snap.exists() || !snap.val().phone) {
           // Show phone number form
-          document.getElementById("studentName").textContent =
-            `Welcome ${user.displayName}, please enter your phone number:`;
-          document.getElementById("phoneForm").style.display = "block";
-          editor.innerHTML = ""; // keep lessons locked until phone saved
+         document.getElementById("studentName").textContent =
+  `Welcome ${user.displayName}, please enter your phone number:`;
+document.getElementById("phoneForm").style.display = "block";
+
+// Hide tutor card instead of deleting everything
+document.querySelector(".card").style.display = "none";
+
         }
       });
     })
@@ -304,9 +307,12 @@ auth.onAuthStateChanged(u => {
     db.ref("users/" + u.uid).once("value").then(snap => {
       if (!snap.exists() || !snap.val().phone) {
         document.getElementById("studentName").textContent =
-          `Welcome ${u.displayName}, please enter your phone number:`;
-        document.getElementById("phoneForm").style.display = "block";
-        editor.innerHTML = "";
+  `Welcome ${user.displayName}, please enter your phone number:`;
+document.getElementById("phoneForm").style.display = "block";
+
+// Hide tutor card instead of deleting everything
+document.querySelector(".card").style.display = "none";
+
       }
     });
   }
@@ -638,9 +644,11 @@ function savePhoneNumber() {
   }).then(() => {
     alert("✅ Phone number saved! Lessons unlocked.");
     document.getElementById("phoneForm").style.display = "none";
-    editor.innerHTML = `<div class='card'><h2>✔️ You can now start lessons!</h2></div>`;
+    document.querySelector(".card").style.display = "block";
+    editor.scrollIntoView({behavior: "smooth"});
   });
 }
+
 
   
 
