@@ -308,7 +308,7 @@ auth.onAuthStateChanged(u => {
     status.textContent = `👋 Hi ${u.displayName}`;
 
     // Also check if phone is saved on reload
-    db.ref("users/" + u.uid).once("value").then(snap => {
+   db.ref("students/" + u.uid) .once("value").then(snap => {
       if (!snap.exists() || !snap.val().phone) {
         document.getElementById("studentName").textContent =
   `Welcome ${user.displayName}, please enter your phone number:`;
