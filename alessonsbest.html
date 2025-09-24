@@ -208,7 +208,23 @@ html, body {
     <button onclick="contactWhatsApp()">💬 Customer Care</button>
   </div>
 
-  <div id="editor">
+<div id="editor">
+
+  <!-- Phone Number Form -->
+  <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; 
+       border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
+    <h2>📱 Enter Your Phone Number</h2>
+    <p id="studentName"></p>
+    <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" 
+           style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
+    <br><br>
+    <button onclick="savePhoneNumber()" 
+            style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">
+      Save & Unlock Lessons
+    </button>
+  </div>
+
+  <!-- Main Tutor Card -->
   <div class="card">
     <!-- Rating message container -->
     <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
@@ -229,15 +245,13 @@ html, body {
     </div>
 
     <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-  Average Rating: <span id="avgRating">–</span> ★
-</p>
-
+      Average Rating: <span id="avgRating">–</span> ★
+    </p>
   </div>
 </div>
 
 <div id="lessonContainer"></div>
 <div id="status">⏳ Ready…</div>
-
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
@@ -263,20 +277,53 @@ const editor = document.getElementById("editor");
 const status = document.getElementById("status");
 const loginBtn = document.getElementById("loginBtn");
 
-let user=null;
-loginBtn.onclick=()=>{
+let user = null;
+
+loginBtn.onclick = () => {
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(res=>{
-        user=res.user;
-        status.textContent=`👋 Hi ${user.displayName}`;
-      })
-      .catch(e=>alert(e.message));
+    .then(res => {
+      user = res.user;
+      status.textContent = `👋 Hi ${user.displayName}`;
+
+      // After login → check if phone exists
+      db.ref("students/" + user.uid).once("value").then(snap => {
+        if (!snap.exists() || !snap.val().phone) {
+          // Show phone number form
+         document.getElementById("studentName").textContent =
+  `Welcome ${user.displayName}, please enter your phone number:`;
+document.getElementById("phoneForm").style.display = "block";
+
+// Hide tutor card instead of deleting everything
+document.querySelector(".card").style.display = "none";
+
+        }
+      });
+    })
+    .catch(e => alert(e.message));
 };
-auth.onAuthStateChanged(u=>{
-  user=u;
-  if(u) status.textContent=`👋 Hi ${u.displayName}`;
+
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (u) {
+    status.textContent = `👋 Hi ${u.displayName}`;
+
+    // Also check if phone is saved on reload
+    db.ref("users/" + u.uid).once("value").then(snap => {
+      if (!snap.exists() || !snap.val().phone) {
+        document.getElementById("studentName").textContent =
+  `Welcome ${user.displayName}, please enter your phone number:`;
+document.getElementById("phoneForm").style.display = "block";
+
+// Hide tutor card instead of deleting everything
+document.querySelector(".card").style.display = "none";
+
+      }
+    });
+  }
 });
 
+
+  
 /* ---------- LESSONS (Mon–Sat) ---------- */
 
 const lessonsArray = {
@@ -408,34 +455,44 @@ function speak(html){
 function startTutor(){
   if(!user){alert("⚠️ Please login with Google first.");return;}
 
-  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const nowUTC=new Date();
-  const kenyaTime=new Date(nowUTC.getTime()+(3*60+nowUTC.getTimezoneOffset())*60000);
-  const dayName=days[kenyaTime.getDay()];
-  const hour=kenyaTime.getHours();
-
-  if(hour<16 || hour>=23){
-    editor.innerHTML=`<div class='card'><h2>⏳ Lessons open 4 PM – 11 PM Kenya time.</h2></div>`;
-    status.textContent="⛔ Outside lesson hours";
-    return;
-  }
-
-  todayLessons = lessonsArray[dayName] || [];
-  if(!todayLessons.length){
-    editor.innerHTML=`<div class='card'><h2>🎉 No lessons scheduled for ${dayName}</h2></div>`;
-    status.textContent="No lesson today";
-    return;
-  }
-
-  const check=setInterval(()=>{
-    if(speechSynthesis.getVoices().length){
-      clearInterval(check);
-      selectedVoice=getVoice();
-      currentLesson=0;
-      showLesson();
-      status.textContent=`🟢 Showing lessons for ${dayName}`;
+  // Check if user has phone number
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || !snap.val().phone) {
+      alert("⚠️ Please enter your phone number before accessing lessons.");
+      document.getElementById("phoneForm").style.display = "block";
+      return;
     }
-  },200);
+
+    // ✅ Continue with time check + lessons
+    const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const nowUTC=new Date();
+    const kenyaTime=new Date(nowUTC.getTime()+(3*60+nowUTC.getTimezoneOffset())*60000);
+    const dayName=days[kenyaTime.getDay()];
+    const hour=kenyaTime.getHours();
+
+    if(hour<16 || hour>=23){
+      editor.innerHTML=`<div class='card'><h2>⏳ Lessons open 4 PM – 11 PM Kenya time.</h2></div>`;
+      status.textContent="⛔ Outside lesson hours";
+      return;
+    }
+
+    todayLessons = lessonsArray[dayName] || [];
+    if(!todayLessons.length){
+      editor.innerHTML=`<div class='card'><h2>🎉 No lessons scheduled for ${dayName}</h2></div>`;
+      status.textContent="No lesson today";
+      return;
+    }
+
+    const check=setInterval(()=>{
+      if(speechSynthesis.getVoices().length){
+        clearInterval(check);
+        selectedVoice=getVoice();
+        currentLesson=0;
+        showLesson();
+        status.textContent=`🟢 Showing lessons for ${dayName}`;
+      }
+    },200);
+  });
 }
 
 function showLesson(){
@@ -578,6 +635,28 @@ auth.onAuthStateChanged(u => {
 });
 
 
+
+function savePhoneNumber() {
+  const phone = document.getElementById("phoneInput").value.trim();
+  if (!phone) {
+    alert("⚠️ Please enter your phone number.");
+    return;
+  }
+
+  db.ref("students/" + user.uid).update({
+    phone: phone,
+    timestamp: Date.now()
+  }).then(() => {
+    alert("✅ Phone number saved! Lessons unlocked.");
+    document.getElementById("phoneForm").style.display = "none";
+    document.querySelector(".card").style.display = "block";
+    editor.scrollIntoView({behavior: "smooth"});
+  });
+}
+
+
+
+  
 
 </script>
 </body>
