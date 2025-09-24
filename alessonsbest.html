@@ -1085,6 +1085,51 @@ console.log(isLessonLive("Monday", lesson)); // true/false
 
 
 
+// Get today's lessons and display
+function showTodaysLessons() {
+  if (!user) return; // Only show if user is logged in
+
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const today = new Date();
+  const dayName = days[today.getDay()];
+
+  const container = document.getElementById("lessonContainer");
+  container.innerHTML = ""; // Clear previous
+
+  if (dayName === "Sun") {
+    container.innerHTML = `<div class="card"><h2>No lessons today!</h2><p>Enjoy your day off 😎</p></div>`;
+    return;
+  }
+
+  const lessons = lessonsArray[dayName];
+  if (!lessons) {
+    container.innerHTML = `<div class="card"><h2>No lessons scheduled for today</h2></div>`;
+    return;
+  }
+
+  for (const subject in lessons) {
+    lessons[subject].forEach(lessonHTML => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h2>${subject}</h2>${lessonHTML}`;
+      container.appendChild(card);
+    });
+  }
+}
+
+// Call this after login or page load if already logged in
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (u && u.uid) {
+    showTodaysLessons();
+  }
+});
+
+  
+
+  
+
+
   
 </script>
 </body>
