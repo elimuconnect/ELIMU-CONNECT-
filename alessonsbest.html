@@ -1126,41 +1126,50 @@ auth.onAuthStateChanged(u => {
   }
 });
 
-  
 function showCurrentLesson() {
-  const now = new Date();
-  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-  const day = dayNames[now.getDay()]; // e.g., "Wed"
-  const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+    const now = new Date();
+    const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const today = dayNames[now.getDay()];
+    const lessonsToday = timetable[today];
 
-  const todaySchedule = timetable[day];
-  if (!todaySchedule) {
-    document.getElementById("lessonContainer").innerHTML = "<p>No lessons today.</p>";
-    return;
-  }
-
-  // Find the current lesson based on time
-  let currentLesson = null;
-  for (const lesson of todaySchedule) {
-    if (timeStr >= lesson.start && timeStr <= lesson.end) {
-      currentLesson = lesson.subject;
-      break;
+    if (!lessonsToday) {
+        document.getElementById("lessonContainer").innerHTML = `<h2>No lessons today</h2>`;
+        return;
     }
-  }
 
-  if (!currentLesson) {
-    document.getElementById("lessonContainer").innerHTML = "<p>No active lesson at this time.</p>";
-    return;
-  }
+    // Convert HH:MM string to minutes for comparison
+    const timeToMinutes = t => {
+        const [h,m] = t.split(":").map(Number);
+        return h*60 + m;
+    }
 
-  // Pick first lesson from lessonsArray for simplicity
-  const lessonContent = lessonsArray[day][currentLesson][0]; 
-  document.getElementById("lessonContainer").innerHTML = lessonContent;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Find the current subject based on time
+    let currentLesson = null;
+    for (let lesson of lessonsToday) {
+        if (currentMinutes >= timeToMinutes(lesson.start) && currentMinutes <= timeToMinutes(lesson.end)) {
+            currentLesson = lesson.subject;
+            break;
+        }
+    }
+
+    if (currentLesson) {
+        // Show only the lessons of that subject for today
+        const content = lessonsArray[today][currentLesson].join("<hr>");
+        document.getElementById("lessonContainer").innerHTML = content;
+        status.textContent = `✅ Showing ${currentLesson} lessons for ${today}`;
+    } else {
+        document.getElementById("lessonContainer").innerHTML = `<h2>No live lesson at this time</h2>`;
+        status.textContent = `⏳ No lesson right now`;
+    }
 }
 
-// Auto-update every minute
-setInterval(showCurrentLesson, 60000);
+// Show lesson on page load
 showCurrentLesson();
+
+// Update every minute
+setInterval(showCurrentLesson, 60000);
 
 
   
