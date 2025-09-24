@@ -744,7 +744,6 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
-
 function getVoice() {
   const voices = speechSynthesis.getVoices();
 
@@ -763,10 +762,6 @@ function getVoice() {
   ) || voices[0]; // fallback
 }
 
-
-
-
-
 function speak(text, onEnd) {
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
@@ -776,6 +771,7 @@ function speak(text, onEnd) {
   speechSynthesis.speak(utter);
 }
 
+/* ---------- START TUTOR ---------- */
 function startTutor() {
   if (!user) { 
     alert("⚠️ Please login first."); 
@@ -789,8 +785,8 @@ function startTutor() {
       return;
     }
 
-    // Kenya time using timezone
-    const kenyaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+    const now = new Date();
+    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
     const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const todayName = days[kenyaTime.getDay()];
 
@@ -807,18 +803,14 @@ function startTutor() {
       `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
     ];
 
-    // Wait for voices to be ready
-    if (speechSynthesis.getVoices().length) {
-      initLesson();
-    } else {
-      speechSynthesis.onvoiceschanged = initLesson;
-    }
-
-    function initLesson() {
-      selectedVoice = getVoice();
-      currentLesson = 0;
-      showLesson();
-    }
+    const waitVoices = setInterval(() => {
+      if (speechSynthesis.getVoices().length) {
+        clearInterval(waitVoices);
+        selectedVoice = getVoice();
+        currentLesson = 0;
+        showLesson();
+      }
+    }, 100);
   });
 }
 
@@ -826,35 +818,21 @@ function startTutor() {
 function showLesson() {
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
-    status.textContent = "All lessons completed";
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
-  // Create temp div to extract only text
+  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
+
+  // Extract only text, ignoring <pre> and <code>
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = lessonHtml;
-
-  // Remove <code> or <pre> elements
-  tempDiv.querySelectorAll("code, pre").forEach(el => el.remove());
-
+  tempDiv.querySelectorAll('pre, code').forEach(el => el.remove()); // remove code blocks
   const textToRead = tempDiv.textContent || tempDiv.innerText || "";
 
-  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-  status.textContent = `Active Lesson: ${currentLesson + 1} / ${todayLessons.length}`;
+  speak(textToRead);
 
-  // Speak the text
-  const utterance = new SpeechSynthesisUtterance(textToRead);
-  utterance.voice = selectedVoice;
-  utterance.rate = 1;
-  utterance.pitch = 1;
-
-  utterance.onend = () => {
-    currentLesson++;
-    showLesson(); // Automatically move to next lesson
-  };
-
-  speechSynthesis.speak(utterance);
+  currentLesson++;
 }
 
 
