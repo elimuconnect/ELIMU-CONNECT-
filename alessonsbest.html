@@ -1127,6 +1127,40 @@ auth.onAuthStateChanged(u => {
 });
 
   
+function showCurrentLesson() {
+  const now = new Date();
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const day = dayNames[now.getDay()]; // e.g., "Wed"
+  const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+
+  const todaySchedule = timetable[day];
+  if (!todaySchedule) {
+    document.getElementById("lessonContainer").innerHTML = "<p>No lessons today.</p>";
+    return;
+  }
+
+  // Find the current lesson based on time
+  let currentLesson = null;
+  for (const lesson of todaySchedule) {
+    if (timeStr >= lesson.start && timeStr <= lesson.end) {
+      currentLesson = lesson.subject;
+      break;
+    }
+  }
+
+  if (!currentLesson) {
+    document.getElementById("lessonContainer").innerHTML = "<p>No active lesson at this time.</p>";
+    return;
+  }
+
+  // Pick first lesson from lessonsArray for simplicity
+  const lessonContent = lessonsArray[day][currentLesson][0]; 
+  document.getElementById("lessonContainer").innerHTML = lessonContent;
+}
+
+// Auto-update every minute
+setInterval(showCurrentLesson, 60000);
+showCurrentLesson();
 
 
   
