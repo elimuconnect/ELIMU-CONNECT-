@@ -286,7 +286,7 @@ loginBtn.onclick = () => {
       status.textContent = `👋 Hi ${user.displayName}`;
 
       // After login → check if phone exists
-      db.ref("users/" + user.uid).once("value").then(snap => {
+      db.ref("students/" + user.uid).once("value").then(snap => {
         if (!snap.exists() || !snap.val().phone) {
           // Show phone number form
          document.getElementById("studentName").textContent =
@@ -456,7 +456,7 @@ function startTutor(){
   if(!user){alert("⚠️ Please login with Google first.");return;}
 
   // Check if user has phone number
-  db.ref("users/" + user.uid).once("value").then(snap => {
+  db.ref("students/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || !snap.val().phone) {
       alert("⚠️ Please enter your phone number before accessing lessons.");
       document.getElementById("phoneForm").style.display = "block";
@@ -640,7 +640,7 @@ function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
   if (!phone) return alert("⚠️ Enter your phone number first.");
 
-  db.ref("users/" + user.uid).set({
+  db.ref("students/" + user.uid).set({
     name: user.displayName,
     email: user.email,
     phone: phone,
