@@ -756,8 +756,9 @@ function getVoice() {
   || voices[0];
 }
 
-function speak(html) {
-  if (!selectedVoice) return; // no voice yet
+/* ---------- SPEAK ---------- */
+function speak(html, onEnd) {
+  if (!selectedVoice) return;
 
   const tmp = document.createElement("div");
   tmp.innerHTML = html;
@@ -765,18 +766,21 @@ function speak(html) {
   // Remove <pre> and <code>
   tmp.querySelectorAll("pre, code").forEach(el => el.remove());
 
-  // Replace <br> and <p> with newlines
-  tmp.querySelectorAll("br, p").forEach(el => {
-    el.replaceWith(document.createTextNode("\n"));
-  });
+  // Replace <br> and <p> with spaces or newlines
+  tmp.querySelectorAll("br, p").forEach(el => el.replaceWith(document.createTextNode(" ")));
 
-  const text = tmp.textContent.trim();
-  if (!text) return;
+  const text = tmp.textContent.replace(/\s+/g, " ").trim();
+  if (!text) {
+    onEnd && onEnd();
+    return;
+  }
 
   speechSynthesis.cancel();
   utter = new SpeechSynthesisUtterance(text);
   utter.voice = selectedVoice;
   utter.rate = 0.8;
+
+  utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
 }
 
@@ -809,35 +813,49 @@ function startTutor() {
       `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
     ];
 
-    // Ensure voices are loaded before starting
-    if (speechSynthesis.getVoices().length) {
+    // Wait for voices to load before starting
+    const startReading = () => {
       selectedVoice = getVoice();
       currentLesson = 0;
-      showLesson();
+      readLesson();
+    };
+
+    if (speechSynthesis.getVoices().length) {
+      startReading();
     } else {
-      speechSynthesis.onvoiceschanged = () => {
-        selectedVoice = getVoice();
-        currentLesson = 0;
-        showLesson();
-      };
+      speechSynthesis.onvoiceschanged = startReading;
     }
   });
 }
 
-/* ---------- SHOW CURRENT LESSON ---------- */
-function showLesson() {
+/* ---------- READ LESSON ---------- */
+function readLesson() {
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
+    status.textContent = "✅ Done";
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
   editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
-  speak(lessonHtml);
+  status.textContent = `📖 Reading Lesson ${currentLesson + 1} of ${todayLessons.length}`;
+
+  // Only increment after speech ends
+  speak(lessonHtml, () => {
+    currentLesson++;
+    setTimeout(readLesson, 300); // short pause before next
+  });
+}
+
+/* ---------- SKIP LESSON ---------- */
+function skipLesson() {
+  speechSynthesis.cancel();
   currentLesson++;
+  readLesson();
 }
 
 
+  
 // Realtime Database reference
 const db = firebase.database();
 
