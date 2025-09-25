@@ -432,6 +432,33 @@ loginBtn.onclick = () => {
       user = res.user;
       status.textContent = `👋 Hi ${user.displayName}`;
 
+
+auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  .then(res => {
+    user = res.user;
+    status.textContent = `👋 Hi ${user.displayName}`;
+
+    // Always update profile (name + email at least)
+    db.ref("students/" + user.uid).update({
+      name: user.displayName,
+      email: user.email
+    });
+
+    // Check phone
+    db.ref("students/" + user.uid).once("value").then(snap => {
+      if (!snap.exists() || !snap.val().phone) {
+        document.getElementById("studentName").textContent =
+          `Welcome ${user.displayName}, please enter your phone number:`;
+        document.getElementById("phoneForm").style.display = "block";
+        document.querySelector(".card").style.display = "none";
+      }
+    });
+  })
+
+
+
+
+      
       // After login → check if phone exists
       db.ref("students/" + user.uid).once("value").then(snap => {
         if (!snap.exists() || !snap.val().phone) {
@@ -440,6 +467,12 @@ loginBtn.onclick = () => {
   `Welcome ${user.displayName}, please enter your phone number:`;
 document.getElementById("phoneForm").style.display = "block";
 
+
+
+
+
+
+          
 // Hide tutor card instead of deleting everything
 document.querySelector(".card").style.display = "none";
 
@@ -2950,12 +2983,23 @@ ratingStars.forEach(star => {
     if (!user) return alert("⚠️ Login first to save rating.");
     const val = parseInt(star.dataset.v);
 
-    // Save/update user's rating
-    await db.ref("ratings/" + user.uid).set({
-      name: user.displayName,
-      rating: val,
-      timestamp: Date.now()
-    });
+   // Save/update inside student profile
+await db.ref("students/" + user.uid).update({
+  name: user.displayName,
+  email: user.email,
+  rating: val,
+  ratingTimestamp: Date.now()
+});
+
+// Also push into ratings/ log for history
+await db.ref("ratings").push({
+  uid: user.uid,
+  name: user.displayName,
+  email: user.email,
+  rating: val,
+  timestamp: Date.now()
+});
+
 
     // Update stars visually for this user
     updateStars(val);
