@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Tutor – Student Lesson Requests</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #1976d2;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      font-size: 0.9em;
+    }
+    th {
+      background: #1976d2;
+      color: white;
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+    .timestamp {
+      font-size: 0.8em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Student Lesson Requests</h1>
+  <table id="requestsTable">
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Phone</th>
+        <th>Request</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody id="requestsBody">
+      <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
+  <script>
+    /* ---------- FIREBASE CONFIG ---------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+      authDomain: "cbc-general.firebaseapp.com",
+      databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+      projectId: "cbc-general",
+      storageBucket: "cbc-general.firebasestorage.app",
+      messagingSenderId: "764732839741",
+      appId: "1:764732839741:web:ab829af54839de91359754"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    /* ------------------------------------- */
+
+    const requestsBody = document.getElementById("requestsBody");
+
+    function loadRequests() {
+      db.ref("students").on("value", snapshot => {
+        requestsBody.innerHTML = "";
+        if (!snapshot.exists()) {
+          requestsBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No requests found.</td></tr>`;
+          return;
+        }
+
+        snapshot.forEach(studentSnap => {
+          const student = studentSnap.val();
+          if (student.requests) {
+            Object.values(student.requests).forEach(req => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                <td>${student.name || "Unknown"}</td>
+                <td>${student.phone || "-"}</td>
+                <td>${req.text}</td>
+                <td class="timestamp">${new Date(req.timestamp).toLocaleString()}</td>
+              `;
+              requestsBody.appendChild(row);
+            });
+          }
+        });
+      });
+    }
+
+    loadRequests();
+  </script>
+</body>
+</html>
