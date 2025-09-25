@@ -2991,14 +2991,6 @@ await db.ref("students/" + user.uid).update({
   ratingTimestamp: Date.now()
 });
 
-// Also push into ratings/ log for history
-await db.ref("ratings").push({
-  uid: user.uid,
-  name: user.displayName,
-  email: user.email,
-  rating: val,
-  timestamp: Date.now()
-});
 
 
     // Update stars visually for this user
