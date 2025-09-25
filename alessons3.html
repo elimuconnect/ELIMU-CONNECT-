@@ -364,31 +364,25 @@ html, body {
 </div>
 
 
-<div class="card">
-  <!-- ⭐ User Rating -->
-  <div id="myRatingContainer">
-    <h3>Rate this Tutor</h3>
-    <div class="rating" id="myRating">
+
+    <div class="rating" id="ratingStars">
+      <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
       <span data-v="1">★</span>
       <span data-v="2">★</span>
       <span data-v="3">★</span>
       <span data-v="4">★</span>
       <span data-v="5">★</span>
     </div>
-    <div id="ratingMessage"></div>
-  </div>
 
-  <!-- ⭐ Average Rating (text only) -->
-  <div id="avgRatingContainer" style="margin-top:15px;">
-    <h3>Average Rating</h3>
-    <p id="avgRating" style="font-size:0.9em; color:#1976d2; margin:5px 0;">–</p>
+    <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
+      Average Rating: <span id="avgRating">–</span> ★
+    </p>
   </div>
 </div>
 
-
-    
 <div id="lessonContainer"></div>
 <div id="status">⏳ Ready…</div>
+
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
