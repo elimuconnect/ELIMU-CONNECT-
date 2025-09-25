@@ -221,39 +221,43 @@ html, body {
   margin-left: 20px;
 }
 
-/* ⭐ General rating styles */
-.rating {
-  margin-top: 20px;
-  font-size: 2em;
-  color: #ccc;            /* Default gray */
-  display: inline-block;
-  cursor: pointer;
-  user-select: none;
-}
 
+.rating {
+  font-size: 2em;
+  color: #ccc; /* default gray */
+  cursor: pointer;
+  display: inline-block;
+  user-select: none;
+  margin-top: 5px;
+}
 .rating span {
   transition: color 0.3s;
 }
-
-/* ⭐ Hover effect for interactive stars */
-.rating span.hover {
-  color: gold;
-}
-
-/* ⭐ Selected stars (student’s rating or average) */
+.rating span.hover,
 .rating span.selected {
-  color: gold;
+  color: gold; /* highlighted */
 }
-
-/* ⭐ Readonly stars (average rating) */
 .rating.readonly {
   cursor: default;
 }
-
 .rating.readonly span:hover {
-  color: #ccc; /* Prevent hover effect on readonly stars */
+  color: #ccc; /* no hover for readonly */
 }
 
+#ratingMessage {
+  margin-top: 6px;
+  color: #388e3c;
+  font-weight: bold;
+  display: none;
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+/* Empty placeholder area styling */
+#ratingPlaceholder {
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
 
 
   .timetable {
@@ -292,9 +296,6 @@ html, body {
 .timetable tr:nth-child(even) {
   background: #f1f6fb;
 }
-
-
-
   
 </style>
 </head>
@@ -383,46 +384,41 @@ html, body {
   </table>
 </div>
 
-<!-- ⭐ Student Rating -->
-<h3>Your Rating</h3>
-<div class="rating" id="myRating">
-  <span data-v="1">⭐</span>
-  <span data-v="2">⭐</span>
-  <span data-v="3">⭐</span>
-  <span data-v="4">⭐</span>
-  <span data-v="5">⭐</span>
-</div>
-<!-- Only one rating message container -->
-<div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
-     opacity:0; transform:translateY(-10px); transition: all 0.5s ease;"></div>
 
-<!-- ⭐ Average Rating -->
-<h3>Average Rating</h3>
-<p id="avgText" style="font-size:0.9em; color:#1976d2; margin:6px 0;">
-  Average Rating: <span id="avgRating">–</span> ★
-</p>
-<div class="rating readonly" id="avgStars">
-  <span data-v="1">⭐</span>
-  <span data-v="2">⭐</span>
-  <span data-v="3">⭐</span>
-  <span data-v="4">⭐</span>
-  <span data-v="5">⭐</span>
-</div>
-  </div>
-    
- <!-- Lesson Request -->
-    <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
-      <h3>✍️ Request area you want to be discussed next week</h3>
-      <textarea id="lessonRequest" placeholder="Type the topic or subject you want Smart Tutor to cover…" 
-        style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;"></textarea>
-      <br><br>
-      <button onclick="saveLessonRequest()" 
-        style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">
-        🚀 Submit Request
-      </button>
-      <p id="requestStatus" style="font-size:0.8em; margin-top:8px; font-weight:bold;"></p>
+
+<div class="card">
+  <!-- ⭐ Student/Tutor Rating -->
+  <div id="myRatingContainer">
+    <h3>Rate this Tutor</h3>
+    <!-- Empty placeholder area -->
+    <div id="ratingPlaceholder" style="height:2.4em; margin-bottom:5px;"></div>
+    <div class="rating" id="myRating">
+      <span data-v="1">★</span>
+      <span data-v="2">★</span>
+      <span data-v="3">★</span>
+      <span data-v="4">★</span>
+      <span data-v="5">★</span>
     </div>
+    <div id="ratingMessage"></div>
+  </div>
 
+  <!-- ⭐ Average Rating -->
+  <div id="avgRatingContainer" style="margin-top:15px;">
+    <h3>Average Rating</h3>
+    <p style="font-size:0.9em; color:#1976d2; margin:5px 0;">
+      Average: <span id="avgRating">–</span> ★
+    </p>
+    <div class="rating readonly" id="avgStars">
+      <span data-v="1">★</span>
+      <span data-v="2">★</span>
+      <span data-v="3">★</span>
+      <span data-v="4">★</span>
+      <span data-v="5">★</span>
+    </div>
+  </div>
+</div>
+
+    
 
 <div id="lessonContainer"></div>
 <div id="status">⏳ Ready…</div>
@@ -2955,14 +2951,14 @@ const avgRatingEl = document.getElementById("avgRating");
 const ratingMessage = document.getElementById("ratingMessage");
 let ratingTimeout;
 
-// ⭐ Update student stars
+// ⭐ Update user stars visually
 function updateMyStars(val) {
   myStars.forEach(s => {
     s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
   });
 }
 
-// ⭐ Update average stars
+// ⭐ Update average stars visually
 function updateAvgStars(val) {
   avgStars.forEach(s => {
     s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
@@ -2980,40 +2976,29 @@ function listenAverageRating() {
     });
 
     const avg = count ? (total / count).toFixed(1) : 0;
-
-    avgRatingEl.textContent = count
-      ? `${avg} (${count} students)`
-      : "No ratings yet";
-
+    avgRatingEl.textContent = count ? `${avg} (${count} students)` : "No ratings yet";
     updateAvgStars(Math.round(avg));
   });
 }
 
-// 💾 Save student rating
+// 💾 Save user rating
 async function saveMyRating(val) {
-  if (!user) return alert("⚠️ Please log in first.");
+  if (!user) return alert("⚠️ Please login first.");
 
-  const studentRef = db.ref("students/" + user.uid);
-  const ratingRef = db.ref("ratings/" + user.uid);
-
-  await studentRef.update({
-    name: user.displayName,
-    email: user.email,
-    rating: val,
-    ratingTimestamp: Date.now()
-  });
-
-  await ratingRef.set({
+  const ratingData = {
     uid: user.uid,
     name: user.displayName,
     email: user.email,
     rating: val,
     timestamp: Date.now()
-  });
+  };
+
+  // Save in both places: individual user + general ratings
+  await db.ref("students/" + user.uid + "/rating").set(val);
+  await db.ref("ratings/" + user.uid).set(ratingData);
 
   updateMyStars(val);
 
-  // Show delayed "thanks" message
   if (ratingTimeout) clearTimeout(ratingTimeout);
   ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
   ratingMessage.style.display = "block";
@@ -3021,22 +3006,17 @@ async function saveMyRating(val) {
 
   ratingTimeout = setTimeout(() => {
     ratingMessage.style.opacity = 0;
-    setTimeout(() => {
-      ratingMessage.style.display = "none";
-    }, 500);
-  }, 3500); // 3.5s visible
+    setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+  }, 3000);
 }
 
-// 🎯 Events for student stars
+// ⭐ Add event listeners to stars
 myStars.forEach(star => {
-  const starValue = parseInt(star.dataset.v);
-
-  star.addEventListener("click", () => saveMyRating(starValue));
-
+  const starVal = parseInt(star.dataset.v);
+  star.addEventListener("click", () => saveMyRating(starVal));
   star.addEventListener("mouseover", () => {
-    myStars.forEach(s => s.classList.toggle("hover", parseInt(s.dataset.v) <= starValue));
+    myStars.forEach(s => s.classList.toggle("hover", parseInt(s.dataset.v) <= starVal));
   });
-
   star.addEventListener("mouseout", async () => {
     myStars.forEach(s => s.classList.remove("hover"));
     if (user) {
@@ -3047,7 +3027,7 @@ myStars.forEach(star => {
   });
 });
 
-// 👤 Load user rating when logged in
+// 👤 Show user rating on login
 firebase.auth().onAuthStateChanged(u => {
   user = u;
   if (user) {
@@ -3057,7 +3037,7 @@ firebase.auth().onAuthStateChanged(u => {
   }
 });
 
-// 🔄 Start listening for average ratings
+// 🔄 Start listening for average
 listenAverageRating();
 
 
