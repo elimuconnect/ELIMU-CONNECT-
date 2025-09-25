@@ -2792,16 +2792,36 @@ function startTutor(){
   });
 }
 
-// --- Features to rotate ---
+// --- Full Features List ---
 const appFeatures = [
-  "🎓 Live Online Tuition (CBC & IGCSE, Class 4–12)",
-  "🤖 Free AI Tutor – 24/7 homework & exam help",
-  "📚 2000+ Videos & 5000+ Quizzes",
-  "📝 30,000+ Past Papers with Answers",
-  "📊 Advanced Math, Chemistry & Physics Tools",
-  "🎮 Fun Learning Games (Math, English, Kiswahili)",
-  "🏆 Weekly Tests & Digital Certificates",
-  "🌍 Career Guidance & Peer Forums"
+  "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
+  "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
+  "🤖 FREE AI-Powered Virtual Tutor – 24/7 homework & exam help",
+  "📲 Connect with nearby tutors for physical or online tuition",
+  "📝 On-Demand Homework Help with AI + human tutors",
+  "💬 Free student chats & forums across Kenya",
+  "📚 Access 2000+ Video Lessons & 5000+ Quizzes",
+  "📖 30,000+ KCPE & KCSE Past Papers with Answers",
+  "📘 200+ Ebooks for Primary & Secondary Students",
+  "🏆 Weekly National Tests & Digital Certificates",
+  "❓ 1000+ Question & Answer Pairs from Past Exams",
+  "🎮 3 Fun Math Games & 3 Kiswahili/English Language Games",
+  "🌍 Career Guidance Tools for Kenyan Teens",
+  "🗓️ AI-Powered Study Timetable Generator",
+  "📝 Digital Notebook, Notes Organizer & Revision Tracker",
+  "🧮 Scientific Calculator + Graph Plotting Tools",
+  "🔢 Math, Chemistry & Physics Formula Tools",
+  "📖 Digital Dictionary & Kiswahili Kamusi",
+  "💡 Similes, Metaphors, Methali & Nahau Reference Tools",
+  "🧍‍♂️ Human, Fish & Plant 3D Anatomy Simulators",
+  "🧪 Interactive Digital Periodic Table",
+  "⚛️ Physics Concepts & Mole Calculators",
+  "🧬 Chemical Equations Balancer + Organic Chemistry Guide",
+  "📐 Math Tools: Area, Volume, Trigonometry, Logarithms",
+  "💰 Financial Math Tools: Tax, Interest, Binomial, Variation",
+  "🗺️ Geography Tools: Latitude/Longitude, Errors & Approximations",
+  "📊 Advanced Statistics & Matrix Solvers",
+  "➗ Calculus: Differentiation & Integration Calculators"
 ];
 
 let featureIndex = 0;
@@ -2820,10 +2840,11 @@ function showLesson() {
 
   const lessonHtml = todayLessons[currentLesson];
 
-  // Pick 2 rotating features
+  // Pick 3 rotating features
   const f1 = appFeatures[featureIndex % appFeatures.length];
   const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
-  featureIndex += 2;
+  const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
+  featureIndex += 3;
 
   editor.innerHTML = `
     <div class="card">
@@ -2834,6 +2855,7 @@ function showLesson() {
         <ul style="margin:5px 0; padding-left:20px;">
           <li>${f1}</li>
           <li>${f2}</li>
+          <li>${f3}</li>
         </ul>
         <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
           <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
