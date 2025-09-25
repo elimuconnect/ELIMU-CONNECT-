@@ -2792,6 +2792,19 @@ function startTutor(){
   });
 }
 
+// --- Features to rotate ---
+const appFeatures = [
+  "🎓 Live Online Tuition (CBC & IGCSE, Class 4–12)",
+  "🤖 Free AI Tutor – 24/7 homework & exam help",
+  "📚 2000+ Videos & 5000+ Quizzes",
+  "📝 30,000+ Past Papers with Answers",
+  "📊 Advanced Math, Chemistry & Physics Tools",
+  "🎮 Fun Learning Games (Math, English, Kiswahili)",
+  "🏆 Weekly Tests & Digital Certificates",
+  "🌍 Career Guidance & Peer Forums"
+];
+
+let featureIndex = 0;
 
 /* ---------- SHOW CURRENT LESSON ---------- */
 function showLesson() {
@@ -2800,38 +2813,40 @@ function showLesson() {
       <div class="card">
         <h2>✅ All lessons for this slot are done!</h2>
         <p>Keep learning with <b>Smart Tutor by Elimu Connect</b>.</p>
-
-        <!-- App Promotion -->
-        <div style="margin:15px 0; padding:12px; background:#f0f8ff; border-radius:10px; text-align:left;">
-          <h3>📲 Unlock More on Elimu Connect App</h3>
-          <ul>
-            <li>🎓 Live Online Tuition (CBC & IGCSE, Class 4–12)</li>
-            <li>🤖 Free AI Tutor – 24/7 homework & exam help</li>
-            <li>📚 2000+ Videos, 5000+ Quizzes & 30,000+ Past Papers</li>
-            <li>📝 Digital Library, Notes & Revision Tracker</li>
-            <li>📊 Advanced Math, Chemistry & Physics Tools</li>
-            <li>🎮 Fun Learning Games (Math, English, Kiswahili)</li>
-            <li>🌍 Career Guidance & Peer Forums</li>
-            <li>🏆 Weekly Tests & Certificates</li>
-          </ul>
-          <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-            <button style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;font-size:16px;">
-              🚀 Install Elimu Connect App
-            </button>
-          </a>
-        </div>
       </div>
     `;
     return;
   }
 
   const lessonHtml = todayLessons[currentLesson];
-  editor.innerHTML = `<div class="card">${lessonHtml}</div>`;
+
+  // Pick 2 rotating features
+  const f1 = appFeatures[featureIndex % appFeatures.length];
+  const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
+  featureIndex += 2;
+
+  editor.innerHTML = `
+    <div class="card">
+      ${lessonHtml}
+      <hr>
+      <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
+        <b>📲 More with Elimu Connect App:</b>
+        <ul style="margin:5px 0; padding-left:20px;">
+          <li>${f1}</li>
+          <li>${f2}</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
+          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+            🚀 Install App
+          </button>
+        </a>
+      </div>
+    </div>
+  `;
+
   speak(lessonHtml);
   currentLesson++;
 }
-
-
 
 
 // Realtime Database reference
