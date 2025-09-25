@@ -223,40 +223,19 @@ html, body {
 
 
 .rating {
+  margin-top: 20px;
   font-size: 2em;
-  color: #ccc; /* default gray */
-  cursor: pointer;
+  color: #ccc;            /* Default gray */
   display: inline-block;
+  cursor: pointer;
   user-select: none;
-  margin-top: 5px;
 }
 .rating span {
   transition: color 0.3s;
 }
 .rating span.hover,
 .rating span.selected {
-  color: gold; /* highlighted */
-}
-.rating.readonly {
-  cursor: default;
-}
-.rating.readonly span:hover {
-  color: #ccc; /* no hover for readonly */
-}
-
-#ratingMessage {
-  margin-top: 6px;
-  color: #388e3c;
-  font-weight: bold;
-  display: none;
-  opacity: 0;
-  transition: all 0.5s ease;
-}
-
-/* Empty placeholder area styling */
-#ratingPlaceholder {
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  color: gold;            /* Highlighted star */
 }
 
 
@@ -296,7 +275,7 @@ html, body {
 .timetable tr:nth-child(even) {
   background: #f1f6fb;
 }
-  
+
 </style>
 </head>
 <body>
@@ -386,39 +365,20 @@ html, body {
 
 
 
-<div class="card">
-  <!-- ⭐ Student/Tutor Rating -->
-  <div id="myRatingContainer">
-    <h3>Rate this Tutor</h3>
-    <!-- Empty placeholder area -->
-    <div id="ratingPlaceholder" style="height:2.4em; margin-bottom:5px;"></div>
-    <div class="rating" id="myRating">
+    <div class="rating" id="ratingStars">
+      <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
       <span data-v="1">★</span>
       <span data-v="2">★</span>
       <span data-v="3">★</span>
       <span data-v="4">★</span>
       <span data-v="5">★</span>
     </div>
-    <div id="ratingMessage"></div>
-  </div>
 
-  <!-- ⭐ Average Rating -->
-  <div id="avgRatingContainer" style="margin-top:15px;">
-    <h3>Average Rating</h3>
-    <p style="font-size:0.9em; color:#1976d2; margin:5px 0;">
-      Average: <span id="avgRating">–</span> ★
+    <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
+      Average Rating: <span id="avgRating">–</span> ★
     </p>
-    <div class="rating readonly" id="avgStars">
-      <span data-v="1">★</span>
-      <span data-v="2">★</span>
-      <span data-v="3">★</span>
-      <span data-v="4">★</span>
-      <span data-v="5">★</span>
-    </div>
   </div>
 </div>
-
-    
 
 <div id="lessonContainer"></div>
 <div id="status">⏳ Ready…</div>
@@ -481,6 +441,7 @@ auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
 
 
 
+
       
       // After login → check if phone exists
       db.ref("students/" + user.uid).once("value").then(snap => {
@@ -490,12 +451,6 @@ auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
   `Welcome ${user.displayName}, please enter your phone number:`;
 document.getElementById("phoneForm").style.display = "block";
 
-
-
-
-
-
-          
 // Hide tutor card instead of deleting everything
 document.querySelector(".card").style.display = "none";
 
@@ -2942,103 +2897,130 @@ function showLesson() {
   speak(lessonHtml);
 }
 
+
+// Realtime Database reference
 const db = firebase.database();
-let user = null;
 
-const myStars = document.querySelectorAll("#myRating span");
-const avgStars = document.querySelectorAll("#avgStars span");
+const ratingStars = document.querySelectorAll(".rating span");
 const avgRatingEl = document.getElementById("avgRating");
-const ratingMessage = document.getElementById("ratingMessage");
+
+// Add a container for the delayed message
 let ratingTimeout;
+let ratingMessage = document.getElementById("ratingMessage");
+if (!ratingMessage) {
+  ratingMessage = document.createElement("div");
+  ratingMessage.id = "ratingMessage";
+  ratingMessage.style.cssText = `
+    display:none; 
+    color:#388e3c; 
+    font-weight:bold; 
+    margin-bottom:10px; 
+    opacity:0; 
+    transform:translateY(-10px); 
+    transition: all 0.5s ease;
+  `;
+  document.querySelector(".card").prepend(ratingMessage);
+}
 
-// ⭐ Update user stars visually
-function updateMyStars(val) {
-  myStars.forEach(s => {
-    s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
+// Function to update stars visually
+function updateStars(val) {
+  ratingStars.forEach(s => {
+    s.classList.toggle("active", s.dataset.v <= val);
   });
 }
 
-// ⭐ Update average stars visually
-function updateAvgStars(val) {
-  avgStars.forEach(s => {
-    s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
-  });
-}
-
-// 🔄 Listen for average rating updates
-function listenAverageRating() {
+// Function to update average rating live
+function updateAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
-      const rating = child.val().rating || 0;
-      total += rating;
+      total += child.val().rating;
       count++;
     });
 
     const avg = count ? (total / count).toFixed(1) : 0;
-    avgRatingEl.textContent = count ? `${avg} (${count} students)` : "No ratings yet";
-    updateAvgStars(Math.round(avg));
+
+    // Update the display with average and number of ratings
+    avgRatingEl.textContent = count 
+      ? `${avg} (${count} students)` 
+      : "No ratings yet";
+
+    // Optional: update stars to reflect average visually
+    ratingStars.forEach(s => {
+      s.classList.toggle("hover", s.dataset.v <= avg);
+    });
   });
 }
 
-// 💾 Save user rating
-async function saveMyRating(val) {
-  if (!user) return alert("⚠️ Please login first.");
+// Call it once to start listening for live updates
+updateAverageRating();
 
-  const ratingData = {
-    uid: user.uid,
-    name: user.displayName,
-    email: user.email,
-    rating: val,
-    timestamp: Date.now()
-  };
+// Attach click events to stars
+ratingStars.forEach(star => {
+  star.addEventListener("click", async () => {
+    if (!user) return alert("⚠️ Login first to save rating.");
+    const val = parseInt(star.dataset.v);
 
-  // Save in both places: individual user + general ratings
-  await db.ref("students/" + user.uid + "/rating").set(val);
-  await db.ref("ratings/" + user.uid).set(ratingData);
 
-  updateMyStars(val);
 
-  if (ratingTimeout) clearTimeout(ratingTimeout);
-  ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
-  ratingMessage.style.display = "block";
-  ratingMessage.style.opacity = 1;
+// Save/update inside student profile
+await db.ref("students/" + user.uid).update({
+  name: user.displayName,
+  email: user.email,
+  rating: val,
+  ratingTimestamp: Date.now()
+});
 
-  ratingTimeout = setTimeout(() => {
-    ratingMessage.style.opacity = 0;
-    setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-  }, 3000);
-}
+    
 
-// ⭐ Add event listeners to stars
-myStars.forEach(star => {
-  const starVal = parseInt(star.dataset.v);
-  star.addEventListener("click", () => saveMyRating(starVal));
-  star.addEventListener("mouseover", () => {
-    myStars.forEach(s => s.classList.toggle("hover", parseInt(s.dataset.v) <= starVal));
+    // Update stars visually for this user
+    updateStars(val);
+
+    // Clear previous timeout if any
+    if (ratingTimeout) clearTimeout(ratingTimeout);
+
+    // Delay message 5 seconds
+    ratingTimeout = setTimeout(() => {
+      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
+      ratingMessage.style.display = "block";
+      setTimeout(() => {
+        ratingMessage.style.opacity = 1;
+        ratingMessage.style.transform = "translateY(0)";
+      }, 10);
+
+      // Fade out after 3s
+      setTimeout(() => {
+        ratingMessage.style.opacity = 0;
+        ratingMessage.style.transform = "translateY(-10px)";
+        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+      }, 3000);
+
+      ratingTimeout = null;
+    }, 5000);
   });
-  star.addEventListener("mouseout", async () => {
-    myStars.forEach(s => s.classList.remove("hover"));
+
+  // Optional: hover effect
+  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
+  star.addEventListener("mouseout", () => {
     if (user) {
-      const snap = await db.ref("ratings/" + user.uid).once("value");
-      const val = snap.exists() ? snap.val().rating : 0;
-      updateMyStars(val);
+      db.ref("ratings/" + user.uid).once("value", snap => {
+        const val = snap.exists() ? snap.val().rating : 0;
+        updateStars(val);
+      });
     }
   });
 });
 
-// 👤 Show user rating on login
-firebase.auth().onAuthStateChanged(u => {
+// When user logs in, show their previous rating
+auth.onAuthStateChanged(u => {
   user = u;
   if (user) {
-    db.ref("ratings/" + user.uid).once("value").then(snap => {
-      if (snap.exists()) updateMyStars(snap.val().rating);
+    db.ref("ratings/" + user.uid).once("value", snap => {
+      if (snap.exists()) updateStars(snap.val().rating);
     });
   }
 });
 
-// 🔄 Start listening for average
-listenAverageRating();
 
 
 function savePhoneNumber() {
@@ -3077,52 +3059,7 @@ function nextLesson(){
 function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
-
-
-
-
-
-
-
-
-
-
-
-
-function saveLessonRequest() {
-  if (!user) {
-    alert("⚠️ Please login first to request a lesson.");
-    return;
-  }
-
-  const requestText = document.getElementById("lessonRequest").value.trim();
-  const statusEl = document.getElementById("requestStatus");
-
-  if (!requestText) {
-    statusEl.textContent = "❌ Please type your lesson request before submitting.";
-    statusEl.style.color = "red";
-    return;
-  }
-
-  // Save request under student node → append new requests
-  const requestsRef = db.ref("students/" + user.uid + "/requests").push();
-
-  requestsRef.set({
-    text: requestText,
-    timestamp: Date.now()
-  }).then(() => {
-    statusEl.textContent = "✅ Your request has been saved!";
-    statusEl.style.color = "green";
-    document.getElementById("lessonRequest").value = "";
-  }).catch(err => {
-    statusEl.textContent = "❌ Error: " + err.message;
-    statusEl.style.color = "red";
-  });
-}
-
-
-
-
+  
 </script>
 </body>
 </html>
