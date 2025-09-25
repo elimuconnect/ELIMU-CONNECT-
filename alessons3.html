@@ -230,9 +230,25 @@ html, body {
   cursor: pointer;
   user-select: none;
 }
+
+
 .rating span {
+  display: inline-block;       /* ensures each star is separate */
+  width: 1.2em;                /* adjust to your star size */
+  text-align: center;           /* center the star inside its box */
   transition: color 0.3s;
+  user-select: none;
 }
+
+  .rating {
+  touch-action: manipulation;  /* prevents mobile from interpreting swipe/zoom */
+}
+
+  .rating span {
+  line-height: 1;  /* prevents vertical area being counted as clickable */
+}
+
+  
 .rating span.hover,
 .rating span.selected {
   color: gold;            /* Highlighted star */
