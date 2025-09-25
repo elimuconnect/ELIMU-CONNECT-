@@ -2845,7 +2845,6 @@ function showLesson() {
   `;
 
   speak(lessonHtml);
-  currentLesson++;
 }
 
 
@@ -2988,11 +2987,7 @@ function savePhoneNumber() {
 }
 
 
-  
-function showLesson(){
-  editor.innerHTML=`<div class="card">${todayLessons[currentLesson]}</div>`;
-  speak(todayLessons[currentLesson]);
-}
+
 
 function prevLesson(){
   if(todayLessons.length && currentLesson>0){
