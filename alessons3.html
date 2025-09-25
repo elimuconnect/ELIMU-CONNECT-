@@ -383,7 +383,7 @@ html, body {
   </table>
 </div>
 
-<!-- ⭐ Student rating -->
+<!-- ⭐ Student Rating -->
 <h3>Your Rating</h3>
 <div class="rating" id="myRating">
   <span data-v="1">⭐</span>
@@ -392,12 +392,14 @@ html, body {
   <span data-v="4">⭐</span>
   <span data-v="5">⭐</span>
 </div>
-<div id="ratingMessage"></div>
+<!-- Only one rating message container -->
+<div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px; 
+     opacity:0; transform:translateY(-10px); transition: all 0.5s ease;"></div>
 
-<!-- ⭐ Average rating -->
+<!-- ⭐ Average Rating -->
 <h3>Average Rating</h3>
 <p id="avgText" style="font-size:0.9em; color:#1976d2; margin:6px 0;">
-  Average Rating: <span id="avgRating">–</span>
+  Average Rating: <span id="avgRating">–</span> ★
 </p>
 <div class="rating readonly" id="avgStars">
   <span data-v="1">⭐</span>
@@ -406,8 +408,6 @@ html, body {
   <span data-v="4">⭐</span>
   <span data-v="5">⭐</span>
 </div>
-
-
 
     
  <!-- Lesson Request -->
