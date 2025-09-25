@@ -2946,27 +2946,26 @@ function showLesson() {
   speak(lessonHtml);
 }
 
-
 const db = firebase.database();
 let user = null;
 
 const myStars = document.querySelectorAll("#myRating span");
 const avgStars = document.querySelectorAll("#avgStars span");
 const avgRatingEl = document.getElementById("avgRating");
-let ratingMessage = document.getElementById("ratingMessage");
+const ratingMessage = document.getElementById("ratingMessage");
 let ratingTimeout;
 
-// ⭐ Update my stars
+// ⭐ Update student stars
 function updateMyStars(val) {
   myStars.forEach(s => {
-    s.classList.toggle("selected", s.dataset.v <= val);
+    s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
   });
 }
 
 // ⭐ Update average stars
 function updateAvgStars(val) {
   avgStars.forEach(s => {
-    s.classList.toggle("selected", s.dataset.v <= val);
+    s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
   });
 }
 
@@ -2975,9 +2974,11 @@ function listenAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
-      total += child.val().rating;
+      const rating = child.val().rating || 0;
+      total += rating;
       count++;
     });
+
     const avg = count ? (total / count).toFixed(1) : 0;
 
     avgRatingEl.textContent = count
@@ -2988,18 +2989,21 @@ function listenAverageRating() {
   });
 }
 
-// 💾 Save my rating
+// 💾 Save student rating
 async function saveMyRating(val) {
   if (!user) return alert("⚠️ Please log in first.");
 
-  await db.ref("students/" + user.uid).update({
+  const studentRef = db.ref("students/" + user.uid);
+  const ratingRef = db.ref("ratings/" + user.uid);
+
+  await studentRef.update({
     name: user.displayName,
     email: user.email,
     rating: val,
     ratingTimestamp: Date.now()
   });
 
-  await db.ref("ratings/" + user.uid).set({
+  await ratingRef.set({
     uid: user.uid,
     name: user.displayName,
     email: user.email,
@@ -3011,23 +3015,28 @@ async function saveMyRating(val) {
 
   // Show delayed "thanks" message
   if (ratingTimeout) clearTimeout(ratingTimeout);
+  ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
+  ratingMessage.style.display = "block";
+  ratingMessage.style.opacity = 1;
+
   ratingTimeout = setTimeout(() => {
-    ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
-    ratingMessage.style.display = "block";
-    ratingMessage.style.opacity = 1;
+    ratingMessage.style.opacity = 0;
     setTimeout(() => {
-      ratingMessage.style.opacity = 0;
-      setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-    }, 3000);
-  }, 5000);
+      ratingMessage.style.display = "none";
+    }, 500);
+  }, 3500); // 3.5s visible
 }
 
-// 🎯 Events for my stars
+// 🎯 Events for student stars
 myStars.forEach(star => {
-  star.addEventListener("click", () => saveMyRating(parseInt(star.dataset.v)));
+  const starValue = parseInt(star.dataset.v);
+
+  star.addEventListener("click", () => saveMyRating(starValue));
+
   star.addEventListener("mouseover", () => {
-    myStars.forEach(s => s.classList.toggle("hover", s.dataset.v <= star.dataset.v));
+    myStars.forEach(s => s.classList.toggle("hover", parseInt(s.dataset.v) <= starValue));
   });
+
   star.addEventListener("mouseout", async () => {
     myStars.forEach(s => s.classList.remove("hover"));
     if (user) {
@@ -3038,19 +3047,20 @@ myStars.forEach(star => {
   });
 });
 
-// 👤 When logged in, load their rating
+// 👤 Load user rating when logged in
 firebase.auth().onAuthStateChanged(u => {
   user = u;
   if (user) {
-    db.ref("ratings/" + user.uid).once("value", snap => {
+    db.ref("ratings/" + user.uid).once("value").then(snap => {
       if (snap.exists()) updateMyStars(snap.val().rating);
     });
   }
 });
 
-// 🔄 Start listening
+// 🔄 Start listening for average ratings
 listenAverageRating();
-  
+
+
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
   if (!phone) {
