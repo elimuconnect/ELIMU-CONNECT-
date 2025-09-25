@@ -276,6 +276,21 @@ html, body {
   background: #f1f6fb;
 }
 
+
+.rating span {
+  cursor: pointer;
+  font-size: 24px;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+.rating span.active {
+  opacity: 1;
+}
+.rating.readonly span {
+  cursor: default;
+}
+
+  
 </style>
 </head>
 <body>
@@ -365,14 +380,29 @@ html, body {
 
 
 
-    <div class="rating" id="ratingStars">
-      <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
-      <span data-v="1">★</span>
-      <span data-v="2">★</span>
-      <span data-v="3">★</span>
-      <span data-v="4">★</span>
-      <span data-v="5">★</span>
-    </div>
+  <div class="card">
+  <!-- Student’s own rating -->
+  <h3>Your Rating</h3>
+  <div class="rating" id="myRating">
+    <span data-v="5">⭐</span>
+    <span data-v="4">⭐</span>
+    <span data-v="3">⭐</span>
+    <span data-v="2">⭐</span>
+    <span data-v="1">⭐</span>
+  </div>
+  <div id="ratingMessage"></div>
+
+  <!-- Average rating (read-only) -->
+  <h3>Average Rating</h3>
+  <div id="avgRating">Loading...</div>
+  <div class="rating readonly" id="avgStars">
+    <span data-v="5">⭐</span>
+    <span data-v="4">⭐</span>
+    <span data-v="3">⭐</span>
+    <span data-v="2">⭐</span>
+    <span data-v="1">⭐</span>
+  </div>
+</div>
 
     <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
       Average Rating: <span id="avgRating">–</span> ★
@@ -2915,129 +2945,108 @@ function showLesson() {
   speak(lessonHtml);
 }
 
-
-// Realtime Database reference
 const db = firebase.database();
+let user = null;
 
-const ratingStars = document.querySelectorAll(".rating span");
+const myStars = document.querySelectorAll("#myRating span");
+const avgStars = document.querySelectorAll("#avgStars span");
 const avgRatingEl = document.getElementById("avgRating");
-
-// Add a container for the delayed message
-let ratingTimeout;
 let ratingMessage = document.getElementById("ratingMessage");
-if (!ratingMessage) {
-  ratingMessage = document.createElement("div");
-  ratingMessage.id = "ratingMessage";
-  ratingMessage.style.cssText = `
-    display:none; 
-    color:#388e3c; 
-    font-weight:bold; 
-    margin-bottom:10px; 
-    opacity:0; 
-    transform:translateY(-10px); 
-    transition: all 0.5s ease;
-  `;
-  document.querySelector(".card").prepend(ratingMessage);
-}
+let ratingTimeout;
 
-// Function to update stars visually
-function updateStars(val) {
-  ratingStars.forEach(s => {
+// ⭐ Update stars for student’s own rating
+function updateMyStars(val) {
+  myStars.forEach(s => {
     s.classList.toggle("active", s.dataset.v <= val);
   });
 }
 
-// Function to update average rating live
-function updateAverageRating() {
+// ⭐ Update stars for average rating (readonly)
+function updateAvgStars(val) {
+  avgStars.forEach(s => {
+    s.classList.toggle("active", s.dataset.v <= val);
+  });
+}
+
+// 🔄 Live average rating
+function listenAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
       total += child.val().rating;
       count++;
     });
-
     const avg = count ? (total / count).toFixed(1) : 0;
 
-    // Update the display with average and number of ratings
     avgRatingEl.textContent = count 
       ? `${avg} (${count} students)` 
       : "No ratings yet";
 
-    // Optional: update stars to reflect average visually
-    ratingStars.forEach(s => {
-      s.classList.toggle("hover", s.dataset.v <= avg);
-    });
+    updateAvgStars(avg);
   });
 }
 
-// Call it once to start listening for live updates
-updateAverageRating();
+// 💾 Save my rating
+async function saveMyRating(val) {
+  if (!user) return alert("⚠️ Please log in first.");
 
-// Attach click events to stars
-ratingStars.forEach(star => {
-  star.addEventListener("click", async () => {
-    if (!user) return alert("⚠️ Login first to save rating.");
-    const val = parseInt(star.dataset.v);
-
-   // Save/update inside student profile
-await db.ref("students/" + user.uid).update({
-  name: user.displayName,
-  email: user.email,
-  rating: val,
-  ratingTimestamp: Date.now()
-});
-
-
-
-    // Update stars visually for this user
-    updateStars(val);
-
-    // Clear previous timeout if any
-    if (ratingTimeout) clearTimeout(ratingTimeout);
-
-    // Delay message 5 seconds
-    ratingTimeout = setTimeout(() => {
-      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
-      ratingMessage.style.display = "block";
-      setTimeout(() => {
-        ratingMessage.style.opacity = 1;
-        ratingMessage.style.transform = "translateY(0)";
-      }, 10);
-
-      // Fade out after 3s
-      setTimeout(() => {
-        ratingMessage.style.opacity = 0;
-        ratingMessage.style.transform = "translateY(-10px)";
-        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-      }, 3000);
-
-      ratingTimeout = null;
-    }, 5000);
+  // Save inside student profile
+  await db.ref("students/" + user.uid).update({
+    name: user.displayName,
+    email: user.email,
+    rating: val,
+    ratingTimestamp: Date.now()
   });
 
-  // Optional: hover effect
-  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
-  star.addEventListener("mouseout", () => {
+  // Log history in ratings/
+  await db.ref("ratings/" + user.uid).set({
+    uid: user.uid,
+    name: user.displayName,
+    email: user.email,
+    rating: val,
+    timestamp: Date.now()
+  });
+
+  updateMyStars(val);
+
+  // Show delayed "thanks" message
+  if (ratingTimeout) clearTimeout(ratingTimeout);
+  ratingTimeout = setTimeout(() => {
+    ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
+    ratingMessage.style.display = "block";
+    ratingMessage.style.opacity = 1;
+    setTimeout(() => {
+      ratingMessage.style.opacity = 0;
+      setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+    }, 3000);
+  }, 5000);
+}
+
+// 🎯 Handle clicks on "My Rating"
+myStars.forEach(star => {
+  star.addEventListener("click", () => saveMyRating(parseInt(star.dataset.v)));
+  star.addEventListener("mouseover", () => updateMyStars(star.dataset.v));
+  star.addEventListener("mouseout", async () => {
     if (user) {
-      db.ref("ratings/" + user.uid).once("value", snap => {
-        const val = snap.exists() ? snap.val().rating : 0;
-        updateStars(val);
-      });
+      const snap = await db.ref("ratings/" + user.uid).once("value");
+      const val = snap.exists() ? snap.val().rating : 0;
+      updateMyStars(val);
     }
   });
 });
 
-// When user logs in, show their previous rating
-auth.onAuthStateChanged(u => {
+// 👤 When user logs in, load their rating
+firebase.auth().onAuthStateChanged(u => {
   user = u;
   if (user) {
     db.ref("ratings/" + user.uid).once("value", snap => {
-      if (snap.exists()) updateStars(snap.val().rating);
+      if (snap.exists()) updateMyStars(snap.val().rating);
     });
   }
 });
 
-
+// 🔄 Start listening for average rating
+listenAverageRating();
 
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
@@ -3121,37 +3130,6 @@ function saveLessonRequest() {
 
 
 
-
-
-async function clearMyRating() {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("⚠️ Please log in first.");
-    return;
-  }
-
-  try {
-    // 1. Clear rating in student profile
-    await db.ref("students/" + user.uid).update({
-      rating: null,
-      ratingTimestamp: null
-    });
-
-    // 2. (Optional) Remove their entries in the ratings log
-    const snap = await db.ref("ratings").orderByChild("uid").equalTo(user.uid).once("value");
-    snap.forEach(child => {
-      db.ref("ratings/" + child.key).remove();
-    });
-
-    alert("✅ Your previous rating has been cleared. You can rate again fresh.");
-  } catch (err) {
-    console.error("Error clearing rating:", err);
-    alert("❌ Failed to clear your rating.");
-  }
-}
-  
-
-  
 </script>
 </body>
 </html>
