@@ -276,18 +276,7 @@ html, body {
   background: #f1f6fb;
 }
 
-.rating span {
-  cursor: pointer;
-  font-size: 24px;
-  opacity: 0.3;
-  transition: opacity 0.2s;
-}
-.rating span.active {
-  opacity: 1;
-}
-.rating.readonly span {
-  cursor: default;
-}
+
 
   
 </style>
@@ -379,29 +368,6 @@ html, body {
 
 
 
-<div class="card">
-  <!-- Student rating -->
-  <h3>Your Rating</h3>
-  <div class="rating" id="myRating">
-    <span data-v="5">⭐</span>
-    <span data-v="4">⭐</span>
-    <span data-v="3">⭐</span>
-    <span data-v="2">⭐</span>
-    <span data-v="1">⭐</span>
-  </div>
-  <div id="ratingMessage"></div>
-
-  <!-- Average rating -->
-  <h3>Average Rating</h3>
-  <div id="avgRating">Loading...</div>
-  <div class="rating readonly" id="avgStars">
-    <span data-v="5">⭐</span>
-    <span data-v="4">⭐</span>
-    <span data-v="3">⭐</span>
-    <span data-v="2">⭐</span>
-    <span data-v="1">⭐</span>
-  </div>
-</div>
     <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
       Average Rating: <span id="avgRating">–</span> ★
     </p>
@@ -2944,28 +2910,31 @@ function showLesson() {
 }
 
 
-/ Realtime Database reference
 const db = firebase.database();
+let user = null;
 
-const myStars   = document.querySelectorAll("#myRating span");
-const avgStars  = document.querySelectorAll("#avgStars span");
+const myStars = document.querySelectorAll("#myRating span");
+const avgStars = document.querySelectorAll("#avgStars span");
 const avgRatingEl = document.getElementById("avgRating");
-
-let ratingTimeout;
 let ratingMessage = document.getElementById("ratingMessage");
+let ratingTimeout;
 
-// ⭐ Update stars for student’s own rating
+// ⭐ Update my stars
 function updateMyStars(val) {
-  myStars.forEach(s => s.classList.toggle("active", s.dataset.v <= val));
+  myStars.forEach(s => {
+    s.classList.toggle("selected", s.dataset.v <= val);
+  });
 }
 
-// ⭐ Update stars for average rating
+// ⭐ Update average stars
 function updateAvgStars(val) {
-  avgStars.forEach(s => s.classList.toggle("active", s.dataset.v <= val));
+  avgStars.forEach(s => {
+    s.classList.toggle("selected", s.dataset.v <= val);
+  });
 }
 
-// 🔄 Function to update average rating live
-function updateAverageRating() {
+// 🔄 Listen for average rating updates
+function listenAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
@@ -2974,60 +2943,66 @@ function updateAverageRating() {
     });
     const avg = count ? (total / count).toFixed(1) : 0;
 
-    avgRatingEl.textContent = count 
-      ? `${avg} (${count} students)` 
+    avgRatingEl.textContent = count
+      ? `${avg} (${count} students)`
       : "No ratings yet";
 
-    updateAvgStars(avg);
+    updateAvgStars(Math.round(avg));
   });
 }
-updateAverageRating();
 
-// 🎯 Handle clicks for student rating
-myStars.forEach(star => {
-  star.addEventListener("click", async () => {
-    if (!user) return alert("⚠️ Login first to save rating.");
-    const val = parseInt(star.dataset.v);
+// 💾 Save my rating
+async function saveMyRating(val) {
+  if (!user) return alert("⚠️ Please log in first.");
 
-    await db.ref("students/" + user.uid).update({
-      name: user.displayName,
-      email: user.email,
-      rating: val,
-      ratingTimestamp: Date.now()
-    });
-    await db.ref("ratings/" + user.uid).set({
-      uid: user.uid,
-      name: user.displayName,
-      email: user.email,
-      rating: val,
-      timestamp: Date.now()
-    });
-
-    updateMyStars(val);
-
-    if (ratingTimeout) clearTimeout(ratingTimeout);
-    ratingTimeout = setTimeout(() => {
-      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
-      ratingMessage.style.display = "block";
-      setTimeout(() => { ratingMessage.style.display = "none"; }, 3000);
-      ratingTimeout = null;
-    }, 5000);
+  await db.ref("students/" + user.uid).update({
+    name: user.displayName,
+    email: user.email,
+    rating: val,
+    ratingTimestamp: Date.now()
   });
 
-  // hover effect
-  star.addEventListener("mouseover", () => updateMyStars(star.dataset.v));
-  star.addEventListener("mouseout", () => {
+  await db.ref("ratings/" + user.uid).set({
+    uid: user.uid,
+    name: user.displayName,
+    email: user.email,
+    rating: val,
+    timestamp: Date.now()
+  });
+
+  updateMyStars(val);
+
+  // Show delayed "thanks" message
+  if (ratingTimeout) clearTimeout(ratingTimeout);
+  ratingTimeout = setTimeout(() => {
+    ratingMessage.textContent = `✅ Thanks! You rated ${val}⭐`;
+    ratingMessage.style.display = "block";
+    ratingMessage.style.opacity = 1;
+    setTimeout(() => {
+      ratingMessage.style.opacity = 0;
+      setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+    }, 3000);
+  }, 5000);
+}
+
+// 🎯 Events for my stars
+myStars.forEach(star => {
+  star.addEventListener("click", () => saveMyRating(parseInt(star.dataset.v)));
+  star.addEventListener("mouseover", () => {
+    myStars.forEach(s => s.classList.toggle("hover", s.dataset.v <= star.dataset.v));
+  });
+  star.addEventListener("mouseout", async () => {
+    myStars.forEach(s => s.classList.remove("hover"));
     if (user) {
-      db.ref("ratings/" + user.uid).once("value", snap => {
-        const val = snap.exists() ? snap.val().rating : 0;
-        updateMyStars(val);
-      });
+      const snap = await db.ref("ratings/" + user.uid).once("value");
+      const val = snap.exists() ? snap.val().rating : 0;
+      updateMyStars(val);
     }
   });
 });
 
-// 👤 When user logs in, load their rating
-auth.onAuthStateChanged(u => {
+// 👤 When logged in, load their rating
+firebase.auth().onAuthStateChanged(u => {
   user = u;
   if (user) {
     db.ref("ratings/" + user.uid).once("value", snap => {
@@ -3035,6 +3010,9 @@ auth.onAuthStateChanged(u => {
     });
   }
 });
+
+// 🔄 Start listening
+listenAverageRating();
   
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
