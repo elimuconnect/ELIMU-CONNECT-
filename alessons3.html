@@ -3063,7 +3063,6 @@ function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused"
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
 
-
 async function clearMyRating() {
   const user = firebase.auth().currentUser;
   if (!user) {
@@ -3072,17 +3071,20 @@ async function clearMyRating() {
   }
 
   try {
-    // 1. Clear rating in student profile
+    // 1️⃣ Clear rating in student's profile
     await db.ref("students/" + user.uid).update({
       rating: null,
       ratingTimestamp: null
     });
 
-    // 2. (Optional) Remove their entries in the ratings log
-    const snap = await db.ref("ratings").orderByChild("uid").equalTo(user.uid).once("value");
-    snap.forEach(child => {
-      db.ref("ratings/" + child.key).remove();
-    });
+    // 2️⃣ Remove user's entry in the ratings log
+    const snap = await db.ref("ratings").child(user.uid).once("value");
+    if (snap.exists()) {
+      await db.ref("ratings/" + user.uid).remove();
+    }
+
+    // 3️⃣ Clear stars visually
+    myStars.forEach(s => s.classList.remove("selected"));
 
     alert("✅ Your previous rating has been cleared. You can rate again fresh.");
   } catch (err) {
@@ -3090,6 +3092,7 @@ async function clearMyRating() {
     alert("❌ Failed to clear your rating.");
   }
 }
+
 
   
 </script>
