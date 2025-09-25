@@ -49,12 +49,13 @@
       <tr>
         <th>Student Name</th>
         <th>Phone</th>
+        <th>Rating</th>
         <th>Request</th>
         <th>Time</th>
       </tr>
     </thead>
     <tbody id="requestsBody">
-      <tr><td colspan="4" style="text-align:center;">Loading...</td></tr>
+      <tr><td colspan="5" style="text-align:center;">Loading...</td></tr>
     </tbody>
   </table>
 
@@ -78,33 +79,73 @@
 
     const requestsBody = document.getElementById("requestsBody");
 
-    function loadRequests() {
-      db.ref("students").on("value", snapshot => {
-        requestsBody.innerHTML = "";
-        if (!snapshot.exists()) {
-          requestsBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No requests found.</td></tr>`;
-          return;
-        }
+   
+// ✅ Firebase already initialized in your code
 
-        snapshot.forEach(studentSnap => {
-          const student = studentSnap.val();
-          if (student.requests) {
-            Object.values(student.requests).forEach(req => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                <td>${student.name || "Unknown"}</td>
-                <td>${student.phone || "-"}</td>
-                <td>${req.text}</td>
-                <td class="timestamp">${new Date(req.timestamp).toLocaleString()}</td>
-              `;
-              requestsBody.appendChild(row);
-            });
-          }
-        });
-      });
-    }
+// Save student info after signup
+function saveStudentProfile(uid, name, email, phone) {
+  firebase.database().ref("students/" + uid).set({
+    name: name,
+    email: email,
+    phone: phone
+  });
+}
 
-    loadRequests();
-  </script>
+// Get current student profile
+function getStudentProfile(uid, callback) {
+  firebase.database().ref("students/" + uid).once("value").then(snapshot => {
+    callback(snapshot.val());
+  });
+}
+
+// Save rating with student details
+function saveRating(stars) {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please sign in first!");
+    return;
+  }
+  getStudentProfile(user.uid, student => {
+    firebase.database().ref("ratings").push({
+      uid: user.uid,
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+      rating: stars,
+      timestamp: new Date().toISOString()
+    }).then(() => {
+      document.getElementById("ratingStatus").innerText = "✅ Thanks for rating!";
+    });
+  });
+}
+
+// Save lesson request with student details
+function saveLessonRequest() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("Please sign in first!");
+    return;
+  }
+  const requestText = document.getElementById("lessonRequest").value.trim();
+  if (!requestText) {
+    alert("Please enter your lesson request.");
+    return;
+  }
+  getStudentProfile(user.uid, student => {
+    firebase.database().ref("lessonRequests").push({
+      uid: user.uid,
+      name: student.name,
+      email: student.email,
+      phone: student.phone,
+      request: requestText,
+      timestamp: new Date().toISOString()
+    }).then(() => {
+      document.getElementById("requestStatus").innerText = "✅ Lesson request submitted!";
+      document.getElementById("lessonRequest").value = "";
+    });
+  });
+}
+</script>
+
 </body>
 </html>
