@@ -363,7 +363,11 @@ html, body {
   </table>
 </div>
 
-
+<!-- Button for students -->
+<button onclick="clearMyRating()" 
+  style="background:#e53935;color:#fff;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">
+  🔄 Reset My Rating
+</button>
 
     <div class="rating" id="ratingStars">
       <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
@@ -3058,6 +3062,35 @@ function nextLesson(){
 function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
 function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
 function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
+
+
+async function clearMyRating() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    alert("⚠️ Please log in first.");
+    return;
+  }
+
+  try {
+    // 1. Clear rating in student profile
+    await db.ref("students/" + user.uid).update({
+      rating: null,
+      ratingTimestamp: null
+    });
+
+    // 2. (Optional) Remove their entries in the ratings log
+    const snap = await db.ref("ratings").orderByChild("uid").equalTo(user.uid).once("value");
+    snap.forEach(child => {
+      db.ref("ratings/" + child.key).remove();
+    });
+
+    alert("✅ Your previous rating has been cleared. You can rate again fresh.");
+  } catch (err) {
+    console.error("Error clearing rating:", err);
+    alert("❌ Failed to clear your rating.");
+  }
+}
+
   
 </script>
 </body>
