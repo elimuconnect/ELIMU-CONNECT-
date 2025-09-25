@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Tutor – Student Lesson Requests</title>
+  <title>Smart Tutor – Student Lesson Requests & Ratings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -43,7 +43,7 @@
   </style>
 </head>
 <body>
-  <h1>📋 Student Lesson Requests</h1>
+  <h1>📋 Student Lesson Requests & Ratings</h1>
   <table id="requestsTable">
     <thead>
       <tr>
@@ -79,73 +79,53 @@
 
     const requestsBody = document.getElementById("requestsBody");
 
-   
-// ✅ Firebase already initialized in your code
+    function loadRequestsAndRatings() {
+      db.ref("students").on("value", snapshot => {
+        requestsBody.innerHTML = "";
+        if (!snapshot.exists()) {
+          requestsBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No data found.</td></tr>`;
+          return;
+        }
 
-// Save student info after signup
-function saveStudentProfile(uid, name, email, phone) {
-  firebase.database().ref("students/" + uid).set({
-    name: name,
-    email: email,
-    phone: phone
-  });
-}
+        snapshot.forEach(studentSnap => {
+          const student = studentSnap.val();
+          const name = student.name || "Unknown";
+          const phone = student.phone || "N/A";
 
-// Get current student profile
-function getStudentProfile(uid, callback) {
-  firebase.database().ref("students/" + uid).once("value").then(snapshot => {
-    callback(snapshot.val());
-  });
-}
+          // Show lesson requests
+          if (student.requests) {
+            Object.values(student.requests).forEach(req => {
+              const row = `
+                <tr>
+                  <td>${name}</td>
+                  <td>${phone}</td>
+                  <td>—</td>
+                  <td>${req.text}</td>
+                  <td class="timestamp">${new Date(req.timestamp).toLocaleString()}</td>
+                </tr>`;
+              requestsBody.innerHTML += row;
+            });
+          }
 
-// Save rating with student details
-function saveRating(stars) {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Please sign in first!");
-    return;
-  }
-  getStudentProfile(user.uid, student => {
-    firebase.database().ref("ratings").push({
-      uid: user.uid,
-      name: student.name,
-      email: student.email,
-      phone: student.phone,
-      rating: stars,
-      timestamp: new Date().toISOString()
-    }).then(() => {
-      document.getElementById("ratingStatus").innerText = "✅ Thanks for rating!";
-    });
-  });
-}
+          // Show ratings
+          if (student.ratings) {
+            Object.values(student.ratings).forEach(r => {
+              const row = `
+                <tr>
+                  <td>${name}</td>
+                  <td>${phone}</td>
+                  <td>${r.value} ⭐</td>
+                  <td>—</td>
+                  <td class="timestamp">${new Date(r.timestamp).toLocaleString()}</td>
+                </tr>`;
+              requestsBody.innerHTML += row;
+            });
+          }
+        });
+      });
+    }
 
-// Save lesson request with student details
-function saveLessonRequest() {
-  const user = firebase.auth().currentUser;
-  if (!user) {
-    alert("Please sign in first!");
-    return;
-  }
-  const requestText = document.getElementById("lessonRequest").value.trim();
-  if (!requestText) {
-    alert("Please enter your lesson request.");
-    return;
-  }
-  getStudentProfile(user.uid, student => {
-    firebase.database().ref("lessonRequests").push({
-      uid: user.uid,
-      name: student.name,
-      email: student.email,
-      phone: student.phone,
-      request: requestText,
-      timestamp: new Date().toISOString()
-    }).then(() => {
-      document.getElementById("requestStatus").innerText = "✅ Lesson request submitted!";
-      document.getElementById("lessonRequest").value = "";
-    });
-  });
-}
-</script>
-
+    loadRequestsAndRatings();
+  </script>
 </body>
 </html>
