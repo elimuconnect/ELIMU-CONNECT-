@@ -2792,14 +2792,41 @@ function startTutor(){
   });
 }
 
+
 /* ---------- SHOW CURRENT LESSON ---------- */
-function showLesson(){
-  if(currentLesson >= todayLessons.length) {
-    editor.innerHTML = "<div class='card'><h2>✅ All lessons for this slot are done!</h2></div>";
+function showLesson() {
+  if (currentLesson >= todayLessons.length) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>✅ All lessons for this slot are done!</h2>
+        <p>Keep learning with <b>Smart Tutor by Elimu Connect</b>.</p>
+
+        <!-- App Promotion -->
+        <div style="margin:15px 0; padding:12px; background:#f0f8ff; border-radius:10px; text-align:left;">
+          <h3>📲 Unlock More on Elimu Connect App</h3>
+          <ul>
+            <li>🎓 Live Online Tuition (CBC & IGCSE, Class 4–12)</li>
+            <li>🤖 Free AI Tutor – 24/7 homework & exam help</li>
+            <li>📚 2000+ Videos, 5000+ Quizzes & 30,000+ Past Papers</li>
+            <li>📝 Digital Library, Notes & Revision Tracker</li>
+            <li>📊 Advanced Math, Chemistry & Physics Tools</li>
+            <li>🎮 Fun Learning Games (Math, English, Kiswahili)</li>
+            <li>🌍 Career Guidance & Peer Forums</li>
+            <li>🏆 Weekly Tests & Certificates</li>
+          </ul>
+          <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
+            <button style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;font-size:16px;">
+              🚀 Install Elimu Connect App
+            </button>
+          </a>
+        </div>
+      </div>
+    `;
     return;
   }
+
   const lessonHtml = todayLessons[currentLesson];
-  editor.innerHTML = `<div class='card'>${lessonHtml}</div>`;
+  editor.innerHTML = `<div class="card">${lessonHtml}</div>`;
   speak(lessonHtml);
   currentLesson++;
 }
