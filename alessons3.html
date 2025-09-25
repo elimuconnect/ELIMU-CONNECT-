@@ -2901,97 +2901,126 @@ function showLesson() {
 
 
 
+// Realtime Database reference
 const db = firebase.database();
-let user = null;
 
-const myStars = document.querySelectorAll("#myRating span");
+const ratingStars = document.querySelectorAll(".rating span");
 const avgRatingEl = document.getElementById("avgRating");
-const ratingMessage = document.getElementById("ratingMessage");
-let ratingTimeout;
 
-// Update user stars visually
-function updateMyStars(val) {
-  myStars.forEach(s => {
-    s.classList.toggle("selected", parseInt(s.dataset.v) <= val);
+// Add a container for the delayed message
+let ratingTimeout;
+let ratingMessage = document.getElementById("ratingMessage");
+if (!ratingMessage) {
+  ratingMessage = document.createElement("div");
+  ratingMessage.id = "ratingMessage";
+  ratingMessage.style.cssText = `
+    display:none; 
+    color:#388e3c; 
+    font-weight:bold; 
+    margin-bottom:10px; 
+    opacity:0; 
+    transform:translateY(-10px); 
+    transition: all 0.5s ease;
+  `;
+  document.querySelector(".card").prepend(ratingMessage);
+}
+
+// Function to update stars visually
+function updateStars(val) {
+  ratingStars.forEach(s => {
+    s.classList.toggle("active", s.dataset.v <= val);
   });
 }
 
-// Listen for average rating updates
-function listenAverageRating() {
+// Function to update average rating live
+function updateAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
-      total += child.val().rating || 0;
+      total += child.val().rating;
       count++;
     });
 
-    const avg = count ? Math.round(total / count) : 0;
+    const avg = count ? (total / count).toFixed(1) : 0;
+
+    // Update the display with average and number of ratings
     avgRatingEl.textContent = count 
-      ? `${avg}★ (${count} students)` 
-      : "–";
+      ? `${avg} (${count} students)` 
+      : "No ratings yet";
+
+    // Optional: update stars to reflect average visually
+    ratingStars.forEach(s => {
+      s.classList.toggle("hover", s.dataset.v <= avg);
+    });
   });
 }
 
-// Save user rating
-async function saveMyRating(val) {
-  if (!user) return alert("⚠️ Login first.");
+// Call it once to start listening for live updates
+updateAverageRating();
 
-  const ratingData = {
-    uid: user.uid,
-    name: user.displayName,
-    email: user.email,
-    rating: val,
-    timestamp: Date.now()
-  };
+// Attach click events to stars
+ratingStars.forEach(star => {
+  star.addEventListener("click", async () => {
+    if (!user) return alert("⚠️ Login first to save rating.");
+    const val = parseInt(star.dataset.v);
+// Save/update user's rating inside student profile
+await db.ref("students/" + user.uid).update({
+  name: user.displayName,
+  email: user.email,
+  rating: val,
+  ratingTimestamp: Date.now()
+});
 
-  // Save rating for admin and user
-  await db.ref("students/" + user.uid + "/rating").set(val);
-  await db.ref("ratings/" + user.uid).set(ratingData);
+    // Update stars visually for this user
+    updateStars(val);
 
-  updateMyStars(val);
+    // Clear previous timeout if any
+    if (ratingTimeout) clearTimeout(ratingTimeout);
 
-  if (ratingTimeout) clearTimeout(ratingTimeout);
-  ratingMessage.textContent = `✅ Thanks! You rated ${val}★`;
-  ratingMessage.style.display = "block";
-  ratingMessage.style.opacity = 1;
+    // Delay message 5 seconds
+    ratingTimeout = setTimeout(() => {
+      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
+      ratingMessage.style.display = "block";
+      setTimeout(() => {
+        ratingMessage.style.opacity = 1;
+        ratingMessage.style.transform = "translateY(0)";
+      }, 10);
 
-  ratingTimeout = setTimeout(() => {
-    ratingMessage.style.opacity = 0;
-    setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-  }, 3000);
-}
+      // Fade out after 3s
+      setTimeout(() => {
+        ratingMessage.style.opacity = 0;
+        ratingMessage.style.transform = "translateY(-10px)";
+        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+      }, 3000);
 
-// Star hover & click events
-myStars.forEach(star => {
-  const starVal = parseInt(star.dataset.v);
-  star.addEventListener("click", () => saveMyRating(starVal));
-  star.addEventListener("mouseover", () => {
-    myStars.forEach(s => s.classList.toggle("hover", parseInt(s.dataset.v) <= starVal));
+      ratingTimeout = null;
+    }, 5000);
   });
-  star.addEventListener("mouseout", async () => {
-    myStars.forEach(s => s.classList.remove("hover"));
+
+  // Optional: hover effect
+  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
+  star.addEventListener("mouseout", () => {
     if (user) {
-      const snap = await db.ref("ratings/" + user.uid).once("value");
-      const val = snap.exists() ? snap.val().rating : 0;
-      updateMyStars(val);
+      db.ref("ratings/" + user.uid).once("value", snap => {
+        const val = snap.exists() ? snap.val().rating : 0;
+        updateStars(val);
+      });
     }
   });
 });
 
-// Show previous rating on login
-firebase.auth().onAuthStateChanged(u => {
+// When user logs in, show their previous rating
+auth.onAuthStateChanged(u => {
   user = u;
   if (user) {
-    db.ref("ratings/" + user.uid).once("value").then(snap => {
-      if (snap.exists()) updateMyStars(snap.val().rating);
+    db.ref("ratings/" + user.uid).once("value", snap => {
+      if (snap.exists()) updateStars(snap.val().rating);
     });
   }
 });
 
-// Start listening for average rating
-listenAverageRating();
 
-  
+
 
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
