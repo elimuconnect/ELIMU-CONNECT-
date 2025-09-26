@@ -171,18 +171,39 @@ html, body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ✅ Mobile adjustments */
-@media (max-width: 600px) {
-  #toolbar {
-    flex-direction: column;
-    gap: 8px;
+ #toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     padding: 10px;
+    justify-content: center;
   }
 
   #toolbar button {
-    width: 100%;
+    padding: 12px;
     font-size: 16px;
-    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    flex: 1 1 auto;
+  }
+
+  #toolbar button:hover {
+    background: #45a049;
+  }
+
+  /* On phones → 2 columns */
+  @media (max-width: 600px) {
+    #toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #toolbar button {
+      width: 100%;
+    }
   }
 
   .card {
@@ -239,7 +260,6 @@ html, body {
   margin-left: 20px;
 }
 
-
 .rating {
   margin-top: 20px;
   font-size: 2em;
@@ -267,9 +287,11 @@ html, body {
 }
 
   
-.rating span.hover,
-.rating span.selected {
-  color: gold;            /* Highlighted star */
+.rating span.active {
+  color: gold;   /* clicked/persisted stars */
+}
+.rating span.hover {
+  color: orange; /* temporary preview */
 }
 
 
@@ -396,6 +418,7 @@ html, body {
     </tbody>
   </table>
 </div>
+
 
    <div class="rating" id="ratingStars">
   <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
@@ -2943,8 +2966,6 @@ function showLesson() {
 }
 
 
-
-
 // Realtime Database reference
 const db = firebase.database();
 
@@ -2969,14 +2990,17 @@ if (!ratingMessage) {
   document.querySelector(".card").prepend(ratingMessage);
 }
 
-// Function to update stars visually
+// --- Visual star update (clicked/persisted) --- //
 function updateStars(val) {
   ratingStars.forEach(s => {
-    s.classList.toggle("active", s.dataset.v <= val);
+    s.classList.remove("active");
+    if (parseInt(s.dataset.v) <= val) {
+      s.classList.add("active");
+    }
   });
 }
 
-// Function to update average rating live
+// --- Function to update average rating live --- //
 function updateAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
@@ -2991,29 +3015,53 @@ function updateAverageRating() {
     avgRatingEl.textContent = count 
       ? `${avg} (${count} students)` 
       : "No ratings yet";
-
-    // Optional: update stars to reflect average visually
-    ratingStars.forEach(s => {
-      s.classList.toggle("hover", s.dataset.v <= avg);
-    });
   });
 }
 
 // Call it once to start listening for live updates
 updateAverageRating();
 
-// Attach click events to stars
+// --- Hover preview only --- //
+ratingStars.forEach(star => {
+  star.addEventListener("mouseover", () => {
+    const val = parseInt(star.dataset.v);
+    ratingStars.forEach(s => {
+      s.classList.toggle("hover", parseInt(s.dataset.v) <= val);
+    });
+  });
+
+  star.addEventListener("mouseout", () => {
+    ratingStars.forEach(s => s.classList.remove("hover"));
+    if (user) {
+      db.ref("students/" + user.uid).once("value", snap => {
+        const val = snap.exists() ? snap.val().rating : 0;
+        updateStars(val);
+      });
+    } else {
+      updateStars(0); // keep gray when not logged in
+    }
+  });
+});
+
+// --- Click events to save rating --- //
 ratingStars.forEach(star => {
   star.addEventListener("click", async () => {
     if (!user) return alert("⚠️ Login first to save rating.");
     const val = parseInt(star.dataset.v);
-// Save/update user's rating inside student profile
-await db.ref("students/" + user.uid).update({
-  name: user.displayName,
-  email: user.email,
-  rating: val,
-  ratingTimestamp: Date.now()
-});
+
+    // Save/update user's rating inside student profile
+    await db.ref("students/" + user.uid).update({
+      name: user.displayName,
+      email: user.email,
+      rating: val,
+      ratingTimestamp: Date.now()
+    });
+
+    // Also save/update inside ratings node for averaging
+    await db.ref("ratings/" + user.uid).set({
+      rating: val,
+      timestamp: Date.now()
+    });
 
     // Update stars visually for this user
     updateStars(val);
@@ -3040,32 +3088,24 @@ await db.ref("students/" + user.uid).update({
       ratingTimeout = null;
     }, 5000);
   });
-
-  // Optional: hover effect
-  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
-  star.addEventListener("mouseout", () => {
-    if (user) {
-      db.ref("ratings/" + user.uid).once("value", snap => {
-        const val = snap.exists() ? snap.val().rating : 0;
-        updateStars(val);
-      });
-    }
-  });
 });
 
-// When user logs in, show their previous rating
+// --- Restore student’s rating after login --- //
 auth.onAuthStateChanged(u => {
   user = u;
   if (user) {
     db.ref("ratings/" + user.uid).once("value", snap => {
       if (snap.exists()) updateStars(snap.val().rating);
+      else updateStars(0);
     });
+  } else {
+    updateStars(0);
   }
 });
 
 
 
-
+  
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
   if (!phone) {
