@@ -260,21 +260,9 @@ html, body {
   margin-left: 20px;
 }
 
-
 .rating {
   margin-top: 20px;
   font-size: 2em;
-  color: #ccc;            /* Default gray */
-  display: inline-block;
-  cursor: pointer;
-  user-select: none;
-}
-
-
-.rating {
-  margin-top: 20px;
-  font-size: 2em;
-  color: #ccc;                /* default gray when not rated */
   display: inline-block;
   user-select: none;
   touch-action: manipulation; /* prevents mobile zoom/swipe issues */
@@ -288,16 +276,16 @@ html, body {
   transition: color 0.3s, transform 0.2s;
   line-height: 1;              /* avoids vertical padding click area */
   user-select: none;
+  color: #ccc;                 /* default gray for every star */
 }
 
 .rating span.active {
-  color: gold;                 /* highlighted (clicked) */
+  color: gold !important;      /* highlighted (clicked) */
 }
 
 .rating span:active {
   transform: scale(1.2);       /* nice "tap" feedback on mobile */
 }
-
 
   .timetable {
   margin-top: 12px;
