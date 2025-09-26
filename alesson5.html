@@ -271,26 +271,31 @@ html, body {
 }
 
 
+.rating {
+  margin-top: 20px;
+  font-size: 2em;
+  color: #ccc;                /* default gray when not rated */
+  display: inline-block;
+  user-select: none;
+  touch-action: manipulation; /* prevents mobile zoom/swipe issues */
+}
+
 .rating span {
   display: inline-block;       /* ensures each star is separate */
-  width: 1.2em;                /* adjust to your star size */
-  text-align: center;           /* center the star inside its box */
-  transition: color 0.3s;
+  width: 1.2em;                /* star box size */
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+  line-height: 1;              /* avoids vertical padding click area */
   user-select: none;
 }
 
-  .rating {
-  touch-action: manipulation;  /* prevents mobile from interpreting swipe/zoom */
+.rating span.active {
+  color: gold;                 /* highlighted (clicked) */
 }
 
-  .rating span {
-  line-height: 1;  /* prevents vertical area being counted as clickable */
-}
-
-  
-.rating span.hover,
-.rating span.selected {
-  color: gold;            /* Highlighted star */
+.rating span:active {
+  transform: scale(1.2);       /* nice "tap" feedback on mobile */
 }
 
 
@@ -418,7 +423,7 @@ html, body {
   </table>
 </div>
 
-   <div class="rating" id="ratingStars">
+ <div class="rating" id="ratingStars">
   <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
   <span data-v="1">★</span>
   <span data-v="2">★</span>
@@ -428,8 +433,9 @@ html, body {
 </div>
 
 <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-  Average Rating: <span id="avgRating">–</span> ★
+  Average Rating: <span id="avgRating">–</span>
 </p>
+
 
 <!-- Lesson Request -->
 <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
@@ -2965,39 +2971,21 @@ function showLesson() {
 
 
 
-
-// Realtime Database reference
+// Firebase DB reference
 const db = firebase.database();
+let user = null;
 
 const ratingStars = document.querySelectorAll(".rating span");
 const avgRatingEl = document.getElementById("avgRating");
 
-// Add a container for the delayed message
-let ratingTimeout;
-let ratingMessage = document.getElementById("ratingMessage");
-if (!ratingMessage) {
-  ratingMessage = document.createElement("div");
-  ratingMessage.id = "ratingMessage";
-  ratingMessage.style.cssText = `
-    display:none; 
-    color:#388e3c; 
-    font-weight:bold; 
-    margin-bottom:10px; 
-    opacity:0; 
-    transform:translateY(-10px); 
-    transition: all 0.5s ease;
-  `;
-  document.querySelector(".card").prepend(ratingMessage);
-}
-
-// Function to update stars visually
+// Update stars visually
 function updateStars(val) {
   ratingStars.forEach(s => {
     s.classList.toggle("active", s.dataset.v <= val);
   });
 }
 
-// Function to update average rating live
+// Update average rating live
 function updateAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
@@ -3008,84 +2996,55 @@ function updateAverageRating() {
 
     const avg = count ? (total / count).toFixed(1) : 0;
 
-    // Update the display with average and number of ratings
-    avgRatingEl.textContent = count 
-      ? `${avg} (${count} students)` 
+    avgRatingEl.textContent = count
+      ? `${avg} (${count} students)`
       : "No ratings yet";
-
-    // Optional: update stars to reflect average visually
-    ratingStars.forEach(s => {
-      s.classList.toggle("hover", s.dataset.v <= avg);
-    });
   });
 }
-
-// Call it once to start listening for live updates
 updateAverageRating();
 
-// Attach click events to stars
+// Click event: rate tutor
 ratingStars.forEach(star => {
   star.addEventListener("click", async () => {
     if (!user) return alert("⚠️ Login first to save rating.");
     const val = parseInt(star.dataset.v);
-// Save/update user's rating inside student profile
-await db.ref("students/" + user.uid).update({
-  name: user.displayName,
-  email: user.email,
-  rating: val,
-  ratingTimestamp: Date.now()
-});
 
-    // Update stars visually for this user
+    // Save/update user's rating in one consistent place
+    await db.ref("ratings/" + user.uid).set({
+      name: user.displayName,
+      email: user.email,
+      rating: val,
+      timestamp: Date.now()
+    });
+
     updateStars(val);
 
-    // Clear previous timeout if any
-    if (ratingTimeout) clearTimeout(ratingTimeout);
+    // Thank you message
+    const ratingMessage = document.getElementById("ratingMessage") || (() => {
+      let div = document.createElement("div");
+      div.id = "ratingMessage";
+      div.style.cssText = `
+        color:#388e3c; font-weight:bold; margin:8px 0; 
+        transition: all 0.5s ease;
+      `;
+      document.querySelector(".card").prepend(div);
+      return div;
+    })();
 
-    // Delay message 5 seconds
-    ratingTimeout = setTimeout(() => {
-      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
-      ratingMessage.style.display = "block";
-      setTimeout(() => {
-        ratingMessage.style.opacity = 1;
-        ratingMessage.style.transform = "translateY(0)";
-      }, 10);
-
-      // Fade out after 3s
-      setTimeout(() => {
-        ratingMessage.style.opacity = 0;
-        ratingMessage.style.transform = "translateY(-10px)";
-        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
-      }, 3000);
-
-      ratingTimeout = null;
-    }, 5000);
-  });
-
-  // Optional: hover effect
-  star.addEventListener("mouseover", () => updateStars(star.dataset.v));
-  star.addEventListener("mouseout", () => {
-    if (user) {
-      db.ref("ratings/" + user.uid).once("value", snap => {
-        const val = snap.exists() ? snap.val().rating : 0;
-        updateStars(val);
-      });
-    }
+    ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
   });
 });
 
-// When user logs in, show their previous rating
+// Restore student’s rating after login
 auth.onAuthStateChanged(u => {
   user = u;
   if (user) {
     db.ref("ratings/" + user.uid).once("value", snap => {
       if (snap.exists()) updateStars(snap.val().rating);
+      else updateStars(0); // no rating yet = colorless
     });
   }
 });
-
-
-
 
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
