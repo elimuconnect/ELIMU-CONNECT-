@@ -414,8 +414,6 @@ function speak(text, onEnd) {
 }
 
 
-
-
 function formatBibleVerse(text) {
   return text.replace(/(\d+):(\d+)/g, (match, sura, aya) => {
     return `${sura} aya ya ${aya}`;
@@ -437,7 +435,7 @@ function showSermon(index) {
     return;
   }
 
-  // card + subscribe juu & chini
+  // card + subscribe juu & chini + button
   const sermonHTML = sermonsArray[index];
   editor.innerHTML = `
     <div class="card">
@@ -449,6 +447,12 @@ function showSermon(index) {
 
       <div style="margin-top:20px; text-align:center;">
         <h2 class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</h2>
+      </div>
+
+      <div style="margin-top:20px; text-align:center;">
+        <button id="nextBtn" style="padding:10px 20px; font-size:16px; border:none; border-radius:5px; background:purple; color:white; cursor:pointer;">
+          ➡️ Mbele
+        </button>
       </div>
     </div>
   `;
@@ -471,13 +475,19 @@ function showSermon(index) {
   const plainText = document.getElementById("sermonContent").textContent;
   const formattedText = formatBibleVerse(plainText);
 
-  // chukua text kwa kusomwa (tumia formattedText sasa)
+  // speak text
   status.textContent = `📖 Kusoma Mahubiri ${index + 1}`;
   speak(formattedText, () => {
-    currentSermon++;
-    setTimeout(() => showSermon(currentSermon), 3000);
+    status.textContent = `✅ Umesoma Mahubiri ${index + 1}. Bonyeza ➡️ Mbele ili kuendelea.`;
+    currentSermon = index + 1; // update sermon pointer
+  });
+
+  // "Mbele" button action
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    showSermon(currentSermon);
   });
 }
+
 
 
 
