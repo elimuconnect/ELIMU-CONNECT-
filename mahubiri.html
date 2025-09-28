@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Preacher – Mahubiri ya Kiswahili</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    /* (keeping your full CSS exactly as before) */
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #fce4ec);
+    }
+    #app { display: flex; flex-direction: column; height: 100%; }
+    #toolbar { padding: 15px; background: #1976d2; color: white; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+    #toolbar button { background: white; color: #1976d2; padding: 12px 20px; border: none; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    #toolbar button:hover { background: #f0f0f0; }
+    #editor { flex: 1; padding: 40px 20px; display: flex; align-items: center; justify-content: center; }
+    .card { max-width: 90vw; width: 100%; margin: 20px auto; padding: 40px; background: white; border-radius: 25px; border: 2px solid #ccc; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); font-size: 1.8em; line-height: 2; font-weight: bold; animation: fadeIn 1s ease; overflow-wrap: break-word; word-break: break-word; color: #1a237e; box-sizing: border-box; transition: all 0.3s ease-in-out; }
+    .card h2 { margin-top: 0; font-size: 2em; font-weight: bold; }
+    #status { padding: 15px; background: #388e3c; color: white; font-weight: bold; text-align: center; font-size: 16px; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+ 
+
+@keyframes zoomIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+@keyframes slideSide {
+  0% { transform: translateX(-100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-30px); }
+  60% { transform: translateY(-15px); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(-360deg); opacity: 0; }
+  100% { transform: rotate(0); opacity: 1; }
+}
+
+.subscribe-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: red;
+  text-align: center;
+}
+
+  </style>
+</head>
+<body>
+
+<div id="app">
+ <div id="toolbar">
+    <button onclick="startPreacher()">▶️ Anza Mahubiri</button>
+    <button onclick="prevSermon()">⬅️ Nyuma</button>
+    <button onclick="nextSermon()">➡️ Mbele</button>
+  </div>
+
+  <div id="editor">
+    <div class="card">
+      <h2>Karibu kwenye Mahubiri ya Kiswahili</h2>
+      <p>Sikiliza neno la Mungu kwa Kiswahili, ukiwa mahali popote, wakati wowote.</p>
+    </div>
+  </div>
+
+  <div id="status">⏳ Tayari kuanza!</div>
+</div>
+
+<script>
+
+
+const sermonsArray = [
+`
+
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/xXnvTx1wlhA?autoplay=1&mute=1&loop=1&playlist=xXnvTx1wlhA"
+  title="Mahubiri 1" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+
+<span style="color: purple; font-size: 1.2em;">
+  <b>Mahubiri 1: YESU KRISTO (ISA), MASIHI NA KANISA LAKE </b>
+</span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO NA WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+Imenichukua miongo mingi kufanya utafiti kuhusu “Mtu” huyu ambaye aliwahi kuishi duniani. 
+Tutajaribu kujibu na kujadili maswali makuu ambayo wanadamu hujiuliza juu Yake na wafuasi Wake (Kanisa).<br><br>
+
+<b>JE, YESU (ISA) NI MUNGU, MWANA WA MUNGU, MTU, AU YOTE KWA PAMOJA?</b><br><br>
+<b>JE, YESU KRISTO WA BIBLIA NI YULE YULE YESU (ISA) WA QURAN?</b><br><br>
+<b>NI KANISA GANI LAKE HALISI?</b><br><br>
+<b>NI SIKU GANI YA IBADA YA KANISA LA KRISTO — IJUMAA, JUMAMOSI, JUMAPILI, AU HAKUNA KATI YA HIZO?</b><br><br>
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/xXnvTx1wlhA?autoplay=1&mute=1&loop=1&playlist=xXnvTx1wlhA"
+  title="Mahubiri 1" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+`,
+
+`
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/s4UjTL6gOvA?autoplay=1&mute=1&loop=1&playlist=s4UjTL6gOvA"
+  title="Mahubiri 2" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+<span style="color: purple; font-size: 1.2em;">
+  <b>Mahubiri 2: YESU (ISA) KATIKA BIBLIA NA QURAN</b>
+</span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO NA WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+Kwa kiwango kikubwa nitategemea <b>Biblia</b> na <b>Quran</b> kama vyanzo vikuu vya majadiliano yangu.  
+Biblia ambayo ilikuwepo kabla ya Quran (Q 10:94, Q 5:46, 48) itakuwa “nguzo kuu” ya maelezo yangu.  
+Vitabu vingine vitakavyotumika ni <b>Hadithi</b> na <b>Katekisimu</b>.<br><br>
+
+… <b>ISA</b> ni jina la Kiarabu la YESU (limetokana na <span style="font-family: serif;">عيسى</span>, likiwa na maana ya “Wokovu wa Mungu”). Kwa hakika Mkristo Mwarabu atamuita Yesu kwa jina la ISA.  
+Ingawa Quran inapendekeza kwamba YESU (ISA) aliye ndani ya Quran (ametajwa zaidi ya mara 25) ni yule yule YESU (ISA) wa Biblia — Injili (INJIL) —  
+tofaouti zilizo ndani yake zinathibitisha kinyume.<br><br>
+
+<span style="color:blue;"><b>Sawa, sasa naangalia tofauti na mfanano kati ya Biblia na Quran kuhusu YESU.</b></span><br><br>
+
+Kumbuka, mfanano katika aya moja ya Quran unaweza kuwa tofauti katika aya nyingine, kama tutakavyoona.<br><br>
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/s4UjTL6gOvA?autoplay=1&mute=1&loop=1&playlist=s4UjTL6gOvA"
+  title="Mahubiri 2" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+`,
+
+`
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/h5i2ieM3hI0?autoplay=1&mute=1&loop=1&playlist=h5i2ieM3hI0"
+  title="Mahubiri 3" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+<span style="color: purple; font-size: 1.2em;">
+  <b>Mahubiri 3: MFANANO KATI YA YESU (ISA) KATIKA BIBLIA NA QURAN</b>
+</span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO NA WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; width:100%;">
+<tr style="background:#f0f0f0; font-weight:bold; text-align:center;">
+<td>YESU (ISA) KATIKA BIBLIA</td>
+<td>ISA (YESU) KATIKA QURAN</td>
+</tr>
+
+<tr>
+<td>Yesu ndiye Muumbaji – Yohana 1:3, Waebrania 1:2</td>
+<td>Isa aliumba ndege – Q 5:110, Q 3:49 (kama vile Allah aliumba – Q 32:7-9)</td>
+</tr>
+
+<tr>
+<td>YESU maana yake ni “Mungu anaokoa”</td>
+<td>Isa kwa Kiarabu (عيسى) maana yake “Wokovu wa Mungu”</td>
+</tr>
+
+<tr>
+<td>Alikuwa mtakatifu/asiyekuwa na dhambi – 1 Petro 2:22, 2 Wakorintho 5:21, Waebrania 4:15, Luka 1:35, 1 Yohana 3:5, Mathayo 27:24, Yohana 19:4, Yohana 8:29, Isaya 53:9</td>
+<td>Alikuwa mtakatifu/asiyekuwa na dhambi – Q 19:19</td>
+</tr>
+
+<tr>
+<td>Alizaliwa kwa bikira – Mathayo 1:23, Luka 1:27, Isaya 7:14</td>
+<td>Alizaliwa kwa bikira – Q 3:42-47</td>
+</tr>
+
+<tr>
+<td>Alikuwa na Roho Mtakatifu – Luka 4:1, Luka 10:21, Luka 4:14, Luka 4:18</td>
+<td>Alikuwa na Roho Mtakatifu – Q 2:253, Q 5:110</td>
+</tr>
+
+<tr>
+<td>Sasa yupo pamoja na Mungu – Marko 16:19, Luka 22:69, Matendo 2:33, Matendo 7:56, Warumi 8:34, Wakolosai 3:1, Waebrania 10:12, Waebrania 12:2, 1 Petro 3:22</td>
+<td>Sasa yupo pamoja na Allah – Q 4:158</td>
+</tr>
+
+<tr>
+<td>Anaitwa Masihi (Kristo) – Mathayo 26:68, Mathayo 27:17,22, Marko 8:29</td>
+<td>Anaitwa Masihi (Kristo) – Q 4:157, Q 3:45, Q 4:171</td>
+</tr>
+</table><br><br>
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/h5i2ieM3hI0?autoplay=1&mute=1&loop=1&playlist=h5i2ieM3hI0"
+  title="Mahubiri 3" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+`,
+
+
+`
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/QDZmRcxub2E?autoplay=1&mute=1&loop=1&playlist=QDZmRcxub2E"
+  title="Mahubiri 4" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+
+
+<span style="color: purple; font-size: 1.2em;">
+  <b>Mahubiri 4: MFANANO (MWENDELEZO)</b>
+</span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO NA WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; width:100%;">
+<tr style="background:#f0f0f0; font-weight:bold; text-align:center;">
+<td>YESU (ISA) KATIKA BIBLIA</td>
+<td>ISA (YESU) KATIKA QURAN</td>
+</tr>
+
+<tr>
+<td>Yesu ndiye KWELI – Yohana 14:6, Yohana 14:17, Yohana 8:32, Yohana 1:17, 1 Yohana 5:20</td>
+<td>Yesu ndiye KWELI – Q 19:34</td>
+</tr>
+
+<tr>
+<td>Yesu ni Neno la Mungu – 1 Yohana 1:1,14, Ufunuo 19:13</td>
+<td>Yesu ni Neno la Allah – Q 3:45, Q 4:171</td>
+</tr>
+
+<tr>
+<td>Mungu ana Mwana (Yesu) – Luka 1:35, Zaburi 2:7, Waebrania 1:5, Mathayo 3:17, Mathayo 17:5, Yohana 5:26</td>
+<td>Allah anaweza kuwa na Mwana – Q 39:4</td>
+</tr>
+
+<tr>
+<td>Yesu (Adam wa pili) anaabudiwa – Waebrania 1:6, 1 Wakorintho 15:45-49, Mathayo 14:33, Mathayo 2:11, Mathayo 28:16-17, Luka 24:51, Yohana 9:37-38, Ufunuo 22:3</td>
+<td>Adam aliabudiwa – Q 2:34, Q 7:11-12 (kama Allah anavyoabudiwa – Q 48:29)</td>
+</tr>
+
+<tr>
+<td>Yesu ndiye NJIA – Yohana 14:6, Yohana 10:9, Waebrania 10:19-20</td>
+<td>Isa ndiye njia ya kumfikilia Mungu – Q 43:61</td>
+</tr>
+
+<tr>
+<td>Yesu alikufa kabla ya kupaa – Zaburi 22:1-3, Zaburi 2:16-18, Isaya 53:1-12, Isaya 53:7, Zaburi 16:10 (ufufuo)</td>
+<td>Isa alikufa kabla ya kupaa – Q 3:54-57, Q 19:33-34, Q 5:117, Q 3:183</td>
+</tr>
+
+<tr>
+<td>Yesu alitenda miujiza mingi – Yohana 2:1-12, Yohana 4:46-54, Yohana 5:1-11, Yohana 6:1-15, Yohana 6:16-21, Yohana 9:1-12, Yohana 11</td>
+<td>Isa alitenda miujiza mingi – Q 5:110, Q 3:49 (manabii wengine hawakufanya miujiza – Q 13:7)</td>
+</tr>
+
+<tr>
+<td>Yesu alikuwa Nabii – Mathayo 13:57, Mathayo 16:14, Mathayo 21:11, Kumbukumbu la Torati 18:15-19, Yohana 7:40, Yohana 4:19, Yohana 9:17, Matendo 3:22, Matendo 7:37</td>
+<td>Isa alikuwa Nabii – Q 4:171, Q 33:7</td>
+</tr>
+</table><br><br>
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/QDZmRcxub2E?autoplay=1&mute=1&loop=1&playlist=QDZmRcxub2E"
+  title="Mahubiri 4" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+`,
+
+`
+<span style="color: purple; font-size: 1.2em;">
+  <b>Mahubiri 5: TOFAUTI KATI YA YESU WA BIBLIA NA ISA WA QURAN</b>
+</span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO NA WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+Katika mahubiri haya, tunachunguza tofauti kubwa kati ya YESU (Biblia) na ISA (Qur’an na Hadith). 
+Ingawa majina yanafanana, maandiko yanaonyesha picha tofauti kabisa. Tofauti hizi ni msingi wa kuelewa ni kwa nini Wakristo na Waislamu wana mtazamo tofauti juu ya YESU/ISA.<br><br>
+
+<b>1. YESU NI MUNGU</b><br>
+Isaya 9:6, Waebrania 1:8-9, Yohana 1:1-2<br>
+➡ Qur’an 4:171; 5:17; 5:116; 5:72 inasema Isa si Mungu.<br><br>
+
+<b>2. YESU NI MWANA WA MUNGU</b><br>
+Mathayo 8:29; 14:33; 16:16<br>
+➡ Qur’an 17:111; 23:91; 6:101 inasema Isa si Mwana wa Mungu.<br><br>
+
+<b>3. YESU ALIKUFA</b><br>
+Mathayo 27:50; Marko 15:37; Yohana 19:30<br>
+➡ Qur’an 4:157-159 inasema Isa hakufa bali alinyanyuliwa.<br><br>
+
+<b>4. YESU ATARUDI KAMA MFALME</b><br>
+Ufunuo 19:11-16; 14:17<br>
+➡ Hadith (Sahih Al-Bukhari 4.658; Sunan Abu-Dawood 4310) inasema Isa atarudi, ataoa, atapata watoto, na kufa.<br><br>
+
+<iframe width="100%" height="400"
+  src="https://www.youtube.com/embed/xXnvTx1wlhA?autoplay=1&mute=1&loop=1&playlist=xXnvTx1wlhA"
+  title="Mahubiri 5" frameborder="0"
+  style="border-radius:10px;"
+  allow="autoplay; encrypted-media; picture-in-picture"
+  allowfullscreen>
+</iframe>
+
+`,
+`
+
+<iframe width="100%" height="400" src="https://www.youtube.com/embed/xXnvTx1wlhA?autoplay=1&mute=1&loop=1&playlist=xXnvTx1wlhA" title="Mahubiri 6" frameborder="0" style="border-radius:10px;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen> </iframe> <span style="color: purple; font-size: 1.2em;"> <b>Mahubiri 6: YESU/ISA — WA PEKEE KATIKA MAJINA, VYEO NA SIFA ZAKE</b> </span><br><br>
+
+<span style="color:green;"><b>KWA WAKRISTO, WAISLAMU NA WANADAMU WOTE</b></span><br><br>
+
+NB/ Majina haya, vyeo na sifa za YESU/ISA katika Qur'an haviwezi kutolewa wala kupewa nabii mwingine yoyote — kati ya manabii takriban 2400 waliotumwa, hizi ni za pekee kwa YESU/ISA.<br><br>
+
+<b>1. ISA (WOKOVU WA MUNGU)</b><br>
+Jina la Kiarabu <i>Isa</i> (عيسى) linahusishwa na maana ya wokovu wa Mungu — ulimtambulisha kama mwokozi kwa watu.<br><br>
+
+<b>2. MSHAHARA ASIYE NA DHAMBI (SINLESS / PURE)</b><br>
+Katika maandiko Qur'an (na pia katika baadhi ya mafundisho ya Kikristo) Yesu anatazamwa kama mtakatifu kwa mfano wa uadilifu wa pekee.<br><br>
+
+<b>3. MUUMBA (ALIYETENDA KITENDO CHA UUMBWA)</b><br>
+Katika Qur'an Isa alifanywa ashughulikie miujiza ya uumbaji kama kutengeneza ndege kwa uumbaji wa Allah — sifa isiyo ya kawaida kwa manabii wengi.<br><br>
+
+<b>4. UZIMA (ALIWAFAUFUA WAFU)</b><br>
+Yesu alifufua wafu na kuwapa uhai — sifa ya kuleta uzima ambayo inamtambulisha kama chanzo cha uzima.<br><br>
+
+<b>5. ALIZALIWA KWA MUUJIZA (NA BIKIRA)</b><br>
+Kuzaliwa kwa bikira ni sifa ya ajabu na ya kipekee kwa Yesu/Isa; tukio hili linatazamiwa katika Biblia na Qur'an kwa mtazamo tofauti lakini kwa uzito mmoja wa kipekee.<br><br>
+
+<b>6. ALIKUWA NA ROHO MTAKATIFU</b><br>
+Roho Mtakatifu ilimwongoza Yesu katika huduma na miujiza yake — sifa inayomufanya kuwa maalum miongoni mwa watumishi wa Mungu.<br><br>
+
+<b>7. YU HAI (SI MFU KAMA MANABII WENGINE)</b><br>
+Qur'an inaonyesha jinsi Isa alivyonyanyuliwa na kuonekana kuwa hai kwa namna tofauti — na mbele ya imani, kuishi kwake kuna umuhimu mkubwa.<br><br>
+
+<b>8. YEYE NI MASIHI (KRISTO) — ALIYETIWA MAFUTA</b><br>
+Anaitwa Masihi (Kristo), cheo na huduma ya kumletea watu ukombozi kwa njia ya kumtumainia Mungu.<br><br>
+
+<b>9. YEYE NI KWELI</b><br>
+Yesu/Isa ana sifa ya ukweli — maneno yake kwa imani nyingi yanachukuliwa kuwa ukweli wa kimaisha na wa kiroho.<br><br>
+
+<b>10. YEYE NI NENO LA MUNGU</b><br>
+Katika mafundisho mbalimbali, Yesu anahusishwa na Neno la Mungu — mwakilishi wa kauli na agizo la Mungu kwa watu.<br><br>
+
+<b>11. YEYE NI ROHO YA MUNGU</b><br>
+Katika baadhi ya matamshi sifa hii inamfanya Yesu kuwa na uhusiano wa karibu wa kiroho na Mungu; ni dalili ya uwepo wa nguvu ya Mungu ndani yake.<br><br>
+
+<b>12. ISHARA YA SIKU YA HUKUMU</b><br>
+Kuja kwake tena kutazamiwa kama dalili ya siku ya mwisho na hukumu ya mwisho kwa wanadamu.<br><br>
+
+<b>13. NJIA YA KWELI</b><br>
+Yesu/Isa anatajwa kuwa njia ya kumfikia Mungu — mwongozo kwa wale wanaotafuta ukweli na uzima wa kiroho.<br><br>
+
+<b>14. ATAUA MPINGA-KRISTO (DAJJAL)</b><br>
+Katika mafundisho ya ufunuo na hadithi za mwisho, Yesu anatajwa kama yule atakayeshinda na kuondoa uongo wa mpinga-Kristo kabla ya mwisho wa nyakati.<br><br>
+
+Kwa muhtasari: hizi sifa na majina ni za kipekee kwa YESU/ISA kulingana na Qur'an na mafundisho mengine, na zinamfanya awe tofauti na manabii wengine wote waliotumwa. Tunapaswa kuzifunua kwa heshima, kwa kujifunza, na kwa kutafuta ukweli kwa unyenyekevu.<br><br>
+
+<iframe width="100%" height="400" src="https://www.youtube.com/embed/xXnvTx1wlhA?autoplay=1&mute=1&loop=1&playlist=xXnvTx1wlhA" title="Mahubiri 6" frameborder="0" style="border-radius:10px; margin-top:10px;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen> </iframe> `,
+];
+
+
+
+let currentSermon = 0;
+let preacherStarted = false;
+let selectedVoice = null;
+
+const editor = document.getElementById("editor");
+const status = document.getElementById("status");
+
+function getVoice() {
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v =>
+    v.lang.toLowerCase().startsWith("sw") && v.name.toLowerCase().includes("female")
+  ) || voices.find(v =>
+    v.lang.toLowerCase().startsWith("sw")
+  ) || voices[0];
+}
+
+speechSynthesis.onvoiceschanged = () => {
+  selectedVoice = getVoice();
+};
+
+function speak(text, onEnd) {
+  speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.voice = selectedVoice;
+  utter.rate = 0.90;
+  utter.onend = () => onEnd && onEnd();
+  speechSynthesis.speak(utter);
+}
+
+
+
+
+function formatBibleVerse(text) {
+  return text.replace(/(\d+):(\d+)/g, (match, sura, aya) => {
+    return `${sura} aya ya ${aya}`;
+  });
+}
+
+function showSermon(index) { 
+  if (index >= sermonsArray.length) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>✅ Mahubiri Yamekamilika</h2>
+        <p>Asante kwa kusikiliza. Mungu akubariki!</p>
+        <div style="margin:20px 0; text-align:center;">
+          <h2 class="subscribe-text">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</h2>
+        </div>
+      </div>
+    `;
+    status.textContent = "✅ Mwisho.";
+    return;
+  }
+
+  // card + subscribe juu & chini
+  const sermonHTML = sermonsArray[index];
+  editor.innerHTML = `
+    <div class="card">
+      <div style="margin-bottom:20px; text-align:center;">
+        <h2 class="subscribe-text top-subscribe">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</h2>
+      </div>
+
+      <div id="sermonContent">${sermonHTML}</div>
+
+      <div style="margin-top:20px; text-align:center;">
+        <h2 class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</h2>
+      </div>
+    </div>
+  `;
+
+  // animation effects list
+  const effects = ["zoomIn", "slideSide", "bounce", "fadeIn", "rotate"];
+  let i = 0;
+
+  const animateTexts = () => {
+    document.querySelectorAll(".subscribe-text").forEach(el => {
+      el.style.animation = `${effects[i]} 1.5s ease forwards`;
+    });
+    i = (i + 1) % effects.length;
+  };
+
+  animateTexts(); 
+  setInterval(animateTexts, 2000);
+
+  // plain text -> format Bible verses
+  const plainText = document.getElementById("sermonContent").textContent;
+  const formattedText = formatBibleVerse(plainText);
+
+  // chukua text kwa kusomwa (tumia formattedText sasa)
+  status.textContent = `📖 Kusoma Mahubiri ${index + 1}`;
+  speak(formattedText, () => {
+    currentSermon++;
+    setTimeout(() => showSermon(currentSermon), 3000);
+  });
+}
+
+
+
+function startPreacher() {
+  if (preacherStarted) return;
+  preacherStarted = true;
+
+  speechSynthesis.onvoiceschanged = () => {
+    selectedVoice = getVoice();
+  };
+
+  const voiceCheck = setInterval(() => {
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      clearInterval(voiceCheck);
+      selectedVoice = getVoice();
+      showSermon(currentSermon);
+    }
+  }, 200);
+
+  status.textContent = "🟢 Inapakia sauti na kuanza...";
+}
+
+function nextSermon() {
+  if (currentSermon < sermonsArray.length - 1) {
+    currentSermon++;
+    showSermon(currentSermon);
+  }
+}
+
+function prevSermon() {
+  if (currentSermon > 0) {
+    currentSermon--;
+    showSermon(currentSermon);
+  }
+}
+</script>
+</body>
+</html>
