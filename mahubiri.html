@@ -5,6 +5,8 @@
   <title>Smart Preacher – Mahubiri ya Kiswahili</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+ 
+    /* (keeping your full CSS exactly as before) */
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
@@ -14,64 +16,54 @@
       background: linear-gradient(to right, #e0f7fa, #fce4ec);
     }
     #app { display: flex; flex-direction: column; height: 100%; }
-    #toolbar { 
-      padding: 15px; 
-      background: #1976d2; 
-      color: white; 
-      display: flex; 
-      justify-content: center; 
-      flex-wrap: wrap; 
-      gap: 12px; 
-    }
-    #toolbar button { 
-      background: white; 
-      color: #1976d2; 
-      padding: 8px 14px;   /* slightly smaller padding */
-      border: none; 
-      border-radius: 20px; 
-      font-size: 12px;     /* reduced from 18px */
-      font-weight: bold; 
-      cursor: pointer; 
-      transition: all 0.3s ease; 
-    }
+    #toolbar { padding: 15px; background: #1976d2; color: white; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+    #toolbar button { background: white; color: #1976d2; padding: 12px 20px; border: none; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
     #toolbar button:hover { background: #f0f0f0; }
-    #editor { 
-      flex: 1; 
-      padding: 20px 10px;  /* reduced padding */
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-    }
+    #editor { flex: 1; padding: 40px 20px; display: flex; align-items: center; justify-content: center; }
     .card { 
       max-width: 90vw; 
       width: 100%; 
-      margin: 10px auto; 
-      padding: 20px; 
+      margin: 20px auto; 
+      padding: 40px; 
       background: white; 
-      border-radius: 20px; 
+      border-radius: 25px; 
       border: 2px solid #ccc; 
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
-      font-size: 0.45em;   /* halved again */
-      line-height: 1.3; 
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
+      font-size: 0.9em;   /* reduced by half */
+      line-height: 1.4;   /* adjusted for readability */
       font-weight: bold; 
       animation: fadeIn 1s ease; 
       overflow-wrap: break-word; 
       word-break: break-word; 
       color: #1a237e; 
+      box-sizing: border-box; 
       transition: all 0.3s ease-in-out; 
     }
     .card h2 { 
       margin-top: 0; 
-      font-size: 0.6em;   /* halved again */
+      font-size: 1.2em;   /* reduced heading size */
       font-weight: bold; 
     }
     #status { 
-      padding: 10px; 
+      padding: 15px; 
       background: #388e3c; 
       color: white; 
       font-weight: bold; 
       text-align: center; 
-      font-size: 12px;    /* reduced from 16px */
+      font-size: 16px; 
+    }
+
+
+
+.subscribe-text {
+  font-size: 0.9em;  /* slightly bigger than sermon text */
+  font-weight: bold;
+  color: purple;
+}
+
+    
+
+ /* reduced from 16px */
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
  
