@@ -684,6 +684,8 @@ auth.onAuthStateChanged(u => {
 });
 
 /* ---------- CHECK PHONE ---------- */
+
+/* ---------- CHECK PHONE ---------- */
 function checkPhone(u) {
   if (!u) return;
 
@@ -697,12 +699,12 @@ function checkPhone(u) {
       if (studentNameEl) {
         studentNameEl.textContent = `Welcome ${u.displayName || "Student"}, please enter your phone number:`;
       }
-      if (pf) pf.style.display = "block";
-      if (card) card.style.display = "none";
+      pf.style.display = "block";
+      card.style.display = "none";
     } else {
-      // If phone already exists, hide form and show lessons card
-      if (pf) pf.style.display = "none";
-      if (card) card.style.display = "block";
+      // If phone exists, show main lessons
+      pf.style.display = "none";
+      card.style.display = "block";
     }
   });
 }
