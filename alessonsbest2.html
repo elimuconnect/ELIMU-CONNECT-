@@ -692,25 +692,27 @@ auth.onAuthStateChanged(u => {
 /* ---------- CHECK PHONE ---------- */
 function checkPhone(u) {
   if (!u) return;
+
   db.ref("students/" + u.uid).once("value").then(snap => {
+    const pf = document.getElementById("phoneForm");
+    const studentNameEl = document.getElementById("studentName");
+    const card = document.querySelector(".card");
+
     if (!snap.exists() || !snap.val().phone) {
-      const studentNameEl = document.getElementById("studentName");
-      if (studentNameEl) studentNameEl.textContent = `Welcome ${u.displayName}, please enter your phone number:`;
-      const pf = document.getElementById("phoneForm");
+      // If no phone, show phone form
+      if (studentNameEl) {
+        studentNameEl.textContent = `Welcome ${u.displayName || "Student"}, please enter your phone number:`;
+      }
       if (pf) pf.style.display = "block";
-      const card = document.querySelector(".card");
       if (card) card.style.display = "none";
-
-} else {
-   const pf = document.getElementById("phoneForm");
-   if (pf) pf.style.display = "none";
-   const card = document.querySelector(".card");
-   if (card) card.style.display = "block";
-}
-
-      
+    } else {
+      // If phone already exists, hide form and show lessons card
+      if (pf) pf.style.display = "none";
+      if (card) card.style.display = "block";
+    }
   });
 }
+
 
 /* ---------- START TUTOR ---------- */
 function startTutor(){
