@@ -785,7 +785,6 @@ let featureIndex = 0;
 
 /* ---------- SHOW CURRENT LESSON ---------- */
 function showLesson() {
-  if (!editor) return;
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = `
       <div class="card">
@@ -827,10 +826,14 @@ function showLesson() {
   speak(lessonHtml);
 }
 
-/* ---------- RATING UI & DB ---------- */
-const ratingStars = document.querySelectorAll(".rating span");
 
-// Add ratingMessage container if missing
+// Realtime Database reference
+const db = firebase.database();
+
+const ratingStars = document.querySelectorAll(".rating span");
+const avgRatingEl = document.getElementById("avgRating");
+
+// Add a container for the delayed message
 let ratingTimeout;
 let ratingMessage = document.getElementById("ratingMessage");
 if (!ratingMessage) {
@@ -845,10 +848,10 @@ if (!ratingMessage) {
     transform:translateY(-10px); 
     transition: all 0.5s ease;
   `;
-  const firstCard = document.querySelector(".card");
-  if (firstCard) firstCard.prepend(ratingMessage);
+  document.querySelector(".card").prepend(ratingMessage);
 }
 
+// --- Visual star update (clicked/persisted) --- //
 function updateStars(val) {
   ratingStars.forEach(s => {
     s.classList.remove("active");
@@ -858,27 +861,28 @@ function updateStars(val) {
   });
 }
 
+// --- Function to update average rating live --- //
 function updateAverageRating() {
   db.ref("ratings").on("value", snapshot => {
     let total = 0, count = 0;
     snapshot.forEach(child => {
-      const r = child.val() && child.val().rating ? Number(child.val().rating) : 0;
-      total += r;
+      total += child.val().rating;
       count++;
     });
 
     const avg = count ? (total / count).toFixed(1) : 0;
 
-    if (avgRatingEl) {
-      avgRatingEl.textContent = count 
-        ? `${avg} (${count} students)` 
-        : "No ratings yet";
-    }
+    // Update the display with average and number of ratings
+    avgRatingEl.textContent = count 
+      ? `${avg} (${count} students)` 
+      : "No ratings yet";
   });
 }
+
+// Call it once to start listening for live updates
 updateAverageRating();
 
-// hover + click handlers
+// --- Hover preview only --- //
 ratingStars.forEach(star => {
   star.addEventListener("mouseover", () => {
     const val = parseInt(star.dataset.v);
@@ -890,20 +894,23 @@ ratingStars.forEach(star => {
   star.addEventListener("mouseout", () => {
     ratingStars.forEach(s => s.classList.remove("hover"));
     if (user) {
-      db.ref("students/" + user.uid).once("value").then(snap => {
-        const val = snap.exists() ? (snap.val().rating || 0) : 0;
+      db.ref("students/" + user.uid).once("value", snap => {
+        const val = snap.exists() ? snap.val().rating : 0;
         updateStars(val);
       });
     } else {
-      updateStars(0);
+      updateStars(0); // keep gray when not logged in
     }
   });
+});
 
+// --- Click events to save rating --- //
+ratingStars.forEach(star => {
   star.addEventListener("click", async () => {
     if (!user) return alert("⚠️ Login first to save rating.");
     const val = parseInt(star.dataset.v);
 
-    // Save/update student's rating
+    // Save/update user's rating inside student profile
     await db.ref("students/" + user.uid).update({
       name: user.displayName,
       email: user.email,
@@ -911,16 +918,19 @@ ratingStars.forEach(star => {
       ratingTimestamp: Date.now()
     });
 
-    // Save in ratings node
+    // Also save/update inside ratings node for averaging
     await db.ref("ratings/" + user.uid).set({
       rating: val,
       timestamp: Date.now()
     });
 
+    // Update stars visually for this user
     updateStars(val);
 
+    // Clear previous timeout if any
     if (ratingTimeout) clearTimeout(ratingTimeout);
 
+    // Delay message 5 seconds
     ratingTimeout = setTimeout(() => {
       ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
       ratingMessage.style.display = "block";
@@ -929,6 +939,7 @@ ratingStars.forEach(star => {
         ratingMessage.style.transform = "translateY(0)";
       }, 10);
 
+      // Fade out after 3s
       setTimeout(() => {
         ratingMessage.style.opacity = 0;
         ratingMessage.style.transform = "translateY(-10px)";
@@ -940,17 +951,26 @@ ratingStars.forEach(star => {
   });
 });
 
-/* ---------- PHONE SAVE (also used elsewhere) ---------- */
+// --- Restore student’s rating after login --- //
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (user) {
+    db.ref("ratings/" + user.uid).once("value", snap => {
+      if (snap.exists()) updateStars(snap.val().rating);
+      else updateStars(0);
+    });
+  } else {
+    updateStars(0);
+  }
+});
+
+
+
+  
 function savePhoneNumber() {
-  const phoneEl = document.getElementById("phoneInput");
-  const phone = phoneEl ? phoneEl.value.trim() : "";
+  const phone = document.getElementById("phoneInput").value.trim();
   if (!phone) {
     alert("⚠️ Please enter your phone number.");
-    return;
-  }
-
-  if (!user) {
-    alert("⚠️ Please login first.");
     return;
   }
 
@@ -959,15 +979,15 @@ function savePhoneNumber() {
     timestamp: Date.now()
   }).then(() => {
     alert("✅ Phone number saved! Lessons unlocked.");
-    const pf = document.getElementById("phoneForm");
-    if (pf) pf.style.display = "none";
-    const card = document.querySelector(".card");
-    if (card) card.style.display = "block";
-    if (editor) editor.scrollIntoView({behavior: "smooth"});
+    document.getElementById("phoneForm").style.display = "none";
+    document.querySelector(".card").style.display = "block";
+    editor.scrollIntoView({behavior: "smooth"});
   });
 }
 
-/* ---------- NAV CONTROLS ---------- */
+
+
+
 function prevLesson(){
   if(todayLessons.length && currentLesson>0){
     currentLesson--;
@@ -980,92 +1000,45 @@ function nextLesson(){
     showLesson();
   }
 }
-function pauseTutor(){ speechSynthesis.pause(); if(status) status.textContent="⏸️ Paused"; }
-function resumeTutor(){ speechSynthesis.resume(); if(status) status.textContent="▶️ Resumed"; }
-function contactWhatsApp(){ window.open("https://wa.me/254769255782","_blank"); }
+function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
+function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
+function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
 
-/* ---------- LESSON REQUEST ---------- */
+
+
 function saveLessonRequest() {
   if (!user) {
     alert("⚠️ Please login first to request a lesson.");
     return;
   }
 
-  const requestText = (document.getElementById("lessonRequest") || {value:""}).value.trim();
+  const requestText = document.getElementById("lessonRequest").value.trim();
   const statusEl = document.getElementById("requestStatus");
 
   if (!requestText) {
-    if (statusEl) {
-      statusEl.textContent = "❌ Please type your lesson request before submitting.";
-      statusEl.style.color = "red";
-    }
+    statusEl.textContent = "❌ Please type your lesson request before submitting.";
+    statusEl.style.color = "red";
     return;
   }
 
+  // Save request under student node → append new requests
   const requestsRef = db.ref("students/" + user.uid + "/requests").push();
 
   requestsRef.set({
     text: requestText,
     timestamp: Date.now()
   }).then(() => {
-    if (statusEl) {
-      statusEl.textContent = "✅ Your request has been saved!";
-      statusEl.style.color = "green";
-    }
-    const lr = document.getElementById("lessonRequest");
-    if (lr) lr.value = "";
+    statusEl.textContent = "✅ Your request has been saved!";
+    statusEl.style.color = "green";
+    document.getElementById("lessonRequest").value = "";
   }).catch(err => {
-    if (statusEl) {
-      statusEl.textContent = "❌ Error: " + err.message;
-      statusEl.style.color = "red";
-    }
+    statusEl.textContent = "❌ Error: " + err.message;
+    statusEl.style.color = "red";
   });
 }
-
-/* ---------- CURRICULUM ---------- */
-function chooseCurriculum(curr) {
-  const cs = document.getElementById("curriculumSelect");
-  const mt = document.getElementById("mainTutor");
-  const sel = document.getElementById("selectedCurriculum");
-  if (cs) cs.style.display = "none";
-  if (mt) mt.style.display = "block";
-  if (sel) sel.innerText = "✅ Curriculum Selected: " + curr;
-}
-
-/* ---------- VOICE ALERT: 2 minutes before lesson ---------- */
-function checkLessons() {
-  const now = new Date();
-  // compute Kenya time
-  const kenyaNow = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
-  const day = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][kenyaNow.getDay()];
-  const lessons = timetable[day] || [];
-  
-  lessons.forEach(lesson => {
-    const [sH, sM] = lesson.start.split(":").map(Number);
-    // alert time = lesson start minus 2 minutes
-    const alertTime = new Date(kenyaNow);
-    alertTime.setHours(sH, sM - 2, 0, 0);
-
-    // allow 60s window to prevent repeated alerts
-    if (kenyaNow >= alertTime && kenyaNow <= new Date(alertTime.getTime() + 60000)) {
-      // ensure selectedVoice is ready
-      if (!selectedVoice) {
-        const waitVoices = setInterval(()=>{
-          if (speechSynthesis.getVoices().length) {
-            clearInterval(waitVoices);
-            selectedVoice = getVoice();
-            speak(`Reminder: ${lesson.subject} class starts in 2 minutes.`);
-          }
-        }, 100);
-      } else {
-        speak(`Reminder: ${lesson.subject} class starts in 2 minutes.`);
-      }
-    }
-  });
-}
-setInterval(checkLessons, 60000); // check every minute
-
+    
 </script>
+
 
 </body>
 </html>
