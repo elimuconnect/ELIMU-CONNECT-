@@ -386,35 +386,18 @@ html, body {
 
 
         <!-- ✅ Maths Timetable Only -->
-        <div class="timetable">
-          <h3>📅 Weekly Timetable (Kenya time)</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Day</th>
-                <th>Subject</th>
-                <th>Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Mon – Fri</td>
-                <td>Math</td>
-                <td>5:30 PM – 7:00 PM</td>
-              </tr>
-              <tr>
-                <td>Saturday</td>
-                <td>Math</td>
-                <td>8:00 AM – 10:00 AM</td>
-              </tr>
-              <tr>
-                <td>Sunday</td>
-                <td colspan="2">No lessons scheduled</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
 
+
+<div class="timetable">
+  <table>
+    <tbody>
+      <!-- Dynamic timetable rows will be injected by renderTimetable() -->
+    </tbody>
+  </table>
+</div>
+
+
+        
         <!-- Rating -->
         <div class="rating" id="ratingStars">
           <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
@@ -702,12 +685,14 @@ function checkPhone(u) {
       if (pf) pf.style.display = "block";
       const card = document.querySelector(".card");
       if (card) card.style.display = "none";
-    } else {
-      const pf = document.getElementById("phoneForm");
-      if (pf) pf.style.display = "none";
-      const card = document.querySelector(".card");
-      if (card) card.style.display = "block";
-    }
+  } else {
+   const pf = document.getElementById("phoneForm");
+   if (pf) pf.style.display = "none";
+
+   const card = document.querySelector(".card");
+   if (card) card.style.display = "block";
+}
+
   });
 }
 
