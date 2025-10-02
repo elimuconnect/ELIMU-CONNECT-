@@ -483,77 +483,71 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
-/* ---------- LESSONS (placeholder — replace with your full lessonsArray) ---------- */
 const lessonsArray = {
   CBC: {
     Mon: { Math: [
-      `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
-      `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
+      `<h2>CBC Lesson 1 — Number Operations</h2><p>Add, subtract, multiply & divide integers.</p>`,
+      `<h2>CBC Lesson 2 — Fractions</h2><p>Equivalent fractions, addition & subtraction.</p>`
     ]},
     Tue: { Math: [
-      `<h2>CBC Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
+      `<h2>CBC Lesson 3 — Decimals</h2><p>Place value, rounding, operations.</p>`
     ]},
     Wed: { Math: [
-      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Content: Direct & inverse proportion basics.</p>`
+      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Direct & inverse proportion basics.</p>`
     ]},
     Thu: { Math: [
-      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Content: Expressions, simple equations.</p>`
+      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Expressions, simple equations.</p>`
     ]},
     Fri: { Math: [
-      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Content: Angles, triangles and perimeter.</p>`
+      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Angles, triangles and perimeter.</p>`
     ]},
     Sat: { Math: [
-      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Content: Mixed exercises and quick tests.</p>`
+      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Mixed exercises and quick tests.</p>`
     ]}
   },
-
   British: {
     Mon: { Math: [
-      `<h2>British Lesson 1 — Number Operations</h2><p>Content: Four operations with integers.</p>`
+      `<h2>British Lesson 1 — Number Operations</h2><p>Four operations with integers.</p>`
     ]},
     Tue: { Math: [
-      `<h2>British Lesson 2 — Fractions</h2><p>Content: Simplifying, comparing, and converting fractions.</p>`
+      `<h2>British Lesson 2 — Fractions</h2><p>Simplifying & converting fractions.</p>`
     ]},
     Wed: { Math: [
-      `<h2>British Lesson 3 — Decimals</h2><p>Content: Ordering, rounding, and decimal operations.</p>`
+      `<h2>British Lesson 3 — Decimals</h2><p>Ordering, rounding, operations.</p>`
     ]},
     Thu: { Math: [
-      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Content: Solving ratio problems and scale drawings.</p>`
+      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Solving ratio problems.</p>`
     ]},
     Fri: { Math: [
-      `<h2>British Lesson 5 — Algebra Basics</h2><p>Content: Substitution, equations, and simple formulae.</p>`
+      `<h2>British Lesson 5 — Algebra</h2><p>Substitution, equations, formulae.</p>`
     ]},
     Sat: { Math: [
-      `<h2>British Lesson 6 — Geometry</h2><p>Content: Properties of shapes, perimeter, and area.</p>`
+      `<h2>British Lesson 6 — Geometry</h2><p>Properties of shapes, perimeter, area.</p>`
     ]}
   },
-
   CBSE: {
     Mon: { Math: [
-      `<h2>Math-Only Lesson 1 — Integers</h2><p>Content: Positive & negative numbers practice.</p>`
+      `<h2>CBSE Lesson 1 — Integers</h2><p>Positive & negative numbers.</p>`
     ]},
     Tue: { Math: [
-      `<h2>Math-Only Lesson 2 — Fractions</h2><p>Content: Simplifying, adding, subtracting fractions.</p>`
+      `<h2>CBSE Lesson 2 — Fractions</h2><p>Simplifying, adding, subtracting fractions.</p>`
     ]},
     Wed: { Math: [
-      `<h2>Math-Only Lesson 3 — Decimals</h2><p>Content: Decimal place value and multiplication.</p>`
+      `<h2>CBSE Lesson 3 — Decimals</h2><p>Decimal place value, multiplication.</p>`
     ]},
     Thu: { Math: [
-      `<h2>Math-Only Lesson 4 — Ratio</h2><p>Content: Solving ratio and sharing problems.</p>`
+      `<h2>CBSE Lesson 4 — Ratio</h2><p>Solving ratio problems.</p>`
     ]},
     Fri: { Math: [
-      `<h2>Math-Only Lesson 5 — Algebra</h2><p>Content: Expanding brackets, simple equations.</p>`
+      `<h2>CBSE Lesson 5 — Algebra</h2><p>Expanding brackets, equations.</p>`
     ]},
     Sat: { Math: [
-      `<h2>Math-Only Lesson 6 — Geometry</h2><p>Content: Angles in triangles, quadrilaterals.</p>`
+      `<h2>CBSE Lesson 6 — Geometry</h2><p>Angles in triangles, quadrilaterals.</p>`
     ]}
   }
 };
 
-
-
 /* ---------- TIMETABLES ---------- */
-/* ---------- STATIC TIMETABLE (matches your HTML) ---------- */
 const timetables = {
   CBC: {
     Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
@@ -583,53 +577,53 @@ const timetables = {
     Sun: []
   }
 };
-// ---------- HELPER: check if current time matches lesson ----------
-function inTimeRange(start, end, now, offsetMinutes = 0) {
-  const [sH, sM] = start.split(":").map(Number);
-  const [eH, eM] = end.split(":").map(Number);
 
-  const startTime = new Date(now);
-  startTime.setHours(sH, sM - offsetMinutes, 0, 0);
+/* ---------- CURRICULUM SWITCH ---------- */
+let chosenCurriculum = null;
 
-  const endTime = new Date(now);
-  endTime.setHours(eH, eM, 0, 0);
-
-  return now >= startTime && now <= endTime;
+function chooseCurriculum(curr) {
+  chosenCurriculum = curr;
+  document.getElementById("curriculumSelect").style.display = "none";
+  document.getElementById("mainTutor").style.display = "block";
+  document.getElementById("selectedCurriculum").textContent = "📘 Curriculum: " + curr;
+  startLessonChecker(curr);
 }
 
-// ---------- GET TODAY'S LESSONS ----------
-function getTodaysLessons(curr) {
-  const today = new Date().toLocaleDateString("en-US", { weekday: "short" }); // e.g. "Mon"
-  const lessonsToday = timetables[curr][today] || [];
-  const now = new Date();
-
-  return lessonsToday.filter(lesson => {
-    const [sH, sM] = lesson.start.split(":").map(Number);
-    const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
-
-    return (
-      inTimeRange(lesson.start, lesson.end, now) ||   // ongoing lesson
-      (startTime - now <= 5*60*1000 && startTime - now > 0) // within 5 minutes before
-    );
-  });
+/* ---------- LESSON NAVIGATION ---------- */
+function loadLesson(index) {
+  const day = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
+  if (index >= 0 && index < todayLessons.length) {
+    currentLesson = index;
+    document.getElementById("lessonContainer").innerHTML = todayLessons[index];
+    speak(todayLessons[index]);
+  }
 }
 
-// ---------- START AUTO-CHECK ----------
+function nextLesson() { loadLesson(currentLesson + 1); }
+function prevLesson() { loadLesson(currentLesson - 1); }
+
+/* ---------- AUTO LESSON ALERT ---------- */
 function startLessonChecker(curr) {
   setInterval(() => {
-    const lessons = getTodaysLessons(curr);
-    const status = document.getElementById("status");
+    const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
+    const lessonsToday = timetables[curr][today] || [];
+    const now = new Date();
 
-    if (lessons.length > 0) {
-      status.textContent = "📢 Lesson time: " + lessons[0].subject;
-      speak("Your " + lessons[0].subject + " lesson is starting now");
+    const match = lessonsToday.find(lesson => {
+      const [sH, sM] = lesson.start.split(":").map(Number);
+      const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
+      return now >= startTime && now <= new Date(startTime.getTime() + 90*60000);
+    });
+
+    if (match) {
+      document.getElementById("status").textContent = "📢 Lesson time: " + match.subject;
+      speak("Your " + match.subject + " lesson is starting now.");
     } else {
-      status.textContent = "⏳ No lesson right now";
+      document.getElementById("status").textContent = "⏳ No lesson right now";
     }
-  }, 60 * 1000); // check every minute
+  }, 60000);
 }
-
-
 /* ---------- VOICE ---------- */
 function getVoice(){
   const voices = speechSynthesis.getVoices();
