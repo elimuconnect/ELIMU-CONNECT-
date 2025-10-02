@@ -605,15 +605,6 @@ function getTodaysLessons(curr) {
 
 
 
-/* ---------- HELPER: time range ---------- */
-function inTimeRange(start, end, now){
-  const [sH, sM] = start.split(":").map(Number);
-  const [eH, eM] = end.split(":").map(Number);
-  const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
-  const endTime = new Date(now); endTime.setHours(eH, eM, 0, 0);
-  return now >= startTime && now <= endTime;
-}
-
 /* ---------- VOICE ---------- */
 function getVoice(){
   const voices = speechSynthesis.getVoices();
@@ -684,14 +675,15 @@ function checkPhone(u) {
       if (pf) pf.style.display = "block";
       const card = document.querySelector(".card");
       if (card) card.style.display = "none";
-  } else {
+
+} else {
    const pf = document.getElementById("phoneForm");
    if (pf) pf.style.display = "none";
-
    const card = document.querySelector(".card");
    if (card) card.style.display = "block";
 }
 
+      
   });
 }
 
