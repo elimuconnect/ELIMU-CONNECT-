@@ -346,6 +346,8 @@ html, body {
     <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
   </div>
 
+
+  
   <!-- ✅ Main Tutor Section (hidden at first) -->
   <div id="mainTutor" style="display:none;">
 
@@ -381,6 +383,7 @@ html, body {
         <h2>Welcome to Smart Tutor</h2>
         <p id="selectedCurriculum"></p>
         <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
+
 
         <!-- ✅ Maths Timetable Only -->
         <div class="timetable">
@@ -438,6 +441,8 @@ html, body {
           <p id="requestStatus" style="font-size:0.8em; margin-top:8px; font-weight:bold;"></p>
         </div>
 
+
+        
         <!-- Lesson content container -->
         <div id="lessonContainer"></div>
         <div id="status">⏳ Ready…</div>
@@ -481,7 +486,7 @@ let utter = null;
 
 /* ---------- LESSONS (placeholder — replace with your full lessonsArray) ---------- */
 const lessonsArray = {
-  cbc: {
+  CBC: {
     Mon: { Math: [
       `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
       `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
@@ -524,7 +529,7 @@ const lessonsArray = {
     ]}
   },
 
-  cbse: {
+  CBSE: {
     Mon: { Math: [
       `<h2>Math-Only Lesson 1 — Integers</h2><p>Content: Positive & negative numbers practice.</p>`
     ]},
