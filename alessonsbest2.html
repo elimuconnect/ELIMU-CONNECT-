@@ -583,26 +583,51 @@ const timetables = {
     Sun: []
   }
 };
-
-/* ---------- CHECK IF NOW IS A LESSON TIME ---------- */
-function inTimeRange(start, end, now) {
+// ---------- HELPER: check if current time matches lesson ----------
+function inTimeRange(start, end, now, offsetMinutes = 0) {
   const [sH, sM] = start.split(":").map(Number);
   const [eH, eM] = end.split(":").map(Number);
-  const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
-  const endTime = new Date(now); endTime.setHours(eH, eM, 0, 0);
+
+  const startTime = new Date(now);
+  startTime.setHours(sH, sM - offsetMinutes, 0, 0);
+
+  const endTime = new Date(now);
+  endTime.setHours(eH, eM, 0, 0);
+
   return now >= startTime && now <= endTime;
 }
 
-/* ---------- FIND TODAY'S LESSONS BASED ON CURRICULUM ---------- */
+// ---------- GET TODAY'S LESSONS ----------
 function getTodaysLessons(curr) {
-  const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const today = new Date().toLocaleDateString("en-US", { weekday: "short" }); // e.g. "Mon"
   const lessonsToday = timetables[curr][today] || [];
   const now = new Date();
 
-  // Return only lessons happening right now
-  return lessonsToday.filter(lesson => inTimeRange(lesson.start, lesson.end, now));
+  return lessonsToday.filter(lesson => {
+    const [sH, sM] = lesson.start.split(":").map(Number);
+    const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
+
+    return (
+      inTimeRange(lesson.start, lesson.end, now) ||   // ongoing lesson
+      (startTime - now <= 5*60*1000 && startTime - now > 0) // within 5 minutes before
+    );
+  });
 }
 
+// ---------- START AUTO-CHECK ----------
+function startLessonChecker(curr) {
+  setInterval(() => {
+    const lessons = getTodaysLessons(curr);
+    const status = document.getElementById("status");
+
+    if (lessons.length > 0) {
+      status.textContent = "📢 Lesson time: " + lessons[0].subject;
+      speak("Your " + lessons[0].subject + " lesson is starting now");
+    } else {
+      status.textContent = "⏳ No lesson right now";
+    }
+  }, 60 * 1000); // check every minute
+}
 
 
 /* ---------- VOICE ---------- */
