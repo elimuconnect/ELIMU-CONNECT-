@@ -481,36 +481,142 @@ let utter = null;
 
 /* ---------- LESSONS (placeholder — replace with your full lessonsArray) ---------- */
 const lessonsArray = {
-  Mon: { Math: [
-    `<h2>Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
-    `<h2>Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
-  ]},
-  Tue: { Math: [
-    `<h2>Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
-  ]},
-  Wed: { Math: [
-    `<h2>Lesson 4 — Ratio & Proportion</h2><p>Content: Direct & inverse proportion basics.</p>`
-  ]},
-  Thu: { Math: [
-    `<h2>Lesson 5 — Algebra Basics</h2><p>Content: Expressions, simple equations.</p>`
-  ]},
-  Fri: { Math: [
-    `<h2>Lesson 6 — Geometry Basics</h2><p>Content: Angles, triangles and perimeter.</p>`
-  ]},
-  Sat: { Math: [
-    `<h2>Lesson 7 — Revision & Practice</h2><p>Content: Mixed exercises and quick tests.</p>`
-  ]}
+  cbc: {
+    Mon: { Math: [
+      `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
+      `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Content: Direct & inverse proportion basics.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Content: Expressions, simple equations.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Content: Angles, triangles and perimeter.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Content: Mixed exercises and quick tests.</p>`
+    ]}
+  },
+
+  British: {
+    Mon: { Math: [
+      `<h2>British Lesson 1 — Number Operations</h2><p>Content: Four operations with integers.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>British Lesson 2 — Fractions</h2><p>Content: Simplifying, comparing, and converting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>British Lesson 3 — Decimals</h2><p>Content: Ordering, rounding, and decimal operations.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Content: Solving ratio problems and scale drawings.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>British Lesson 5 — Algebra Basics</h2><p>Content: Substitution, equations, and simple formulae.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>British Lesson 6 — Geometry</h2><p>Content: Properties of shapes, perimeter, and area.</p>`
+    ]}
+  },
+
+  cbse: {
+    Mon: { Math: [
+      `<h2>Math-Only Lesson 1 — Integers</h2><p>Content: Positive & negative numbers practice.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>Math-Only Lesson 2 — Fractions</h2><p>Content: Simplifying, adding, subtracting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>Math-Only Lesson 3 — Decimals</h2><p>Content: Decimal place value and multiplication.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>Math-Only Lesson 4 — Ratio</h2><p>Content: Solving ratio and sharing problems.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>Math-Only Lesson 5 — Algebra</h2><p>Content: Expanding brackets, simple equations.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>Math-Only Lesson 6 — Geometry</h2><p>Content: Angles in triangles, quadrilaterals.</p>`
+    ]}
+  }
 };
 
-/* ---------- TIMETABLE (Math only for CBC/British) ---------- */
-const timetable = {
-  Mon: [ {subject: "Math", start: "17:30", end: "19:00"} ],
-  Tue: [ {subject: "Math", start: "17:30", end: "19:00"} ],
-  Wed: [ {subject: "Math", start: "17:30", end: "19:00"} ],
-  Thu: [ {subject: "Math", start: "16:20", end: "19:00"} ],
-  Fri: [ {subject: "Math", start: "17:30", end: "19:00"} ],
-  Sat: [ {subject: "Math", start: "08:00", end: "10:00"} ]
+
+
+/* ---------- TIMETABLES ---------- */
+const timetables = {
+  CBC: {
+    Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
+    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+  },
+
+  British: {
+    Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
+    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+  },
+
+  CBSE: {
+     Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
+    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
+    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+  }
 };
+
+/* ---------- CHOOSE CURRICULUM ---------- */
+function chooseCurriculum(curr) {
+  document.getElementById("curriculumSelect").style.display = "none";
+  document.getElementById("mainTutor").style.display = "block";
+  document.getElementById("selectedCurriculum").innerText =
+    "✅ Curriculum Selected: " + curr;
+
+  renderTimetable(curr);
+}
+
+/* ---------- RENDER TIMETABLE ---------- */
+function renderTimetable(curr) {
+  const tableBody = document.querySelector(".timetable tbody");
+  tableBody.innerHTML = ""; // clear old rows
+
+  const tt = timetables[curr];
+  Object.keys(tt).forEach(day => {
+    tt[day].forEach(lesson => {
+      const row = `<tr>
+        <td>${day}</td>
+        <td>${lesson.subject}</td>
+        <td>${lesson.start} – ${lesson.end}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  });
+
+  // Add Sunday as default off-day
+  if (!tt.Sun) {
+    tableBody.innerHTML += `<tr>
+      <td>Sunday</td>
+      <td colspan="2">No lessons scheduled</td>
+    </tr>`;
+  }
+}
+
+
+
+  
 
 /* ---------- HELPER: time range ---------- */
 function inTimeRange(start, end, now){
