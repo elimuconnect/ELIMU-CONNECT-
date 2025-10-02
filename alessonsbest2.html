@@ -591,7 +591,7 @@ function chooseCurriculum(curr) {
 
 /* ---------- LESSON NAVIGATION ---------- */
 function loadLesson(index) {
-  const day = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const day = getDayKey();
   const todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
   if (index >= 0 && index < todayLessons.length) {
     currentLesson = index;
@@ -599,6 +599,7 @@ function loadLesson(index) {
     speak(todayLessons[index]);
   }
 }
+
 
 function nextLesson() { loadLesson(currentLesson + 1); }
 function prevLesson() { loadLesson(currentLesson - 1); }
@@ -711,11 +712,14 @@ function checkPhone(u) {
 
 
 /* ---------- START TUTOR ---------- */
-function startTutor(){
-  if(!user){ alert("⚠️ Please login first."); return; }
+function startTutor() {
+  if (!user) {
+    alert("⚠️ Please login first.");
+    return;
+  }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
-    if(!snap.exists() || !snap.val().phone){
+    if (!snap.exists() || !snap.val().phone) {
       alert("⚠️ Enter your phone number first.");
       const pf = document.getElementById("phoneForm");
       if (pf) pf.style.display = "block";
@@ -723,34 +727,51 @@ function startTutor(){
     }
 
     const now = new Date();
-    // adjust to Kenya time (UTC+3) irrespective of user's timezone
-    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
-    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+    // Calculate Kenya time (UTC+3) irrespective of user's local timezone
+    const kenyaOffsetMinutes = 3 * 60; // UTC+3
+    const localOffsetMinutes = now.getTimezoneOffset();
+    const kenyaTime = new Date(now.getTime() + (kenyaOffsetMinutes + localOffsetMinutes) * 60000);
+
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const todayName = days[kenyaTime.getDay()];
 
     const slots = timetable[todayName] || [];
+
+    // Make sure inTimeRange works with strings like "HH:MM"
     const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
-    if(!currentSlot){
+    if (!currentSlot) {
       if (editor) editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
-      status.textContent = "No active lesson";
+      if (status) status.textContent = "No active lesson";
       return;
     }
 
-    // load today's lessons for the subject (Math)
-    todayLessons = (lessonsArray[todayName] && lessonsArray[todayName][currentSlot.subject]) || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
+    // Load today's lessons for the subject
+    todayLessons = (lessonsArray[todayName] && lessonsArray[todayName][currentSlot.subject]) || [
+      `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
+    ];
 
-    // wait for voices to be available
-    const waitVoices = setInterval(()=>{
-      if(speechSynthesis.getVoices().length){
-        clearInterval(waitVoices);
+    // Wait for voices to be available
+    function startLessonWhenVoicesReady() {
+      const voices = speechSynthesis.getVoices();
+      if (voices.length) {
         selectedVoice = getVoice();
         currentLesson = 0;
         showLesson();
+      } else {
+        speechSynthesis.onvoiceschanged = () => {
+          selectedVoice = getVoice();
+          currentLesson = 0;
+          showLesson();
+        };
       }
-    }, 100);
+    }
+
+    startLessonWhenVoicesReady();
   });
 }
+
 
 /* ---------- APP FEATURES (rotating snippets) ---------- */
 const appFeatures = [
@@ -1038,7 +1059,17 @@ function saveLessonRequest() {
     statusEl.style.color = "red";
   });
 }
-    
+
+
+
+function getDayKey() {
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const d = new Date();
+  return days[d.getDay()];
+}
+
+
+  
 </script>
 
 
