@@ -384,20 +384,36 @@ html, body {
         <p id="selectedCurriculum"></p>
         <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
 
-
-        <!-- ✅ Maths Timetable Only -->
-
-
+   <!-- ✅ Maths Timetable Only -->
 <div class="timetable">
+  <h3>📅 Weekly Timetable (Kenya time)</h3>
   <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Subject</th>
+        <th>Time</th>
+      </tr>
+    </thead>
     <tbody>
-      <!-- Dynamic timetable rows will be injected by renderTimetable() -->
+      <tr>
+        <td>Mon – Fri</td>
+        <td>Math</td>
+        <td>5:30 PM – 7:00 PM</td>
+      </tr>
+      <tr>
+        <td>Saturday</td>
+        <td>Math</td>
+        <td>8:00 AM – 10:00 AM</td>
+      </tr>
+      <tr>
+        <td>Sunday</td>
+        <td colspan="2">No lessons scheduled</td>
+      </tr>
     </tbody>
   </table>
 </div>
-
-
-        
+  
         <!-- Rating -->
         <div class="rating" id="ratingStars">
           <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
@@ -537,74 +553,57 @@ const lessonsArray = {
 
 
 /* ---------- TIMETABLES ---------- */
+/* ---------- STATIC TIMETABLE (matches your HTML) ---------- */
 const timetables = {
   CBC: {
-    Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
-    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
   },
-
   British: {
-    Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
-    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
   },
-
   CBSE: {
-     Mon: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Tue: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Wed: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Thu: [{subject: "Math", start: "16:30", end: "19:00"}],
-    Fri: [{subject: "Math", start: "17:30", end: "19:00"}],
-    Sat: [{subject: "Math", start: "08:00", end: "10:00"}]
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
   }
 };
 
-/* ---------- CHOOSE CURRICULUM ---------- */
-function chooseCurriculum(curr) {
-  document.getElementById("curriculumSelect").style.display = "none";
-  document.getElementById("mainTutor").style.display = "block";
-  document.getElementById("selectedCurriculum").innerText =
-    "✅ Curriculum Selected: " + curr;
-
-  renderTimetable(curr);
+/* ---------- CHECK IF NOW IS A LESSON TIME ---------- */
+function inTimeRange(start, end, now) {
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+  const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
+  const endTime = new Date(now); endTime.setHours(eH, eM, 0, 0);
+  return now >= startTime && now <= endTime;
 }
 
-/* ---------- RENDER TIMETABLE ---------- */
-function renderTimetable(curr) {
-  const tableBody = document.querySelector(".timetable tbody");
-  tableBody.innerHTML = ""; // clear old rows
+/* ---------- FIND TODAY'S LESSONS BASED ON CURRICULUM ---------- */
+function getTodaysLessons(curr) {
+  const today = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const lessonsToday = timetables[curr][today] || [];
+  const now = new Date();
 
-  const tt = timetables[curr];
-  Object.keys(tt).forEach(day => {
-    tt[day].forEach(lesson => {
-      const row = `<tr>
-        <td>${day}</td>
-        <td>${lesson.subject}</td>
-        <td>${lesson.start} – ${lesson.end}</td>
-      </tr>`;
-      tableBody.innerHTML += row;
-    });
-  });
-
-  // Add Sunday as default off-day
-  if (!tt.Sun) {
-    tableBody.innerHTML += `<tr>
-      <td>Sunday</td>
-      <td colspan="2">No lessons scheduled</td>
-    </tr>`;
-  }
+  // Return only lessons happening right now
+  return lessonsToday.filter(lesson => inTimeRange(lesson.start, lesson.end, now));
 }
 
 
-
-  
 
 /* ---------- HELPER: time range ---------- */
 function inTimeRange(start, end, now){
