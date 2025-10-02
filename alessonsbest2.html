@@ -223,7 +223,7 @@ html, body {
     font-size: 15px;
     padding: 10px;
   }
-}
+
 
 /* Extra formatting helpers for lesson text */
 .lesson-title {
@@ -466,11 +466,80 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db   = firebase.database();
 
-/* ---------- GLOBALS ---------- */
+/* ---------- DOM REFS & GLOBALS ---------- */
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
 const loginBtn = document.getElementById("loginBtn");
+const avgRatingEl = document.getElementById("avgRating");
+
 let user = null;
+
+let currentLesson = 0;
+let todayLessons = [];
+let selectedVoice = null;
+let utter = null;
+
+/* ---------- LESSONS (placeholder — replace with your full lessonsArray) ---------- */
+const lessonsArray = {
+  Mon: { Math: [
+    `<h2>Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
+    `<h2>Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
+  ]},
+  Tue: { Math: [
+    `<h2>Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
+  ]},
+  Wed: { Math: [
+    `<h2>Lesson 4 — Ratio & Proportion</h2><p>Content: Direct & inverse proportion basics.</p>`
+  ]},
+  Thu: { Math: [
+    `<h2>Lesson 5 — Algebra Basics</h2><p>Content: Expressions, simple equations.</p>`
+  ]},
+  Fri: { Math: [
+    `<h2>Lesson 6 — Geometry Basics</h2><p>Content: Angles, triangles and perimeter.</p>`
+  ]},
+  Sat: { Math: [
+    `<h2>Lesson 7 — Revision & Practice</h2><p>Content: Mixed exercises and quick tests.</p>`
+  ]}
+};
+
+/* ---------- TIMETABLE (Math only for CBC/British) ---------- */
+const timetable = {
+  Mon: [ {subject: "Math", start: "17:30", end: "19:00"} ],
+  Tue: [ {subject: "Math", start: "17:30", end: "19:00"} ],
+  Wed: [ {subject: "Math", start: "17:30", end: "19:00"} ],
+  Thu: [ {subject: "Math", start: "16:20", end: "19:00"} ],
+  Fri: [ {subject: "Math", start: "17:30", end: "19:00"} ],
+  Sat: [ {subject: "Math", start: "08:00", end: "10:00"} ]
+};
+
+/* ---------- HELPER: time range ---------- */
+function inTimeRange(start, end, now){
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+  const startTime = new Date(now); startTime.setHours(sH, sM, 0, 0);
+  const endTime = new Date(now); endTime.setHours(eH, eM, 0, 0);
+  return now >= startTime && now <= endTime;
+}
+
+/* ---------- VOICE ---------- */
+function getVoice(){
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+         || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("en-ke"))
+         || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("en-gb"))
+         || voices[0];
+}
+
+function speak(htmlOrText){
+  // accept either raw text or HTML — strip tags for speech
+  const tmp = document.createElement("div");
+  tmp.innerHTML = htmlOrText;
+  speechSynthesis.cancel();
+  utter = new SpeechSynthesisUtterance(tmp.textContent);
+  if (selectedVoice) utter.voice = selectedVoice;
+  utter.rate = 0.8;
+  speechSynthesis.speak(utter);
+}
 
 /* ---------- LOGIN ---------- */
 loginBtn.onclick = () => {
@@ -478,55 +547,302 @@ loginBtn.onclick = () => {
     .then(res => {
       user = res.user;
       status.textContent = `👋 Hi ${user.displayName}`;
-
-      // Save profile
       db.ref("students/" + user.uid).update({
         name: user.displayName,
         email: user.email
       });
-
-      // Check phone
       checkPhone(user);
     })
     .catch(e => alert(e.message));
 };
 
-/* ---------- AUTO LOGIN STATE ---------- */
+/* ---------- AUTH STATE (single handler, includes rating restore) ---------- */
 auth.onAuthStateChanged(u => {
   user = u;
   if (u) {
     status.textContent = `👋 Hi ${u.displayName}`;
 
-    // Save profile
+    // save profile lightly
     db.ref("students/" + u.uid).update({
       name: u.displayName,
       email: u.email
     });
 
     checkPhone(u);
+
+    // restore user's rating (if any)
+    db.ref("ratings/" + u.uid).once("value").then(snap => {
+      if (snap.exists()) updateStars(snap.val().rating);
+      else updateStars(0);
+    });
+  } else {
+    updateStars(0);
   }
 });
 
 /* ---------- CHECK PHONE ---------- */
 function checkPhone(u) {
+  if (!u) return;
   db.ref("students/" + u.uid).once("value").then(snap => {
     if (!snap.exists() || !snap.val().phone) {
-      document.getElementById("studentName").textContent =
-        `Welcome ${u.displayName}, please enter your phone number:`;
-      document.getElementById("phoneForm").style.display = "block";
-      document.querySelector(".card").style.display = "none";
+      const studentNameEl = document.getElementById("studentName");
+      if (studentNameEl) studentNameEl.textContent = `Welcome ${u.displayName}, please enter your phone number:`;
+      const pf = document.getElementById("phoneForm");
+      if (pf) pf.style.display = "block";
+      const card = document.querySelector(".card");
+      if (card) card.style.display = "none";
     } else {
-      document.getElementById("phoneForm").style.display = "none";
-      document.querySelector(".card").style.display = "block";
+      const pf = document.getElementById("phoneForm");
+      if (pf) pf.style.display = "none";
+      const card = document.querySelector(".card");
+      if (card) card.style.display = "block";
     }
   });
 }
 
-/* ---------- SAVE PHONE ---------- */
+/* ---------- START TUTOR ---------- */
+function startTutor(){
+  if(!user){ alert("⚠️ Please login first."); return; }
+
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if(!snap.exists() || !snap.val().phone){
+      alert("⚠️ Enter your phone number first.");
+      const pf = document.getElementById("phoneForm");
+      if (pf) pf.style.display = "block";
+      return;
+    }
+
+    const now = new Date();
+    // adjust to Kenya time (UTC+3) irrespective of user's timezone
+    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
+    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const todayName = days[kenyaTime.getDay()];
+
+    const slots = timetable[todayName] || [];
+    const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+
+    if(!currentSlot){
+      if (editor) editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
+      status.textContent = "No active lesson";
+      return;
+    }
+
+    // load today's lessons for the subject (Math)
+    todayLessons = (lessonsArray[todayName] && lessonsArray[todayName][currentSlot.subject]) || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
+
+    // wait for voices to be available
+    const waitVoices = setInterval(()=>{
+      if(speechSynthesis.getVoices().length){
+        clearInterval(waitVoices);
+        selectedVoice = getVoice();
+        currentLesson = 0;
+        showLesson();
+      }
+    }, 100);
+  });
+}
+
+/* ---------- APP FEATURES (rotating snippets) ---------- */
+const appFeatures = [
+  "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
+  "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
+  "🤖 FREE AI-Powered Virtual Tutor – 24/7 homework & exam help",
+  "📲 Connect with nearby tutors for physical or online tuition",
+  "📝 On-Demand Homework Help with AI + human tutors",
+  "💬 Free student academic chats & forums across Kenya",
+  "📚 Access 2000+ Video Lessons & 5000+ Quizzes",
+  "📖 30,000+ CBC, IGCSE & KCSE Past Papers with Answers",
+  "📘 200+ Ebooks for Primary & Secondary Students",
+  "🏆 Weekly National Tests & Digital Certificates",
+  "❓ 1000+ Question & Answer Pairs from Past Exams",
+  "🎮 3 Fun Math Games & 3 Kiswahili/English Language Games",
+  "🌍 Career Guidance Tools for Kenyan Teens",
+  "🗓️ AI-Powered Study Timetable Generator",
+  "📝 Digital Notebook, Notes Organizer & Revision Tracker",
+  "🧮 Scientific Calculator + Graph Plotting Tools",
+  "🔢 Math, Chemistry & Physics Formula Tools",
+  "📖 Digital Dictionary & Kiswahili Kamusi",
+  "💡 Similes, Metaphors, Methali & Nahau Reference Tools",
+  "🧍‍♂️ Human, Fish & Plant 3D Anatomy Simulators",
+  "🧪 Interactive Digital Periodic Table",
+  "⚛️ Physics Concepts & Mole Calculators",
+  "🧬 Chemical Equations Balancer + Organic Chemistry Guide",
+  "📐 Math Tools: Area, Volume, Trigonometry, Logarithms",
+  "💰 Financial Math Tools: Tax, Interest, Binomial, Variation",
+  "🗺️ Geography Tools: Latitude/Longitude, Errors & Approximations",
+  "📊 Advanced Statistics & Matrix Solvers",
+  "➗ Calculus: Differentiation & Integration Calculators"
+];
+let featureIndex = 0;
+
+/* ---------- SHOW CURRENT LESSON ---------- */
+function showLesson() {
+  if (!editor) return;
+  if (currentLesson >= todayLessons.length) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>✅ All lessons for this slot are done!</h2>
+        <p>Keep learning with <b>Smart Tutor by Elimu Connect</b>.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const lessonHtml = todayLessons[currentLesson];
+
+  // Pick 3 rotating features
+  const f1 = appFeatures[featureIndex % appFeatures.length];
+  const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
+  const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
+  featureIndex += 3;
+
+  editor.innerHTML = `
+    <div class="card">
+      ${lessonHtml}
+      <hr>
+      <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
+        <b>📲 More with Elimu Connect App:</b>
+        <ul style="margin:5px 0; padding-left:20px;">
+          <li>${f1}</li>
+          <li>${f2}</li>
+          <li>${f3}</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
+          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+            🚀 Install App
+          </button>
+        </a>
+      </div>
+    </div>
+  `;
+
+  speak(lessonHtml);
+}
+
+/* ---------- RATING UI & DB ---------- */
+const ratingStars = document.querySelectorAll(".rating span");
+
+// Add ratingMessage container if missing
+let ratingTimeout;
+let ratingMessage = document.getElementById("ratingMessage");
+if (!ratingMessage) {
+  ratingMessage = document.createElement("div");
+  ratingMessage.id = "ratingMessage";
+  ratingMessage.style.cssText = `
+    display:none; 
+    color:#388e3c; 
+    font-weight:bold; 
+    margin-bottom:10px; 
+    opacity:0; 
+    transform:translateY(-10px); 
+    transition: all 0.5s ease;
+  `;
+  const firstCard = document.querySelector(".card");
+  if (firstCard) firstCard.prepend(ratingMessage);
+}
+
+function updateStars(val) {
+  ratingStars.forEach(s => {
+    s.classList.remove("active");
+    if (parseInt(s.dataset.v) <= val) {
+      s.classList.add("active");
+    }
+  });
+}
+
+function updateAverageRating() {
+  db.ref("ratings").on("value", snapshot => {
+    let total = 0, count = 0;
+    snapshot.forEach(child => {
+      const r = child.val() && child.val().rating ? Number(child.val().rating) : 0;
+      total += r;
+      count++;
+    });
+
+    const avg = count ? (total / count).toFixed(1) : 0;
+
+    if (avgRatingEl) {
+      avgRatingEl.textContent = count 
+        ? `${avg} (${count} students)` 
+        : "No ratings yet";
+    }
+  });
+}
+updateAverageRating();
+
+// hover + click handlers
+ratingStars.forEach(star => {
+  star.addEventListener("mouseover", () => {
+    const val = parseInt(star.dataset.v);
+    ratingStars.forEach(s => {
+      s.classList.toggle("hover", parseInt(s.dataset.v) <= val);
+    });
+  });
+
+  star.addEventListener("mouseout", () => {
+    ratingStars.forEach(s => s.classList.remove("hover"));
+    if (user) {
+      db.ref("students/" + user.uid).once("value").then(snap => {
+        const val = snap.exists() ? (snap.val().rating || 0) : 0;
+        updateStars(val);
+      });
+    } else {
+      updateStars(0);
+    }
+  });
+
+  star.addEventListener("click", async () => {
+    if (!user) return alert("⚠️ Login first to save rating.");
+    const val = parseInt(star.dataset.v);
+
+    // Save/update student's rating
+    await db.ref("students/" + user.uid).update({
+      name: user.displayName,
+      email: user.email,
+      rating: val,
+      ratingTimestamp: Date.now()
+    });
+
+    // Save in ratings node
+    await db.ref("ratings/" + user.uid).set({
+      rating: val,
+      timestamp: Date.now()
+    });
+
+    updateStars(val);
+
+    if (ratingTimeout) clearTimeout(ratingTimeout);
+
+    ratingTimeout = setTimeout(() => {
+      ratingMessage.textContent = `Thanks! You rated ${val}⭐`;
+      ratingMessage.style.display = "block";
+      setTimeout(() => {
+        ratingMessage.style.opacity = 1;
+        ratingMessage.style.transform = "translateY(0)";
+      }, 10);
+
+      setTimeout(() => {
+        ratingMessage.style.opacity = 0;
+        ratingMessage.style.transform = "translateY(-10px)";
+        setTimeout(() => { ratingMessage.style.display = "none"; }, 500);
+      }, 3000);
+
+      ratingTimeout = null;
+    }, 5000);
+  });
+});
+
+/* ---------- PHONE SAVE (also used elsewhere) ---------- */
 function savePhoneNumber() {
-  const phone = document.getElementById("phoneInput").value.trim();
+  const phoneEl = document.getElementById("phoneInput");
+  const phone = phoneEl ? phoneEl.value.trim() : "";
   if (!phone) {
     alert("⚠️ Please enter your phone number.");
+    return;
+  }
+
+  if (!user) {
+    alert("⚠️ Please login first.");
     return;
   }
 
@@ -535,57 +851,113 @@ function savePhoneNumber() {
     timestamp: Date.now()
   }).then(() => {
     alert("✅ Phone number saved! Lessons unlocked.");
-    document.getElementById("phoneForm").style.display = "none";
-    document.querySelector(".card").style.display = "block";
-    editor.scrollIntoView({behavior: "smooth"});
+    const pf = document.getElementById("phoneForm");
+    if (pf) pf.style.display = "none";
+    const card = document.querySelector(".card");
+    if (card) card.style.display = "block";
+    if (editor) editor.scrollIntoView({behavior: "smooth"});
   });
 }
 
-/* ---------- TIMETABLE ---------- */
-const timetable = {
-  Mon: [
-    {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Science", start: "19:30", end: "20:30"},
-    {subject: "English", start: "21:00", end: "22:00"}
-  ],
-  Tue: [
-    {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Science", start: "19:30", end: "20:30"},
-    {subject: "English", start: "21:00", end: "22:00"}
-  ],
-  Wed: [
-    {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Science", start: "17:50", end: "20:30"},
-    {subject: "English", start: "21:00", end: "22:00"}
-  ],
-  Thu: [
-    {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Science", start: "17:50", end: "20:30"},
-    {subject: "English", start: "21:00", end: "22:00"}
-  ],
-  Fri: [
-    {subject: "Math", start: "17:30", end: "19:00"},
-    {subject: "Science", start: "19:30", end: "20:30"},
-    {subject: "English", start: "21:00", end: "22:00"}
-  ],
-  Sat: [
-    {subject: "Math", start: "08:00", end: "10:00"},
-    {subject: "Science", start: "10:30", end: "12:00"},
-    {subject: "English", start: "14:00", end: "15:30"}
-  ]
-};
+/* ---------- NAV CONTROLS ---------- */
+function prevLesson(){
+  if(todayLessons.length && currentLesson>0){
+    currentLesson--;
+    showLesson();
+  }
+}
+function nextLesson(){
+  if(todayLessons.length && currentLesson<todayLessons.length-1){
+    currentLesson++;
+    showLesson();
+  }
+}
+function pauseTutor(){ speechSynthesis.pause(); if(status) status.textContent="⏸️ Paused"; }
+function resumeTutor(){ speechSynthesis.resume(); if(status) status.textContent="▶️ Resumed"; }
+function contactWhatsApp(){ window.open("https://wa.me/254769255782","_blank"); }
 
-/* ---------- LESSON LOGIC, VOICE, RATING, REQUESTS ---------- */
-/* (kept same as your version, no changes, already merged cleanly) */
+/* ---------- LESSON REQUEST ---------- */
+function saveLessonRequest() {
+  if (!user) {
+    alert("⚠️ Please login first to request a lesson.");
+    return;
+  }
+
+  const requestText = (document.getElementById("lessonRequest") || {value:""}).value.trim();
+  const statusEl = document.getElementById("requestStatus");
+
+  if (!requestText) {
+    if (statusEl) {
+      statusEl.textContent = "❌ Please type your lesson request before submitting.";
+      statusEl.style.color = "red";
+    }
+    return;
+  }
+
+  const requestsRef = db.ref("students/" + user.uid + "/requests").push();
+
+  requestsRef.set({
+    text: requestText,
+    timestamp: Date.now()
+  }).then(() => {
+    if (statusEl) {
+      statusEl.textContent = "✅ Your request has been saved!";
+      statusEl.style.color = "green";
+    }
+    const lr = document.getElementById("lessonRequest");
+    if (lr) lr.value = "";
+  }).catch(err => {
+    if (statusEl) {
+      statusEl.textContent = "❌ Error: " + err.message;
+      statusEl.style.color = "red";
+    }
+  });
+}
+
 /* ---------- CURRICULUM ---------- */
 function chooseCurriculum(curr) {
-  document.getElementById("curriculumSelect").style.display = "none";
-  document.getElementById("mainTutor").style.display = "block";
-  document.getElementById("selectedCurriculum").innerText = "✅ Curriculum Selected: " + curr;
+  const cs = document.getElementById("curriculumSelect");
+  const mt = document.getElementById("mainTutor");
+  const sel = document.getElementById("selectedCurriculum");
+  if (cs) cs.style.display = "none";
+  if (mt) mt.style.display = "block";
+  if (sel) sel.innerText = "✅ Curriculum Selected: " + curr;
 }
+
+/* ---------- VOICE ALERT: 2 minutes before lesson ---------- */
+function checkLessons() {
+  const now = new Date();
+  // compute Kenya time
+  const kenyaNow = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
+  const day = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][kenyaNow.getDay()];
+  const lessons = timetable[day] || [];
+  
+  lessons.forEach(lesson => {
+    const [sH, sM] = lesson.start.split(":").map(Number);
+    // alert time = lesson start minus 2 minutes
+    const alertTime = new Date(kenyaNow);
+    alertTime.setHours(sH, sM - 2, 0, 0);
+
+    // allow 60s window to prevent repeated alerts
+    if (kenyaNow >= alertTime && kenyaNow <= new Date(alertTime.getTime() + 60000)) {
+      // ensure selectedVoice is ready
+      if (!selectedVoice) {
+        const waitVoices = setInterval(()=>{
+          if (speechSynthesis.getVoices().length) {
+            clearInterval(waitVoices);
+            selectedVoice = getVoice();
+            speak(`Reminder: ${lesson.subject} class starts in 2 minutes.`);
+          }
+        }, 100);
+      } else {
+        speak(`Reminder: ${lesson.subject} class starts in 2 minutes.`);
+      }
+    }
+  });
+}
+setInterval(checkLessons, 60000); // check every minute
+
 </script>
-
-
 
 </body>
 </html>
