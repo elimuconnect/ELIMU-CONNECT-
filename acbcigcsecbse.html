@@ -440,6 +440,11 @@ const status = document.getElementById("status");
 const loginBtn = document.getElementById("loginBtn");
 
 let user = null;
+let chosenCurriculum = null;
+let currentLesson = 0;
+let todayLessons = [];
+let selectedVoice = null;
+let utter = null;
 
 loginBtn.onclick = () => {
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
@@ -508,7 +513,6 @@ document.querySelector(".card").style.display = "none";
 });
 
 // Globals
-let user=null, chosenCurriculum=null, currentLesson=0, todayLessons=[], selectedVoice=null, utter=null;
 
 const lessonsArray = {
   CBC: {
@@ -611,14 +615,32 @@ const timetables = {
 };
 
 // Choose Curriculum
-function chooseCurriculum(curr){
-  chosenCurriculum=curr;
-  document.getElementById("curriculumSelect").style.display="none";
-  document.getElementById("mainTutor").style.display="block";
-  document.getElementById("selectedCurriculum").textContent="📘 Curriculum: "+curr;
-  startLessonChecker(curr);
-}
+function chooseCurriculum(curr) {
+  chosenCurriculum = curr;
+  document.getElementById("curriculumSelect").style.display = "none";
+  document.getElementById("mainTutor").style.display = "block";
+  document.getElementById("selectedCurriculum").textContent = "📘 Curriculum: " + curr;
 
+  // 👉 Load today’s lessons immediately
+  const now = new Date();
+  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayName = days[kenyaTime.getDay()];
+
+  if (lessonsArray[curr] && lessonsArray[curr][todayName]) {
+    todayLessons = lessonsArray[curr][todayName].Math || [];
+  } else {
+    todayLessons = [];
+  }
+
+  // Show the first lesson if available
+  if (todayLessons.length > 0) {
+    document.getElementById("lessonContainer").innerHTML = todayLessons[0];
+    currentLesson = 0;
+  } else {
+    document.getElementById("lessonContainer").innerHTML = "<p>No lessons scheduled today.</p>";
+  }
+}
 
 /* ---------- HELPER: Check if current time is in a slot ---------- */
 function inTimeRange(start, end, now){
