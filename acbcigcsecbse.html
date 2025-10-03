@@ -106,6 +106,7 @@ html, body {
   justify-content: center;
 }
 /* ✅ NEW CARD STYLE */
+/* ✅ Shared card styles for all cards */
 .card {
   max-width: 90vw;
   width: 100%;
@@ -113,7 +114,7 @@ html, body {
   padding: 40px;
   background: white;
   border-radius: 25px;
-  border: 2px solid #ccc; /* Added border for prominence */
+  border: 2px solid #ccc; /* Prominent border */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   font-size: 1.8em;
   line-height: 2;
@@ -123,7 +124,7 @@ html, body {
   word-break: break-word;
   color: #1a237e;
   box-sizing: border-box;
-  transition: all 0.3s ease-in-out; /* Smooth hover or layout changes */
+  transition: all 0.3s ease-in-out; /* Smooth hover/layout changes */
 }
 
 /* Headings inside cards */
@@ -157,43 +158,9 @@ html, body {
   color: #1a237e;
 }
 
-
-/* ✅ Shared card styles (applies to both loginCard & tutorCard) */
-.card, 
-#loginCard, 
-#tutorCard {
-  max-width: 90vw;
-  width: 100%;
-  margin: 20px auto;
-  padding: 40px;
-  background: white;
-  border-radius: 25px;
-  border: 2px solid #ccc;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.8em;
-  line-height: 2;
-  font-weight: bold;
-  animation: fadeIn 1s ease;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  color: #1a237e;
-  box-sizing: border-box;
-  transition: all 0.3s ease-in-out;
-  display: none; /* Hidden by default → shown by JS */
-}
-
-/* Headings inside cards */
-#loginCard h2, 
-#tutorCard h2 {
-  margin-top: 0;
-  font-size: 2em;
-  font-weight: bold;
-}
-
-/* Show login card first */
-#loginCard {
-  display: block;
-}
+/* ✅ Specific card visibility */
+#loginCard { display: block; }  /* Show login first */
+#tutorCard { display: none; }   /* Hide timetable until login */
 
   
 #status {
