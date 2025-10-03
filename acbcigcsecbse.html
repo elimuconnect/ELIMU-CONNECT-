@@ -682,15 +682,18 @@ function startTutor() {
       slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
     );
 
-    if (!currentSlot) {
-      editor.innerHTML = `
-        <div class="card">
-          <h2>⏳ No active Math lesson right now. Check the timetable.</h2>
-        </div>
-      `;
-      status.textContent = "No active Math lesson";
-      return;
-    }
+   if (!currentSlot) {
+  if (editor) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>⏳ No active Math lesson right now. Check the timetable.</h2>
+      </div>
+    `;
+  }
+  if (status) status.textContent = "No active Math lesson";
+  return;
+}
+
 
     // ✅ Load Math lessons only
     todayLessons = lessonsArray[chosenCurriculum]?.[todayName]?.Math || [
