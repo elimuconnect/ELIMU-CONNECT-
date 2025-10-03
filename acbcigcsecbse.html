@@ -523,6 +523,8 @@ loginBtn.onclick = () => {
 };
 
 /* ---------- HANDLE AUTH STATE ---------- */
+
+
 firebase.auth().onAuthStateChanged(u => {
   user = u;
 
@@ -530,32 +532,37 @@ firebase.auth().onAuthStateChanged(u => {
   const phoneForm = document.getElementById("phoneForm");
   const curriculumSelect = document.getElementById("curriculumSelect");
   const tutorCard = document.getElementById("tutorCard");
+  const loginBtn2 = document.getElementById("loginBtn2");
 
   if (user) {
     status.textContent = `👋 Hi ${user.displayName}`;
-    loginCard.style.display = "none";
 
-    db.ref("students/" + user.uid).once("value").then(snap => {
-      const student = snap.val() || {};
-      if (!student.phone) {
-        document.getElementById("studentName").textContent =
-          `Welcome ${user.displayName}, please enter your phone number:`;
-        phoneForm.style.display = "block";
-        curriculumSelect.style.display = "none";
-      } else {
-        phoneForm.style.display = "none";
-        curriculumSelect.style.display = "block";
-      }
-    });
+    // Hide only the login buttons, not the card or timetable
+    loginBtn.style.display = "none";
+    loginBtn2.style.display = "none";
+
+    // Show curriculum selection
+    curriculumSelect.style.display = "block";
+
+    // Hide phone form (optional: show later when saving phone)
+    phoneForm.style.display = "none";
+
+    // Tutor card stays hidden until curriculum selected
+    tutorCard.style.display = "none";
   } else {
-    // Not logged in
+    // Not logged in → show login card + timetable
     loginCard.style.display = "block";
+    loginBtn.style.display = "inline-block";
+    loginBtn2.style.display = "inline-block";
     phoneForm.style.display = "none";
     curriculumSelect.style.display = "none";
     if (tutorCard) tutorCard.style.display = "none";
     status.textContent = "Please log in to continue.";
   }
 });
+
+
+  
 
 const lessonsArray = {
   CBC: {
