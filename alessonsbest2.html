@@ -329,6 +329,57 @@ function chooseCurriculum(curr){
   startLessonChecker(curr);
 }
 
+
+
+
+
+
+
+
+// Normalize weekday (Mon, Tue, Wed, Thu, Fri, Sat, Sun)
+function getTodayShort() {
+  const options = { weekday: "short" };
+  let d = new Date().toLocaleDateString("en-US", options);
+  return d.replace(".", ""); // remove dot if any
+}
+
+// Start Tutor (first lesson)
+function startTutor() {
+  if (!chosenCurriculum) {
+    alert("Please choose a curriculum first.");
+    return;
+  }
+  if (!user) {
+    alert("Please login first.");
+    return;
+  }
+  loadLesson(0); 
+  document.getElementById("status").textContent = "▶️ Lesson started";
+}
+
+// Load lessons by day
+function loadLesson(index) {
+  const day = getTodayShort(); // use normalized version
+  todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
+  if (todayLessons.length === 0) {
+    document.getElementById("lessonContainer").innerHTML = "<p>No Math lessons today.</p>";
+    return;
+  }
+  if (index >= 0 && index < todayLessons.length) {
+    currentLesson = index;
+    const content = todayLessons[index];
+    document.getElementById("lessonContainer").innerHTML = content;
+    speak(content);
+  }
+}
+
+
+
+
+
+
+
+  
 // Voice
 function getVoice(){
   const voices = speechSynthesis.getVoices();
