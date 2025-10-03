@@ -464,70 +464,57 @@ loginBtn.onclick = () => {
       user = res.user;
       status.textContent = `👋 Hi ${user.displayName}`;
 
+      // Save/update user profile in database
+      db.ref("students/" + user.uid).update({
+        name: user.displayName,
+        email: user.email
+      });
 
-auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-  .then(res => {
-    user = res.user;
-    status.textContent = `👋 Hi ${user.displayName}`;
-
-    // Always update profile (name + email at least)
-    db.ref("students/" + user.uid).update({
-      name: user.displayName,
-      email: user.email
-    });
-
-    // Check phone
-    db.ref("students/" + user.uid).once("value").then(snap => {
-      if (!snap.exists() || !snap.val().phone) {
-        document.getElementById("studentName").textContent =
-          `Welcome ${user.displayName}, please enter your phone number:`;
-        document.getElementById("phoneForm").style.display = "block";
-        document.querySelector(".card").style.display = "none";
-      }
-    });
-  })
-
-
-
-
-
-      
-      // After login → check if phone exists
+      // Check if phone exists
       db.ref("students/" + user.uid).once("value").then(snap => {
         if (!snap.exists() || !snap.val().phone) {
           // Show phone number form
-         document.getElementById("studentName").textContent =
-  `Welcome ${user.displayName}, please enter your phone number:`;
-document.getElementById("phoneForm").style.display = "block";
+          document.getElementById("studentName").textContent =
+            `Welcome ${user.displayName}, please enter your phone number:`;
+          document.getElementById("phoneForm").style.display = "block";
 
-// Hide tutor card instead of deleting everything
-document.querySelector(".card").style.display = "none";
-
+          // Hide tutor card while phone is not saved
+          document.querySelector(".card").style.display = "none";
+        } else {
+          // Phone exists, show main tutor card
+          document.getElementById("phoneForm").style.display = "none";
+          document.querySelector(".card").style.display = "block";
         }
       });
     })
     .catch(e => alert(e.message));
 };
 
+// Handle page reload: keep user logged in and check phone
 auth.onAuthStateChanged(u => {
   user = u;
-  if (u) {
-    status.textContent = `👋 Hi ${u.displayName}`;
+  if (user) {
+    status.textContent = `👋 Hi ${user.displayName}`;
 
-    // Also check if phone is saved on reload
-    db.ref("students/" + u.uid).once("value").then(snap => {
+    db.ref("students/" + user.uid).once("value").then(snap => {
       if (!snap.exists() || !snap.val().phone) {
         document.getElementById("studentName").textContent =
-  `Welcome ${user.displayName}, please enter your phone number:`;
-document.getElementById("phoneForm").style.display = "block";
-
-// Hide tutor card instead of deleting everything
-document.querySelector(".card").style.display = "none";
-
+          `Welcome ${user.displayName}, please enter your phone number:`;
+        document.getElementById("phoneForm").style.display = "block";
+        document.querySelector(".card").style.display = "none";
+      } else {
+        document.getElementById("phoneForm").style.display = "none";
+        document.querySelector(".card").style.display = "block";
       }
     });
+  } else {
+    // User logged out
+    status.textContent = "Please login to start tutoring.";
+    document.getElementById("phoneForm").style.display = "none";
+    document.querySelector(".card").style.display = "block";
   }
 });
+
 
 // ---------- Lessons ----------
 const lessonsArray = {
@@ -625,14 +612,31 @@ const timetables = {
   }
 };
 
+
+function inTimeRange(start, end, now) {
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+
+  const startTime = new Date(now);
+  startTime.setHours(sH, sM, 0, 0);
+
+  const endTime = new Date(now);
+  endTime.setHours(eH, eM, 0, 0);
+
+  return now >= startTime && now <= endTime;
+}
+
+
+  
 // ---------- Curriculum Selection ----------
 function chooseCurriculum(curr){
-  chosenCurriculum = curr;
+  selectedCurriculum = curr; // instead of chosenCurriculum
   document.getElementById("curriculumSelect").style.display = "none";
   document.getElementById("mainTutor").style.display = "block";
   document.getElementById("selectedCurriculum").textContent = "📘 Curriculum: " + curr;
   startLessonChecker(curr);
 }
+
 
 let currentLesson = 0;
 let todayLessons = [];
@@ -682,7 +686,8 @@ function startTutor() {
     const todayName = days[kenyaTime.getDay()];
 
     // Only Math slots
-    const slots = timetable[todayName] || [];
+    const slots = timetables[selectedCurriculum][todayName] || [];
+
     const currentSlot = slots.find(slot => slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime));
 
     if (!currentSlot) {
