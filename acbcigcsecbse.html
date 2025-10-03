@@ -369,30 +369,31 @@ html, body {
           </button>
         </div>
 
-        <!-- Login Card (Visible on load) -->
-        <div class="card" id="loginCard">
-          <h2>Welcome to Smart Tutor</h2>
-          <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
+       <!-- Login Card (Visible on load by default) -->
+<div class="card" id="loginCard" style="display:block;">
+  <h2>Welcome to Smart Tutor</h2>
+  <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
 
-          <div class="timetable">
-            <h3>📅 Weekly Timetable (Kenya time)</h3>
-            <table>
-              <thead>
-                <tr><th>Day</th><th>Subject</th><th>Time</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
-                <tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
-                <tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
-              </tbody>
-            </table>
-          </div>
+  <div class="timetable">
+    <h3>📅 Weekly Timetable (Kenya time)</h3>
+    <table>
+      <thead>
+        <tr><th>Day</th><th>Subject</th><th>Time</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
+        <tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
+        <tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-          <button id="loginBtn2" onclick="googleLogin()" 
-                  style="margin-top:15px;background:#1976d2;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">
-            🔑 Google Login
-          </button>
-        </div>
+  <button id="loginBtn2" onclick="googleLogin()" 
+          style="margin-top:15px;background:#1976d2;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">
+    🔑 Google Login
+  </button>
+</div>
+
 
         <!-- Main Tutor Card (appears after login & curriculum choice) -->
         <div class="card" id="tutorCard" style="display:none;">
@@ -515,8 +516,18 @@ auth.onAuthStateChanged(u => {
         document.getElementById("curriculumSelect").style.display = "block";
       }
     });
+  } else {
+    // ✅ Not logged in → show login card, hide everything else
+    document.getElementById("loginCard").style.display = "block";
+    document.getElementById("phoneForm").style.display = "none";
+    document.getElementById("curriculumSelect").style.display = "none";
+    if (document.getElementById("tutorCard")) {
+      document.getElementById("tutorCard").style.display = "none";
+    }
+    status.textContent = "Please log in to continue.";
   }
 });
+
 
 
 const lessonsArray = {
