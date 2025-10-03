@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Tutor – Math Only (Multiple Curricula)</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body, html { font-family:'Segoe UI', sans-serif; height:100%; background:linear-gradient(to right,#e0f7fa,#fce4ec); }
+#app { display:flex; flex-direction:column; min-height:100vh; }
+
+#curriculumSelect { text-align:center; padding:30px; }
+#curriculumSelect button { padding:12px 20px; margin:10px; font-size:16px; cursor:pointer; border-radius:8px; border:none; background:#1976d2; color:white; }
+#curriculumSelect button:hover { background:#0d47a1; }
+
+#toolbar { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:10px; background:#1976d2; }
+#toolbar button { flex:1 1 auto; padding:12px; font-size:16px; border:none; border-radius:8px; background:#4CAF50; color:white; cursor:pointer; transition:0.3s; }
+#toolbar button:hover { background:#45a049; }
+
+#editor { flex:1; display:flex; justify-content:center; align-items:flex-start; padding:20px; flex-direction:column; }
+
+.card { width:90%; max-width:900px; margin:20px auto; padding:20px 40px; border-radius:25px; background:white; border:2px solid #ccc;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15); font-size:1.2em; line-height:2; font-weight:bold; color:#1a237e; animation:fadeIn 1s ease; 
+  overflow-wrap: break-word; transition: all 0.3s ease-in-out; }
+.card h2 { font-size:1.4em; margin-top:0; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+
+.rating { margin-top:20px; font-size:2em; color:#ccc; display:inline-block; cursor:pointer; user-select:none; touch-action:manipulation; }
+.rating span { display:inline-block; width:1.2em; text-align:center; transition:color 0.3s; line-height:1; user-select:none; }
+.rating span.active { color:gold; }
+.rating span.hover { color:orange; }
+
+#status { padding:10px; background:#388e3c; color:white; font-weight:bold; text-align:center; font-size:15px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Curriculum Selection -->
+  <div id="curriculumSelect">
+    <h2>📚 Choose Your Curriculum</h2>
+    <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC</button>
+    <button onclick="chooseCurriculum('British')">🇬🇧 British</button>
+    <button onclick="chooseCurriculum('CBSE')">🇮🇳 CBSE</button>
+  </div>
+
+  <!-- Main Tutor Section -->
+  <div id="mainTutor" style="display:none;">
+    <div id="toolbar">
+      <button id="loginBtn">🔑 Google Login</button>
+      <button onclick="startTutor()">▶️ Start Tutor</button>
+      <button onclick="pauseTutor()">⏸️ Pause</button>
+      <button onclick="resumeTutor()">▶️ Resume</button>
+      <button onclick="prevLesson()">⬅️ Back</button>
+      <button onclick="nextLesson()">➡️ Next</button>
+      <button onclick="contactWhatsApp()">💬 Customer Care</button>
+    </div>
+
+    <div id="editor">
+
+      <!-- Phone Form -->
+      <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
+        <h2>📱 Enter Your Phone Number</h2>
+        <p id="studentName"></p>
+        <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
+        <br><br>
+        <button onclick="savePhoneNumber()" style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">Save & Unlock Lessons</button>
+      </div>
+
+      <div class="card">
+        <h2>Welcome to Smart Math Tutor</h2>
+        <p id="selectedCurriculum"></p>
+        <div class="rating" id="ratingStars">
+          <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
+          <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+        </div>
+        <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">Average Rating: <span id="avgRating">–</span> ★</p>
+        <div id="lessonContainer"></div>
+        <div id="status">⏳ Ready…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
+<script>
+// ✅ Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+  authDomain: "cbc-general.firebaseapp.com",
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// ---------- Separate base path for this tool ----------
+const basePath = "mathToolV2"; // separate from first tool
+
+// Globals
+let user = null, chosenCurriculum = null, currentLesson = 0, todayLessons = [], selectedVoice = null, utter = null;
+
+// ---------- Lessons ----------
+const lessonsArray = {
+  CBC: {
+    Mon: { Math: [
+      `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
+      `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Direct & inverse proportion basics.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Expressions, simple equations.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Angles, triangles and perimeter.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Mixed exercises and quick tests.</p>`
+    ]}
+  },
+  British: {
+    Mon: { Math: [
+      `<h2>British Lesson 1 — Number Operations</h2><p>Four operations with integers.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>British Lesson 2 — Fractions</h2><p>Simplifying, comparing, converting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>British Lesson 3 — Decimals</h2><p>Ordering, rounding, and decimal operations.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Solving ratio problems and scale drawings.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>British Lesson 5 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>British Lesson 6 — Geometry</h2><p>Properties of shapes, perimeter, area.</p>`
+    ]}
+  },
+  CBSE: {
+    Mon: { Math: [
+      `<h2>Math-Only Lesson 1 — Integers</h2><p>Positive & negative numbers practice.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>Math-Only Lesson 2 — Fractions</h2><p>Simplifying, adding, subtracting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>Math-Only Lesson 3 — Decimals</h2><p>Decimal place value and multiplication.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>Math-Only Lesson 4 — Ratio</h2><p>Solving ratio and sharing problems.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>Math-Only Lesson 5 — Algebra</h2><p>Expanding brackets, simple equations.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>Math-Only Lesson 6 — Geometry</h2><p>Angles in triangles, quadrilaterals.</p>`
+    ]}
+  }
+};
+
+// ---------- Timetables ----------
+const timetables = {
+  CBC: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  },
+  British: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  },
+  CBSE: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  }
+};
+
+// ---------- Curriculum Selection ----------
+function chooseCurriculum(curr){
+  chosenCurriculum = curr;
+  document.getElementById("curriculumSelect").style.display = "none";
+  document.getElementById("mainTutor").style.display = "block";
+  document.getElementById("selectedCurriculum").textContent = "📘 Curriculum: " + curr;
+  startLessonChecker(curr);
+}
+
+// ---------- Utilities ----------
+function getTodayShort(){ 
+  return new Date().toLocaleDateString("en-US",{ weekday:"short"}); 
+}
+
+// ---------- Voice ----------
+function getVoice(){
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v=>v.lang.toLowerCase().startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+      || voices.find(v=>v.lang.toLowerCase().startsWith("en-ke"))
+      || voices.find(v=>v.lang.toLowerCase().startsWith("en-gb"))
+      || voices[0];
+}
+function speak(html){
+  const tmp=document.createElement("div"); tmp.innerHTML=html;
+  speechSynthesis.cancel();
+  utter = new SpeechSynthesisUtterance(tmp.textContent);
+  if(selectedVoice) utter.voice = selectedVoice;
+  utter.rate = 0.8;
+  speechSynthesis.speak(utter);
+}
+
+// ---------- Firebase Login ----------
+document.getElementById("loginBtn").onclick = ()=>{
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .then(res=>{
+      user = res.user;
+      db.ref(`${basePath}/students/${user.uid}`).update({name:user.displayName,email:user.email});
+      checkPhone(user);
+      document.getElementById("status").textContent = `👋 Hi ${user.displayName}`;
+    })
+    .catch(e=>alert("Login failed: "+e.message));
+};
+
+// ---------- Auth State ----------
+auth.onAuthStateChanged(u=>{
+  user = u;
+  if(user){
+    checkPhone(user);
+    db.ref(`${basePath}/ratings/${user.uid}`).once("value").then(snap=>{
+      updateStars(snap.exists()?snap.val().rating:0);
+    });
+  } else updateStars(0);
+});
+
+// ---------- Check & Save Phone ----------
+function checkPhone(u){
+  if(!u) return;
+  db.ref(`${basePath}/students/${u.uid}`).once("value").then(snap=>{
+    const pf=document.getElementById("phoneForm"), studentNameEl=document.getElementById("studentName"), card=document.querySelector(".card");
+    if(!snap.exists() || !snap.val().phone){
+      studentNameEl.textContent = `Welcome ${u.displayName}, please enter your phone number:`;
+      pf.style.display = "block";
+      card.style.display = "none";
+    } else {
+      pf.style.display = "none";
+      card.style.display = "block";
+    }
+  });
+}
+function savePhoneNumber(){
+  const phone=document.getElementById("phoneInput").value.trim();
+  if(!phone){ alert("⚠️ Enter phone."); return; }
+  db.ref(`${basePath}/students/${user.uid}`).update({phone:phone, timestamp:Date.now()})
+    .then(()=>{ 
+      alert("✅ Phone saved!"); 
+      document.getElementById("phoneForm").style.display="none"; 
+      document.querySelector(".card").style.display="block"; 
+    });
+}
+
+// ---------- Lesson Navigation ----------
+function loadLesson(index){
+  const day = getTodayShort();
+  todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
+  if(index>=0 && index<todayLessons.length){
+    currentLesson=index;
+    document.getElementById("lessonContainer").innerHTML = todayLessons[index];
+    speak(todayLessons[index]);
+  }
+}
+function nextLesson(){ loadLesson(currentLesson+1); }
+function prevLesson(){ loadLesson(currentLesson-1); }
+function pauseTutor(){ speechSynthesis.pause(); document.getElementById("status").textContent="⏸️ Paused"; }
+function resumeTutor(){ speechSynthesis.resume(); document.getElementById("status").textContent="▶️ Resumed"; }
+function contactWhatsApp(){ window.open("https://wa.me/254769255782","_blank"); }
+
+// ---------- Lesson Checker (Auto) ----------
+function startLessonChecker(curr){
+  function checkNow(){
+    const today = getTodayShort();
+    const lessonsToday = timetables[curr][today] || [];
+    const now = new Date();
+
+    const match = lessonsToday.find(l=>{
+      const [h,m]=l.start.split(":").map(Number);
+      const [eh,em]=l.end.split(":").map(Number);
+      const startTime=new Date(now); startTime.setHours(h,m,0,0);
+      const endTime=new Date(now); endTime.setHours(eh,em,0,0);
+      return now>=startTime && now<=endTime;
+    });
+
+    document.getElementById("status").textContent = match ? "📢 Lesson time: "+match.subject : "⏳ No lesson right now";
+
+    if(match && match.subject==="Math"){
+      todayLessons = lessonsArray[curr]?.[today]?.Math || [];
+      if(todayLessons.length){
+        document.getElementById("lessonContainer").innerHTML = todayLessons.map((l,i)=>`
+          <div class="card">
+            <h2>Lesson ${i+1}</h2>
+            ${l}
+          </div>
+        `).join("");
+      }
+      speak("Your Math lesson is starting now.");
+    }
+  }
+  checkNow();
+  setInterval(checkNow, 60000);
+}
+
+// ---------- Lesson Requests ----------
+function saveLessonRequest(){
+  if(!user){ alert("Login first."); return; }
+  const req=document.getElementById("lessonRequest").value.trim(), statusEl=document.getElementById("requestStatus");
+  if(!req){ statusEl.textContent="❌ Type your lesson request."; statusEl.style.color="red"; return; }
+  const ref=db.ref(`${basePath}/students/${user.uid}/requests`).push();
+  ref.set({text:req,timestamp:Date.now()}).then(()=>{
+    statusEl.textContent="✅ Request saved!"; statusEl.style.color="green"; document.getElementById("lessonRequest").value="";
+  });
+}
+
+// ---------- Rating ----------
+const ratingStars=document.querySelectorAll(".rating span");
+function updateStars(val){
+  ratingStars.forEach(s=>s.classList.toggle("active", s.dataset.v<=val));
+}
+ratingStars.forEach(star=>{
+  star.addEventListener("click", ()=>{
+    if(!user){ alert("Login first"); return; }
+    const val=parseInt(star.dataset.v);
+    db.ref(`${basePath}/students/${user.uid}`).update({rating:val,ratingTimestamp:Date.now()});
+    db.ref(`${basePath}/ratings/${user.uid}`).set({rating:val,timestamp:Date.now()});
+    updateStars(val);
+  });
+});
+
+// ---------- Init ----------
+window.onload = ()=>{ selectedVoice = getVoice(); speechSynthesis.onvoiceschanged = ()=>{ selectedVoice = getVoice(); }; };
+</script>
+
+</body>
+</html>
