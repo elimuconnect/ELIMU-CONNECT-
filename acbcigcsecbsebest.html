@@ -697,7 +697,7 @@ function startTutor() {
     }
 
     // Load lessons for the selected curriculum
-   todayLessons = lessonsArray[selectedCurriculum]?.[todayName]?.Math
+  todayLessons = lessonsArray[selectedCurriculum]?.[todayName]?.Math
                || [`<div><h2>Math Lesson</h2><p>Lessons coming soon for ${selectedCurriculum}.</p></div>`];
 
     const waitVoices = setInterval(() => {
