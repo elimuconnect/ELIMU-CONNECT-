@@ -70,466 +70,109 @@
   </script>
   
 <style>
-* { box-sizing: border-box; }
-html, body {
-  margin: 0; padding: 0; height: 100%;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right,#e0f7fa,#fce4ec);
-}
-#app { display: flex; flex-direction: column; height: 100vh; }
-#toolbar {
-  padding: 15px;
-  background: #1976d2;
-  color: white;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-#toolbar button {
-  background: white;
-  color: #1976d2;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-#toolbar button:hover { background: #f0f0f0; }
-#editor {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* ✅ NEW CARD STYLE */
-/* ✅ Shared card styles for all cards */
-.card {
-  max-width: 90vw;
-  width: 100%;
-  margin: 20px auto;
-  padding: 40px;
-  background: white;
-  border-radius: 25px;
-  border: 2px solid #ccc; /* Prominent border */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  font-size: 1.8em;
-  line-height: 2;
-  font-weight: bold;
-  animation: fadeIn 1s ease;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  color: #1a237e;
-  box-sizing: border-box;
-  transition: all 0.3s ease-in-out; /* Smooth hover/layout changes */
-}
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height:100%; font-family: 'Segoe UI', sans-serif; background:linear-gradient(to right,#e0f7fa,#fce4ec); }
+#app { display:flex; flex-direction:column; min-height:100vh; }
+#toolbar { display:flex; flex-wrap:wrap; gap:10px; padding:10px; justify-content:center; }
+#toolbar button { padding:12px; font-size:16px; border:none; border-radius:8px; background:#4CAF50; color:white; cursor:pointer; flex:1 1 auto; transition:0.3s; }
+#toolbar button:hover { background:#45a049; }
+@media(max-width:600px){#toolbar{display:grid;grid-template-columns:1fr 1fr;}#toolbar button{width:100%;}}
 
-/* Headings inside cards */
-.card h2 {
-  margin-top: 0;
-  font-size: 2em;
-  font-weight: bold;
-}
-
-/* Optional manual title colors */
-.card h2.red    { color: #d81b60; }
-.card h2.green  { color: #2e7d32; }
-.card h2.blue   { color: #1565c0; }
-.card h2.orange { color: #ef6c00; }
-.card h2.purple { color: #6a1b9a; }
-
-/* Automatic color cycling for h2s inside cards */
-.card h2:nth-child(5n+1) { color: #d81b60; }
-.card h2:nth-child(5n+2) { color: #2e7d32; }
-.card h2:nth-child(5n+3) { color: #1565c0; }
-.card h2:nth-child(5n+4) { color: #ef6c00; }
-.card h2:nth-child(5n+5) { color: #6a1b9a; }
-
-.card pre {
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  font-size: 1.6em;
-  line-height: 2;
-  font-weight: bold;
-  color: #1a237e;
-}
-
-/* ✅ Specific card visibility */
-#loginCard { display: block; }  /* Show login first */
-#tutorCard { display: none; }   /* Hide timetable until login */
-
-  
-#status {
-  padding: 15px;
-  background: #388e3c;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 16px;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
- #toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px;
-    justify-content: center;
-  }
-
-  #toolbar button {
-    padding: 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background: #4CAF50;
-    color: white;
-    cursor: pointer;
-    flex: 1 1 auto;
-  }
-
-  #toolbar button:hover {
-    background: #45a049;
-  }
-
-  /* On phones → 2 columns */
-  @media (max-width: 600px) {
-    #toolbar {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    #toolbar button {
-      width: 100%;
-    }
-  }
-
-  .card {
-    padding: 20px;
-    font-size: 1.2em;
-  }
-
-  .card h2 {
-    font-size: 1.4em;
-  }
-
-  .card pre {
-    font-size: 1.15em;
-  }
-
-  #status {
-    font-size: 15px;
-    padding: 10px;
-  }
-}
-
-/* Extra formatting helpers for lesson text */
-.lesson-title {
-  color: #d32f2f; /* Deep red */
-  font-size: 1.2em;
-  display: block;
-  margin: 10px 0;
-}
-.subtopic {
-  color: #1976d2; /* Blue */
-  font-weight: bold;
-  display: block;
-  margin-top: 15px;
-}
-.question {
-  color: #f57c00; /* Orange */
-  font-weight: bold;
-  display: block;
-  margin-top: 15px;
-}
-.answer {
-  color: #388e3c; /* Green */
-  font-weight: bold;
-  display: block;
-  margin-top: 15px;
-}
-.bullet {
-  color: #6a1b9a; /* Purple dot */
-  margin-right: 8px;
-}
-.point {
-  color: #1a237e;
-  display: block;
-  margin-left: 20px;
-}
-
-.rating {
-  margin-top: 20px;
-  font-size: 2em;
-  color: #ccc;            /* Default gray */
-  display: inline-block;
-  cursor: pointer;
-  user-select: none;
-}
-
-
-.rating span {
-  display: inline-block;       /* ensures each star is separate */
-  width: 1.2em;                /* adjust to your star size */
-  text-align: center;           /* center the star inside its box */
-  transition: color 0.3s;
-  user-select: none;
-}
-
-  .rating {
-  touch-action: manipulation;  /* prevents mobile from interpreting swipe/zoom */
-}
-
-  .rating span {
-  line-height: 1;  /* prevents vertical area being counted as clickable */
-}
-
-  
-.rating span.active {
-  color: gold;   /* clicked/persisted stars */
-}
-.rating span.hover {
-  color: orange; /* temporary preview */
-}
-
-
-  .timetable {
-  margin-top: 12px;
-  background: #f9fbff;
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.timetable h3 {
-  margin: 0 0 6px;
-  color: #1976d2;
-  font-size: 1em;
-}
-
-.timetable table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85em; /* smaller font */
-}
-
-.timetable th {
-  background: #1976d2;
-  color: white;
-  padding: 4px 6px; /* reduced padding */
-  text-align: left;
-  border: 1px solid #ccc;
-}
-
-.timetable td {
-  padding: 4px 6px; /* reduced padding */
-  border: 1px solid #ccc;
-}
-
-.timetable tr:nth-child(even) {
-  background: #f1f6fb;
-}
-
+.card { max-width:90vw; margin:20px auto; padding:20px; background:white; border-radius:20px; border:2px solid #ccc; box-shadow:0 8px 24px rgba(0,0,0,0.15); font-size:1.2em; line-height:1.8; color:#1a237e; }
+.card h2{margin-top:0;}
+#status{padding:10px; background:#388e3c; color:white; text-align:center; font-weight:bold; font-size:15px;}
+.timetable{margin-top:12px;background:#f9fbff;padding:8px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.timetable table{width:100%;border-collapse:collapse;font-size:0.85em;}
+.timetable th{background:#1976d2;color:white;padding:4px 6px;border:1px solid #ccc;}
+.timetable td{padding:4px 6px;border:1px solid #ccc;}
+.timetable tr:nth-child(even){background:#f1f6fb;}
+.rating span{font-size:1.2em; cursor:pointer; user-select:none; transition:color 0.3s;}
+.rating span.active{color:gold;}
+.rating span.hover{color:orange;}
 </style>
 </head>
 <body>
-  <div id="app">
-    <div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
-  <h2>📚 Choose Your Curriculum</h2>
-  <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
-  <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
-  <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
+<div id="app">
+
+<!-- Curriculum Selection -->
+<div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
+<h2>📚 Choose Your Curriculum</h2>
+<button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
+<button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
+<button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
 </div>
 
-    <!-- Main Tutor Section -->
-    <div id="mainTutor" style="display:none;">
-      <div id="toolbar">
-        <button id="loginBtn" onclick="googleLogin()">🔑 Google Login</button>
-        <button onclick="startTutor()">▶️ Start Tutor</button>
-        <button onclick="pauseTutor()">⏸️ Pause</button>
-        <button onclick="resumeTutor()">▶️ Resume</button>
-        <button onclick="prevLesson()">⬅️ Back</button>
-        <button onclick="nextLesson()">➡️ Next</button>
-        <button onclick="contactWhatsApp()">💬 Customer Care</button>
-      </div>
+<!-- Main Tutor -->
+<div id="mainTutor" style="display:none;">
+<div id="toolbar">
+<button id="loginBtn">🔑 Google Login</button>
+<button onclick="startTutor()">▶️ Start Tutor</button>
+<button onclick="pauseTutor()">⏸️ Pause</button>
+<button onclick="resumeTutor()">▶️ Resume</button>
+<button onclick="prevLesson()">⬅️ Back</button>
+<button onclick="nextLesson()">➡️ Next</button>
+<button onclick="contactWhatsApp()">💬 Customer Care</button>
+</div>
 
-      <div id="editor">
-        <!-- Phone Form -->
-        <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
-          <h2>📱 Enter Your Phone Number</h2>
-          <p id="studentName"></p>
-          <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" 
-                 style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
-          <br><br>
-          <button onclick="savePhoneNumber()" 
-                  style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">
-            Save & Unlock Lessons
-          </button>
-        </div>
-
-     
-<!-- Login Card (shows on page load) -->
+<div id="editor">
+<!-- Login Card -->
 <div class="card" id="loginCard">
-  <h2>Welcome to Smart Tutor</h2>
-  <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
-
-  <!-- Timetable always visible -->
-  <div class="timetable">
-    <h3>📅 Weekly Timetable (Kenya time)</h3>
-    <table>
-      <thead>
-        <tr><th>Day</th><th>Subject</th><th>Time</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
-        <tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
-        <tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <button id="loginBtn2" onclick="googleLogin()" 
-          style="margin-top:15px;background:#1976d2;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">
-    🔑 Google Login
-  </button>
+<h2>Welcome to Smart Tutor</h2>
+<p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
+<div class="timetable">
+<h3>📅 Weekly Timetable</h3>
+<table>
+<tr><th>Day</th><th>Subject</th><th>Time</th></tr>
+<tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
+<tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
+<tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
+</table>
+</div>
+<button id="loginBtn2">🔑 Google Login</button>
 </div>
 
-        <!-- Main Tutor Card (appears after login & curriculum choice) -->
-        <div class="card" id="tutorCard" style="display:none;">
-          <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px;"></div>
-          <h2>Welcome to Smart Tutor</h2>
-          <p id="selectedCurriculum"></p>
+<!-- Tutor Card -->
+<div class="card" id="tutorCard" style="display:none;">
+<h2>Welcome to Smart Tutor</h2>
+<p id="selectedCurriculum"></p>
+<div class="rating" id="ratingStars"><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div>
+<p id="ratingValue">Average Rating: <span id="avgRating">–</span> ★</p>
+<div id="lessonContainer"></div>
+<div id="status">⏳ Ready…</div>
+</div>
+</div>
+</div>
+</div>
 
-          <div class="rating" id="ratingStars">
-            <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
-            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
-          </div>
-          <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-            Average Rating: <span id="avgRating">–</span> ★
-          </p>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
 
-          <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
-            <h3>✍️ Request Lessons for Tomorrow</h3>
-            <textarea id="lessonRequest" 
-                      placeholder="Type the topic you want Smart Tutor to cover…" 
-                      style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;">
-            </textarea>
-            <br><br>
-            <button onclick="saveLessonRequest()" 
-                    style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">
-              🚀 Submit Request
-            </button>
-            <p id="requestStatus" style="font-size:0.8em; margin-top:8px; font-weight:bold;"></p>
-          </div>
-
-          <div id="lessonContainer"></div>
-          <div id="status">⏳ Ready…</div>
-        </div> <!-- end tutorCard -->
-      </div> <!-- end editor -->
-    </div> <!-- end mainTutor -->
-  </div> <!-- end app -->
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
-  
 <script>
-/* ---------- FIREBASE CONFIG ---------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
-  authDomain: "cbc-general.firebaseapp.com",
-  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
-  projectId: "cbc-general",
-  storageBucket: "cbc-general.firebasestorage.app",
-  messagingSenderId: "764732839741",
-  appId: "1:764732839741:web:ab829af54839de91359754"
-};
+// Firebase
+const firebaseConfig = {apiKey:"AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",authDomain:"cbc-general.firebaseapp.com",databaseURL:"https://cbc-general-default-rtdb.firebaseio.com",projectId:"cbc-general",storageBucket:"cbc-general.firebasestorage.app",messagingSenderId:"764732839741",appId:"1:764732839741:web:ab829af54839de91359754"};
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database(); 
-  
-/* -------------------------------------- */
+const auth = firebase.auth(); const db = firebase.database();
 
-const editor = document.getElementById("editor");
-const status = document.getElementById("status");
-const loginBtn = document.getElementById("loginBtn");
-  
-let user = null;
-let chosenCurriculum = null;
-let currentLesson = 0;
-let todayLessons = [];
-let selectedVoice = null;
-let utter = null;
+let user=null, chosenCurriculum=null, currentLesson=0, todayLessons=[], selectedVoice=null, utter=null;
 
-
-
-/* ---------- LOGIN WITH GOOGLE ---------- */
-loginBtn.onclick = () => {
+function googleLogin(){
   const provider = new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider)
-    .then(res => {
-      user = res.user;
-      status.textContent = `👋 Hi ${user.displayName}`;
+  auth.signInWithPopup(provider).then(res=>{
+    user=res.user;
+    document.getElementById("status").textContent=`👋 Hi ${user.displayName}`;
+    db.ref("students/"+user.uid).update({name:user.displayName,email:user.email});
+  }).catch(e=>alert(e.message));
+}
 
-      // Save profile
-      db.ref("students/" + user.uid).update({
-        name: user.displayName,
-        email: user.email
-      });
-    })
-    .catch(e => alert(e.message));
-};
-
-/* ---------- HANDLE AUTH STATE ---------- */
-
-
-firebase.auth().onAuthStateChanged(u => {
-  user = u;
-
-  const loginCard = document.getElementById("loginCard");
-  const phoneForm = document.getElementById("phoneForm");
-  const curriculumSelect = document.getElementById("curriculumSelect");
-  const tutorCard = document.getElementById("tutorCard");
-  const loginBtn2 = document.getElementById("loginBtn2");
-
-  if (user) {
-    status.textContent = `👋 Hi ${user.displayName}`;
-
-    // Hide only the login buttons, not the card or timetable
-    loginBtn.style.display = "none";
-    loginBtn2.style.display = "none";
-
-    // Show curriculum selection
-    curriculumSelect.style.display = "block";
-
-    // Hide phone form (optional: show later when saving phone)
-    phoneForm.style.display = "none";
-
-    // Tutor card stays hidden until curriculum selected
-    tutorCard.style.display = "none";
-  } else {
-    // Not logged in → show login card + timetable
-    loginCard.style.display = "block";
-    loginBtn.style.display = "inline-block";
-    loginBtn2.style.display = "inline-block";
-    phoneForm.style.display = "none";
-    curriculumSelect.style.display = "none";
-    if (tutorCard) tutorCard.style.display = "none";
-    status.textContent = "Please log in to continue.";
-  }
+auth.onAuthStateChanged(u=>{
+  user=u;
+  const loginCard=document.getElementById("loginCard");
+  const curriculumSelect=document.getElementById("curriculumSelect");
+  const tutorCard=document.getElementById("tutorCard");
+  if(user){ loginCard.style.display="block"; curriculumSelect.style.display="block"; tutorCard.style.display="none"; document.getElementById("loginBtn").style.display="none"; document.getElementById("loginBtn2").style.display="none"; status.textContent=`👋 Hi ${user.displayName}`; } 
+  else { loginCard.style.display="block"; curriculumSelect.style.display="none"; tutorCard.style.display="none"; document.getElementById("loginBtn").style.display="inline-block"; document.getElementById("loginBtn2").style.display="inline-block"; status.textContent="Please log in to continue.";}
 });
-
-
-  
 
 const lessonsArray = {
   CBC: {
