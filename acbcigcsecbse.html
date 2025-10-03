@@ -657,7 +657,10 @@ function speak(html){
 
 /* ---------- START TUTOR ---------- */
 function startTutor(){
-  if(!user){ alert("⚠️ Please login first."); return; }
+  if(!user){ 
+    alert("⚠️ Please login first."); 
+    return; 
+  }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
     if(!snap.exists() || !snap.val().phone){
@@ -666,22 +669,37 @@ function startTutor(){
       return;
     }
 
+    if(!chosenCurriculum){ 
+      alert("⚠️ Please choose a curriculum first (CBC, British, CBSE)."); 
+      return; 
+    }
+
     const now = new Date();
+    // Convert to Kenya time (UTC+3)
     const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
     const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const todayName = days[kenyaTime.getDay()];
 
-    const slots = timetable[todayName] || [];
+    // ✅ Get timetable of the chosen curriculum
+    const slots = (timetables[chosenCurriculum][todayName]) || [];
     const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
     if(!currentSlot){
-      editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
+      editor.innerHTML = `<div class='card'>
+        <h2>⏳ No active ${chosenCurriculum} lesson right now.</h2>
+        <p>Please check the timetable.</p>
+      </div>`;
       status.textContent = "No active lesson";
       return;
     }
 
-    todayLessons = lessonsArray[todayName][currentSlot.subject] || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
-    
+    // ✅ Load today’s lessons for the chosen curriculum + subject
+    todayLessons = (lessonsArray[chosenCurriculum] &&
+                   lessonsArray[chosenCurriculum][todayName] &&
+                   lessonsArray[chosenCurriculum][todayName][currentSlot.subject]) 
+                   || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
+
+    // ✅ Voice setup
     const waitVoices = setInterval(()=>{
       if(speechSynthesis.getVoices().length){
         clearInterval(waitVoices);
@@ -693,6 +711,7 @@ function startTutor(){
   });
 }
 
+  
 // --- Full Features List ---
 const appFeatures = [
   "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
@@ -729,6 +748,16 @@ let featureIndex = 0;
 
 /* ---------- SHOW CURRENT LESSON ---------- */
 function showLesson() {
+  if (!todayLessons || todayLessons.length === 0) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>📌 No lessons available for ${chosenCurriculum} today.</h2>
+        <p>Please check the timetable or come back later.</p>
+      </div>
+    `;
+    return;
+  }
+
   if (currentLesson >= todayLessons.length) {
     editor.innerHTML = `
       <div class="card">
@@ -741,14 +770,16 @@ function showLesson() {
 
   const lessonHtml = todayLessons[currentLesson];
 
-  // Pick 3 rotating features
+  // 🔄 Pick 3 rotating app features
   const f1 = appFeatures[featureIndex % appFeatures.length];
   const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
   const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
   featureIndex += 3;
 
+  // 🎨 Render lesson card
   editor.innerHTML = `
     <div class="card">
+      <h3>${chosenCurriculum} – Math</h3>
       ${lessonHtml}
       <hr>
       <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
@@ -767,10 +798,11 @@ function showLesson() {
     </div>
   `;
 
+  // 🔊 Speak lesson content
   speak(lessonHtml);
 }
 
-
+  
 // Realtime Database reference
 const db = firebase.database();
 
@@ -932,23 +964,45 @@ function savePhoneNumber() {
 
 
 
-function prevLesson(){
-  if(todayLessons.length && currentLesson>0){
+
+* ---------- LESSON NAVIGATION ---------- */
+function prevLesson() {
+  if (todayLessons && todayLessons.length && currentLesson > 0) {
     currentLesson--;
     showLesson();
+  } else {
+    status.textContent = "⏮️ Already at the first lesson.";
   }
 }
-function nextLesson(){
-  if(todayLessons.length && currentLesson<todayLessons.length-1){
+
+function nextLesson() {
+  if (todayLessons && todayLessons.length && currentLesson < todayLessons.length - 1) {
     currentLesson++;
     showLesson();
+  } else {
+    status.textContent = "⏭️ No more lessons in this slot.";
   }
 }
-function pauseTutor(){speechSynthesis.pause();status.textContent="⏸️ Paused";}
-function resumeTutor(){speechSynthesis.resume();status.textContent="▶️ Resumed";}
-function contactWhatsApp(){window.open("https://wa.me/254769255782","_blank");}
 
+/* ---------- VOICE CONTROLS ---------- */
+function pauseTutor() {
+  if (speechSynthesis.speaking) {
+    speechSynthesis.pause();
+    status.textContent = "⏸️ Paused";
+  }
+}
 
+function resumeTutor() {
+  if (speechSynthesis.paused) {
+    speechSynthesis.resume();
+    status.textContent = "▶️ Resumed";
+  }
+}
+
+/* ---------- CONTACT SUPPORT ---------- */
+function contactWhatsApp() {
+  window.open("https://wa.me/254769255782", "_blank");
+}
 
 function saveLessonRequest() {
   if (!user) {
