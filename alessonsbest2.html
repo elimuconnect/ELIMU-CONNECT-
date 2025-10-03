@@ -473,7 +473,7 @@ function contactWhatsApp(){ window.open("https://wa.me/254769255782","_blank"); 
 
 // Lesson Checker (auto alert)
 function startLessonChecker(curr){
-  setInterval(()=>{
+  function checkNow(){
     const today = new Date().toLocaleDateString("en-US",{ weekday:"short"});
     const lessonsToday = timetables[curr][today] || [];
     const now = new Date();
@@ -509,9 +509,14 @@ function startLessonChecker(curr){
       }
       speak("Your Math lesson is starting now.");
     }
-  },60000); // every minute
-}
+  }
 
+  // ✅ Run immediately when Start Tutor is clicked
+  checkNow();
+
+  // ✅ Keep checking every minute
+  setInterval(checkNow,60000);
+}
 
 // Save Lesson Request
 function saveLessonRequest(){
