@@ -622,14 +622,19 @@ const timetables = {
 };
 
 function chooseCurriculum(curriculum) {
-   chosenCurriculum = curriculum;
+  chosenCurriculum = curriculum;
 
   // Hide curriculum selection
   document.getElementById("curriculumSelect").style.display = "none";
 
-  // Show lessons (start tutor)
+  // Show tutor content
+  document.getElementById("tutorContent").style.display = "block";
+  document.getElementById("selectedCurriculum").innerText = "✅ Curriculum: " + curriculum;
+
+  // Start lessons
   startTutor();
 }
+
 
 /* ---------- HELPER: Check if current time is in a slot ---------- */
 function inTimeRange(start, end, now){
