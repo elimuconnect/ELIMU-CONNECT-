@@ -430,6 +430,9 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.database(); // ✅ add this
+
+  
 /* -------------------------------------- */
 
 const editor = document.getElementById("editor");
@@ -444,11 +447,6 @@ loginBtn.onclick = () => {
       user = res.user;
       status.textContent = `👋 Hi ${user.displayName}`;
 
-
-auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-  .then(res => {
-    user = res.user;
-    status.textContent = `👋 Hi ${user.displayName}`;
 
     // Always update profile (name + email at least)
     db.ref("students/" + user.uid).update({
@@ -656,52 +654,47 @@ function speak(html){
 }
 
 /* ---------- START TUTOR ---------- */
-function startTutor(){
-  if(!user){ 
-    alert("⚠️ Please login first."); 
-    return; 
+
+/* ---------- START TUTOR ---------- */
+function startTutor() {
+  if (!user) {
+    alert("⚠️ Please login first.");
+    return;
   }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
-    if(!snap.exists() || !snap.val().phone){
+    if (!snap.exists() || !snap.val().phone) {
       alert("⚠️ Enter your phone number first.");
       document.getElementById("phoneForm").style.display = "block";
       return;
     }
 
-    if(!chosenCurriculum){ 
-      alert("⚠️ Please choose a curriculum first (CBC, British, CBSE)."); 
-      return; 
-    }
-
+    // ✅ Get Kenya time correctly
     const now = new Date();
-    // Convert to Kenya time (UTC+3)
-    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
-    const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const todayName = days[kenyaTime.getDay()];
 
-    // ✅ Get timetable of the chosen curriculum
-    const slots = (timetables[chosenCurriculum][todayName]) || [];
+    const slots = timetable[todayName] || [];
     const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
-    if(!currentSlot){
-      editor.innerHTML = `<div class='card'>
-        <h2>⏳ No active ${chosenCurriculum} lesson right now.</h2>
-        <p>Please check the timetable.</p>
-      </div>`;
+    if (!currentSlot) {
+      editor.innerHTML = `
+        <div class="card">
+          <h2>⏳ No active lesson right now. Check the timetable.</h2>
+        </div>
+      `;
       status.textContent = "No active lesson";
       return;
     }
 
-    // ✅ Load today’s lessons for the chosen curriculum + subject
-    todayLessons = (lessonsArray[chosenCurriculum] &&
-                   lessonsArray[chosenCurriculum][todayName] &&
-                   lessonsArray[chosenCurriculum][todayName][currentSlot.subject]) 
-                   || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
+    todayLessons = lessonsArray[todayName][currentSlot.subject] || [
+      `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
+    ];
 
-    // ✅ Voice setup
-    const waitVoices = setInterval(()=>{
-      if(speechSynthesis.getVoices().length){
+    const waitVoices = setInterval(() => {
+      if (speechSynthesis.getVoices().length) {
         clearInterval(waitVoices);
         selectedVoice = getVoice();
         currentLesson = 0;
