@@ -165,15 +165,48 @@ function googleLogin(){
   }).catch(e=>alert(e.message));
 }
 
-auth.onAuthStateChanged(u=>{
-  user=u;
-  const loginCard=document.getElementById("loginCard");
-  const curriculumSelect=document.getElementById("curriculumSelect");
-  const tutorCard=document.getElementById("tutorCard");
-  if(user){ loginCard.style.display="block"; curriculumSelect.style.display="block"; tutorCard.style.display="none"; document.getElementById("loginBtn").style.display="none"; document.getElementById("loginBtn2").style.display="none"; status.textContent=`👋 Hi ${user.displayName}`; } 
-  else { loginCard.style.display="block"; curriculumSelect.style.display="none"; tutorCard.style.display="none"; document.getElementById("loginBtn").style.display="inline-block"; document.getElementById("loginBtn2").style.display="inline-block"; status.textContent="Please log in to continue.";}
+const editor = document.getElementById("editor"); // Make editor global
+
+auth.onAuthStateChanged(u => {
+  user = u;
+  const loginCard = document.getElementById("loginCard");
+  const curriculumSelect = document.getElementById("curriculumSelect");
+  const tutorCard = document.getElementById("tutorCard");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginBtn2 = document.getElementById("loginBtn2");
+  const statusEl = document.getElementById("status");
+
+  if (user) {
+    // Hide login buttons
+    loginBtn.style.display = "none";
+    loginBtn2.style.display = "none";
+
+    // Show curriculum selection & login card (with timetable)
+    loginCard.style.display = "block";
+    curriculumSelect.style.display = "block";
+    tutorCard.style.display = "none";
+
+    statusEl.textContent = `👋 Hi ${user.displayName || "Student"}`;
+  } else {
+    // Show login buttons
+    loginBtn.style.display = "inline-block";
+    loginBtn2.style.display = "inline-block";
+
+    // Show static timetable
+    loginCard.style.display = "block";
+    curriculumSelect.style.display = "none";
+    tutorCard.style.display = "none";
+
+    statusEl.textContent = "Please log in to continue.";
+  }
 });
 
+// Attach login button
+document.getElementById("loginBtn").addEventListener("click", googleLogin);
+document.getElementById("loginBtn2").addEventListener("click", googleLogin);
+
+
+  
 const lessonsArray = {
   CBC: {
     Mon: { Math: [
