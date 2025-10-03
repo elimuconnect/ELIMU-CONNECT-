@@ -336,13 +336,12 @@ html, body {
 </head>
 <body>
   <div id="app">
-    <!-- Curriculum Selection -->
     <div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
-      <h2>📚 Choose Your Curriculum</h2>
-      <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
-      <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
-      <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
-    </div>
+  <h2>📚 Choose Your Curriculum</h2>
+  <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
+  <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
+  <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
+</div>
 
     <!-- Main Tutor Section -->
     <div id="mainTutor" style="display:none;">
@@ -1040,14 +1039,6 @@ function saveLessonRequest() {
     statusEl.textContent = "❌ Error: " + err.message;
     statusEl.style.color = "red";
   });
-}
-
-
-function googleLogin() {
-  // ✅ After login, hide login button and show curriculum selection
-  document.getElementById("loginBtn").style.display = "none";
-  document.getElementById("loginMessage").textContent = "✅ Logged in! Please select your curriculum:";
-  document.getElementById("curriculumSelect").style.display = "block";
 }
 
 
