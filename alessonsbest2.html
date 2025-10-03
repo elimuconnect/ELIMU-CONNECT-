@@ -357,22 +357,51 @@ function startTutor() {
   document.getElementById("status").textContent = "▶️ Lesson started";
 }
 
-// Load lessons by day
-function loadLesson(index) {
-  const day = getTodayShort(); // use normalized version
-  todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
-  if (todayLessons.length === 0) {
-    document.getElementById("lessonContainer").innerHTML = "<p>No Math lessons today.</p>";
-    return;
-  }
-  if (index >= 0 && index < todayLessons.length) {
-    currentLesson = index;
-    const content = todayLessons[index];
-    document.getElementById("lessonContainer").innerHTML = content;
-    speak(content);
-  }
+
+function isLessonTime(curr, day) {
+  const lessonsToday = timetables[curr][day] || [];
+  const now = new Date();
+
+  return lessonsToday.find(l => {
+    const [h, m] = l.start.split(":").map(Number);
+    const [eh, em] = l.end.split(":").map(Number);
+
+    const startTime = new Date(now);
+    startTime.setHours(h, m, 0, 0);
+
+    const endTime = new Date(now);
+    endTime.setHours(eh, em, 0, 0);
+
+    return now >= startTime && now <= endTime;
+  });
 }
 
+  
+// Load lessons by day
+
+
+function loadTodayLessons() {
+  const day = new Date().toLocaleDateString("en-US",{ weekday:"short"});
+  todayLessons = lessonsArray[chosenCurriculum]?.[day]?.Math || [];
+
+  const match = isLessonTime(chosenCurriculum, day);
+
+  if (!match) {
+    document.getElementById("lessonContainer").innerHTML = "<p>⏳ No Math lesson right now.</p>";
+    return;
+  }
+
+  let html = "";
+  todayLessons.forEach((lesson, i) => {
+    html += `
+      <div class="card">
+        <h2>Lesson ${i+1}</h2>
+        ${lesson}
+      </div>
+    `;
+  });
+  document.getElementById("lessonContainer").innerHTML = html;
+}
 
 
 
@@ -445,15 +474,44 @@ function contactWhatsApp(){ window.open("https://wa.me/254769255782","_blank"); 
 // Lesson Checker (auto alert)
 function startLessonChecker(curr){
   setInterval(()=>{
-    const today=new Date().toLocaleDateString("en-US",{ weekday:"short"}), lessonsToday=timetables[curr][today]||[], now=new Date();
-    const match=lessonsToday.find(l=>{
-      const [h,m]=l.start.split(":").map(Number), startTime=new Date(now); startTime.setHours(h,m,0,0);
-      return now>=startTime && now<=new Date(startTime.getTime()+90*60000);
+    const today = new Date().toLocaleDateString("en-US",{ weekday:"short"});
+    const lessonsToday = timetables[curr][today] || [];
+    const now = new Date();
+
+    // check timetable using real start & end
+    const match = lessonsToday.find(l=>{
+      const [h,m] = l.start.split(":").map(Number);
+      const [eh,em] = l.end.split(":").map(Number);
+
+      const startTime = new Date(now);
+      startTime.setHours(h,m,0,0);
+
+      const endTime = new Date(now);
+      endTime.setHours(eh,em,0,0);
+
+      return now >= startTime && now <= endTime;
     });
-    document.getElementById("status").textContent = match ? "📢 Lesson time: "+match.subject : "⏳ No lesson right now";
-    if(match) speak("Your "+match.subject+" lesson is starting now.");
-  },60000);
+
+    // update status
+    document.getElementById("status").textContent = 
+      match ? "📢 Lesson time: " + match.subject : "⏳ No lesson right now";
+
+    // if it's a Math lesson → load + speak
+    if (match && match.subject === "Math") {
+      todayLessons = lessonsArray[curr]?.[today]?.Math || [];
+      if (todayLessons.length){
+        document.getElementById("lessonContainer").innerHTML = todayLessons.map((l,i)=>`
+          <div class="card">
+            <h2>Lesson ${i+1}</h2>
+            ${l}
+          </div>
+        `).join("");
+      }
+      speak("Your Math lesson is starting now.");
+    }
+  },60000); // every minute
 }
+
 
 // Save Lesson Request
 function saveLessonRequest(){
