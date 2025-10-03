@@ -335,108 +335,105 @@ html, body {
 </style>
 </head>
 <body>
-
-<div id="app">
-<!-- Curriculum Selection -->
-<div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
-  <h2>📚 Choose Your Curriculum</h2>
-  <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
-  <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
-  <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
-</div>
-
- 
-
-  <!-- Main Tutor Section -->
-  <div id="mainTutor" style="display:none;">
-    <div id="toolbar">
-      <button id="loginBtn">🔑 Google Login</button>
-      <button onclick="startTutor()">▶️ Start Tutor</button>
-      <button onclick="pauseTutor()">⏸️ Pause</button>
-      <button onclick="resumeTutor()">▶️ Resume</button>
-      <button onclick="prevLesson()">⬅️ Back</button>
-      <button onclick="nextLesson()">➡️ Next</button>
-      <button onclick="contactWhatsApp()">💬 Customer Care</button>
+  <div id="app">
+    <!-- Curriculum Selection -->
+    <div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
+      <h2>📚 Choose Your Curriculum</h2>
+      <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
+      <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
+      <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
     </div>
 
-    <div id="editor">
-      <!-- Phone Form -->
-      <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
-        <h2>📱 Enter Your Phone Number</h2>
-        <p id="studentName"></p>
-        <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
-        <br><br>
-        <button onclick="savePhoneNumber()" style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">Save & Unlock Lessons</button>
+    <!-- Main Tutor Section -->
+    <div id="mainTutor" style="display:none;">
+      <div id="toolbar">
+        <button id="loginBtn" onclick="googleLogin()">🔑 Google Login</button>
+        <button onclick="startTutor()">▶️ Start Tutor</button>
+        <button onclick="pauseTutor()">⏸️ Pause</button>
+        <button onclick="resumeTutor()">▶️ Resume</button>
+        <button onclick="prevLesson()">⬅️ Back</button>
+        <button onclick="nextLesson()">➡️ Next</button>
+        <button onclick="contactWhatsApp()">💬 Customer Care</button>
       </div>
 
-<!-- This stays visible on load -->
-<div class="card" id="loginCard">
-  <h2>Welcome to Smart Tutor</h2>
-  <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
+      <div id="editor">
+        <!-- Phone Form -->
+        <div id="phoneForm" style="display:none; text-align:center; padding:20px; margin-bottom:20px; border:1px solid #ccc; border-radius:10px; background:#f9f9f9;">
+          <h2>📱 Enter Your Phone Number</h2>
+          <p id="studentName"></p>
+          <input type="text" id="phoneInput" placeholder="e.g. 07xx xxx xxx" 
+                 style="padding:10px; font-size:1em; width:80%; max-width:300px; border:1px solid #aaa; border-radius:6px;">
+          <br><br>
+          <button onclick="savePhoneNumber()" 
+                  style="padding:10px 20px; font-size:1em; border:none; border-radius:8px; background:#1976d2; color:white; cursor:pointer;">
+            Save & Unlock Lessons
+          </button>
+        </div>
 
-  <div class="timetable">
-    <h3>📅 Weekly Timetable (Kenya time)</h3>
-    <table>
-      <thead>
-        <tr><th>Day</th><th>Subject</th><th>Time</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
-        <tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
-        <tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
-      </tbody>
-    </table>
-  </div>
+        <!-- Login Card (Visible on load) -->
+        <div class="card" id="loginCard">
+          <h2>Welcome to Smart Tutor</h2>
+          <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
 
-  <button id="loginBtn" onclick="googleLogin()" 
-    style="margin-top:15px;background:#1976d2;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">
-    🔑 Google Login
-  </button>
-</div>
+          <div class="timetable">
+            <h3>📅 Weekly Timetable (Kenya time)</h3>
+            <table>
+              <thead>
+                <tr><th>Day</th><th>Subject</th><th>Time</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Mon – Fri</td><td>Math</td><td>5:30 PM – 7:00 PM</td></tr>
+                <tr><td>Saturday</td><td>Math</td><td>8:00 AM – 10:00 AM</td></tr>
+                <tr><td>Sunday</td><td colspan="2">No lessons scheduled</td></tr>
+              </tbody>
+            </table>
+          </div>
 
+          <button id="loginBtn2" onclick="googleLogin()" 
+                  style="margin-top:15px;background:#1976d2;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;">
+            🔑 Google Login
+          </button>
+        </div>
 
-      <!-- This is hidden until curriculum is chosen -->
-<div class="card" id="tutorCard" style="display:none;">
-  <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px;"></div>
-  <h2>Welcome to Smart Tutor</h2>
-  <p id="selectedCurriculum"></p>
+        <!-- Main Tutor Card (appears after login & curriculum choice) -->
+        <div class="card" id="tutorCard" style="display:none;">
+          <div id="ratingMessage" style="display:none; color:#388e3c; font-weight:bold; margin-bottom:10px;"></div>
+          <h2>Welcome to Smart Tutor</h2>
+          <p id="selectedCurriculum"></p>
 
-  <div class="rating" id="ratingStars">
-    <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
-    <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
-  </div>
-  <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
-    Average Rating: <span id="avgRating">–</span> ★
-  </p>
+          <div class="rating" id="ratingStars">
+            <p style="font-size:0.6em;margin:5px 0;">Rate this Tutor:</p>
+            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+          </div>
+          <p id="ratingValue" style="font-size:0.6em;color:#1976d2;margin-top:6px;">
+            Average Rating: <span id="avgRating">–</span> ★
+          </p>
 
-  <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
-    <h3>✍️ Request Lessons for Tomorrow</h3>
-    <textarea id="lessonRequest" placeholder="Type the topic you want Smart Tutor to cover…" style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;"></textarea>
-    <br><br>
-    <button onclick="saveLessonRequest()" style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">🚀 Submit Request</button>
-    <p id="requestStatus" style="font-size:0.8em; margin-top:8px; font-weight:bold;"></p>
-  </div>
+          <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
+            <h3>✍️ Request Lessons for Tomorrow</h3>
+            <textarea id="lessonRequest" 
+                      placeholder="Type the topic you want Smart Tutor to cover…" 
+                      style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;">
+            </textarea>
+            <br><br>
+            <button onclick="saveLessonRequest()" 
+                    style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">
+              🚀 Submit Request
+            </button>
+            <p id="requestStatus" style="font-size:0.8em; margin-top:8px; font-weight:bold;"></p>
+          </div>
 
-  <div id="lessonContainer"></div>
-  <div id="status">⏳ Ready…</div>
-</div>
+          <div id="lessonContainer"></div>
+          <div id="status">⏳ Ready…</div>
+        </div> <!-- end tutorCard -->
+      </div> <!-- end editor -->
+    </div> <!-- end mainTutor -->
+  </div> <!-- end app -->
 
-
-
-
-
-      
-      </div>
-    </div>
-  </div>
-
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
-
-
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
   
 <script>
 /* ---------- FIREBASE CONFIG ---------- */
@@ -1038,7 +1035,17 @@ function saveLessonRequest() {
     statusEl.style.color = "red";
   });
 }
-    
+
+
+function googleLogin() {
+  // ✅ After login, hide login button and show curriculum selection
+  document.getElementById("loginBtn").style.display = "none";
+  document.getElementById("loginMessage").textContent = "✅ Logged in! Please select your curriculum:";
+  document.getElementById("curriculumSelect").style.display = "block";
+}
+
+
+  
 </script>
 </body>
 </html>
