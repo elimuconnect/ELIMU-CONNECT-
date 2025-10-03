@@ -658,36 +658,44 @@ function speak(html){
   speechSynthesis.speak(utter);
 }
 
+function startTutor() {
+  if (!user) {
+    alert("⚠️ Please login first.");
+    return;
+  }
 
-/* ---------- START TUTOR ---------- */
-function startTutor(){
-  if(!user){ alert("⚠️ Please login first."); return; }
+  if (!selectedCurriculum) {
+    alert("⚠️ Please select a Math curriculum first.");
+    return;
+  }
 
   db.ref("students/" + user.uid).once("value").then(snap => {
-    if(!snap.exists() || !snap.val().phone){
+    if (!snap.exists() || !snap.val().phone) {
       alert("⚠️ Enter your phone number first.");
       document.getElementById("phoneForm").style.display = "block";
       return;
     }
 
     const now = new Date();
-    const kenyaTime = new Date(now.getTime() + (3*60 + now.getTimezoneOffset())*60000);
+    const kenyaTime = new Date(now.getTime() + (3 * 60 + now.getTimezoneOffset()) * 60000);
     const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     const todayName = days[kenyaTime.getDay()];
 
+    // Only Math slots
     const slots = timetable[todayName] || [];
-    const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+    const currentSlot = slots.find(slot => slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime));
 
-    if(!currentSlot){
-      editor.innerHTML = "<div class='card'><h2>⏳ No active lesson right now. Check the timetable.</h2></div>";
+    if (!currentSlot) {
+      editor.innerHTML = "<div class='card'><h2>⏳ No active Math lesson right now. Check the timetable.</h2></div>";
       status.textContent = "No active lesson";
       return;
     }
 
-    todayLessons = lessonsArray[todayName][currentSlot.subject] || [`<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`];
-    
-    const waitVoices = setInterval(()=>{
-      if(speechSynthesis.getVoices().length){
+    // Load lessons for the selected curriculum
+    todayLessons = lessonsArray[selectedCurriculum]?.[todayName] || [`<div><h2>Math Lesson</h2><p>Lessons coming soon for ${selectedCurriculum}.</p></div>`];
+
+    const waitVoices = setInterval(() => {
+      if (speechSynthesis.getVoices().length) {
         clearInterval(waitVoices);
         selectedVoice = getVoice();
         currentLesson = 0;
@@ -696,7 +704,6 @@ function startTutor(){
     }, 100);
   });
 }
-
 // --- Full Features List ---
 const appFeatures = [
   "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
