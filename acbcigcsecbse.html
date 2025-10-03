@@ -627,13 +627,14 @@ function chooseCurriculum(curriculum) {
   // Hide curriculum selection
   document.getElementById("curriculumSelect").style.display = "none";
 
-  // Show tutor content
-  document.getElementById("tutorContent").style.display = "block";
+  // Show tutor card (main lessons card)
+  document.getElementById("tutorCard").style.display = "block";
   document.getElementById("selectedCurriculum").innerText = "✅ Curriculum: " + curriculum;
 
   // Start lessons
   startTutor();
 }
+
 
 
 /* ---------- HELPER: Check if current time is in a slot ---------- */
