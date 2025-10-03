@@ -157,6 +157,45 @@ html, body {
   color: #1a237e;
 }
 
+
+/* ✅ Shared card styles (applies to both loginCard & tutorCard) */
+.card, 
+#loginCard, 
+#tutorCard {
+  max-width: 90vw;
+  width: 100%;
+  margin: 20px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 25px;
+  border: 2px solid #ccc;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-size: 1.8em;
+  line-height: 2;
+  font-weight: bold;
+  animation: fadeIn 1s ease;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  color: #1a237e;
+  box-sizing: border-box;
+  transition: all 0.3s ease-in-out;
+  display: none; /* Hidden by default → shown by JS */
+}
+
+/* Headings inside cards */
+#loginCard h2, 
+#tutorCard h2 {
+  margin-top: 0;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+/* Show login card first */
+#loginCard {
+  display: block;
+}
+
+  
 #status {
   padding: 15px;
   background: #388e3c;
