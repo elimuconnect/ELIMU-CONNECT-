@@ -408,11 +408,13 @@ html, body {
           </button>
         </div>
 
-       <!-- Login Card (Visible on load by default) -->
-<div class="card" id="loginCard" style="display:block;">
+     
+<!-- Login Card (shows on page load) -->
+<div class="card" id="loginCard">
   <h2>Welcome to Smart Tutor</h2>
   <p>Login with Google to access live Maths lessons (Mon–Sat) with voice narration.</p>
 
+  <!-- Timetable always visible -->
   <div class="timetable">
     <h3>📅 Weekly Timetable (Kenya time)</h3>
     <table>
@@ -432,7 +434,6 @@ html, body {
     🔑 Google Login
   </button>
 </div>
-
 
         <!-- Main Tutor Card (appears after login & curriculum choice) -->
         <div class="card" id="tutorCard" style="display:none;">
@@ -502,49 +503,35 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
+const loginBtn = document.getElementById("loginBtn");
+const status = document.getElementById("status");
+let user;
+
 loginBtn.onclick = () => {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider)
     .then(res => {
       user = res.user;
       status.textContent = `👋 Hi ${user.displayName}`;
 
-      // ✅ Save profile
+      // Save profile
       db.ref("students/" + user.uid).update({
         name: user.displayName,
         email: user.email
-      });
-
-      // ✅ Hide login card after login
-      document.getElementById("loginCard").style.display = "none";
-
-      // ✅ Check phone
-      db.ref("students/" + user.uid).once("value").then(snap => {
-        if (!snap.exists() || !snap.val().phone) {
-          document.getElementById("studentName").textContent =
-            `Welcome ${user.displayName}, please enter your phone number:`;
-          document.getElementById("phoneForm").style.display = "block";
-          document.getElementById("curriculumSelect").style.display = "none";
-        } else {
-          document.getElementById("phoneForm").style.display = "none";
-          document.getElementById("curriculumSelect").style.display = "block";
-        }
       });
     })
     .catch(e => alert(e.message));
 };
 
-
-/* ✅ Run on reload if already logged in */
-
-
-auth.onAuthStateChanged(u => {
+// Handle login state
+firebase.auth().onAuthStateChanged(u => {
   user = u;
   if (u) {
     status.textContent = `👋 Hi ${u.displayName}`;
-    document.getElementById("loginCard").style.display = "none"; // ✅ Hide login card
+    document.getElementById("loginCard").style.display = "none";
 
     db.ref("students/" + u.uid).once("value").then(snap => {
-      if (!snap.exists() || !snap.val().phone) {
+      if (!snap.val() || !snap.val().phone) {
         document.getElementById("studentName").textContent =
           `Welcome ${u.displayName}, please enter your phone number:`;
         document.getElementById("phoneForm").style.display = "block";
@@ -555,7 +542,6 @@ auth.onAuthStateChanged(u => {
       }
     });
   } else {
-    // ✅ Not logged in → show login card, hide everything else
     document.getElementById("loginCard").style.display = "block";
     document.getElementById("phoneForm").style.display = "none";
     document.getElementById("curriculumSelect").style.display = "none";
