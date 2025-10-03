@@ -597,7 +597,7 @@ const timetables = {
 };
 
 function chooseCurriculum(curriculum) {
-  selectedCurriculum = curriculum;
+   chosenCurriculum = curriculum;
 
   // Hide curriculum selection
   document.getElementById("curriculumSelect").style.display = "none";
@@ -661,6 +661,7 @@ function startTutor() {
 
     // ✅ FIX: use timetables with chosenCurriculum
     const slots = timetables[chosenCurriculum]?.[todayName] || [];
+
     const currentSlot = slots.find(slot => 
       slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
     );
