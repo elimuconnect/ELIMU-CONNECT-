@@ -488,13 +488,14 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-
+const db = firebase.database(); /
   
 /* -------------------------------------- */
 
 const editor = document.getElementById("editor");
 const status = document.getElementById("status");
-
+const loginBtn = document.getElementById("loginBtn");
+  
 let user = null;
 let chosenCurriculum = null;
 let currentLesson = 0;
@@ -502,10 +503,9 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
-const loginBtn = document.getElementById("loginBtn");
-const status = document.getElementById("status");
-let user;
 
+
+/* ---------- LOGIN WITH GOOGLE ---------- */
 loginBtn.onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   firebase.auth().signInWithPopup(provider)
@@ -522,36 +522,40 @@ loginBtn.onclick = () => {
     .catch(e => alert(e.message));
 };
 
-// Handle login state
+/* ---------- HANDLE AUTH STATE ---------- */
 firebase.auth().onAuthStateChanged(u => {
   user = u;
-  if (u) {
-    status.textContent = `👋 Hi ${u.displayName}`;
-    document.getElementById("loginCard").style.display = "none";
 
-    db.ref("students/" + u.uid).once("value").then(snap => {
-      if (!snap.val() || !snap.val().phone) {
+  const loginCard = document.getElementById("loginCard");
+  const phoneForm = document.getElementById("phoneForm");
+  const curriculumSelect = document.getElementById("curriculumSelect");
+  const tutorCard = document.getElementById("tutorCard");
+
+  if (user) {
+    status.textContent = `👋 Hi ${user.displayName}`;
+    loginCard.style.display = "none";
+
+    db.ref("students/" + user.uid).once("value").then(snap => {
+      const student = snap.val() || {};
+      if (!student.phone) {
         document.getElementById("studentName").textContent =
-          `Welcome ${u.displayName}, please enter your phone number:`;
-        document.getElementById("phoneForm").style.display = "block";
-        document.getElementById("curriculumSelect").style.display = "none";
+          `Welcome ${user.displayName}, please enter your phone number:`;
+        phoneForm.style.display = "block";
+        curriculumSelect.style.display = "none";
       } else {
-        document.getElementById("phoneForm").style.display = "none";
-        document.getElementById("curriculumSelect").style.display = "block";
+        phoneForm.style.display = "none";
+        curriculumSelect.style.display = "block";
       }
     });
   } else {
-    document.getElementById("loginCard").style.display = "block";
-    document.getElementById("phoneForm").style.display = "none";
-    document.getElementById("curriculumSelect").style.display = "none";
-    if (document.getElementById("tutorCard")) {
-      document.getElementById("tutorCard").style.display = "none";
-    }
+    // Not logged in
+    loginCard.style.display = "block";
+    phoneForm.style.display = "none";
+    curriculumSelect.style.display = "none";
+    if (tutorCard) tutorCard.style.display = "none";
     status.textContent = "Please log in to continue.";
   }
 });
-
-
 
 const lessonsArray = {
   CBC: {
