@@ -337,14 +337,15 @@ html, body {
 <body>
 
 <div id="app">
+<!-- Curriculum Selection -->
+<div id="curriculumSelect" style="text-align:center; padding:30px; display:none;">
+  <h2>📚 Choose Your Curriculum</h2>
+  <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
+  <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
+  <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
+</div>
 
-  <!-- Curriculum Selection -->
-  <div id="curriculumSelect" style="text-align:center; padding:30px;">
-    <h2>📚 Choose Your Curriculum</h2>
-    <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC (Kenya)</button>
-    <button onclick="chooseCurriculum('British')">🇬🇧 British Curriculum</button>
-    <button onclick="chooseCurriculum('CBSE')">🇮🇳 India (CBSE)</button>
-  </div>
+ 
 
   <!-- Main Tutor Section -->
   <div id="mainTutor" style="display:none;">
@@ -461,13 +462,16 @@ loginBtn.onclick = () => {
       // ✅ Check if phone number exists
       db.ref("students/" + user.uid).once("value").then(snap => {
         if (!snap.exists() || !snap.val().phone) {
+          // Show phone entry form
           document.getElementById("studentName").textContent =
             `Welcome ${user.displayName}, please enter your phone number:`;
           document.getElementById("phoneForm").style.display = "block";
 
-          // Hide tutor card but don’t remove everything
-          const card = document.querySelector(".card");
-          if (card) card.style.display = "none";
+          // Hide curriculum until phone entered
+          document.getElementById("curriculumSelect").style.display = "none";
+        } else {
+          // ✅ Already has phone → show curriculum
+          document.getElementById("curriculumSelect").style.display = "block";
         }
       });
     })
@@ -482,12 +486,16 @@ auth.onAuthStateChanged(u => {
 
     db.ref("students/" + u.uid).once("value").then(snap => {
       if (!snap.exists() || !snap.val().phone) {
+        // Show phone entry form
         document.getElementById("studentName").textContent =
           `Welcome ${u.displayName}, please enter your phone number:`;
         document.getElementById("phoneForm").style.display = "block";
 
-        const card = document.querySelector(".card");
-        if (card) card.style.display = "none";
+        // Hide curriculum until phone entered
+        document.getElementById("curriculumSelect").style.display = "none";
+      } else {
+        // ✅ Already has phone → show curriculum
+        document.getElementById("curriculumSelect").style.display = "block";
       }
     });
   }
@@ -636,64 +644,55 @@ function speak(html){
   speechSynthesis.speak(utter);
 }
 
-/* ---------- START TUTOR ---------- */
 
 /* ---------- START TUTOR ---------- */
 function startTutor() {
-  if (!user) {
-    alert("⚠️ Please login first.");
+  if (!chosenCurriculum) {
+    alert("⚠️ Please select your curriculum first.");
     return;
   }
 
-  db.ref("students/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || !snap.val().phone) {
-      alert("⚠️ Enter your phone number first.");
-      document.getElementById("phoneForm").style.display = "block";
-      return;
+  // ✅ Kenya time
+  const now = new Date();
+  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayName = days[kenyaTime.getDay()];
+
+  // ✅ Use timetable for chosen curriculum
+  const slots = timetables[chosenCurriculum]?.[todayName] || [];
+
+  // ✅ Only allow Math lessons
+  const currentSlot = slots.find(slot => 
+    slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
+  );
+
+  if (!currentSlot) {
+    if (editor) {
+      editor.innerHTML = `
+        <div class="card">
+          <h2>⏳ No active Math lesson right now. Check the timetable.</h2>
+        </div>
+      `;
     }
-
-    // ✅ Kenya time
-    const now = new Date();
-    const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
-
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const todayName = days[kenyaTime.getDay()];
-
-    // ✅ FIX: use timetables with chosenCurriculum
-    const slots = timetables[chosenCurriculum]?.[todayName] || [];
-
-    const currentSlot = slots.find(slot => 
-      slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
-    );
-
-   if (!currentSlot) {
-  if (editor) {
-    editor.innerHTML = `
-      <div class="card">
-        <h2>⏳ No active Math lesson right now. Check the timetable.</h2>
-      </div>
-    `;
+    if (status) status.textContent = "No active Math lesson";
+    return;
   }
-  if (status) status.textContent = "No active Math lesson";
-  return;
-}
 
+  // ✅ Load Math lessons
+  todayLessons = lessonsArray[chosenCurriculum]?.[todayName]?.Math || [
+    `<div><h2>Math Lesson</h2><p>Lesson coming soon.</p></div>`
+  ];
 
-    // ✅ Load Math lessons only
-    todayLessons = lessonsArray[chosenCurriculum]?.[todayName]?.Math || [
-      `<div><h2>Math Lesson</h2><p>Lesson coming soon.</p></div>`
-    ];
-
-    // ✅ Wait for voice and start lesson
-    const waitVoices = setInterval(() => {
-      if (speechSynthesis.getVoices().length) {
-        clearInterval(waitVoices);
-        selectedVoice = getVoice();
-        currentLesson = 0;
-        showLesson();
-      }
-    }, 100);
-  });
+  // ✅ Wait for voice to be ready
+  const waitVoices = setInterval(() => {
+    if (speechSynthesis.getVoices().length) {
+      clearInterval(waitVoices);
+      selectedVoice = getVoice();
+      currentLesson = 0;
+      showLesson();
+    }
+  }, 100);
 }
 
   
