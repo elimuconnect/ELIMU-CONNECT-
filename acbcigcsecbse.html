@@ -669,30 +669,35 @@ function startTutor() {
       return;
     }
 
-    // ✅ Get Kenya time correctly
+    // ✅ Kenya time
     const now = new Date();
     const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
 
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const todayName = days[kenyaTime.getDay()];
 
-    const slots = timetable[todayName] || [];
-    const currentSlot = slots.find(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+    // ✅ FIX: use timetables with chosenCurriculum
+    const slots = timetables[chosenCurriculum]?.[todayName] || [];
+    const currentSlot = slots.find(slot => 
+      slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
+    );
 
     if (!currentSlot) {
       editor.innerHTML = `
         <div class="card">
-          <h2>⏳ No active lesson right now. Check the timetable.</h2>
+          <h2>⏳ No active Math lesson right now. Check the timetable.</h2>
         </div>
       `;
-      status.textContent = "No active lesson";
+      status.textContent = "No active Math lesson";
       return;
     }
 
-    todayLessons = lessonsArray[todayName][currentSlot.subject] || [
-      `<div><h2>${currentSlot.subject} Lesson</h2><p>Lesson coming soon.</p></div>`
+    // ✅ Load Math lessons only
+    todayLessons = lessonsArray[chosenCurriculum]?.[todayName]?.Math || [
+      `<div><h2>Math Lesson</h2><p>Lesson coming soon.</p></div>`
     ];
 
+    // ✅ Wait for voice and start lesson
     const waitVoices = setInterval(() => {
       if (speechSynthesis.getVoices().length) {
         clearInterval(waitVoices);
