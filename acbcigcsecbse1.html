@@ -598,14 +598,6 @@ const timetables = {
   Sun: []
 };
 
-function inTimeRange(start, end, now) {
-  const [sH, sM] = start.split(":").map(Number);
-  const [eH, eM] = end.split(":").map(Number);
-  const s = new Date(now), e = new Date(now);
-  s.setHours(sH, sM, 0, 0);
-  e.setHours(eH, eM, 0, 0);
-  return now >= s && now <= e;
-}
 
 /* ---------- Voice ---------- */
 function getVoice(){
@@ -624,42 +616,65 @@ function speak(html){
 }
 
 /* ---------- Start Tutor ---------- */
-function startTutor(){
+function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("Please choose both curriculum and grade first!");
     return;
   }
+
   selectedVoice = getVoice();
   const now = new Date();
-  const day = now.toLocaleDateString("en-US",{weekday:"short"});
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math;
 
-  if (lessons && lessons.length > 0) {
-    const html = lessons[0];
-    document.getElementById("lessonContainer").innerHTML = html;
-    document.getElementById("status").textContent = `📘 Now Learning: ${selectedCurriculum} Grade ${selectedGrade} (${day})`;
-    speak(html);
+  // ✅ Kenya timezone (UTC+3)
+  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+  const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
+
+  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
+  const todaySchedule = timetables[day] || [];
+
+  // ✅ Check if current time is within lesson time
+  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+
+  if (!inLesson) {
+    document.getElementById("lessonContainer").innerHTML =
+      `<div style="color:#d32f2f;font-weight:bold;">⏰ No active Math lesson right now.<br>
+       Next lesson time: ${todaySchedule.length > 0
+        ? todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ")
+        : "No lesson today."}</div>`;
+    status.textContent = "✅ Waiting for next scheduled time…";
+    return;
+  }
+
+  // ✅ If within lesson time → show today’s Math lesson
+  if (lessons.length > 0) {
+    document.getElementById("lessonContainer").innerHTML = lessons[0];
+    status.textContent = "🎓 Math lesson is in progress…";
+
+    // Auto-speak
+    speak(lessons[0]);
   } else {
-    document.getElementById("lessonContainer").innerHTML = `<p>No Math lesson scheduled for today.</p>`;
+    document.getElementById("lessonContainer").innerHTML =
+      `<div style="color:#d32f2f;font-weight:bold;">No Math lesson found for today.</div>`;
   }
 }
 
-/* ---------- Auto Lesson Checker ---------- */
-function startLessonChecker(){
-  selectedVoice = getVoice();
-  setInterval(()=>{
-    const now = new Date();
-    const day = now.toLocaleDateString("en-US",{weekday:"short"});
-    const slots = timetables[day];
-    if (!slots) return;
-    for (let slot of slots){
-      if (inTimeRange(slot.start, slot.end, now)){
-        startTutor();
-        return;
-      }
-    }
-  }, 60000);
+/* ---------- Periodic Checker ---------- */
+function startLessonChecker() {
+  startTutor(); // run immediately
+  setInterval(startTutor, 60 * 1000); // check every 1 minute
 }
+
+/* ---------- Utility: Time Range ---------- */
+function inTimeRange(start, end, now) {
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+  const startTime = new Date(now);
+  const endTime = new Date(now);
+  startTime.setHours(sH, sM, 0, 0);
+  endTime.setHours(eH, eM, 0, 0);
+  return now >= startTime && now <= endTime;
+}
+
 
 // --- Full Features List ---
 const appFeatures = [
