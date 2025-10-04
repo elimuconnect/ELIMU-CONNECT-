@@ -522,6 +522,7 @@ let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
+/* ---------- Curriculum Selection ---------- */
 function chooseCurriculum(curr) {
   selectedCurriculum = curr;
   document.getElementById("curriculumSelect").innerHTML = `
@@ -530,6 +531,7 @@ function chooseCurriculum(curr) {
   `;
 }
 
+/* ---------- Grade Selection ---------- */
 function chooseGrade(g) {
   selectedGrade = g;
   document.getElementById("curriculumSelect").style.display = "none";
@@ -538,103 +540,124 @@ function chooseGrade(g) {
   startLessonChecker();
 }
 
-/* ---------- Lessons by Curriculum + Grade ---------- */
+/* ---------- Lessons (Math Only) ---------- */
 const lessonsArray = {
   CBC: {
-    7: {
-      Mon: { Math: [`<h2>Grade 7 — Integers</h2><p>Add and subtract integers.</p>`] },
-      Tue: { Math: [`<h2>Grade 7 — Fractions</h2><p>Equivalent fractions and operations.</p>`] },
-      Wed: { Math: [`<h2>Grade 7 — Decimals</h2><p>Place value and rounding decimals.</p>`] },
-      Thu: { Math: [`<h2>Grade 7 — Algebra</h2><p>Simple expressions and equations.</p>`] },
-      Fri: { Math: [`<h2>Grade 7 — Geometry</h2><p>Angles and triangles.</p>`] },
-      Sat: { Math: [`<h2>Grade 7 — Revision</h2><p>Practice questions on week topics.</p>`] },
-      Sun: []
-    },
-    8: {
-      Mon: { Math: [`<h2>Grade 8 — Indices</h2><p>Understanding powers and roots.</p>`] },
-      Tue: { Math: [`<h2>Grade 8 — Ratios</h2><p>Simplifying and sharing ratios.</p>`] },
-      Wed: { Math: [`<h2>Grade 8 — Linear Equations</h2><p>Solving one-variable equations.</p>`] },
-      Thu: { Math: [`<h2>Grade 8 — Graphs</h2><p>Plotting and interpreting graphs.</p>`] },
-      Fri: { Math: [`<h2>Grade 8 — Geometry</h2><p>Angles, polygons, and circles.</p>`] },
-      Sat: { Math: [`<h2>Grade 8 — Revision</h2><p>Mixed practice tests.</p>`] },
-      Sun: []
-    },
-    9: {
-      Mon: { Math: [`<h2>Grade 9 — Trigonometry</h2><p>Basics of sine, cosine, and tangent.</p>`] },
-      Tue: { Math: [`<h2>Grade 9 — Probability</h2><p>Simple probability problems.</p>`] },
-      Wed: { Math: [`<h2>Grade 9 — Algebra II</h2><p>Quadratic equations and factorization.</p>`] },
-      Thu: { Math: [`<h2>Grade 9 — Statistics</h2><p>Mean, median, mode.</p>`] },
-      Fri: { Math: [`<h2>Grade 9 — Geometry</h2><p>Circles and constructions.</p>`] },
-      Sat: { Math: [`<h2>Grade 9 — Revision</h2><p>Topic recap and test.</p>`] },
-      Sun: []
-    },
-    10: {
-      Mon: { Math: [`<h2>Grade 10 — Surds</h2><p>Rationalizing denominators and simplifying surds.</p>`] },
-      Tue: { Math: [`<h2>Grade 10 — Logarithms</h2><p>Using laws of logarithms.</p>`] },
-      Wed: { Math: [`<h2>Grade 10 — Quadratic Equations</h2><p>Solving by formula and factorization.</p>`] },
-      Thu: { Math: [`<h2>Grade 10 — Trigonometry II</h2><p>Solving triangles.</p>`] },
-      Fri: { Math: [`<h2>Grade 10 — Statistics</h2><p>Standard deviation and variance.</p>`] },
-      Sat: { Math: [`<h2>Grade 10 — Revision</h2><p>Past paper practice.</p>`] },
-      Sun: []
-    },
-    11: {
-      Mon: { Math: [`<h2>Grade 11 — Differentiation</h2><p>Basic derivatives and slopes.</p>`] },
-      Tue: { Math: [`<h2>Grade 11 — Integration</h2><p>Finding areas under curves.</p>`] },
-      Wed: { Math: [`<h2>Grade 11 — Sequences</h2><p>Arithmetic and geometric progressions.</p>`] },
-      Thu: { Math: [`<h2>Grade 11 — Probability II</h2><p>Combined events.</p>`] },
-      Fri: { Math: [`<h2>Grade 11 — Revision</h2><p>Past paper revision.</p>`] },
-      Sat: { Math: [`<h2>Grade 11 — Project Work</h2><p>Math modeling tasks.</p>`] },
-      Sun: []
-    },
-    12: {
-      Mon: { Math: [`<h2>Grade 12 — Advanced Calculus</h2><p>Differentiation and Integration applications.</p>`] },
-      Tue: { Math: [`<h2>Grade 12 — Vectors</h2><p>3D vector operations.</p>`] },
-      Wed: { Math: [`<h2>Grade 12 — Matrices</h2><p>Solving simultaneous equations.</p>`] },
-      Thu: { Math: [`<h2>Grade 12 — Probability III</h2><p>Binomial and normal distributions.</p>`] },
-      Fri: { Math: [`<h2>Grade 12 — Revision</h2><p>KCSE-level tests.</p>`] },
-      Sat: { Math: [`<h2>Grade 12 — Final Mock</h2><p>Comprehensive practice test.</p>`] },
-      Sun: []
-    }
+    Mon: { Math: [
+      `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
+      `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Direct & inverse proportion basics.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Expressions, simple equations.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Angles, triangles and perimeter.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Mixed exercises and quick tests.</p>`
+    ]},
+    Sun: []
   },
-
   British: {
-    7: { Mon: { Math: [`<h2>Grade 7 (UK) — Fractions</h2><p>Adding and simplifying fractions.</p>`] } },
-    8: { Mon: { Math: [`<h2>Grade 8 (UK) — Decimals</h2><p>Ordering and rounding decimals.</p>`] } },
-    9: { Mon: { Math: [`<h2>Grade 9 (UK) — Algebra</h2><p>Forming and solving equations.</p>`] } },
-    10: { Mon: { Math: [`<h2>Grade 10 (UK) — Trigonometry</h2><p>SOH-CAH-TOA applications.</p>`] } },
-    11: { Mon: { Math: [`<h2>Grade 11 (UK) — Graphs</h2><p>Functions and gradients.</p>`] } },
-    12: { Mon: { Math: [`<h2>Grade 12 (UK) — Calculus</h2><p>Differentiation and integration basics.</p>`] } }
+    Mon: { Math: [
+      `<h2>British Lesson 1 — Number Operations</h2><p>Four operations with integers.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>British Lesson 2 — Fractions</h2><p>Simplifying, comparing, converting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>British Lesson 3 — Decimals</h2><p>Ordering, rounding, and decimal operations.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Solving ratio problems and scale drawings.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>British Lesson 5 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>British Lesson 6 — Geometry</h2><p>Properties of shapes, perimeter, area.</p>`
+    ]},
+    Sun: []
   },
-
   CBSE: {
-    7: { Mon: { Math: [`<h2>Grade 7 (CBSE) — Integers</h2><p>Operations with integers.</p>`] } },
-    8: { Mon: { Math: [`<h2>Grade 8 (CBSE) — Algebra</h2><p>Basic algebraic identities.</p>`] } },
-    9: { Mon: { Math: [`<h2>Grade 9 (CBSE) — Geometry</h2><p>Triangles and quadrilaterals.</p>`] } },
-    10: { Mon: { Math: [`<h2>Grade 10 (CBSE) — Trigonometry</h2><p>Height and distance problems.</p>`] } },
-    11: { Mon: { Math: [`<h2>Grade 11 (CBSE) — Probability</h2><p>Events and outcomes.</p>`] } },
-    12: { Mon: { Math: [`<h2>Grade 12 (CBSE) — Calculus</h2><p>Integrals and derivatives.</p>`] } }
+    Mon: { Math: [
+      `<h2>Math-Only Lesson 1 — Integers</h2><p>Positive & negative numbers practice.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>Math-Only Lesson 2 — Fractions</h2><p>Simplifying, adding, subtracting fractions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>Math-Only Lesson 3 — Decimals</h2><p>Decimal place value and multiplication.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>Math-Only Lesson 4 — Ratio</h2><p>Solving ratio and sharing problems.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>Math-Only Lesson 5 — Algebra</h2><p>Expanding brackets, simple equations.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>Math-Only Lesson 6 — Geometry</h2><p>Angles in triangles, quadrilaterals.</p>`
+    ]},
+    Sun: []
   }
 };
 
-/* ---------- Timetable (Same for All) ---------- */
+/* ---------- Timetables ---------- */
 const timetables = {
-  Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
-  Sun: []
+  CBC: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
+    Sun: []
+  },
+  British: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
+    Sun: []
+  },
+  CBSE: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
+    Sun: []
+  }
 };
 
+/* ---------- Time Checker ---------- */
+function inTimeRange(start, end, now) {
+  const [sH, sM] = start.split(":").map(Number);
+  const [eH, eM] = end.split(":").map(Number);
+  const s = new Date(now), e = new Date(now);
+  s.setHours(sH, sM, 0, 0);
+  e.setHours(eH, eM, 0, 0);
+  return now >= s && now <= e;
+}
+
 /* ---------- Voice ---------- */
-function getVoice(){
+function getVoice() {
   const voices = speechSynthesis.getVoices();
-  return voices.find(v=>v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
-      || voices.find(v=>v.lang.startsWith("en-gb"))
+  return voices.find(v => v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
+      || voices.find(v => v.lang.startsWith("en-gb"))
       || voices[0];
 }
-function speak(html){
+
+function speak(html) {
   const text = new DOMParser().parseFromString(html, "text/html").body.textContent;
   speechSynthesis.cancel();
   utter = new SpeechSynthesisUtterance(text);
@@ -643,7 +666,7 @@ function speak(html){
   speechSynthesis.speak(utter);
 }
 
-/* ---------- Start Tutor ---------- */
+/* ---------- Tutor Logic ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -655,12 +678,12 @@ function startTutor() {
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
   const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
 
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
-  const todaySchedule = timetables[day] || [];
+  const lessons = lessonsArray[selectedCurriculum]?.[day]?.Math || [];
+  const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
 
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
   const lessonContainer = document.getElementById("lessonContainer");
-  if (!lessonContainer) return;
+  const status = document.getElementById("status");
 
   if (!inLesson) {
     lessonContainer.innerHTML = `
@@ -692,30 +715,16 @@ function startTutor() {
 }
 
 /* ---------- Speak Lesson ---------- */
-function speakLesson(i){
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade];
-  if (!lessons) return;
-  const now = new Date();
-  const day = now.toLocaleDateString("en-US", { weekday: "short" });
-  const lesson = lessons[day]?.Math?.[i];
+function speakLesson(i) {
+  const day = new Date().toLocaleDateString("en-US", { weekday: "short" });
+  const lesson = lessonsArray[selectedCurriculum]?.[day]?.Math?.[i];
   if (lesson) speak(lesson);
 }
 
-/* ---------- Periodic Checker ---------- */
+/* ---------- Lesson Checker ---------- */
 function startLessonChecker() {
-  if (!selectedCurriculum || !selectedGrade) return;
   startTutor();
   setInterval(startTutor, 60000);
-}
-
-/* ---------- Utility: Time Range ---------- */
-function inTimeRange(start, end, now) {
-  const [sH, sM] = start.split(":").map(Number);
-  const [eH, eM] = end.split(":").map(Number);
-  const s = new Date(now), e = new Date(now);
-  s.setHours(sH, sM, 0, 0);
-  e.setHours(eH, eM, 0, 0);
-  return now >= s && now <= e;
 }
 
 // --- Full Features List ---
