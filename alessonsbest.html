@@ -1268,6 +1268,7 @@ Solve: 1 1/4 + 2 2/3 − 3/4.<br><br>
     ]}
   },
 
+ 
   9: { // ✅ Grade 9
     Mon: { Math: [
       `<h2>CBC Grade 9 Lesson 1 — Statistics</h2>
@@ -1740,7 +1741,7 @@ function startTutor() {
     return;
   }
 
-  
+  currentLesson = 0;
   showLesson();
   status.textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
 
@@ -1822,7 +1823,6 @@ function showLesson() {
     }
   };
 }
-
 
 // Realtime Database reference
 const db = firebase.database();
