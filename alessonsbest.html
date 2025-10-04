@@ -327,18 +327,18 @@ html, body {
 
 <div id="app">
 
-  
- <!-- Welcome / Hero Section -->
-  <div id="welcomeSection" style="text-align:center; margin:30px auto; max-width:700px; padding:20px; background:linear-gradient(to right,#e0f7fa,#fce4ec); border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.1);">
-    <h1 style="font-size:2.2em; color:#1976d2; margin-bottom:10px;">🎓 Welcome to Smart Tutor!</h1>
-    <p style="font-size:1.1em; color:#333; line-height:1.6;">
-      Learn Math the **fun, interactive, and easy way** – completely <b>FREE</b>!  
-      Smart Tutor by <b>Elimu Connect/SmartLearn</b> offers guided lessons, practice exercises, and a personalized weekly timetable for Grades 7-12.
-    </p>
-    <p style="font-size:1.05em; color:#d32f2f; font-weight:bold; margin-top:15px;">
-      Start your journey today and boost your Math skills from home! 🚀
-    </p>
-  </div>
+<!-- Welcome / Hero Section -->
+<div id="welcomeSection" style="text-align:center; margin:30px auto; max-width:700px; padding:20px; background:linear-gradient(to right,#e0f7fa,#fce4ec); border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.1);">
+  <h1 style="font-size:2.2em; color:#1976d2; margin-bottom:10px;">🎓 Welcome to Smart Tutor!</h1>
+  <p style="font-size:1.1em; color:#333; line-height:1.6;">
+    Learn Math the <b>fun, interactive, and easy way</b> – completely <b>FREE</b>!  
+    Smart Tutor by <b>Elimu Connect / SmartLearn</b> offers guided lessons, practice exercises, and a personalized weekly timetable for Grades 7-12.
+  </p>
+  <p style="font-size:1.05em; color:#d32f2f; font-weight:bold; margin-top:15px;">
+    Start your journey today and boost your Math skills from home! 🚀
+  </p>
+</div>
+
 
   <!-- Curriculum Selection -->
   <div id="curriculumSelect" style="text-align:center; margin-bottom:20px;">
@@ -530,11 +530,18 @@ let featureIndex = 0;
 /* ---------- Curriculum Selection ---------- */
 function chooseCurriculum(curr) {
   selectedCurriculum = curr;
+
+  // Hide the welcome section when a curriculum is chosen
+  const welcome = document.getElementById("welcomeSection");
+  if (welcome) welcome.style.display = "none";
+
+  // Replace curriculum selection with grade buttons
   document.getElementById("curriculumSelect").innerHTML = `
     <h2>🎓 Choose Your Grade (${curr} Curriculum)</h2>
     ${[7,8,9,10,11,12].map(g=>`<button onclick="chooseGrade(${g})">Grade ${g}</button>`).join('')}
   `;
 }
+
 
 /* ---------- Grade Selection ---------- */
 function chooseGrade(g) {
