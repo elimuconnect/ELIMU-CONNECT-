@@ -514,7 +514,6 @@ auth.onAuthStateChanged(u => {
     document.querySelector(".card").style.display = "block";
   }
 });
-
 /* ---------- Curriculum + Grade Selection ---------- */
 let selectedCurriculum = null;
 let selectedGrade = null;
@@ -525,7 +524,6 @@ let utter = null;
 
 function chooseCurriculum(curr) {
   selectedCurriculum = curr;
-  // Hide curriculum buttons, show grade options
   document.getElementById("curriculumSelect").innerHTML = `
     <h2>🎓 Choose Your Grade (${curr} Curriculum)</h2>
     ${[7,8,9,10,11,12].map(g=>`<button onclick="chooseGrade(${g})">Grade ${g}</button>`).join('')}
@@ -570,24 +568,55 @@ const lessonsArray = {
       Sat: { Math: [`<h2>Grade 9 — Revision</h2><p>Topic recap and test.</p>`] },
       Sun: []
     },
-    // You can easily add Grades 10–12 here similarly
+    10: {
+      Mon: { Math: [`<h2>Grade 10 — Surds</h2><p>Rationalizing denominators and simplifying surds.</p>`] },
+      Tue: { Math: [`<h2>Grade 10 — Logarithms</h2><p>Using laws of logarithms.</p>`] },
+      Wed: { Math: [`<h2>Grade 10 — Quadratic Equations</h2><p>Solving by formula and factorization.</p>`] },
+      Thu: { Math: [`<h2>Grade 10 — Trigonometry II</h2><p>Solving triangles.</p>`] },
+      Fri: { Math: [`<h2>Grade 10 — Statistics</h2><p>Standard deviation and variance.</p>`] },
+      Sat: { Math: [`<h2>Grade 10 — Revision</h2><p>Past paper practice.</p>`] },
+      Sun: []
+    },
+    11: {
+      Mon: { Math: [`<h2>Grade 11 — Differentiation</h2><p>Basic derivatives and slopes.</p>`] },
+      Tue: { Math: [`<h2>Grade 11 — Integration</h2><p>Finding areas under curves.</p>`] },
+      Wed: { Math: [`<h2>Grade 11 — Sequences</h2><p>Arithmetic and geometric progressions.</p>`] },
+      Thu: { Math: [`<h2>Grade 11 — Probability II</h2><p>Combined events.</p>`] },
+      Fri: { Math: [`<h2>Grade 11 — Revision</h2><p>Past paper revision.</p>`] },
+      Sat: { Math: [`<h2>Grade 11 — Project Work</h2><p>Math modeling tasks.</p>`] },
+      Sun: []
+    },
+    12: {
+      Mon: { Math: [`<h2>Grade 12 — Advanced Calculus</h2><p>Differentiation and Integration applications.</p>`] },
+      Tue: { Math: [`<h2>Grade 12 — Vectors</h2><p>3D vector operations.</p>`] },
+      Wed: { Math: [`<h2>Grade 12 — Matrices</h2><p>Solving simultaneous equations.</p>`] },
+      Thu: { Math: [`<h2>Grade 12 — Probability III</h2><p>Binomial and normal distributions.</p>`] },
+      Fri: { Math: [`<h2>Grade 12 — Revision</h2><p>KCSE-level tests.</p>`] },
+      Sat: { Math: [`<h2>Grade 12 — Final Mock</h2><p>Comprehensive practice test.</p>`] },
+      Sun: []
+    }
   },
+
   British: {
     7: { Mon: { Math: [`<h2>Grade 7 (UK) — Fractions</h2><p>Adding and simplifying fractions.</p>`] } },
     8: { Mon: { Math: [`<h2>Grade 8 (UK) — Decimals</h2><p>Ordering and rounding decimals.</p>`] } },
     9: { Mon: { Math: [`<h2>Grade 9 (UK) — Algebra</h2><p>Forming and solving equations.</p>`] } },
+    10: { Mon: { Math: [`<h2>Grade 10 (UK) — Trigonometry</h2><p>SOH-CAH-TOA applications.</p>`] } },
+    11: { Mon: { Math: [`<h2>Grade 11 (UK) — Graphs</h2><p>Functions and gradients.</p>`] } },
+    12: { Mon: { Math: [`<h2>Grade 12 (UK) — Calculus</h2><p>Differentiation and integration basics.</p>`] } }
   },
+
   CBSE: {
     7: { Mon: { Math: [`<h2>Grade 7 (CBSE) — Integers</h2><p>Operations with integers.</p>`] } },
     8: { Mon: { Math: [`<h2>Grade 8 (CBSE) — Algebra</h2><p>Basic algebraic identities.</p>`] } },
     9: { Mon: { Math: [`<h2>Grade 9 (CBSE) — Geometry</h2><p>Triangles and quadrilaterals.</p>`] } },
+    10: { Mon: { Math: [`<h2>Grade 10 (CBSE) — Trigonometry</h2><p>Height and distance problems.</p>`] } },
+    11: { Mon: { Math: [`<h2>Grade 11 (CBSE) — Probability</h2><p>Events and outcomes.</p>`] } },
+    12: { Mon: { Math: [`<h2>Grade 12 (CBSE) — Calculus</h2><p>Integrals and derivatives.</p>`] } }
   }
 };
 
-
-
-
-/* ---------- Timetables (Same for All Grades) ---------- */
+/* ---------- Timetable (Same for All) ---------- */
 const timetables = {
   Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
   Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
@@ -597,7 +626,6 @@ const timetables = {
   Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
   Sun: []
 };
-
 
 /* ---------- Voice ---------- */
 function getVoice(){
@@ -623,80 +651,72 @@ function startTutor() {
   }
 
   selectedVoice = getVoice();
-
   const now = new Date();
-  // ✅ Kenya timezone (UTC+3)
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
   const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
 
-  // ✅ Correct lookups for lessons and timetable
   const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
-  const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
+  const todaySchedule = timetables[day] || [];
 
-  // ✅ Check if current time is within lesson time
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
-
   const lessonContainer = document.getElementById("lessonContainer");
-  if (!lessonContainer) return; // safety check
+  if (!lessonContainer) return;
 
   if (!inLesson) {
     lessonContainer.innerHTML = `
-      <div style="color:#d32f2f;font-weight:bold; text-align:center;">
+      <div class="lessonCard" style="color:#d32f2f;text-align:center;font-weight:bold;">
         ⏰ No active Math lesson right now.<br>
-        Next lesson time: ${
-          todaySchedule.length > 0
-            ? todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ")
-            : "No lesson today."
-        }
+        Next lesson: ${todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ") || "No lesson today."}
       </div>`;
-    status.textContent = "✅ Waiting for next scheduled time…";
+    status.textContent = "🕓 Waiting for next lesson...";
     return;
   }
 
-  // ✅ If within lesson time → show today’s Math lesson(s)
   if (lessons.length > 0) {
-    lessonContainer.innerHTML = ""; // clear previous
+    lessonContainer.innerHTML = "";
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
       card.className = "lessonCard";
       card.innerHTML = `
-        <h3>${selectedCurriculum} — Grade ${selectedGrade} Lesson ${i + 1}</h3>
+        <h3>${selectedCurriculum} – Grade ${selectedGrade} Lesson ${i + 1}</h3>
         ${lessonHTML}
         <button class="speakBtn" onclick="speakLesson(${i})">🔊 Read Lesson</button>
       `;
       lessonContainer.appendChild(card);
     });
-
-    status.textContent = `🎓 Showing ${lessons.length} Math lesson(s) for ${selectedCurriculum} Grade ${selectedGrade}`;
+    status.textContent = `🎓 Showing ${lessons.length} Math lesson(s)`;
     speak(lessons[0]);
   } else {
-    lessonContainer.innerHTML = `
-      <div style="color:#d32f2f;font-weight:bold;">📘 No Math lesson found for ${day}.</div>`;
+    lessonContainer.innerHTML = `<div class="lessonCard">📘 No Math lesson found for ${day}.</div>`;
   }
+}
+
+/* ---------- Speak Lesson ---------- */
+function speakLesson(i){
+  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade];
+  if (!lessons) return;
+  const now = new Date();
+  const day = now.toLocaleDateString("en-US", { weekday: "short" });
+  const lesson = lessons[day]?.Math?.[i];
+  if (lesson) speak(lesson);
 }
 
 /* ---------- Periodic Checker ---------- */
 function startLessonChecker() {
-  // ⚠️ Only start checking AFTER user has selected curriculum & grade
   if (!selectedCurriculum || !selectedGrade) return;
-  startTutor(); // run immediately once
-  setInterval(() => {
-    startTutor();
-  }, 60 * 1000); // check every 1 minute
+  startTutor();
+  setInterval(startTutor, 60000);
 }
 
 /* ---------- Utility: Time Range ---------- */
 function inTimeRange(start, end, now) {
   const [sH, sM] = start.split(":").map(Number);
   const [eH, eM] = end.split(":").map(Number);
-  const startTime = new Date(now);
-  const endTime = new Date(now);
-  startTime.setHours(sH, sM, 0, 0);
-  endTime.setHours(eH, eM, 0, 0);
-  return now >= startTime && now <= endTime;
+  const s = new Date(now), e = new Date(now);
+  s.setHours(sH, sM, 0, 0);
+  e.setHours(eH, eM, 0, 0);
+  return now >= s && now <= e;
 }
-
-
 
 // --- Full Features List ---
 const appFeatures = [
