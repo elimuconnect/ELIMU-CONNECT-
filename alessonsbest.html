@@ -1249,47 +1249,6 @@ Mean = (3+5+7+9+11)/5 = 35/5 = 7<br>
 };
 
 
-/* ---------- Timetables ---------- */
-const timetables = {
-  CBC: {
-    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
-    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
-    Sun: []
-  },
-  British: {
-    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
-    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
-    Sun: []
-  },
-  CBSE: {
-    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
-    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
-    Sat: [{ subject: "Math", start: "08:00", end: "19:00" }],
-    Sun: []
-  }
-};
-
-/* ---------- Time Checker ---------- */
-function inTimeRange(start, end, now) {
-  const [sH, sM] = start.split(":").map(Number);
-  const [eH, eM] = end.split(":").map(Number);
-  const s = new Date(now), e = new Date(now);
-  s.setHours(sH, sM, 0, 0);
-  e.setHours(eH, eM, 0, 0);
-  return now >= s && now <= e;
-}
-
 /* ---------- Voice ---------- */
 function getVoice() {
   const voices = speechSynthesis.getVoices();
@@ -1340,7 +1299,6 @@ const appFeatures = [
   "➗ Calculus: Differentiation & Integration Calculators"
 ];
 
-/* ---------- Start Tutor ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -1372,13 +1330,15 @@ function startTutor() {
     document.getElementById("editor").appendChild(lessonSection);
   }
 
-  // Check if we are in a Math lesson slot
-  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime) && slot.subject === "Math");
+  // Fixed lesson time: 17:00 – 21:00 local
+  const lessonStart = new Date();
+  lessonStart.setHours(17, 0, 0, 0); // 17:00 local
+  const lessonEnd = new Date();
+  lessonEnd.setHours(21, 0, 0, 0);   // 21:00 local
+  const inLesson = kenyaTime >= lessonStart && kenyaTime <= lessonEnd;
 
   if (!inLesson) {
-    const upcoming = todaySchedule.filter(slot => slot.subject === "Math").map(s => `${s.start} – ${s.end}`);
-    const nextLessonTime = upcoming.length ? upcoming.join(", ") : "No more lessons today.";
-
+    const nextLessonTime = "17:00 – 21:00 local time";
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center; color:#d32f2f;">
         <h2>⏰ No active Math lesson right now.</h2>
@@ -1403,6 +1363,7 @@ function startTutor() {
 
   if (!lessonIntervalId) lessonIntervalId = setInterval(startTutor, 60 * 1000);
 }
+
 
 /* ---------- Show and Speak Current Lesson ---------- */
 function showLesson() {
