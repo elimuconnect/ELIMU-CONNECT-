@@ -1332,9 +1332,9 @@ function startTutor() {
 
   // Fixed lesson time: 17:00 – 21:00 local
   const lessonStart = new Date();
-  lessonStart.setHours(17, 0, 0, 0); // 17:00 local
+  lessonStart.setHours(21, 0, 0, 0); // 17:00 local
   const lessonEnd = new Date();
-  lessonEnd.setHours(21, 0, 0, 0);   // 21:00 local
+  lessonEnd.setHours(23, 0, 0, 0);   // 21:00 local
   const inLesson = kenyaTime >= lessonStart && kenyaTime <= lessonEnd;
 
   if (!inLesson) {
