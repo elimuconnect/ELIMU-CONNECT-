@@ -341,9 +341,9 @@ html, body {
   <!-- Curriculum Selection -->
   <div id="curriculumSelect" style="text-align:center; margin-bottom:20px;">
     <h2>📚 Choose Your Math Curriculum</h2>
-    <button onclick="chooseCurriculum('CBC')" style="margin:5px; padding:8px 15px;">🇰🇪 CBC</button>
-    <button onclick="chooseCurriculum('British')" style="margin:5px; padding:8px 15px;">🇬🇧 British</button>
-    <button onclick="chooseCurriculum('CBSE')" style="margin:5px; padding:8px 15px;">🇮🇳 CBSE</button>
+    <button onclick="chooseCurriculum('CBC')" style="margin:5px; padding:8px 15px;">🇰🇪 CBC(From grade 7-12)</button>
+    <button onclick="chooseCurriculum('British')" style="margin:5px; padding:8px 15px;">🇬🇧 British(from Grade7-12</button>
+    <button onclick="chooseCurriculum('CBSE')" style="margin:5px; padding:8px 15px;">🇮🇳 CBSE, ICSE, IGCSE, IB,</button>
   </div>
 
   <!-- Main Tutor Section -->
@@ -416,8 +416,8 @@ html, body {
 
         <!-- Lesson Request -->
         <div style="margin-top:20px; padding:10px; border-top:1px solid #ddd;">
-          <h3>✍️ Request Math Lessons</h3>
-          <textarea id="lessonRequest" placeholder="Type the Math topic you want Smart Tutor to cover…" style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;"></textarea>
+          <h3>✍️ Request Math Lessons we should include next week</h3>
+          <textarea id="lessonRequest" placeholder="e.g CBC -algebra, Expanding expressions…" style="width:100%; height:80px; border-radius:6px; border:1px solid #aaa; padding:8px; font-size:0.9em;"></textarea>
           <br><br>
           <button onclick="saveLessonRequest()" style="background:#28a745;color:white;padding:10px 15px;border:none;border-radius:6px;cursor:pointer;">
             🚀 Submit Request
@@ -1410,7 +1410,7 @@ function showLesson() {
     ${lessonHTML}
     <hr>
     <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.95em;">
-      <b>📲 More with Elimu Connect App:</b>
+      <b>📲 More with Elimu Connect/SmartLearn App:</b>
       <ul style="margin:8px 0 0 20px;">
         <li>${appFeatures[featureIndex % appFeatures.length]}</li>
         <li>${appFeatures[(featureIndex + 1) % appFeatures.length]}</li>
