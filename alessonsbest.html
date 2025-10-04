@@ -1307,13 +1307,11 @@ function startTutor() {
 
   selectedVoice = getVoice();
 
-  const now = new Date();
-  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+  const now = new Date(); // Student's local time
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = dayNames[kenyaTime.getDay()];
+  const today = dayNames[now.getDay()];
 
   todayLessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[today]?.Math || [];
-  const todaySchedule = timetables[selectedCurriculum]?.[today] || [];
   const status = document.getElementById("status");
 
   // Hide main card
@@ -1330,15 +1328,15 @@ function startTutor() {
     document.getElementById("editor").appendChild(lessonSection);
   }
 
-  // Fixed lesson time: 17:00 – 21:00 local
+  // Fixed lesson time: 21:00 – 23:00 local
   const lessonStart = new Date();
   lessonStart.setHours(21, 0, 0, 0); // 17:00 local
   const lessonEnd = new Date();
   lessonEnd.setHours(23, 0, 0, 0);   // 21:00 local
-  const inLesson = kenyaTime >= lessonStart && kenyaTime <= lessonEnd;
+  const inLesson = now >= lessonStart && now <= lessonEnd;
 
   if (!inLesson) {
-    const nextLessonTime = "17:00 – 21:00 local time";
+    const nextLessonTime = "21:00 – 23:00 local time";
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center; color:#d32f2f;">
         <h2>⏰ No active Math lesson right now.</h2>
@@ -1363,7 +1361,6 @@ function startTutor() {
 
   if (!lessonIntervalId) lessonIntervalId = setInterval(startTutor, 60 * 1000);
 }
-
 
 /* ---------- Show and Speak Current Lesson ---------- */
 function showLesson() {
