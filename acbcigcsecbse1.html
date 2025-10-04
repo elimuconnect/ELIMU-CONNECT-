@@ -1169,8 +1169,11 @@ function showLesson() {
         <li>${appFeatures[featureIndex % appFeatures.length]}</li>
         <li>${appFeatures[(featureIndex + 1) % appFeatures.length]}</li>
         <li>${appFeatures[(featureIndex + 2) % appFeatures.length]}</li>
-       
-       
+      <li>${appFeatures[(featureIndex + 3) % appFeatures.length]}</li>
+        <li>${appFeatures[(featureIndex + 4) % appFeatures.length]}</li>
+        <li>${appFeatures[(featureIndex + 5) % appFeatures.length]}</li>
+        
+        
       </ul>
       <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
         <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
@@ -1197,21 +1200,12 @@ function showLesson() {
   speechSynthesis.speak(utter);
 
   // Next lesson button
- 
-document.getElementById("nextLessonBtn").onclick = () => {
-  currentLesson++;
-
-  if (currentLesson >= todayLessons.length) {
-    // Show "All lessons done" card
+  document.getElementById("nextLessonBtn").onclick = () => {
+    currentLesson = (currentLesson + 1) % todayLessons.length;
     showLesson();
-    document.getElementById("status").textContent = "🎓 All lessons done for this slot";
-    return;
-  }
-
-  // Otherwise, show next lesson
-  showLesson();
-  document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
-};
+    document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+  };
+}
 
 
 // Realtime Database reference
