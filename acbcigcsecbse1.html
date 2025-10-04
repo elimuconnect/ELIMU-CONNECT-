@@ -517,67 +517,65 @@ auth.onAuthStateChanged(u => {
 
 
 // ---------- Lessons ----------
+// ---------- Lessons ----------
 const lessonsArray = {
   CBC: {
-    Mon: { Math: [
-      `<h2>CBC Lesson 1 — Number Operations</h2><p>Content: Add, subtract, multiply & divide integers.</p>`,
-      `<h2>CBC Lesson 2 — Fractions</h2><p>Content: Equivalent fractions, addition & subtraction.</p>`
-    ]},
-    Tue: { Math: [
-      `<h2>CBC Lesson 3 — Decimals</h2><p>Content: Place value, rounding, operations.</p>`
-    ]},
-    Wed: { Math: [
-      `<h2>CBC Lesson 4 — Ratio & Proportion</h2><p>Direct & inverse proportion basics.</p>`
-    ]},
-    Thu: { Math: [
-      `<h2>CBC Lesson 5 — Algebra Basics</h2><p>Expressions, simple equations.</p>`
-    ]},
-    Fri: { Math: [
-      `<h2>CBC Lesson 6 — Geometry Basics</h2><p>Angles, triangles and perimeter.</p>`
-    ]},
-    Sat: { Math: [
-      `<h2>CBC Lesson 7 — Revision & Practice</h2><p>Mixed exercises and quick tests.</p>`
-    ]}
+    7: { // ✅ Grade 7
+      Mon: { Math: [
+        `<h2>CBC Grade 7 Lesson 1 — Number Operations</h2><p>Add, subtract, multiply & divide integers.</p>`,
+        `<h2>CBC Grade 7 Lesson 2 — Fractions</h2><p>Equivalent fractions, addition & subtraction.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>CBC Grade 7 Lesson 3 — Decimals</h2><p>Place value, rounding, operations.</p>`
+      ]}
+    },
+    8: { // ✅ Grade 8
+      Mon: { Math: [
+        `<h2>CBC Grade 8 Lesson 1 — Algebra</h2><p>Expanding brackets, solving linear equations.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>CBC Grade 8 Lesson 2 — Geometry</h2><p>Angles, triangles, quadrilaterals.</p>`
+      ]}
+    },
+    9: { // ✅ Grade 9
+      Mon: { Math: [
+        `<h2>CBC Grade 9 Lesson 1 — Statistics</h2><p>Mean, median, mode and data interpretation.</p>`
+      ]}
+    }
   },
   British: {
-    Mon: { Math: [
-      `<h2>British Lesson 1 — Number Operations</h2><p>Four operations with integers.</p>`
-    ]},
-    Tue: { Math: [
-      `<h2>British Lesson 2 — Fractions</h2><p>Simplifying, comparing, converting fractions.</p>`
-    ]},
-    Wed: { Math: [
-      `<h2>British Lesson 3 — Decimals</h2><p>Ordering, rounding, and decimal operations.</p>`
-    ]},
-    Thu: { Math: [
-      `<h2>British Lesson 4 — Ratio & Proportion</h2><p>Solving ratio problems and scale drawings.</p>`
-    ]},
-    Fri: { Math: [
-      `<h2>British Lesson 5 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
-    ]},
-    Sat: { Math: [
-      `<h2>British Lesson 6 — Geometry</h2><p>Properties of shapes, perimeter, area.</p>`
-    ]}
+    7: {
+      Mon: { Math: [
+        `<h2>British Grade 7 — Number Operations</h2><p>Four operations with integers.</p>`
+      ]}
+    },
+    8: {
+      Mon: { Math: [
+        `<h2>British Grade 8 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
+      ]}
+    },
+    9: {
+      Mon: { Math: [
+        `<h2>British Grade 9 — Geometry</h2><p>Properties of shapes, perimeter, and area.</p>`
+      ]}
+    }
   },
   CBSE: {
-    Mon: { Math: [
-      `<h2>Math-Only Lesson 1 — Integers</h2><p>Positive & negative numbers practice.</p>`
-    ]},
-    Tue: { Math: [
-      `<h2>Math-Only Lesson 2 — Fractions</h2><p>Simplifying, adding, subtracting fractions.</p>`
-    ]},
-    Wed: { Math: [
-      `<h2>Math-Only Lesson 3 — Decimals</h2><p>Decimal place value and multiplication.</p>`
-    ]},
-    Thu: { Math: [
-      `<h2>Math-Only Lesson 4 — Ratio</h2><p>Solving ratio and sharing problems.</p>`
-    ]},
-    Fri: { Math: [
-      `<h2>Math-Only Lesson 5 — Algebra</h2><p>Expanding brackets, simple equations.</p>`
-    ]},
-    Sat: { Math: [
-      `<h2>Math-Only Lesson 6 — Geometry</h2><p>Angles in triangles, quadrilaterals.</p>`
-    ]}
+    7: {
+      Mon: { Math: [
+        `<h2>CBSE Grade 7 — Integers</h2><p>Positive & negative number practice.</p>`
+      ]}
+    },
+    8: {
+      Mon: { Math: [
+        `<h2>CBSE Grade 8 — Algebra</h2><p>Expanding brackets, solving equations.</p>`
+      ]}
+    },
+    9: {
+      Mon: { Math: [
+        `<h2>CBSE Grade 9 — Geometry</h2><p>Angles in triangles, quadrilaterals.</p>`
+      ]}
+    }
   }
 };
 
@@ -627,15 +625,48 @@ function inTimeRange(start, end, now) {
 }
 
 
-  
 // ---------- Curriculum Selection ----------
-function chooseCurriculum(curr){
-  selectedCurriculum = curr; // instead of chosenCurriculum
+let selectedCurriculum = null;
+let selectedGrade = null;
+
+function chooseCurriculum(curr) {
+  selectedCurriculum = curr;
+
+  // Hide curriculum buttons
   document.getElementById("curriculumSelect").style.display = "none";
-  document.getElementById("mainTutor").style.display = "block";
-  document.getElementById("selectedCurriculum").textContent = "📘 Curriculum: " + curr;
-  startLessonChecker(curr);
+
+  // Show grade selection
+  const gradeSelectDiv = document.createElement("div");
+  gradeSelectDiv.id = "gradeSelect";
+  gradeSelectDiv.style.textAlign = "center";
+  gradeSelectDiv.style.marginTop = "30px";
+
+  gradeSelectDiv.innerHTML = `
+    <h2>🎓 Choose Your Grade for ${curr} Curriculum</h2>
+    ${[7,8,9,10,11,12].map(g => 
+      `<button onclick="chooseGrade(${g})" style="margin:5px; padding:8px 15px;">Grade ${g}</button>`
+    ).join('')}
+  `;
+
+  document.getElementById("app").appendChild(gradeSelectDiv);
 }
+
+function chooseGrade(grade) {
+  selectedGrade = grade;
+
+  // Remove grade selector
+  const gradeSelect = document.getElementById("gradeSelect");
+  if (gradeSelect) gradeSelect.remove();
+
+  // Show main tutor section
+  document.getElementById("mainTutor").style.display = "block";
+
+  document.getElementById("selectedCurriculum").textContent =
+    `📘 Curriculum: ${selectedCurriculum} | 🎓 Grade ${selectedGrade}`;
+
+  startLessonChecker(selectedCurriculum, selectedGrade);
+}
+
 
 
 let currentLesson = 0;
