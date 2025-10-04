@@ -676,34 +676,28 @@ function startTutor() {
   }
 
   selectedVoice = getVoice();
+
+  // ✅ Get Kenya local time
   const now = new Date();
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
 
-  // Normalize day to match timetable keys
-  const dayMap = {
-    Monday: "Mon", Mon: "Mon",
-    Tuesday: "Tue", Tue: "Tue",
-    Wednesday: "Wed", Wed: "Wed",
-    Thursday: "Thu", Thur: "Thu", Thu: "Thu",
-    Friday: "Fri", Fri: "Fri",
-    Saturday: "Sat", Sat: "Sat",
-    Sunday: "Sun", Sun: "Sun"
-  };
-  const longDay = kenyaTime.toLocaleDateString("en-US", { weekday: "long" });
-  const shortDay = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
-  const day = dayMap[longDay] || dayMap[shortDay] || "Mon"; // fallback to Mon
+  // ✅ Reliable weekday mapping (for all browsers)
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const day = dayNames[kenyaTime.getDay()];
 
-  // Use grade-specific lessons
+  // ✅ Pull grade-specific lessons
   const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
+
+  // ✅ Detect if time is within any Math slot
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
   const status = document.getElementById("status");
 
-  // Hide main tutor card
+  // ✅ Hide main tutor card when tutor starts
   const mainCard = document.querySelector("#editor .card");
   if (mainCard) mainCard.style.display = "none";
 
-  // Lesson section
+  // ✅ Ensure lesson section exists
   let lessonSection = document.getElementById("lessonSection");
   if (!lessonSection) {
     lessonSection = document.createElement("div");
@@ -714,18 +708,29 @@ function startTutor() {
   }
   lessonSection.innerHTML = "";
 
-  // Not within scheduled lesson time
+  // ✅ Not within scheduled lesson time
   if (!inLesson) {
+    // Find the next upcoming lesson time for clarity
+    const future = todaySchedule.filter(slot => {
+      const [h, m] = slot.start.split(":").map(Number);
+      const slotTime = new Date(kenyaTime);
+      slotTime.setHours(h, m, 0, 0);
+      return slotTime > kenyaTime;
+    });
+    const nextLessonTime = future.length
+      ? future.map(s => `${s.start} – ${s.end}`).join(", ")
+      : "No more lessons today.";
+
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center; color:#d32f2f;">
         <h2>⏰ No active Math lesson right now.</h2>
-        <p>Next lesson: ${todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ") || "No lesson today."}</p>
+        <p>Next lesson: ${nextLessonTime}</p>
       </div>`;
     status.textContent = "🕓 Waiting for next lesson...";
     return;
   }
 
-  // Display lessons
+  // ✅ Within lesson time — show today's Math lessons
   if (lessons.length > 0) {
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
@@ -741,7 +746,7 @@ function startTutor() {
       lessonSection.appendChild(card);
     });
 
-    // Features card
+    // ✅ Add features card below
     const f1 = appFeatures[featureIndex % appFeatures.length];
     const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
     const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
@@ -774,11 +779,11 @@ function startTutor() {
     status.textContent = "ℹ️ No lessons for today.";
   }
 
+  // ✅ Run auto-refresh once per minute
   if (!lessonIntervalId) {
     lessonIntervalId = setInterval(startTutor, 60 * 1000);
   }
 }
-
 
 /* ---------- Speak Lesson ---------- */
 function speakLesson(i) {
