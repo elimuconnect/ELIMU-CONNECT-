@@ -833,56 +833,6 @@ function chooseGrade(grade) {
   startLessonChecker(selectedCurriculum, selectedGrade);
 }
 
-function getKenyaTime() {
-  const now = new Date();
-  return new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
-}
-
-function startLessonChecker(curriculum, grade) {
-  function checkAndLoadLesson() {
-    const now = getKenyaTime();
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const currentDay = days[now.getDay()];
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const lessonContainer = document.getElementById("lessonContainer");
-    const status = document.getElementById("status");
-
-    // Lesson hours: Mon–Fri (17:30–19:00), Sat (08:00–10:00)
-    const weekdayLesson = ["Mon","Tue","Wed","Thu","Fri"].includes(currentDay) && 
-                          (hour > 17 || (hour === 17 && minute >= 30)) && hour < 19;
-    const saturdayLesson = currentDay === "Sat" && hour >= 8 && hour < 10;
-
-    if (!weekdayLesson && !saturdayLesson) {
-      lessonContainer.innerHTML = `
-        <p>⏳ No active Math lesson now.<br>
-        Lessons are live Mon–Fri (5:30 PM–7:00 PM) and Sat (8:00 AM–10:00 AM).</p>`;
-      status.textContent = `Waiting for lesson time...`;
-      return;
-    }
-
-    try {
-      const lessons = lessonsArray[curriculum]?.[grade]?.[currentDay]?.Math;
-      if (lessons && lessons.length > 0) {
-        let html = `<h2>📘 ${curriculum} Grade ${grade} — ${currentDay} Math Lessons</h2>`;
-        lessons.forEach((l, i) => html += `<div>${l}</div><hr>`);
-        lessonContainer.innerHTML = html;
-        status.textContent = `✅ Showing ${currentDay} ${curriculum} Grade ${grade} lesson(s)`;
-      } else {
-        lessonContainer.innerHTML = `<p>No Math lessons found for ${currentDay}.</p>`;
-        status.textContent = `⚠️ No data for ${currentDay}`;
-      }
-    } catch (e) {
-      console.error(e);
-      lessonContainer.innerHTML = `<p>Error loading lessons.</p>`;
-    }
-  }
-
-  // Run immediately and then every 5 minutes
-  checkAndLoadLesson();
-  setInterval(checkAndLoadLesson, 300000);
-}
-
 
 let currentLesson = 0;
 let todayLessons = [];
