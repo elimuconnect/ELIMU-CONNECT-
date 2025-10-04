@@ -547,11 +547,11 @@ auth.onAuthStateChanged(u => {
 
 let selectedCurriculum = null;
 let selectedGrade = null;
-
+let currentLesson = 0;
 let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
-
+let lessonIntervalId = null;
 let featureIndex = 0;
 
 /* ---------- Curriculum Selection ---------- */
@@ -1684,8 +1684,6 @@ const appFeatures = [
   "➗ Calculus: Differentiation & Integration Calculators"
 ];
 
-let currentLesson = 0; // tracks lesson progress
-let lessonIntervalId = null;
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -1694,7 +1692,7 @@ function startTutor() {
 
   selectedVoice = getVoice();
 
-  const now = new Date();
+  const now = new Date(); // Student's local time
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const today = dayNames[now.getDay()];
 
@@ -1705,7 +1703,7 @@ function startTutor() {
   const mainCard = document.querySelector("#editor .card");
   if (mainCard) mainCard.style.display = "none";
 
-  // Create lesson section if it doesn't exist
+  // Create lesson section
   let lessonSection = document.getElementById("lessonSection");
   if (!lessonSection) {
     lessonSection = document.createElement("div");
@@ -1717,9 +1715,9 @@ function startTutor() {
 
   // Fixed lesson time: 17:00 – 21:00 local
   const lessonStart = new Date();
-  lessonStart.setHours(17, 0, 0, 0);
+  lessonStart.setHours(17, 0, 0, 0); // 17:00 local
   const lessonEnd = new Date();
-  lessonEnd.setHours(21, 0, 0, 0);
+  lessonEnd.setHours(21, 0, 0, 0);   // 21:00 local
   const inLesson = now >= lessonStart && now <= lessonEnd;
 
   if (!inLesson) {
@@ -1742,20 +1740,13 @@ function startTutor() {
     return;
   }
 
-  // Load last progress from localStorage (optional)
-  const savedLesson = localStorage.getItem(`${selectedCurriculum}_${selectedGrade}_${today}`);
-  currentLesson = savedLesson ? parseInt(savedLesson) : 0;
-
-  // Show the current lesson
+  
   showLesson();
-
-  // Update status
   status.textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
 
-  // Optional: check every minute if the lesson time changes
   if (!lessonIntervalId) lessonIntervalId = setInterval(startTutor, 60 * 1000);
 }
-  
+
 /* ---------- Show and Speak Current Lesson ---------- */
 function showLesson() {
   const lessonSection = document.getElementById("lessonSection");
