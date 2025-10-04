@@ -518,8 +518,6 @@ auth.onAuthStateChanged(u => {
 /* ---------- Curriculum + Grade Selection ---------- */
 let selectedCurriculum = null;
 let selectedGrade = null;
-let currentLesson = 0;
-let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
 
@@ -551,50 +549,44 @@ const lessonsArray = {
       Fri: { Math: [`<h2>Grade 7 — Geometry</h2><p>Angles and triangles.</p>`] },
       Sat: { Math: [`<h2>Grade 7 — Revision</h2><p>Practice questions on week topics.</p>`] },
       Sun: []
-    },
-    8: {
-      Mon: { Math: [`<h2>Grade 8 — Indices</h2><p>Understanding powers and roots.</p>`] },
-      Tue: { Math: [`<h2>Grade 8 — Ratios</h2><p>Simplifying and sharing ratios.</p>`] },
-      Wed: { Math: [`<h2>Grade 8 — Linear Equations</h2><p>Solving one-variable equations.</p>`] },
-      Thu: { Math: [`<h2>Grade 8 — Graphs</h2><p>Plotting and interpreting graphs.</p>`] },
-      Fri: { Math: [`<h2>Grade 8 — Geometry</h2><p>Angles, polygons, and circles.</p>`] },
-      Sat: { Math: [`<h2>Grade 8 — Revision</h2><p>Mixed practice tests.</p>`] },
-      Sun: []
-    },
-    9: {
-      Mon: { Math: [`<h2>Grade 9 — Trigonometry</h2><p>Basics of sine, cosine, and tangent.</p>`] },
-      Tue: { Math: [`<h2>Grade 9 — Probability</h2><p>Simple probability problems.</p>`] },
-      Wed: { Math: [`<h2>Grade 9 — Algebra II</h2><p>Quadratic equations and factorization.</p>`] },
-      Thu: { Math: [`<h2>Grade 9 — Statistics</h2><p>Mean, median, mode.</p>`] },
-      Fri: { Math: [`<h2>Grade 9 — Geometry</h2><p>Circles and constructions.</p>`] },
-      Sat: { Math: [`<h2>Grade 9 — Revision</h2><p>Topic recap and test.</p>`] },
-      Sun: []
-    },
-    // You can easily add Grades 10–12 here similarly
-  },
-  British: {
-    7: { Mon: { Math: [`<h2>Grade 7 (UK) — Fractions</h2><p>Adding and simplifying fractions.</p>`] } },
-    8: { Mon: { Math: [`<h2>Grade 8 (UK) — Decimals</h2><p>Ordering and rounding decimals.</p>`] } },
-    9: { Mon: { Math: [`<h2>Grade 9 (UK) — Algebra</h2><p>Forming and solving equations.</p>`] } },
+    }
   },
   CBSE: {
-    7: { Mon: { Math: [`<h2>Grade 7 (CBSE) — Integers</h2><p>Operations with integers.</p>`] } },
-    8: { Mon: { Math: [`<h2>Grade 8 (CBSE) — Algebra</h2><p>Basic algebraic identities.</p>`] } },
-    9: { Mon: { Math: [`<h2>Grade 9 (CBSE) — Geometry</h2><p>Triangles and quadrilaterals.</p>`] } },
+    7: {
+      Mon: { Math: [`<h2>Grade 7 (CBSE) — Integers</h2><p>Operations with integers.</p>`] },
+      Tue: { Math: [`<h2>Grade 7 (CBSE) — Fractions</h2><p>Adding and subtracting fractions.</p>`] },
+      Wed: { Math: [`<h2>Grade 7 (CBSE) — Decimals</h2><p>Place value and operations.</p>`] },
+      Thu: { Math: [`<h2>Grade 7 (CBSE) — Algebra</h2><p>Using variables and equations.</p>`] },
+      Fri: { Math: [`<h2>Grade 7 (CBSE) — Geometry</h2><p>Lines and angles.</p>`] },
+      Sat: { Math: [`<h2>Grade 7 (CBSE) — Revision</h2><p>Weekly test preparation.</p>`] },
+      Sun: []
+    }
+  },
+  British: {
+    7: {
+      Mon: { Math: [`<h2>Grade 7 (UK) — Fractions</h2><p>Adding and simplifying fractions.</p>`] },
+      Tue: { Math: [`<h2>Grade 7 (UK) — Decimals</h2><p>Rounding and ordering decimals.</p>`] },
+      Wed: { Math: [`<h2>Grade 7 (UK) — Algebra</h2><p>Solving simple equations.</p>`] },
+      Thu: { Math: [`<h2>Grade 7 (UK) — Geometry</h2><p>Angles and polygons.</p>`] },
+      Fri: { Math: [`<h2>Grade 7 (UK) — Graphs</h2><p>Plotting coordinates.</p>`] },
+      Sat: { Math: [`<h2>Grade 7 (UK) — Revision</h2><p>Mixed review tasks.</p>`] },
+      Sun: []
+    }
   }
 };
 
-/* ---------- Timetables (Same for All Grades) ---------- */
+/* ---------- Timetables ---------- */
 const timetables = {
   Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
   Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
   Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
   Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
   Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Sat: [{ subject: "Math", start: "08:00", end: "16:00" }],
+  Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
   Sun: []
 };
 
+/* ---------- Helper Functions ---------- */
 function inTimeRange(start, end, now) {
   const [sH, sM] = start.split(":").map(Number);
   const [eH, eM] = end.split(":").map(Number);
@@ -602,6 +594,11 @@ function inTimeRange(start, end, now) {
   s.setHours(sH, sM, 0, 0);
   e.setHours(eH, eM, 0, 0);
   return now >= s && now <= e;
+}
+
+function normalizeDay(day) {
+  // Converts variations like "Mon.", "Mon" etc. to plain "Mon"
+  return day.replace(/\W/g, "").slice(0,3);
 }
 
 /* ---------- Voice ---------- */
@@ -628,16 +625,25 @@ function startTutor(){
   }
   selectedVoice = getVoice();
   const now = new Date();
-  const day = now.toLocaleDateString("en-US",{weekday:"short"});
+  const rawDay = now.toLocaleDateString("en-US",{weekday:"short"});
+  const day = normalizeDay(rawDay);
+
   const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math;
+  const container = document.getElementById("lessonContainer");
+  container.innerHTML = "";
 
   if (lessons && lessons.length > 0) {
-    const html = lessons[0];
-    document.getElementById("lessonContainer").innerHTML = html;
-    document.getElementById("status").textContent = `📘 Now Learning: ${selectedCurriculum} Grade ${selectedGrade} (${day})`;
-    speak(html);
+    lessons.forEach(html=>{
+      const card = document.createElement("div");
+      card.className = "lessonCard";
+      card.innerHTML = html;
+      container.appendChild(card);
+    });
+    document.getElementById("status").textContent = 
+      `📘 Now Learning: ${selectedCurriculum} Grade ${selectedGrade} (${day})`;
+    speak(lessons.join(" "));
   } else {
-    document.getElementById("lessonContainer").innerHTML = `<p>No Math lesson scheduled for today.</p>`;
+    container.innerHTML = `<p style="text-align:center;">No Math lesson scheduled for today.</p>`;
   }
 }
 
@@ -646,7 +652,8 @@ function startLessonChecker(){
   selectedVoice = getVoice();
   setInterval(()=>{
     const now = new Date();
-    const day = now.toLocaleDateString("en-US",{weekday:"short"});
+    const rawDay = now.toLocaleDateString("en-US",{weekday:"short"});
+    const day = normalizeDay(rawDay);
     const slots = timetables[day];
     if (!slots) return;
     for (let slot of slots){
