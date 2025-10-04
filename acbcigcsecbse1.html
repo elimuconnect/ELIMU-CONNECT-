@@ -669,6 +669,7 @@ function speak(html) {
 /* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
 let lessonIntervalId = null; // will hold the periodic checker id
 
+/* ---------- Start Tutor ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -677,27 +678,24 @@ function startTutor() {
 
   selectedVoice = getVoice();
 
-  // ✅ Get Kenya local time
+  // ✅ Kenya local time
   const now = new Date();
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
 
-  // ✅ Reliable weekday mapping (for all browsers)
+  // ✅ Weekday mapping
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const day = dayNames[kenyaTime.getDay()];
 
-  // ✅ Pull grade-specific lessons
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
+  // ✅ Lessons and schedule lookup
+  const lessons = lessonsArray[selectedCurriculum]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
-
-  // ✅ Detect if time is within any Math slot
-  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
   const status = document.getElementById("status");
 
-  // ✅ Hide main tutor card when tutor starts
+  // ✅ Hide main tutor card
   const mainCard = document.querySelector("#editor .card");
   if (mainCard) mainCard.style.display = "none";
 
-  // ✅ Ensure lesson section exists
+  // ✅ Create or clear lesson section
   let lessonSection = document.getElementById("lessonSection");
   if (!lessonSection) {
     lessonSection = document.createElement("div");
@@ -708,17 +706,19 @@ function startTutor() {
   }
   lessonSection.innerHTML = "";
 
-  // ✅ Not within scheduled lesson time
+  // ✅ Determine if now is within lesson slot
+  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+
+  // ✅ Not within lesson time → show upcoming info
   if (!inLesson) {
-    // Find the next upcoming lesson time for clarity
-    const future = todaySchedule.filter(slot => {
+    const upcoming = todaySchedule.filter(slot => {
       const [h, m] = slot.start.split(":").map(Number);
       const slotTime = new Date(kenyaTime);
       slotTime.setHours(h, m, 0, 0);
       return slotTime > kenyaTime;
     });
-    const nextLessonTime = future.length
-      ? future.map(s => `${s.start} – ${s.end}`).join(", ")
+    const nextLessonTime = upcoming.length
+      ? upcoming.map(s => `${s.start} – ${s.end}`).join(", ")
       : "No more lessons today.";
 
     lessonSection.innerHTML = `
@@ -730,7 +730,7 @@ function startTutor() {
     return;
   }
 
-  // ✅ Within lesson time — show today's Math lessons
+  // ✅ Within lesson time → show today’s Math lessons
   if (lessons.length > 0) {
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
@@ -746,7 +746,7 @@ function startTutor() {
       lessonSection.appendChild(card);
     });
 
-    // ✅ Add features card below
+    // ✅ Add app features card below lessons
     const f1 = appFeatures[featureIndex % appFeatures.length];
     const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
     const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
@@ -775,11 +775,14 @@ function startTutor() {
     status.textContent = `🎓 Showing ${lessons.length} Math lesson(s)`;
     speak(lessons[0]);
   } else {
-    lessonSection.innerHTML = `<div class="card">📘 No Math lesson found for ${day}.</div>`;
+    lessonSection.innerHTML = `
+      <div class="card" style="text-align:center;">
+        📘 No Math lesson found for ${day}.
+      </div>`;
     status.textContent = "ℹ️ No lessons for today.";
   }
 
-  // ✅ Run auto-refresh once per minute
+  // ✅ Auto-refresh every minute
   if (!lessonIntervalId) {
     lessonIntervalId = setInterval(startTutor, 60 * 1000);
   }
@@ -788,15 +791,15 @@ function startTutor() {
 /* ---------- Speak Lesson ---------- */
 function speakLesson(i) {
   const now = new Date();
-  const day = now.toLocaleDateString("en-US", { weekday: "short" });
-  const lesson = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math?.[i];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const day = dayNames[now.getDay()];
+  const lesson = lessonsArray[selectedCurriculum]?.[day]?.Math?.[i];
   if (lesson) speak(lesson);
 }
 
-/* ---------- Lesson Checker (no immediate start) ---------- */
+/* ---------- Lesson Checker (inactive until Start Tutor) ---------- */
 function startLessonChecker() {
-  // intentionally left empty so choosing grade does NOT auto-hide the main card.
-  // The periodic check is started only after the student clicks "Start Tutor".
+  // left empty intentionally – starts only after Start Tutor
 }
 
 const appFeatures = [
