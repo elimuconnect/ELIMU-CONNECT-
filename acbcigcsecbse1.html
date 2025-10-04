@@ -338,16 +338,28 @@ html, body {
 
 <div id="app">
 
-  <!-- Curriculum Selection -->
-  <div id="curriculumSelect" style="text-align:center; margin-bottom:20px;">
-    <h2>📚 Choose Your Math Curriculum</h2>
-    <button onclick="chooseCurriculum('CBC')" style="margin:5px; padding:8px 15px;">🇰🇪 CBC</button>
-    <button onclick="chooseCurriculum('British')" style="margin:5px; padding:8px 15px;">🇬🇧 British</button>
-    <button onclick="chooseCurriculum('CBSE')" style="margin:5px; padding:8px 15px;">🇮🇳 CBSE</button>
-  </div>
+ <!-- Curriculum Selection -->
+<div id="curriculumSelect" style="text-align:center; margin-bottom:20px;">
+  <h2>📚 Choose Your Math Curriculum</h2>
+  <button onclick="chooseCurriculum('CBC')">🇰🇪 CBC</button>
+  <button onclick="chooseCurriculum('British')">🇬🇧 British</button>
+  <button onclick="chooseCurriculum('CBSE')">🇮🇳 CBSE</button>
+</div>
 
-  <!-- Main Tutor Section -->
-  <div id="mainTutor" style="display:none;">
+<!-- Grade Selection -->
+<div id="gradeSelect" style="display:none; text-align:center; margin-bottom:20px;">
+  <h2>🎓 Choose Your Grade</h2>
+  ${[7,8,9,10,11,12].map(g => 
+    `<button onclick="chooseGrade(${g})" style="margin:5px; padding:8px 15px;">Grade ${g}</button>`
+  ).join('')}
+</div>
+
+<!-- Main Tutor Area -->
+<div id="mainTutor" style="display:none; text-align:center; margin-top:20px;">
+  <h3 id="status">⌛ Loading...</h3>
+  <div id="lessonContainer" style="margin-top:15px; text-align:left; padding:10px; border-radius:10px; background:#fff8e1;"></div>
+</div>
+
 
     <!-- Toolbar -->
     <div id="toolbar" style="text-align:center; margin-bottom:15px;">
@@ -519,7 +531,7 @@ auth.onAuthStateChanged(u => {
 // ---------- Lessons ----------
 // ---------- Lessons ----------
 const lessonsArray = {
- CBC: {
+CBC: {
   7: { // ✅ Grade 7
     Mon: { Math: [
       `<h2>CBC Grade 7 Lesson 1 — Number Operations</h2>
@@ -528,7 +540,6 @@ const lessonsArray = {
       `<h2>CBC Grade 7 Lesson 2 — Fractions</h2>
        <p>Identify equivalent fractions, simplify fractions, and perform addition and subtraction.</p>`
     ]},
-
     Tue: { Math: [
       `<h2>CBC Grade 7 Lesson 3 — Decimals</h2>
        <p>Understand place value in decimals, rounding off, and performing the four operations.</p>`,
@@ -536,7 +547,6 @@ const lessonsArray = {
       `<h2>CBC Grade 7 Lesson 4 — Relationship between Fractions and Decimals</h2>
        <p>Convert between fractions, decimals, and percentages.</p>`
     ]},
-
     Wed: { Math: [
       `<h2>CBC Grade 7 Lesson 5 — Percentages</h2>
        <p>Find percentages of quantities and solve real-life problems involving discounts and profit.</p>`,
@@ -544,7 +554,6 @@ const lessonsArray = {
       `<h2>CBC Grade 7 Lesson 6 — Ratios and Proportion</h2>
        <p>Express comparisons as ratios, simplify them, and apply proportion in sharing.</p>`
     ]},
-
     Thu: { Math: [
       `<h2>CBC Grade 7 Lesson 7 — Algebraic Expressions</h2>
        <p>Use letters to represent numbers, form expressions, and simplify them.</p>`,
@@ -552,7 +561,6 @@ const lessonsArray = {
       `<h2>CBC Grade 7 Lesson 8 — Solving Simple Equations</h2>
        <p>Apply inverse operations to find unknown values in simple linear equations.</p>`
     ]},
-
     Fri: { Math: [
       `<h2>CBC Grade 7 Lesson 9 — Geometry</h2>
        <p>Identify and classify different types of angles, triangles, and quadrilaterals.</p>`,
@@ -560,7 +568,6 @@ const lessonsArray = {
       `<h2>CBC Grade 7 Lesson 10 — Perimeter and Area</h2>
        <p>Calculate perimeter and area of rectangles, squares, and triangles using formulas.</p>`
     ]},
-
     Sat: { Math: [
       `<h2>CBC Grade 7 Lesson 11 — Data Handling</h2>
        <p>Collect, organize, and represent data using tally charts, bar graphs, and pictographs.</p>`,
@@ -570,114 +577,270 @@ const lessonsArray = {
     ]}
   },
 
-
-     8: { // ✅ Grade 8
-      Mon: { Math: [
-        `<h2>CBC Grade 8 Lesson 1 — Algebra</h2><p>Expanding brackets, solving linear equations.</p>`
-      ]},
-      Tue: { Math: [
-        `<h2>CBC Grade 8 Lesson 2 — Geometry</h2><p>Angles, triangles, quadrilaterals.</p>`
-      ]},
-      Wed: { Math: [
-        `<h2>CBC Grade 8 Lesson 3 — Indices & Standard Form</h2><p>Rules of indices, writing large/small numbers.</p>`
-      ]},
-      Thu: { Math: [
-        `<h2>CBC Grade 8 Lesson 4 — Statistics</h2><p>Mean, median, mode, range.</p>`
-      ]},
-      Fri: { Math: [
-        `<h2>CBC Grade 8 Lesson 5 — Graphs</h2><p>Plotting linear graphs, interpreting coordinates.</p>`
-      ]},
-      Sat: { Math: [
-        `<h2>CBC Grade 8 Lesson 6 — Probability</h2><p>Simple probability, outcomes, and likelihood.</p>`
-      ]}
-    },
-  
-   9: { // ✅ Grade 9
-      Mon: { Math: [
-        `<h2>CBC Grade 9 Lesson 1 — Statistics</h2><p>Mean, median, mode and data interpretation.</p>`
-      ]},
-      Tue: { Math: [
-        `<h2>CBC Grade 9 Lesson 2 — Algebra</h2><p>Factorization, quadratic equations.</p>`
-      ]},
-      Wed: { Math: [
-        `<h2>CBC Grade 9 Lesson 3 — Geometry</h2><p>Pythagoras theorem, trigonometric ratios.</p>`
-      ]},
-      Thu: { Math: [
-        `<h2>CBC Grade 9 Lesson 4 — Graphs</h2><p>Graphing quadratic and linear functions.</p>`
-      ]},
-      Fri: { Math: [
-        `<h2>CBC Grade 9 Lesson 5 — Probability</h2><p>Experimental and theoretical probability.</p>`
-      ]},
-      Sat: { Math: [
-        `<h2>CBC Grade 9 Lesson 6 — Measurement</h2><p>Surface area and volume of solids.</p>`
-      ]}
-    }
+  8: { // ✅ Grade 8
+    Mon: { Math: [
+      `<h2>CBC Grade 8 Lesson 1 — Algebra</h2>
+       <p>Expand brackets, solve linear equations, and simplify algebraic expressions.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Grade 8 Lesson 2 — Geometry</h2>
+       <p>Work with angles, triangles, and quadrilaterals using geometric properties.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Grade 8 Lesson 3 — Indices & Standard Form</h2>
+       <p>Apply laws of indices and write large or small numbers in standard form.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Grade 8 Lesson 4 — Statistics</h2>
+       <p>Calculate mean, median, mode, and range from data sets.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Grade 8 Lesson 5 — Graphs</h2>
+       <p>Plot and interpret linear graphs on Cartesian planes.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Grade 8 Lesson 6 — Probability</h2>
+       <p>Determine likelihoods of outcomes using simple probability.</p>`
+    ]}
   },
+
+  9: { // ✅ Grade 9
+    Mon: { Math: [
+      `<h2>CBC Grade 9 Lesson 1 — Statistics</h2>
+       <p>Find mean, median, and mode, and interpret grouped data.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Grade 9 Lesson 2 — Algebra</h2>
+       <p>Factorize expressions and solve quadratic equations.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Grade 9 Lesson 3 — Geometry</h2>
+       <p>Apply Pythagoras’ theorem and basic trigonometric ratios.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Grade 9 Lesson 4 — Graphs</h2>
+       <p>Plot linear and quadratic functions and interpret graphs.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Grade 9 Lesson 5 — Probability</h2>
+       <p>Understand experimental and theoretical probability.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Grade 9 Lesson 6 — Measurement</h2>
+       <p>Calculate surface area and volume of solids like prisms and cylinders.</p>`
+    ]}
+  },
+
+  10: { // ✅ Grade 10
+    Mon: { Math: [
+      `<h2>CBC Grade 10 Lesson 1 — Algebraic Expressions & Quadratics</h2>
+       <p>Expand, simplify, and solve quadratic equations by factorization and formula.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Grade 10 Lesson 2 — Trigonometry</h2>
+       <p>Use sine, cosine, and tangent to find unknown sides and angles in right triangles.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Grade 10 Lesson 3 — Coordinate Geometry</h2>
+       <p>Find gradients, midpoints, and distances between points on Cartesian planes.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Grade 10 Lesson 4 — Statistics & Data Presentation</h2>
+       <p>Represent data using histograms, frequency polygons, and cumulative curves.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Grade 10 Lesson 5 — Probability</h2>
+       <p>Work with combined events and independent/dependent probabilities.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Grade 10 Lesson 6 — Measurement & Scale Drawing</h2>
+       <p>Apply scale to drawings and calculate volumes of complex solids.</p>`
+    ]}
+  },
+
+  11: { // ✅ Grade 11
+    Mon: { Math: [
+      `<h2>CBC Grade 11 Lesson 1 — Sequences & Series</h2>
+       <p>Work with arithmetic and geometric progressions and find nth terms.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Grade 11 Lesson 2 — Functions</h2>
+       <p>Understand domain, range, and types of functions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Grade 11 Lesson 3 — Differentiation</h2>
+       <p>Learn basic differentiation and its applications in gradients and motion.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Grade 11 Lesson 4 — Integration</h2>
+       <p>Find areas under curves and reverse differentiation.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Grade 11 Lesson 5 — Statistics & Probability</h2>
+       <p>Analyze distributions and calculate probabilities for multiple events.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Grade 11 Lesson 6 — Vectors</h2>
+       <p>Represent quantities as vectors and compute magnitude and direction.</p>`
+    ]}
+  },
+
+  12: { // ✅ Grade 12
+    Mon: { Math: [
+      `<h2>CBC Grade 12 Lesson 1 — Calculus</h2>
+       <p>Apply differentiation and integration to real-world problems.</p>`
+    ]},
+    Tue: { Math: [
+      `<h2>CBC Grade 12 Lesson 2 — Probability Distributions</h2>
+       <p>Understand binomial and normal distributions.</p>`
+    ]},
+    Wed: { Math: [
+      `<h2>CBC Grade 12 Lesson 3 — Matrices</h2>
+       <p>Perform operations with matrices and find determinants.</p>`
+    ]},
+    Thu: { Math: [
+      `<h2>CBC Grade 12 Lesson 4 — Linear Programming</h2>
+       <p>Formulate and solve optimization problems graphically.</p>`
+    ]},
+    Fri: { Math: [
+      `<h2>CBC Grade 12 Lesson 5 — Complex Numbers</h2>
+       <p>Represent and operate on complex numbers in Cartesian and polar forms.</p>`
+    ]},
+    Sat: { Math: [
+      `<h2>CBC Grade 12 Lesson 6 — Statistics & Correlation</h2>
+       <p>Calculate correlation coefficients and regression lines.</p>`
+    ]}
+  }
+},
   British: {
     7: { // ✅ Year 7
       Mon: { Math: [
-        `<h2>British Grade 7 — Number Operations</h2><p>Four operations with integers.</p>`
+        `<h2>British Year 7 — Number Operations</h2><p>Four operations with integers.</p>`
       ]},
       Tue: { Math: [
-        `<h2>British Grade 7 — Fractions</h2><p>Adding, subtracting, and simplifying fractions.</p>`
+        `<h2>British Year 7 — Fractions</h2><p>Adding, subtracting, and simplifying fractions.</p>`
       ]},
       Wed: { Math: [
-        `<h2>British Grade 7 — Decimals</h2><p>Place value, rounding, and decimal operations.</p>`
+        `<h2>British Year 7 — Decimals</h2><p>Place value, rounding, and decimal operations.</p>`
       ]},
       Thu: { Math: [
-        `<h2>British Grade 7 — Percentages</h2><p>Percentage change, profit and loss.</p>`
+        `<h2>British Year 7 — Percentages</h2><p>Percentage change, profit and loss.</p>`
       ]},
       Fri: { Math: [
-        `<h2>British Grade 7 — Ratio & Proportion</h2><p>Solving word problems on ratios.</p>`
+        `<h2>British Year 7 — Ratio & Proportion</h2><p>Solving word problems on ratios.</p>`
       ]},
       Sat: { Math: [
-        `<h2>British Grade 7 — Data Handling</h2><p>Bar charts, pie charts, and averages.</p>`
+        `<h2>British Year 7 — Data Handling</h2><p>Bar charts, pie charts, and averages.</p>`
       ]}
     },
 
     8: { // ✅ Year 8
       Mon: { Math: [
-        `<h2>British Grade 8 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
+        `<h2>British Year 8 — Algebra Basics</h2><p>Substitution, equations, simple formulae.</p>`
       ]},
       Tue: { Math: [
-        `<h2>British Grade 8 — Geometry</h2><p>Angles in polygons and parallel lines.</p>`
+        `<h2>British Year 8 — Geometry</h2><p>Angles in polygons and parallel lines.</p>`
       ]},
       Wed: { Math: [
-        `<h2>British Grade 8 — Statistics</h2><p>Collecting data, mean, median, mode.</p>`
+        `<h2>British Year 8 — Statistics</h2><p>Collecting data, mean, median, mode.</p>`
       ]},
       Thu: { Math: [
-        `<h2>British Grade 8 — Graphs</h2><p>Plotting straight-line graphs and coordinates.</p>`
+        `<h2>British Year 8 — Graphs</h2><p>Plotting straight-line graphs and coordinates.</p>`
       ]},
       Fri: { Math: [
-        `<h2>British Grade 8 — Probability</h2><p>Likelihood of events, outcomes.</p>`
+        `<h2>British Year 8 — Probability</h2><p>Likelihood of events, outcomes.</p>`
       ]},
       Sat: { Math: [
-        `<h2>British Grade 8 — Measurement</h2><p>Perimeter, area, and volume problems.</p>`
+        `<h2>British Year 8 — Measurement</h2><p>Perimeter, area, and volume problems.</p>`
       ]}
     },
 
     9: { // ✅ Year 9
       Mon: { Math: [
-        `<h2>British Grade 9 — Geometry</h2><p>Properties of shapes, perimeter, and area.</p>`
+        `<h2>British Year 9 — Geometry</h2><p>Properties of shapes, perimeter, and area.</p>`
       ]},
       Tue: { Math: [
-        `<h2>British Grade 9 — Algebra</h2><p>Quadratic equations and simultaneous equations.</p>`
+        `<h2>British Year 9 — Algebra</h2><p>Quadratic equations and simultaneous equations.</p>`
       ]},
       Wed: { Math: [
-        `<h2>British Grade 9 — Trigonometry</h2><p>Sine, cosine, and tangent ratios.</p>`
+        `<h2>British Year 9 — Trigonometry</h2><p>Sine, cosine, and tangent ratios.</p>`
       ]},
       Thu: { Math: [
-        `<h2>British Grade 9 — Graphs</h2><p>Linear and quadratic graphing.</p>`
+        `<h2>British Year 9 — Graphs</h2><p>Linear and quadratic graphing.</p>`
       ]},
       Fri: { Math: [
-        `<h2>British Grade 9 — Statistics</h2><p>Data presentation and interpretation.</p>`
+        `<h2>British Year 9 — Statistics</h2><p>Data presentation and interpretation.</p>`
       ]},
       Sat: { Math: [
-        `<h2>British Grade 9 — Probability</h2><p>Combined events and experimental probability.</p>`
+        `<h2>British Year 9 — Probability</h2><p>Combined events and experimental probability.</p>`
+      ]}
+    },
+
+    10: { // ✅ Year 10
+      Mon: { Math: [
+        `<h2>British Year 10 — Algebraic Manipulation</h2><p>Expand, factorize, and simplify expressions.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>British Year 10 — Quadratic Equations</h2><p>Factorization, completing the square, and formula method.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>British Year 10 — Geometry</h2><p>Circle theorems and similarity.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>British Year 10 — Trigonometry</h2><p>Solving right and non-right triangles.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>British Year 10 — Statistics</h2><p>Cumulative frequency, box plots, and histograms.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>British Year 10 — Probability</h2><p>Tree diagrams and independent/dependent events.</p>`
+      ]}
+    },
+
+    11: { // ✅ Year 11 (IGCSE Level)
+      Mon: { Math: [
+        `<h2>British Year 11 — Algebra & Functions</h2><p>Composite and inverse functions, inequalities.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>British Year 11 — Coordinate Geometry</h2><p>Equation of a line, gradients, and intercepts.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>British Year 11 — Trigonometry</h2><p>Graphing trig functions and solving identities.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>British Year 11 — Calculus</h2><p>Introduction to differentiation and applications.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>British Year 11 — Statistics & Probability</h2><p>Interpreting distributions and correlation.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>British Year 11 — Revision</h2><p>Past paper practice and key formula review.</p>`
+      ]}
+    },
+
+    12: { // ✅ Year 12 (A-Level)
+      Mon: { Math: [
+        `<h2>British Year 12 — Pure Mathematics</h2><p>Indices, logarithms, and surds.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>British Year 12 — Coordinate Geometry</h2><p>Circles, parabolas, and tangents.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>British Year 12 — Calculus</h2><p>Differentiation and integration applications.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>British Year 12 — Trigonometry</h2><p>Radians, compound angles, and trig identities.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>British Year 12 — Probability & Statistics</h2><p>Binomial distribution, normal distribution.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>British Year 12 — Mechanics</h2><p>Forces, motion, and Newton’s laws.</p>`
       ]}
     }
   },
-CBSE: {
+
+  CBSE: {
     7: { // ✅ Grade 7
       Mon: { Math: [
         `<h2>CBSE Grade 7 — Integers</h2><p>Positive & negative number practice.</p>`
@@ -739,6 +902,69 @@ CBSE: {
       Sat: { Math: [
         `<h2>CBSE Grade 9 — Probability</h2><p>Basic concepts of chance and outcomes.</p>`
       ]}
+    },
+
+    10: { // ✅ Grade 10
+      Mon: { Math: [
+        `<h2>CBSE Grade 10 — Real Numbers</h2><p>Euclid’s division lemma and HCF/LCM concepts.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>CBSE Grade 10 — Polynomials</h2><p>Zeros of polynomials and their relationships.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>CBSE Grade 10 — Pair of Linear Equations</h2><p>Solving equations using substitution and elimination.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>CBSE Grade 10 — Quadratic Equations</h2><p>Solving by factorization and formula.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>CBSE Grade 10 — Arithmetic Progressions</h2><p>General term and sum of n terms.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>CBSE Grade 10 — Trigonometry</h2><p>Trigonometric ratios, identities, and applications.</p>`
+      ]}
+    },
+
+    11: { // ✅ Grade 11
+      Mon: { Math: [
+        `<h2>CBSE Grade 11 — Sets & Relations</h2><p>Union, intersection, and Cartesian products.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>CBSE Grade 11 — Trigonometric Functions</h2><p>Graphs and identities of trigonometric functions.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>CBSE Grade 11 — Complex Numbers</h2><p>Representation and operations of complex numbers.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>CBSE Grade 11 — Quadratic Equations</h2><p>Nature of roots and solving equations.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>CBSE Grade 11 — Straight Lines</h2><p>Equation, slope, and distance formula.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>CBSE Grade 11 — Statistics</h2><p>Measures of dispersion and correlation.</p>`
+      ]}
+    },
+
+    12: { // ✅ Grade 12
+      Mon: { Math: [
+        `<h2>CBSE Grade 12 — Relations & Functions</h2><p>Types of relations, domain, and range.</p>`
+      ]},
+      Tue: { Math: [
+        `<h2>CBSE Grade 12 — Inverse Trigonometric Functions</h2><p>Properties and principal values.</p>`
+      ]},
+      Wed: { Math: [
+        `<h2>CBSE Grade 12 — Matrices</h2><p>Matrix addition, multiplication, and inverse.</p>`
+      ]},
+      Thu: { Math: [
+        `<h2>CBSE Grade 12 — Determinants</h2><p>Properties and applications in solving equations.</p>`
+      ]},
+      Fri: { Math: [
+        `<h2>CBSE Grade 12 — Continuity & Differentiability</h2><p>Basic rules and derivative applications.</p>`
+      ]},
+      Sat: { Math: [
+        `<h2>CBSE Grade 12 — Integrals</h2><p>Indefinite and definite integrals with applications.</p>`
+      ]}
     }
   }
 };
@@ -788,49 +1014,38 @@ function inTimeRange(start, end, now) {
   return now >= startTime && now <= endTime;
 }
 
-
-// ---------- Curriculum Selection ----------
 let selectedCurriculum = null;
 let selectedGrade = null;
 
 function chooseCurriculum(curr) {
   selectedCurriculum = curr;
-
-  // Hide curriculum buttons
   document.getElementById("curriculumSelect").style.display = "none";
-
-  // Show grade selection
-  const gradeSelectDiv = document.createElement("div");
-  gradeSelectDiv.id = "gradeSelect";
-  gradeSelectDiv.style.textAlign = "center";
-  gradeSelectDiv.style.marginTop = "30px";
-
-  gradeSelectDiv.innerHTML = `
-    <h2>🎓 Choose Your Grade for ${curr} Curriculum</h2>
-    ${[7,8,9,10,11,12].map(g => 
-      `<button onclick="chooseGrade(${g})" style="margin:5px; padding:8px 15px;">Grade ${g}</button>`
-    ).join('')}
-  `;
-
-  document.getElementById("app").appendChild(gradeSelectDiv);
+  document.getElementById("gradeSelect").style.display = "block";
 }
 
 function chooseGrade(grade) {
   selectedGrade = grade;
-
-  // Remove grade selector
-  const gradeSelect = document.getElementById("gradeSelect");
-  if (gradeSelect) gradeSelect.remove();
-
-  // Show main tutor section
+  document.getElementById("gradeSelect").style.display = "none";
   document.getElementById("mainTutor").style.display = "block";
-
-  document.getElementById("selectedCurriculum").textContent =
-    `📘 Curriculum: ${selectedCurriculum} | 🎓 Grade ${selectedGrade}`;
-
-  startLessonChecker(selectedCurriculum, selectedGrade);
+  loadLesson();
 }
 
+function loadLesson() {
+  const today = new Date().toLocaleString("en-US", { weekday: "short" });
+  const daysMap = { Mon: "Mon", Tue: "Tue", Wed: "Wed", Thu: "Thu", Fri: "Fri", Sat: "Sat", Sun: "Sun" };
+  const currentDay = daysMap[today] || "Mon"; // fallback to Monday
+
+  const lessonContainer = document.getElementById("lessonContainer");
+  const lessonsData = lessonsArray?.[selectedCurriculum]?.[selectedGrade]?.[currentDay]?.Math;
+
+  if (lessonsData && lessonsData.length > 0) {
+    lessonContainer.innerHTML = lessonsData.join("<hr>");
+    status.textContent = `📘 ${selectedCurriculum} Grade ${selectedGrade} Math — ${currentDay}`;
+  } else {
+    lessonContainer.innerHTML = `<p>📖 Math lessons coming soon for Grade ${selectedGrade} (${currentDay}).</p>`;
+    status.textContent = "⚠️ No lesson found for today.";
+  }
+}
 
 
 let currentLesson = 0;
