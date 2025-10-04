@@ -1169,9 +1169,7 @@ function showLesson() {
         <li>${appFeatures[featureIndex % appFeatures.length]}</li>
         <li>${appFeatures[(featureIndex + 1) % appFeatures.length]}</li>
         <li>${appFeatures[(featureIndex + 2) % appFeatures.length]}</li>
-        <li>${appFeatures[(featureIndex + 3) % appFeatures.length]}</li>
-        <li>${appFeatures[(featureIndex + 4) % appFeatures.length]}</li>
-        <li>${appFeatures[(featureIndex + 5) % appFeatures.length]}</li>
+       
        
       </ul>
       <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
@@ -1187,7 +1185,7 @@ function showLesson() {
     </div>
   `;
   lessonSection.appendChild(card);
-  featureIndex += 6;
+  featureIndex += 3;
 
   // Speak lesson
   if (speechSynthesis.speaking) speechSynthesis.cancel();
