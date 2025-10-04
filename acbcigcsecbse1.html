@@ -678,7 +678,20 @@ function startTutor() {
   selectedVoice = getVoice();
   const now = new Date();
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
-  const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
+
+  // Normalize day to match timetable keys
+  const dayMap = {
+    Monday: "Mon", Mon: "Mon",
+    Tuesday: "Tue", Tue: "Tue",
+    Wednesday: "Wed", Wed: "Wed",
+    Thursday: "Thu", Thur: "Thu", Thu: "Thu",
+    Friday: "Fri", Fri: "Fri",
+    Saturday: "Sat", Sat: "Sat",
+    Sunday: "Sun", Sun: "Sun"
+  };
+  const longDay = kenyaTime.toLocaleDateString("en-US", { weekday: "long" });
+  const shortDay = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
+  const day = dayMap[longDay] || dayMap[shortDay] || "Mon"; // fallback to Mon
 
   // Use grade-specific lessons
   const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
@@ -686,11 +699,11 @@ function startTutor() {
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
   const status = document.getElementById("status");
 
-  // Hide the main tutor card only when Start Tutor is clicked
+  // Hide main tutor card
   const mainCard = document.querySelector("#editor .card");
   if (mainCard) mainCard.style.display = "none";
 
-  // Ensure a dedicated lesson container below the editor
+  // Lesson section
   let lessonSection = document.getElementById("lessonSection");
   if (!lessonSection) {
     lessonSection = document.createElement("div");
@@ -699,7 +712,6 @@ function startTutor() {
     lessonSection.style.marginTop = "16px";
     document.getElementById("editor").appendChild(lessonSection);
   }
-  // clear previous content
   lessonSection.innerHTML = "";
 
   // Not within scheduled lesson time
@@ -713,7 +725,7 @@ function startTutor() {
     return;
   }
 
-  // Display lessons (if any) as separate cards and then a single features card
+  // Display lessons
   if (lessons.length > 0) {
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
@@ -729,7 +741,7 @@ function startTutor() {
       lessonSection.appendChild(card);
     });
 
-    // Append one features card below the lessons (rotating 3 features)
+    // Features card
     const f1 = appFeatures[featureIndex % appFeatures.length];
     const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
     const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
@@ -762,14 +774,11 @@ function startTutor() {
     status.textContent = "ℹ️ No lessons for today.";
   }
 
-  // Start periodic checking after manual Start Tutor (only once)
   if (!lessonIntervalId) {
-    lessonIntervalId = setInterval(() => {
-      // re-run startTutor to refresh lessons / speaking live content
-      startTutor();
-    }, 60 * 1000);
+    lessonIntervalId = setInterval(startTutor, 60 * 1000);
   }
 }
+
 
 /* ---------- Speak Lesson ---------- */
 function speakLesson(i) {
