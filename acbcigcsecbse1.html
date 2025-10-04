@@ -1038,13 +1038,158 @@ function speak(html) {
   utter.rate = 0.85;
   speechSynthesis.speak(utter);
 }
-/* ---------- Global Variables ---------- */
-let featureIndex = 0;
-let currentLesson = 0;
-let todayLessons = [];
-let lessonIntervalId = null;
 
-/* ---------- App Features ---------- */
+/* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
+let lessonIntervalId = null; // will hold the periodic checker id
+
+/* ---------- Start Tutor ---------- */
+let currentLessonIndex = 0; // tracks which lesson is shown
+let todayLessons = [];
+let featureIndex = 0;
+
+function startTutor() {
+  if (!selectedCurriculum || !selectedGrade) {
+    alert("⚠️ Please choose both curriculum and grade first!");
+    return;
+  }
+
+  selectedVoice = getVoice();
+
+  const now = new Date();
+  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const day = dayNames[kenyaTime.getDay()];
+
+  todayLessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
+  const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
+  const status = document.getElementById("status");
+
+  let lessonSection = document.getElementById("lessonSection");
+  if (!lessonSection) {
+    lessonSection = document.createElement("div");
+    lessonSection.id = "lessonSection";
+    lessonSection.style.width = "100%";
+    lessonSection.style.marginTop = "16px";
+    document.getElementById("editor").appendChild(lessonSection);
+  }
+  lessonSection.innerHTML = "";
+
+  // Check if we are within a lesson slot
+  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
+
+  if (!inLesson) {
+    const upcoming = todaySchedule.filter(slot => {
+      const [h, m] = slot.start.split(":").map(Number);
+      const slotTime = new Date(kenyaTime);
+      slotTime.setHours(h, m, 0, 0);
+      return slotTime > kenyaTime;
+    });
+    const nextLessonTime = upcoming.length
+      ? upcoming.map(s => `${s.start} – ${s.end}`).join(", ")
+      : "No more lessons today.";
+
+    lessonSection.innerHTML = `
+      <div class="card" style="text-align:center; color:#d32f2f;">
+        <h2>⏰ No active Math lesson right now.</h2>
+        <p>Next lesson: ${nextLessonTime}</p>
+      </div>`;
+    status.textContent = "🕓 Waiting for next lesson...";
+    return;
+  }
+
+  if (todayLessons.length === 0) {
+    lessonSection.innerHTML = `
+      <div class="card" style="text-align:center;">
+        📘 No Math lesson found for ${day}.
+      </div>`;
+    status.textContent = "ℹ️ No lessons for today.";
+    return;
+  }
+
+  // ✅ Show current lesson in one card
+  showLessonCard(currentLessonIndex);
+
+  status.textContent = `🎓 Showing lesson ${currentLessonIndex + 1} of ${todayLessons.length}`;
+
+  // Auto-refresh every minute
+  if (!lessonIntervalId) {
+    lessonIntervalId = setInterval(startTutor, 60 * 1000);
+  }
+}
+
+function showLessonCard(index) {
+  const lessonSection = document.getElementById("lessonSection");
+  lessonSection.innerHTML = "";
+
+  const lessonHTML = todayLessons[index];
+
+  // Pick 3 rotating features
+  const f1 = appFeatures[featureIndex % appFeatures.length];
+  const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
+  const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
+  featureIndex += 3;
+
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.marginTop = "12px";
+  card.innerHTML = `
+    <h3 style="margin-top:0">${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${index + 1}</h3>
+    ${lessonHTML}
+    <hr>
+    <div style="background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.95em;">
+      <b>📲 More with Elimu Connect App:</b>
+      <ul style="margin:8px 0 0 20px;">
+        <li>${f1}</li>
+        <li>${f2}</li>
+        <li>${f3}</li>
+      </ul>
+      <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
+        <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+          🚀 Install App
+        </button>
+      </a>
+    </div>
+    <div style="margin-top:10px; text-align:center;">
+      <button id="nextLessonBtn" style="padding:6px 12px; border:none; border-radius:6px; background:#1976d2; color:white; cursor:pointer;">
+        ➡️ Next Lesson
+      </button>
+    </div>
+  `;
+  lessonSection.appendChild(card);
+
+  // Voice narration
+  if (speechSynthesis.speaking) speechSynthesis.cancel();
+  const tmp = document.createElement("div");
+  tmp.innerHTML = lessonHTML;
+  const utter = new SpeechSynthesisUtterance(tmp.textContent);
+  utter.rate = 0.8;
+  utter.voice = selectedVoice;
+  speechSynthesis.speak(utter);
+
+  // Next lesson button
+  document.getElementById("nextLessonBtn").onclick = () => {
+    currentLessonIndex = (currentLessonIndex + 1) % todayLessons.length;
+    showLessonCard(currentLessonIndex);
+    document.getElementById("status").textContent = `🎓 Showing lesson ${currentLessonIndex + 1} of ${todayLessons.length}`;
+  };
+}
+
+
+/* ---------- Speak Lesson ---------- */
+function speakLesson(i) {
+  const now = new Date();
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const day = dayNames[now.getDay()];
+  const lesson = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math?.[i];
+  if (lesson) speak(lesson);
+}
+
+/* ---------- Lesson Checker (inactive until Start Tutor) ---------- */
+function startLessonChecker() {
+  // left empty intentionally – starts only after Start Tutor
+}
+
 const appFeatures = [
   "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
   "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
@@ -1076,88 +1221,21 @@ const appFeatures = [
   "➗ Calculus: Differentiation & Integration Calculators"
 ];
 
-/* ---------- Start Tutor ---------- */
-function startTutor() {
-  if (!selectedCurriculum || !selectedGrade) {
-    alert("⚠️ Please choose both curriculum and grade first!");
+let featureIndex = 0;
+
+/* ---------- SHOW CURRENT LESSON ---------- */
+function showLesson() {
+  if (currentLesson >= todayLessons.length) {
+    editor.innerHTML = `
+      <div class="card">
+        <h2>✅ All lessons for this slot are done!</h2>
+        <p>Keep learning with <b>Smart Tutor by Elimu Connect</b>.</p>
+      </div>
+    `;
     return;
   }
 
-  selectedVoice = getVoice();
-
-  const now = new Date();
-  const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const day = dayNames[kenyaTime.getDay()];
-
-  const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
-  todayLessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
-  const status = document.getElementById("status");
-
-  // Hide main card
-  const mainCard = document.querySelector("#editor .card");
-  if (mainCard) mainCard.style.display = "none";
-
-  // Create lesson section if missing
-  let lessonSection = document.getElementById("lessonSection");
-  if (!lessonSection) {
-    lessonSection = document.createElement("div");
-    lessonSection.id = "lessonSection";
-    lessonSection.style.width = "100%";
-    lessonSection.style.marginTop = "16px";
-    document.getElementById("editor").appendChild(lessonSection);
-  }
-  lessonSection.innerHTML = "";
-
-  // Check if within lesson time
-  const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
-
-  if (!inLesson) {
-    // Show upcoming lesson info
-    const upcoming = todaySchedule.filter(slot => {
-      const [h, m] = slot.start.split(":").map(Number);
-      const slotTime = new Date(kenyaTime);
-      slotTime.setHours(h, m, 0, 0);
-      return slotTime > kenyaTime;
-    });
-    const nextLessonTime = upcoming.length
-      ? upcoming.map(s => `${s.start} – ${s.end}`).join(", ")
-      : "No more lessons today.";
-
-    lessonSection.innerHTML = `
-      <div class="card" style="text-align:center; color:#d32f2f; padding:16px;">
-        <h2>⏰ No active Math lesson right now.</h2>
-        <p>Next lesson: ${nextLessonTime}</p>
-      </div>`;
-    status.textContent = "🕓 Waiting for next lesson...";
-    return;
-  }
-
-  if (todayLessons.length === 0) {
-    lessonSection.innerHTML = `
-      <div class="card" style="text-align:center; padding:16px;">
-        📘 No Math lesson found for ${day}.
-      </div>`;
-    status.textContent = "ℹ️ No lessons for today.";
-    return;
-  }
-
-  // Reset current lesson index
-  currentLesson = 0;
-  showLessonCard();
-
-  status.textContent = `🎓 Showing 1 of ${todayLessons.length} Math lesson(s)`;
-
-  // Auto-refresh every minute
-  if (!lessonIntervalId) {
-    lessonIntervalId = setInterval(startTutor, 60 * 1000);
-  }
-}
-
-/* ---------- Show a Single Lesson Card ---------- */
-function showLessonCard() {
   const lessonHtml = todayLessons[currentLesson];
-  const lessonSection = document.getElementById("lessonSection");
 
   // Pick 3 rotating features
   const f1 = appFeatures[featureIndex % appFeatures.length];
@@ -1165,65 +1243,27 @@ function showLessonCard() {
   const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
   featureIndex += 3;
 
-  lessonSection.innerHTML = `
-    <div class="card" style="margin:12px 0; padding:16px; border-radius:12px; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-      <h3 style="margin-top:0">${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${currentLesson + 1}</h3>
+  editor.innerHTML = `
+    <div class="card">
       ${lessonHtml}
-      <hr style="margin:12px 0;">
-      <div style="background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
+      <hr>
+      <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
         <b>📲 More with Elimu Connect App:</b>
-        <ul style="margin:5px 0 0 20px;">
+        <ul style="margin:5px 0; padding-left:20px;">
           <li>${f1}</li>
           <li>${f2}</li>
           <li>${f3}</li>
         </ul>
         <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px; margin-top:8px;">
+          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
             🚀 Install App
           </button>
         </a>
       </div>
-      <div style="text-align:center; margin-top:12px;">
-        <button id="prevLessonBtn" style="padding:6px 12px; margin-right:8px;">⬅️ Previous</button>
-        <button id="nextLessonBtn" style="padding:6px 12px;">Next ➡️</button>
-      </div>
     </div>
   `;
 
-  // Disable buttons at edges
-  document.getElementById("prevLessonBtn").disabled = currentLesson === 0;
-  document.getElementById("nextLessonBtn").disabled = currentLesson === todayLessons.length - 1;
-
-  // Event listeners
-  document.getElementById("prevLessonBtn").onclick = () => {
-    if (currentLesson > 0) {
-      currentLesson--;
-      showLessonCard();
-    }
-  };
-  document.getElementById("nextLessonBtn").onclick = () => {
-    if (currentLesson < todayLessons.length - 1) {
-      currentLesson++;
-      showLessonCard();
-    }
-  };
-
-  // Speak lesson
   speak(lessonHtml);
-}
-
-/* ---------- Speak a specific lesson ---------- */
-function speakLesson(i) {
-  const now = new Date();
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const day = dayNames[now.getDay()];
-  const lesson = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math?.[i];
-  if (lesson) speak(lesson);
-}
-
-/* ---------- Lesson Checker ---------- */
-function startLessonChecker() {
-  // intentionally empty – controlled by Start Tutor
 }
 
 
