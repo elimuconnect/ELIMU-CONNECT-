@@ -1711,15 +1711,15 @@ function startTutor() {
     document.getElementById("editor").appendChild(lessonSection);
   }
 
-  // Fixed lesson time: 17:00 – 21:00 local
+  // Fixed lesson time: 17:00 – 23:00 local
   const lessonStart = new Date();
   lessonStart.setHours(17, 0, 0, 0); // 17:00 local
   const lessonEnd = new Date();
-  lessonEnd.setHours(21, 0, 0, 0);   // 21:00 local
+  lessonEnd.setHours(23, 0, 0, 0);   // 23:00 local
   const inLesson = now >= lessonStart && now <= lessonEnd;
 
   if (!inLesson) {
-    const nextLessonTime = "17:00 – 21:00 local time";
+    const nextLessonTime = "17:00 – 23:00 local time";
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center; color:#d32f2f;">
         <h2>⏰ No active Math lesson right now.</h2>
