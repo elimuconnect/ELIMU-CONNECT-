@@ -1038,15 +1038,45 @@ function speak(html) {
   utter.rate = 0.85;
   speechSynthesis.speak(utter);
 }
-
-/* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
-let lessonIntervalId = null; // will hold the periodic checker id
-
-/* ---------- Start Tutor ---------- */
-let currentLessonIndex = 0; // tracks which lesson is shown
+let lessonIntervalId = null; // periodic checker
+let currentLessonIndex = 0;  // tracks which lesson is shown
 let todayLessons = [];
 let featureIndex = 0;
+let selectedVoice = null;
 
+/* ---------- App Features ---------- */
+const appFeatures = [
+  "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
+  "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
+  "🤖 FREE AI-Powered Virtual Tutor – 24/7 homework & exam help",
+  "📲 Connect with nearby tutors for physical or online tuition",
+  "📝 On-Demand Homework Help with AI + human tutors",
+  "💬 Free student academic chats & forums across Kenya",
+  "📚 Access 2000+ Video Lessons & 5000+ Quizzes",
+  "📖 30,000+ CBC, IGCSE & KCSE Past Papers with Answers",
+  "📘 200+ Ebooks for Primary & Secondary Students",
+  "🏆 Weekly National Tests & Digital Certificates",
+  "❓ 1000+ Question & Answer Pairs from Past Exams",
+  "🎮 3 Fun Math Games & 3 Kiswahili/English Language Games",
+  "🌍 Career Guidance Tools for Kenyan Teens",
+  "🗓️ AI-Powered Study Timetable Generator",
+  "📝 Digital Notebook, Notes Organizer & Revision Tracker",
+  "🧮 Scientific Calculator + Graph Plotting Tools",
+  "🔢 Math, Chemistry & Physics Formula Tools",
+  "📖 Digital Dictionary & Kiswahili Kamusi",
+  "💡 Similes, Metaphors, Methali & Nahau Reference Tools",
+  "🧍‍♂️ Human, Fish & Plant 3D Anatomy Simulators",
+  "🧪 Interactive Digital Periodic Table",
+  "⚛️ Physics Concepts & Mole Calculators",
+  "🧬 Chemical Equations Balancer + Organic Chemistry Guide",
+  "📐 Math Tools: Area, Volume, Trigonometry, Logarithms",
+  "💰 Financial Math Tools: Tax, Interest, Binomial, Variation",
+  "🗺️ Geography Tools: Latitude/Longitude, Errors & Approximations",
+  "📊 Advanced Statistics & Matrix Solvers",
+  "➗ Calculus: Differentiation & Integration Calculators"
+];
+
+/* ---------- Start Tutor ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -1107,9 +1137,9 @@ function startTutor() {
     return;
   }
 
-  // ✅ Show current lesson in one card
+  // Show first lesson
+  currentLessonIndex = 0;
   showLessonCard(currentLessonIndex);
-
   status.textContent = `🎓 Showing lesson ${currentLessonIndex + 1} of ${todayLessons.length}`;
 
   // Auto-refresh every minute
@@ -1118,6 +1148,7 @@ function startTutor() {
   }
 }
 
+/* ---------- Show One Lesson Card ---------- */
 function showLessonCard(index) {
   const lessonSection = document.getElementById("lessonSection");
   lessonSection.innerHTML = "";
@@ -1174,99 +1205,6 @@ function showLessonCard(index) {
     document.getElementById("status").textContent = `🎓 Showing lesson ${currentLessonIndex + 1} of ${todayLessons.length}`;
   };
 }
-
-
-/* ---------- Speak Lesson ---------- */
-function speakLesson(i) {
-  const now = new Date();
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const day = dayNames[now.getDay()];
-  const lesson = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math?.[i];
-  if (lesson) speak(lesson);
-}
-
-/* ---------- Lesson Checker (inactive until Start Tutor) ---------- */
-function startLessonChecker() {
-  // left empty intentionally – starts only after Start Tutor
-}
-
-const appFeatures = [
-  "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
-  "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
-  "🤖 FREE AI-Powered Virtual Tutor – 24/7 homework & exam help",
-  "📲 Connect with nearby tutors for physical or online tuition",
-  "📝 On-Demand Homework Help with AI + human tutors",
-  "💬 Free student academic chats & forums across Kenya",
-  "📚 Access 2000+ Video Lessons & 5000+ Quizzes",
-  "📖 30,000+ CBC, IGCSE & KCSE Past Papers with Answers",
-  "📘 200+ Ebooks for Primary & Secondary Students",
-  "🏆 Weekly National Tests & Digital Certificates",
-  "❓ 1000+ Question & Answer Pairs from Past Exams",
-  "🎮 3 Fun Math Games & 3 Kiswahili/English Language Games",
-  "🌍 Career Guidance Tools for Kenyan Teens",
-  "🗓️ AI-Powered Study Timetable Generator",
-  "📝 Digital Notebook, Notes Organizer & Revision Tracker",
-  "🧮 Scientific Calculator + Graph Plotting Tools",
-  "🔢 Math, Chemistry & Physics Formula Tools",
-  "📖 Digital Dictionary & Kiswahili Kamusi",
-  "💡 Similes, Metaphors, Methali & Nahau Reference Tools",
-  "🧍‍♂️ Human, Fish & Plant 3D Anatomy Simulators",
-  "🧪 Interactive Digital Periodic Table",
-  "⚛️ Physics Concepts & Mole Calculators",
-  "🧬 Chemical Equations Balancer + Organic Chemistry Guide",
-  "📐 Math Tools: Area, Volume, Trigonometry, Logarithms",
-  "💰 Financial Math Tools: Tax, Interest, Binomial, Variation",
-  "🗺️ Geography Tools: Latitude/Longitude, Errors & Approximations",
-  "📊 Advanced Statistics & Matrix Solvers",
-  "➗ Calculus: Differentiation & Integration Calculators"
-];
-
-let featureIndex = 0;
-
-/* ---------- SHOW CURRENT LESSON ---------- */
-function showLesson() {
-  if (currentLesson >= todayLessons.length) {
-    editor.innerHTML = `
-      <div class="card">
-        <h2>✅ All lessons for this slot are done!</h2>
-        <p>Keep learning with <b>Smart Tutor by Elimu Connect</b>.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const lessonHtml = todayLessons[currentLesson];
-
-  // Pick 3 rotating features
-  const f1 = appFeatures[featureIndex % appFeatures.length];
-  const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
-  const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
-  featureIndex += 3;
-
-  editor.innerHTML = `
-    <div class="card">
-      ${lessonHtml}
-      <hr>
-      <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
-        <b>📲 More with Elimu Connect App:</b>
-        <ul style="margin:5px 0; padding-left:20px;">
-          <li>${f1}</li>
-          <li>${f2}</li>
-          <li>${f3}</li>
-        </ul>
-        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
-            🚀 Install App
-          </button>
-        </a>
-      </div>
-    </div>
-  `;
-
-  speak(lessonHtml);
-}
-
-
 // Realtime Database reference
 const db = firebase.database();
 
