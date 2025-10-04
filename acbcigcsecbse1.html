@@ -575,76 +575,204 @@ const lessonsArray = {
   }
 };
 
-/* ---------- Timetables ---------- */
+
+// ---------- Timetables ----------
 const timetables = {
-  Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Fri: [{ subject: "Math", start: "17:30", end: "19:00" }],
-  Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
-  Sun: []
+  CBC: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  },
+  British: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  },
+  CBSE: {
+    Mon: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Tue: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Wed: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Thu: [{ subject: "Math", start: "17:30", end: "19:00" }],
+    Fri: [{ subject: "Math", start: "17:00", end: "19:00" }],
+    Sat: [{ subject: "Math", start: "08:00", end: "10:00" }],
+    Sun: []
+  }
 };
 
-/* ---------- Helper Functions ---------- */
+
 function inTimeRange(start, end, now) {
   const [sH, sM] = start.split(":").map(Number);
   const [eH, eM] = end.split(":").map(Number);
-  const s = new Date(now), e = new Date(now);
-  s.setHours(sH, sM, 0, 0);
-  e.setHours(eH, eM, 0, 0);
-  return now >= s && now <= e;
+
+  const startTime = new Date(now);
+  startTime.setHours(sH, sM, 0, 0);
+
+  const endTime = new Date(now);
+  endTime.setHours(eH, eM, 0, 0);
+
+  return now >= startTime && now <= endTime;
 }
 
-function normalizeDay(day) {
-  // Converts variations like "Mon.", "Mon" etc. to plain "Mon"
-  return day.replace(/\W/g, "").slice(0,3);
+
+ // ---------- Curriculum Selection ----------
+let selectedCurriculum = null;
+let selectedGrade = null;
+
+function chooseCurriculum(curr) {
+  selectedCurriculum = curr;
+
+  // Hide curriculum buttons
+  document.getElementById("curriculumSelect").style.display = "none";
+
+  // Show grade selection
+  const gradeSelectDiv = document.createElement("div");
+  gradeSelectDiv.id = "gradeSelect";
+  gradeSelectDiv.style.textAlign = "center";
+  gradeSelectDiv.style.marginTop = "30px";
+
+  gradeSelectDiv.innerHTML = `
+    <h2>🎓 Choose Your Grade for ${curr} Curriculum</h2>
+    ${[7,8,9,10,11,12].map(g => 
+      `<button onclick="chooseGrade(${g})" style="margin:5px; padding:8px 15px;">Grade ${g}</button>`
+    ).join('')}
+  `;
+
+  document.getElementById("app").appendChild(gradeSelectDiv);
 }
 
-/* ---------- Voice ---------- */
+function chooseGrade(grade) {
+  selectedGrade = grade;
+
+  // Remove grade selector
+  const gradeSelect = document.getElementById("gradeSelect");
+  if (gradeSelect) gradeSelect.remove();
+
+  // Show main tutor section
+  document.getElementById("mainTutor").style.display = "block";
+
+  document.getElementById("selectedCurriculum").textContent =
+    `📘 Curriculum: ${selectedCurriculum} | 🎓 Grade ${selectedGrade}`;
+
+  startLessonChecker(selectedCurriculum, selectedGrade);
+}
+
+
+
+let currentLesson = 0;
+let todayLessons = [];
+let selectedVoice = null;
+let utter = null;
+
+/* ---------- VOICE ---------- */
 function getVoice(){
   const voices = speechSynthesis.getVoices();
   return voices.find(v=>v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
-      || voices.find(v=>v.lang.startsWith("en-gb"))
-      || voices[0];
+         || voices.find(v=>v.lang.startsWith("en-ke"))
+         || voices.find(v=>v.lang.startsWith("en-gb"))
+         || voices[0];
 }
+
 function speak(html){
-  const text = new DOMParser().parseFromString(html, "text/html").body.textContent;
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
   speechSynthesis.cancel();
-  utter = new SpeechSynthesisUtterance(text);
+  utter = new SpeechSynthesisUtterance(tmp.textContent);
   utter.voice = selectedVoice;
-  utter.rate = 0.85;
+  utter.rate = 0.8;
   speechSynthesis.speak(utter);
 }
 
-/* ---------- Start Tutor ---------- */
-function startTutor(){
-  if (!selectedCurriculum || !selectedGrade) {
-    alert("Please choose both curriculum and grade first!");
+function startTutor() {
+  if (!user) {
+    alert("⚠️ Please login first.");
     return;
   }
-  selectedVoice = getVoice();
-  const now = new Date();
-  const rawDay = now.toLocaleDateString("en-US",{weekday:"short"});
-  const day = normalizeDay(rawDay);
 
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math;
-  const container = document.getElementById("lessonContainer");
+  const grade = document.getElementById("gradeSelect")?.value || "7"; // Add a grade selector in your HTML if not present
+  if (!selectedCurriculum) {
+    alert("⚠️ Please select a curriculum first.");
+    return;
+  }
+
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || !snap.val().phone) {
+      alert("⚠️ Enter your phone number first.");
+      document.getElementById("phoneForm").style.display = "block";
+      return;
+    }
+
+    const now = new Date();
+    const kenyaTime = new Date(now.getTime() + (3 * 60 + now.getTimezoneOffset()) * 60000);
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const todayName = days[kenyaTime.getDay()];
+
+    const slots = timetables[selectedCurriculum][todayName] || [];
+    const currentSlot = slots.find(slot =>
+      slot.subject === "Math" && inTimeRange(slot.start, slot.end, kenyaTime)
+    );
+
+    if (!currentSlot) {
+      editor.innerHTML = `
+        <div class="card">
+          <h2>⏳ No active Math lesson right now</h2>
+          <p>Check your ${selectedCurriculum} timetable for the next session.</p>
+        </div>`;
+      status.textContent = "No active lesson";
+      return;
+    }
+
+    // Load Math lessons for current grade + curriculum
+    const lessonsForCurriculum = lessonsArray[selectedCurriculum]?.[grade]?.[todayName]?.Math;
+    todayLessons = lessonsForCurriculum || [];
+
+    if (todayLessons.length === 0) {
+      editor.innerHTML = `
+        <div class="card">
+          <h2>📘 No Math lessons found for ${selectedCurriculum} Grade ${grade} – ${todayName}</h2>
+        </div>`;
+      return;
+    }
+
+    const waitVoices = setInterval(() => {
+      if (speechSynthesis.getVoices().length) {
+        clearInterval(waitVoices);
+        selectedVoice = getVoice();
+        currentLesson = 0;
+        showLessons(grade);
+      }
+    }, 100);
+  });
+}
+
+function showLessons(grade) {
+  const container = document.getElementById("editor");
   container.innerHTML = "";
 
-  if (lessons && lessons.length > 0) {
-    lessons.forEach(html=>{
-      const card = document.createElement("div");
-      card.className = "lessonCard";
-      card.innerHTML = html;
-      container.appendChild(card);
-    });
-    document.getElementById("status").textContent = 
-      `📘 Now Learning: ${selectedCurriculum} Grade ${selectedGrade} (${day})`;
-    speak(lessons.join(" "));
-  } else {
-    container.innerHTML = `<p style="text-align:center;">No Math lesson scheduled for today.</p>`;
-  }
+  todayLessons.forEach((lessonHTML, index) => {
+    const card = document.createElement("div");
+    card.className = "lessonCard";
+    card.innerHTML = `
+      <h3>${selectedCurriculum} — Grade ${grade} Math Lesson ${index + 1}</h3>
+      ${lessonHTML}
+      <button class="speakBtn" onclick="speakLesson(${index})">🔊 Read Lesson</button>
+    `;
+    container.appendChild(card);
+  });
+
+  status.textContent = `📖 Showing ${todayLessons.length} Math Lesson(s) for Grade ${grade} (${selectedCurriculum})`;
+}
+
+function speakLesson(index) {
+  const html = todayLessons[index];
+  speak(html);
 }
 
 /* ---------- Auto Lesson Checker ---------- */
