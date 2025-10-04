@@ -1441,7 +1441,7 @@ function showLesson() {
         <p>Keep learning with <b>Smart Tutor by Elimu Connect/SmartLearn</b>.</p>
       </div>`;
     document.getElementById("status").textContent = "🎓 All lessons done for this slot";
-    return;
+    return; // stop further processing
   }
 
   const lessonHTML = todayLessons[currentLesson];
@@ -1488,16 +1488,22 @@ function showLesson() {
   utter.voice = selectedVoice;
   speechSynthesis.speak(utter);
 
+  // Update status
+  document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+
   // Only advance when button is clicked
   document.getElementById("nextLessonBtn").onclick = () => {
-    currentLesson++; // move to next lesson
-
-    showLesson(); // show the next lesson or final "all done" card
-    if (currentLesson < todayLessons.length) {
-      document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+    if (currentLesson < todayLessons.length - 1) {
+      currentLesson++; // move to next lesson
+      showLesson(); // show the next lesson
+    } else {
+      // Last lesson done
+      currentLesson++; // to ensure >= todayLessons.length
+      showLesson(); // will show "All lessons done" card
     }
   };
 }
+
 
 // Realtime Database reference
 const db = firebase.database();
