@@ -669,6 +669,7 @@ function speak(html) {
 /* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
 let lessonIntervalId = null; // will hold the periodic checker id
 /* ---------- Start Tutor ---------- */
+/* ---------- Start Tutor ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -686,7 +687,7 @@ function startTutor() {
   const day = dayNames[kenyaTime.getDay()];
 
   // ✅ Lessons and schedule lookup
-  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
+  const lessons = lessonsArray[selectedCurriculum]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
   const status = document.getElementById("status");
 
@@ -708,7 +709,7 @@ function startTutor() {
   // ✅ Determine if now is within lesson slot
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
 
-  // ✅ Not within scheduled time → show message
+  // ✅ Not within lesson time → show upcoming info
   if (!inLesson) {
     const upcoming = todaySchedule.filter(slot => {
       const [h, m] = slot.start.split(":").map(Number);
@@ -729,41 +730,47 @@ function startTutor() {
     return;
   }
 
-  // ✅ Within lesson time → show lessons
+  // ✅ Within lesson time → show today’s Math lessons
   if (lessons.length > 0) {
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
       card.className = "card";
       card.style.marginTop = "12px";
-
-      // ✅ Randomize 3 features for each lesson
-      const f1 = appFeatures[featureIndex % appFeatures.length];
-      const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
-      const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
-      featureIndex += 3;
-
       card.innerHTML = `
         <h3 style="margin-top:0">${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${i + 1}</h3>
         ${lessonHTML}
-        <div style="background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.95em; margin-top:10px;">
-          <b>📲 More with Elimu Connect App:</b>
-          <ul style="margin:8px 0 0 20px;">
-            <li>${f1}</li>
-            <li>${f2}</li>
-            <li>${f3}</li>
-          </ul>
-          <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
-            <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
-              🚀 Install App
-            </button>
-          </a>
-        </div>
       `;
       lessonSection.appendChild(card);
     });
 
+    // ✅ Add app features card below all lessons
+    const f1 = appFeatures[featureIndex % appFeatures.length];
+    const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
+    const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
+    featureIndex += 3;
+
+    const featuresCard = document.createElement("div");
+    featuresCard.className = "card";
+    featuresCard.style.marginTop = "12px";
+    featuresCard.innerHTML = `
+      <div style="background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.95em;">
+        <b>📲 More with Elimu Connect App:</b>
+        <ul style="margin:8px 0 0 20px;">
+          <li>${f1}</li>
+          <li>${f2}</li>
+          <li>${f3}</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
+          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+            🚀 Install App
+          </button>
+        </a>
+      </div>
+    `;
+    lessonSection.appendChild(featuresCard);
+
     status.textContent = `🎓 Showing ${lessons.length} Math lesson(s)`;
-    speak(lessons[0]); // Auto-speak only first lesson
+    speak(lessons[0]);
   } else {
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center;">
@@ -777,6 +784,7 @@ function startTutor() {
     lessonIntervalId = setInterval(startTutor, 60 * 1000);
   }
 }
+
 
 /* ---------- Speak Lesson ---------- */
 function speakLesson(i) {
