@@ -666,8 +666,9 @@ function speak(html) {
   speechSynthesis.speak(utter);
 }
 
-/* ---------- Tutor Logic ---------- */
-/* ---------- Tutor Logic (Math Only) ---------- */
+/* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
+let lessonIntervalId = null; // will hold the periodic checker id
+
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -679,68 +680,94 @@ function startTutor() {
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
   const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
 
+  // Use grade-specific lessons
   const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
   const status = document.getElementById("status");
 
-  // ✅ Hide main tutor card (only after clicking Start Tutor)
-  document.querySelector(".card").style.display = "none";
+  // Hide the main tutor card only when Start Tutor is clicked
+  const mainCard = document.querySelector("#editor .card");
+  if (mainCard) mainCard.style.display = "none";
 
-  // ✅ Create lesson area if not existing
+  // Ensure a dedicated lesson container below the editor
   let lessonSection = document.getElementById("lessonSection");
   if (!lessonSection) {
     lessonSection = document.createElement("div");
     lessonSection.id = "lessonSection";
-    lessonSection.style.marginTop = "20px";
+    lessonSection.style.width = "100%";
+    lessonSection.style.marginTop = "16px";
     document.getElementById("editor").appendChild(lessonSection);
   }
+  // clear previous content
   lessonSection.innerHTML = "";
 
+  // Not within scheduled lesson time
   if (!inLesson) {
     lessonSection.innerHTML = `
-      <div class="lessonCard" style="color:#d32f2f;text-align:center;font-weight:bold;">
-        ⏰ No active Math lesson right now.<br>
-        Next lesson: ${todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ") || "No lesson today."}
+      <div class="card" style="text-align:center; color:#d32f2f;">
+        <h2>⏰ No active Math lesson right now.</h2>
+        <p>Next lesson: ${todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ") || "No lesson today."}</p>
       </div>`;
     status.textContent = "🕓 Waiting for next lesson...";
     return;
   }
 
+  // Display lessons (if any) as separate cards and then a single features card
   if (lessons.length > 0) {
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
       card.className = "card";
-      card.style.marginTop = "10px";
-      card.style.background = "#fdfdfd";
-      card.style.boxShadow = "0 2px 6px rgba(0,0,0,0.1)";
-      card.style.borderRadius = "12px";
+      card.style.marginTop = "12px";
       card.innerHTML = `
-        <h3>${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${i + 1}</h3>
+        <h3 style="margin-top:0">${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${i + 1}</h3>
         ${lessonHTML}
-        <button class="speakBtn" onclick="speakLesson(${i})">🔊 Read Lesson</button>
-        <hr>
-        <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
-          <b>📲 More with Elimu Connect App:</b>
-          <ul style="margin:5px 0; padding-left:20px;">
-            <li>${appFeatures[(featureIndex) % appFeatures.length]}</li>
-            <li>${appFeatures[(featureIndex + 1) % appFeatures.length]}</li>
-            <li>${appFeatures[(featureIndex + 2) % appFeatures.length]}</li>
-          </ul>
-          <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-            <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
-              🚀 Install App
-            </button>
-          </a>
+        <div style="margin-top:12px">
+          <button class="speakBtn" onclick="speakLesson(${i})">🔊 Read Lesson</button>
         </div>
       `;
-      featureIndex += 3;
       lessonSection.appendChild(card);
     });
+
+    // Append one features card below the lessons (rotating 3 features)
+    const f1 = appFeatures[featureIndex % appFeatures.length];
+    const f2 = appFeatures[(featureIndex + 1) % appFeatures.length];
+    const f3 = appFeatures[(featureIndex + 2) % appFeatures.length];
+    featureIndex += 3;
+
+    const featuresCard = document.createElement("div");
+    featuresCard.className = "card";
+    featuresCard.style.marginTop = "12px";
+    featuresCard.innerHTML = `
+      <div style="background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.95em;">
+        <b>📲 More with Elimu Connect App:</b>
+        <ul style="margin:8px 0 0 20px;">
+          <li>${f1}</li>
+          <li>${f2}</li>
+          <li>${f3}</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank" style="display:inline-block; margin-top:8px;">
+          <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+            🚀 Install App
+          </button>
+        </a>
+      </div>
+    `;
+    lessonSection.appendChild(featuresCard);
+
     status.textContent = `🎓 Showing ${lessons.length} Math lesson(s)`;
     speak(lessons[0]);
   } else {
     lessonSection.innerHTML = `<div class="card">📘 No Math lesson found for ${day}.</div>`;
+    status.textContent = "ℹ️ No lessons for today.";
+  }
+
+  // Start periodic checking after manual Start Tutor (only once)
+  if (!lessonIntervalId) {
+    lessonIntervalId = setInterval(() => {
+      // re-run startTutor to refresh lessons / speaking live content
+      startTutor();
+    }, 60 * 1000);
   }
 }
 
@@ -752,10 +779,10 @@ function speakLesson(i) {
   if (lesson) speak(lesson);
 }
 
-/* ---------- Lesson Checker ---------- */
+/* ---------- Lesson Checker (no immediate start) ---------- */
 function startLessonChecker() {
-  startTutor();
-  setInterval(startTutor, 60000);
+  // intentionally left empty so choosing grade does NOT auto-hide the main card.
+  // The periodic check is started only after the student clicks "Start Tutor".
 }
 
 const appFeatures = [
