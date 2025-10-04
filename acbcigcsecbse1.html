@@ -1041,7 +1041,7 @@ function speak(html) {
 
 /* ---------- Tutor Logic (Math only; main card hides on Start Tutor) ---------- */
 let lessonIntervalId = null; // will hold the periodic checker id
-/* ---------- Start Tutor ---------- */
+
 /* ---------- Start Tutor ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
@@ -1060,7 +1060,7 @@ function startTutor() {
   const day = dayNames[kenyaTime.getDay()];
 
   // ✅ Lessons and schedule lookup
-  const lessons = lessonsArray[selectedCurriculum]?.[day]?.Math || [];
+ const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
   const status = document.getElementById("status");
 
