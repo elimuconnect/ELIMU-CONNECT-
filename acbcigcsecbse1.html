@@ -1199,12 +1199,21 @@ function showLesson() {
   utter.voice = selectedVoice;
   speechSynthesis.speak(utter);
 
-  // Next lesson button
-  document.getElementById("nextLessonBtn").onclick = () => {
-    currentLesson = (currentLesson + 1) % todayLessons.length;
+ document.getElementById("nextLessonBtn").onclick = () => {
+  currentLesson++;
+
+  if (currentLesson >= todayLessons.length) {
+    // Show "All lessons done" card
     showLesson();
-    document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
-  };
+    document.getElementById("status").textContent = "🎓 All lessons done for this slot";
+    return;
+  }
+
+  // Otherwise, show next lesson
+  showLesson();
+  document.getElementById("status").textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+};
+
 }
 
 
