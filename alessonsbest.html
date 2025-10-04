@@ -547,11 +547,11 @@ auth.onAuthStateChanged(u => {
 
 let selectedCurriculum = null;
 let selectedGrade = null;
-let currentLesson = 0;
+
 let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
-let lessonIntervalId = null;
+
 let featureIndex = 0;
 
 /* ---------- Curriculum Selection ---------- */
@@ -1684,7 +1684,8 @@ const appFeatures = [
   "➗ Calculus: Differentiation & Integration Calculators"
 ];
 
-
+let currentLesson = 0; // tracks lesson progress
+let lessonIntervalId = null;
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
