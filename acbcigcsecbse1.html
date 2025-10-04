@@ -667,6 +667,7 @@ function speak(html) {
 }
 
 /* ---------- Tutor Logic ---------- */
+/* ---------- Tutor Logic (Math Only) ---------- */
 function startTutor() {
   if (!selectedCurriculum || !selectedGrade) {
     alert("⚠️ Please choose both curriculum and grade first!");
@@ -678,15 +679,26 @@ function startTutor() {
   const kenyaTime = new Date(now.toLocaleString("en-US", { timeZone: "Africa/Nairobi" }));
   const day = kenyaTime.toLocaleDateString("en-US", { weekday: "short" });
 
-  const lessons = lessonsArray[selectedCurriculum]?.[day]?.Math || [];
+  const lessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math || [];
   const todaySchedule = timetables[selectedCurriculum]?.[day] || [];
-
   const inLesson = todaySchedule.some(slot => inTimeRange(slot.start, slot.end, kenyaTime));
-  const lessonContainer = document.getElementById("lessonContainer");
   const status = document.getElementById("status");
 
+  // ✅ Hide main tutor card (only after clicking Start Tutor)
+  document.querySelector(".card").style.display = "none";
+
+  // ✅ Create lesson area if not existing
+  let lessonSection = document.getElementById("lessonSection");
+  if (!lessonSection) {
+    lessonSection = document.createElement("div");
+    lessonSection.id = "lessonSection";
+    lessonSection.style.marginTop = "20px";
+    document.getElementById("editor").appendChild(lessonSection);
+  }
+  lessonSection.innerHTML = "";
+
   if (!inLesson) {
-    lessonContainer.innerHTML = `
+    lessonSection.innerHTML = `
       <div class="lessonCard" style="color:#d32f2f;text-align:center;font-weight:bold;">
         ⏰ No active Math lesson right now.<br>
         Next lesson: ${todaySchedule.map(s => `${s.start} – ${s.end}`).join(", ") || "No lesson today."}
@@ -696,28 +708,47 @@ function startTutor() {
   }
 
   if (lessons.length > 0) {
-    lessonContainer.innerHTML = "";
     lessons.forEach((lessonHTML, i) => {
       const card = document.createElement("div");
-      card.className = "lessonCard";
+      card.className = "card";
+      card.style.marginTop = "10px";
+      card.style.background = "#fdfdfd";
+      card.style.boxShadow = "0 2px 6px rgba(0,0,0,0.1)";
+      card.style.borderRadius = "12px";
       card.innerHTML = `
-        <h3>${selectedCurriculum} – Grade ${selectedGrade} Lesson ${i + 1}</h3>
+        <h3>${selectedCurriculum} – Grade ${selectedGrade} Math Lesson ${i + 1}</h3>
         ${lessonHTML}
         <button class="speakBtn" onclick="speakLesson(${i})">🔊 Read Lesson</button>
+        <hr>
+        <div style="margin-top:10px; background:#f0f8ff; padding:10px; border-radius:10px; font-size:0.9em;">
+          <b>📲 More with Elimu Connect App:</b>
+          <ul style="margin:5px 0; padding-left:20px;">
+            <li>${appFeatures[(featureIndex) % appFeatures.length]}</li>
+            <li>${appFeatures[(featureIndex + 1) % appFeatures.length]}</li>
+            <li>${appFeatures[(featureIndex + 2) % appFeatures.length]}</li>
+          </ul>
+          <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
+            <button style="background:#28a745;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;">
+              🚀 Install App
+            </button>
+          </a>
+        </div>
       `;
-      lessonContainer.appendChild(card);
+      featureIndex += 3;
+      lessonSection.appendChild(card);
     });
     status.textContent = `🎓 Showing ${lessons.length} Math lesson(s)`;
     speak(lessons[0]);
   } else {
-    lessonContainer.innerHTML = `<div class="lessonCard">📘 No Math lesson found for ${day}.</div>`;
+    lessonSection.innerHTML = `<div class="card">📘 No Math lesson found for ${day}.</div>`;
   }
 }
 
 /* ---------- Speak Lesson ---------- */
 function speakLesson(i) {
-  const day = new Date().toLocaleDateString("en-US", { weekday: "short" });
-  const lesson = lessonsArray[selectedCurriculum]?.[day]?.Math?.[i];
+  const now = new Date();
+  const day = now.toLocaleDateString("en-US", { weekday: "short" });
+  const lesson = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[day]?.Math?.[i];
   if (lesson) speak(lesson);
 }
 
@@ -727,7 +758,6 @@ function startLessonChecker() {
   setInterval(startTutor, 60000);
 }
 
-// --- Full Features List ---
 const appFeatures = [
   "🎓 Affordable Live Online Tuition – From just Ksh 200 per hour",
   "👩‍🏫 Live group tuition with real tutors from top Kenyan schools",
