@@ -413,22 +413,21 @@ html, body {
         <p id="selectedCurriculum">Please select a curriculum above to start your Math lessons.</p>
 
         <!-- Weekly Math Timetable -->
-        <div class="timetable" style="margin-top:15px;">
-          <h3>📅 Weekly Math Timetable (Kenya time)</h3>
-          <table style="width:100%; border-collapse:collapse;">
-            <thead>
-              <tr>
-                <th style="border:1px solid #ccc; padding:5px;">Day</th>
-                <th style="border:1px solid #ccc; padding:5px;">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Mon – Fri</td><td>5:30 PM – 7:00 PM</td></tr>
-              <tr><td>Saturday</td><td>8:00 AM – 10:00 AM</td></tr>
-              <tr><td>Sunday</td><td>No Math lessons scheduled</td></tr>
-            </tbody>
-          </table>
-        </div>
+<div class="timetable" style="margin-top:15px;">
+  <h3>📅 Weekly Math Timetable (Kenya time)</h3>
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="border:1px solid #ccc; padding:5px;">Day</th>
+        <th style="border:1px solid #ccc; padding:5px;">Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Monday – Saturday</td><td>4:00 PM – 8:00 PM</td></tr>
+      <tr><td>Sunday</td><td>No Math lessons scheduled</td></tr>
+    </tbody>
+  </table>
+</div>
 
         <!-- Rating -->
         <div class="rating" id="ratingStars" style="margin-top:15px;">
@@ -5968,18 +5967,18 @@ function startTutor() {
     document.getElementById("editor").appendChild(lessonSection);
   }
 
-  // Lesson time: 17:00 – 23:00
+  // Lesson time: 16:00 – 20:00
   const lessonStart = new Date();
-  lessonStart.setHours(17, 0, 0, 0);
+  lessonStart.setHours(16, 0, 0, 0);
   const lessonEnd = new Date();
-  lessonEnd.setHours(23, 0, 0, 0);
+  lessonEnd.setHours(20, 0, 0, 0);
   const inLesson = now >= lessonStart && now <= lessonEnd;
 
   if (!inLesson) {
     lessonSection.innerHTML = `
       <div class="card" style="text-align:center; color:#d32f2f;">
         <h2>⏰ No active Math lesson right now.</h2>
-        <p>Next lesson: 17:00 – 23:00 local time</p>
+        <p>Next lesson: 16:00 – 20:00 local time</p>
       </div>`;
     status.textContent = "🕓 Waiting for next lesson...";
     return;
