@@ -5941,64 +5941,81 @@ const appFeatures = [
 ];
 
 function startTutor() {
-  if (!selectedCurriculum || !selectedGrade) {
-    alert("⚠️ Please choose both curriculum and grade first!");
+  if (!user) {
+    alert("⚠️ Please log in with Google to start the tutor.");
     return;
   }
 
-  selectedVoice = getVoice();
-  const now = new Date();
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const today = dayNames[now.getDay()];
+  // Check if phone number exists
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || !snap.val().phone) {
+      alert("⚠️ Please enter your phone number before starting the tutor.");
+      document.getElementById("phoneForm").style.display = "block";
+      document.querySelector(".card").style.display = "none";
+      return;
+    }
 
-  todayLessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[today]?.Math || [];
-  const status = document.getElementById("status");
+    // --- Existing startTutor code below ---
+    if (!selectedCurriculum || !selectedGrade) {
+      alert("⚠️ Please choose both curriculum and grade first!");
+      return;
+    }
 
-  // Hide main card
-  const mainCard = document.querySelector("#editor .card");
-  if (mainCard) mainCard.style.display = "none";
+    selectedVoice = getVoice();
+    const now = new Date();
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const today = dayNames[now.getDay()];
 
-  // Create lesson section
-  let lessonSection = document.getElementById("lessonSection");
-  if (!lessonSection) {
-    lessonSection = document.createElement("div");
-    lessonSection.id = "lessonSection";
-    lessonSection.style.width = "100%";
-    lessonSection.style.marginTop = "16px";
-    document.getElementById("editor").appendChild(lessonSection);
-  }
+    todayLessons = lessonsArray[selectedCurriculum]?.[selectedGrade]?.[today]?.Math || [];
+    const status = document.getElementById("status");
 
-  // Lesson time: 16:00 – 20:00
-  const lessonStart = new Date();
-  lessonStart.setHours(16, 0, 0, 0);
-  const lessonEnd = new Date();
-  lessonEnd.setHours(20, 0, 0, 0);
-  const inLesson = now >= lessonStart && now <= lessonEnd;
+    // Hide main card
+    const mainCard = document.querySelector("#editor .card");
+    if (mainCard) mainCard.style.display = "none";
 
-  if (!inLesson) {
-    lessonSection.innerHTML = `
-      <div class="card" style="text-align:center; color:#d32f2f;">
-        <h2>⏰ No active Math lesson right now.</h2>
-        <p>Next lesson: 16:00 – 20:00 local time</p>
-      </div>`;
-    status.textContent = "🕓 Waiting for next lesson...";
-    return;
-  }
+    // Create lesson section
+    let lessonSection = document.getElementById("lessonSection");
+    if (!lessonSection) {
+      lessonSection = document.createElement("div");
+      lessonSection.id = "lessonSection";
+      lessonSection.style.width = "100%";
+      lessonSection.style.marginTop = "16px";
+      document.getElementById("editor").appendChild(lessonSection);
+    }
 
-  if (todayLessons.length === 0) {
-    lessonSection.innerHTML = `
-      <div class="card" style="text-align:center;">
-        📘 No Math lesson found for today.
-      </div>`;
-    status.textContent = "ℹ️ No lessons for today.";
-    return;
-  }
+    // Lesson time: 16:00 – 20:00
+    const lessonStart = new Date();
+    lessonStart.setHours(16, 0, 0, 0);
+    const lessonEnd = new Date();
+    lessonEnd.setHours(20, 0, 0, 0);
+    const inLesson = now >= lessonStart && now <= lessonEnd;
 
-  showLesson();
-  status.textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+    if (!inLesson) {
+      lessonSection.innerHTML = `
+        <div class="card" style="text-align:center; color:#d32f2f;">
+          <h2>⏰ No active Math lesson right now.</h2>
+          <p>Next lesson: 16:00 – 20:00 local time</p>
+        </div>`;
+      status.textContent = "🕓 Waiting for next lesson...";
+      return;
+    }
 
-  if (!lessonIntervalId) lessonIntervalId = setInterval(startTutor, 60 * 1000);
+    if (todayLessons.length === 0) {
+      lessonSection.innerHTML = `
+        <div class="card" style="text-align:center;">
+          📘 No Math lesson found for today.
+        </div>`;
+      status.textContent = "ℹ️ No lessons for today.";
+      return;
+    }
+
+    showLesson();
+    status.textContent = `🎓 Showing lesson ${currentLesson + 1} of ${todayLessons.length}`;
+
+    if (!lessonIntervalId) lessonIntervalId = setInterval(startTutor, 60 * 1000);
+  });
 }
+
 
 /* ---------- Show and Speak Current Lesson ---------- */
 function showLesson() {
