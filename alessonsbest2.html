@@ -561,12 +561,35 @@ function chooseCurriculum(curr) {
   // Hide the welcome section when a curriculum is chosen
   const welcome = document.getElementById("welcomeSection");
   if (welcome) welcome.style.display = "none";
-
-  // Replace curriculum selection with grade buttons
-  document.getElementById("curriculumSelect").innerHTML = `
-    <h2>🎓 Choose Your Grade (${curr} Curriculum)</h2>
-    ${[7,8,9,10,11,12].map(g=>`<button onclick="chooseGrade(${g})">Grade ${g}</button>`).join('')}
-  `;
+// Replace curriculum selection with grade buttons
+document.getElementById("curriculumSelect").innerHTML = `
+  <h2 style="text-align:center; color:#2c3e50; font-size:1.8em; margin-bottom:20px;">
+    🎓 Choose Your Grade (${curr} Curriculum)
+  </h2>
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px;">
+    ${[7,8,9,10,11,12].map((g, i) => {
+      const colors = ['#ff6f61','#42a5f5','#66bb6a','#ab47bc','#ffa726','#26a69a'];
+      return `
+        <button onclick="chooseGrade(${g})"
+          style="
+            background:${colors[i]};
+            color:white;
+            border:none;
+            padding:15px 25px;
+            font-size:1.3em;
+            font-weight:bold;
+            border-radius:12px;
+            cursor:pointer;
+            transition:transform 0.2s, box-shadow 0.2s;
+          "
+          onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 4px 10px rgba(0,0,0,0.2)'"
+          onmouseout="this.style.transform='scale(1)';this.style.boxShadow='none'">
+          Grade ${g}
+        </button>
+      `;
+    }).join('')}
+  </div>
+`;
 }
 
 
