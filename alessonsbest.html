@@ -6455,28 +6455,36 @@ auth.onAuthStateChanged(u => {
 });
 
 
-
-  
 function savePhoneNumber() {
   const phone = document.getElementById("phoneInput").value.trim();
+  const countryCode = document.getElementById("countryCode").value;
+
+  if (!countryCode) {
+    alert("⚠️ Please select your country code.");
+    return;
+  }
+
   if (!phone) {
     alert("⚠️ Please enter your phone number.");
     return;
   }
 
+  const fullPhone = countryCode + phone;
+
   db.ref("students/" + user.uid).update({
-    phone: phone,
+    phone: fullPhone,
     timestamp: Date.now()
   }).then(() => {
     alert("✅ Phone number saved! Lessons unlocked.");
     document.getElementById("phoneForm").style.display = "none";
     document.querySelector(".card").style.display = "block";
     editor.scrollIntoView({behavior: "smooth"});
+  }).catch(err => {
+    alert("❌ Error saving phone number: " + err.message);
   });
 }
 
-
-
+ 
 
 function prevLesson(){
   if(todayLessons.length && currentLesson>0){
