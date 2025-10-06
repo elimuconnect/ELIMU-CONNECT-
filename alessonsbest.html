@@ -792,7 +792,7 @@ let currentLesson = 0;
 let todayLessons = [];
 let selectedVoice = null;
 let utter = null;
-  let voiceIndex = 0;
+
 let lessonIntervalId = null;
 let featureIndex = 0;
 
@@ -6132,54 +6132,7 @@ A=1000×1.05³ = 1157.63.<br>`,
 };
 
 
-/* Voice preference order */
-const voicePrefs = [
-  { lang: "en-KE", gender: "female" },  // 1 Kenya Female
-  { lang: "en-KE", gender: "male" },    // 2 Kenya Male
-  { lang: "en-NG", gender: "female" },  // 3 Nigeria Female
-  { lang: "en-GB", gender: "female" },  // 4 UK Female
-  { lang: "en-GB", gender: "male" }     // 5 UK Male
-];
-
-/* Pick voice according to prefs */
-function getVoice(pref) {
-  const voices = speechSynthesis.getVoices();
-
-  // Try to match by lang + gender keyword in name
-  let match = voices.find(v => 
-    v.lang.toLowerCase().startsWith(pref.lang.toLowerCase()) &&
-    v.name.toLowerCase().includes(pref.gender)
-  );
-
-  // If no exact match, fallback to just language
-  if (!match) {
-    match = voices.find(v => v.lang.toLowerCase().startsWith(pref.lang.toLowerCase()));
-  }
-
-  // Final fallback: first available
-  return match || voices[0];
-}
-
-/* Speak function */
-function speak(html) {
-  const text = new DOMParser().parseFromString(html, "text/html").body.textContent;
-  speechSynthesis.cancel();
-
-  // Rotate through voices
-  const pref = voicePrefs[voiceIndex];
-  const selectedVoice = getVoice(pref);
-  voiceIndex = (voiceIndex + 1) % voicePrefs.length;
-
-  utter = new SpeechSynthesisUtterance(text);
-  utter.voice = selectedVoice;
-  utter.rate = 0.85;
-  speechSynthesis.speak(utter);
-}
-
-/* Load voices properly */
-speechSynthesis.onvoiceschanged = () => {
-  console.log("Voices loaded:", speechSynthesis.getVoices());
-};
+function getVoice() { const voices = speechSynthesis.getVoices(); return voices.find(v => v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female")) || voices.find(v => v.lang.startsWith("en-gb")) || voices[0]; } function speak(html) { const text = new DOMParser().parseFromString(html, "text/html").body.textContent; speechSynthesis.cancel(); utter = new SpeechSynthesisUtterance(text); utter.voice = selectedVoice; utter.rate = 0.85; speechSynthesis.speak(utter); }
 
 /* ---------- App Features ---------- */
 const appFeatures = [
