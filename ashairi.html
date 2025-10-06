@@ -223,15 +223,15 @@ function formatBibleVerse(text) {
   });
 }
 
-/* ---------- Show Sermon ---------- */
+/* ---------- Show Poem ---------- */
 function showSermon(index) { 
-  if (index >= sermonsArray.length) {
+  if (index >= poemsArray.length) {
     editor.innerHTML = `
       <div class="card">
-        <h2>✅ Mahubiri Yamekamilika</h2>
+        <h2>✅ Mashairi Yamekamilika</h2>
         <p>Asante kwa kusikiliza. Mungu akubariki!</p>
         <div style="margin:20px 0; text-align:center;">
-          <div class="subscribe-text">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</div>
+          <div class="subscribe-text">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
         </div>
       </div>
     `;
@@ -239,17 +239,17 @@ function showSermon(index) {
     return;
   }
 
-  const sermonHTML = sermonsArray[index];
+  const poemHTML = poemsArray[index];
   editor.innerHTML = `
     <div class="card">
       <div style="margin-bottom:20px; text-align:center;">
-        <div class="subscribe-text top-subscribe">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</div>
+        <div class="subscribe-text top-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
       </div>
 
-      <div id="sermonContent">${sermonHTML}</div>
+      <div id="sermonContent">${poemHTML}</div>
 
       <div style="margin-top:20px; text-align:center;">
-        <div class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mahubiri Zaidi</div>
+        <div class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
       </div>
 
       <div style="margin-top:20px; text-align:center;">
@@ -260,61 +260,24 @@ function showSermon(index) {
     </div>
   `;
 
-  // animation effects list
-  const effects = ["zoomIn", "slideSide", "bounce", "fadeIn", "rotate"];
-  let i = 0;
-
-  const animateTexts = () => {
-    document.querySelectorAll(".subscribe-text").forEach(el => {
-      el.style.animation = `${effects[i]} 1.5s ease forwards`;
-    });
-    i = (i + 1) % effects.length;
-  };
-
-  animateTexts(); 
-  setInterval(animateTexts, 2000);
-
-  // plain text -> format Bible verses
+  // speak text (shairi/kuimba style)
   const plainText = document.getElementById("sermonContent").textContent;
   const formattedText = formatBibleVerse(plainText);
 
-  // speak text (shairi/kuimba style)
-  status.textContent = `📖 Kusoma Mahubiri ${index + 1}`;
+  status.textContent = `📖 Kusoma Shairi ${index + 1}`;
   speakPoem(formattedText, () => {
-    status.textContent = `✅ Umesoma Mahubiri ${index + 1}. Bonyeza ➡️ Mbele ili kuendelea.`;
+    status.textContent = `✅ Umesoma Shairi ${index + 1}. Bonyeza ➡️ Mbele ili kuendelea.`;
     currentSermon = index + 1;
   });
 
-  // "Mbele" button action
   document.getElementById("nextBtn").addEventListener("click", () => {
     showSermon(currentSermon);
   });
 }
 
-/* ---------- Start Preacher ---------- */
-function startPreacher() {
-  if (preacherStarted) return;
-  preacherStarted = true;
-
-  speechSynthesis.onvoiceschanged = () => {
-    selectedVoice = getVoice();
-  };
-
-  const voiceCheck = setInterval(() => {
-    const voices = speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      clearInterval(voiceCheck);
-      selectedVoice = getVoice();
-      showSermon(currentSermon);
-    }
-  }, 200);
-
-  status.textContent = "🟢 Inapakia sauti na kuanza...";
-}
-
-/* ---------- Next / Prev Sermon ---------- */
+/* ---------- Next / Prev Poem ---------- */
 function nextSermon() {
-  if (currentSermon < sermonsArray.length - 1) {
+  if (currentSermon < poemsArray.length - 1) {
     currentSermon++;
     showSermon(currentSermon);
   }
@@ -326,6 +289,7 @@ function prevSermon() {
     showSermon(currentSermon);
   }
 }
+
 </script>
 </body>
 </html>
