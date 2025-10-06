@@ -111,20 +111,45 @@
   function submitPaymentProof(region) {
     const referral = localStorage.getItem("referral_code") || "none";
     let data = {};
+    let message = "";
 
     if (region === "kenya") {
       const name = document.getElementById("name-ke").value.trim();
       const phone = document.getElementById("phone-ke").value.trim();
       const mpesaCode = document.getElementById("mpesa").value.trim();
       if (!name || !phone || !mpesaCode) return alert("Fill all MPesa details.");
-      data = { region:"Kenya", name, phone, mpesaCode, referral, timestamp: new Date().toISOString() };
+
+      data = { 
+        region: "Kenya", 
+        name, 
+        phone, 
+        mpesaCode, 
+        referral, 
+        timestamp: new Date().toISOString() 
+      };
+
+      // Kenya WhatsApp message
+      message = `NEW PAYMENT 🚀\nRegion: Kenya\nName: ${name}\nPhone: ${phone}\nMPesa Code: ${mpesaCode}\nReferral: ${referral}`;
+
     } else {
       const name = document.getElementById("name-int").value.trim();
       const email = document.getElementById("email-int").value.trim();
       const country = document.getElementById("country-int").value.trim();
       const txid = document.getElementById("txid-int").value.trim();
       if (!name || !email || !country || !txid) return alert("Fill all international details.");
-      data = { region:"International", name, email, country, txid, referral, timestamp: new Date().toISOString() };
+
+      data = { 
+        region: "International", 
+        name, 
+        email, 
+        country, 
+        txid, 
+        referral, 
+        timestamp: new Date().toISOString() 
+      };
+
+      // International WhatsApp message
+      message = `NEW PAYMENT 🚀\nRegion: International\nName: ${name}\nEmail: ${email}\nCountry: ${country}\nTransaction ID: ${txid}\nReferral: ${referral}`;
     }
 
     // Save in Firebase
@@ -132,11 +157,13 @@
       method: "POST",
       body: JSON.stringify(data)
     }).then(() => {
-      const msg = `NEW PAYMENT 🚀\nRegion: ${data.region}\nName: ${data.name}\nReferral: ${referral}`;
-      const encoded = encodeURIComponent(msg);
+      const encoded = encodeURIComponent(message);
       window.location.href = `https://wa.me/254769255782?text=${encoded}`;
     });
   }
 </script>
+
+  
+ 
 </body>
 </html>
