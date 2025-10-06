@@ -786,6 +786,9 @@ auth.onAuthStateChanged(u => {
 });
 
 
+
+  
+
 let selectedCurriculum = null;
 let selectedGrade = null;
 let currentLesson = 0;
@@ -6136,7 +6139,7 @@ A=1000×1.05³ = 1157.63.<br>`,
   }
 };
 
-
+// Preferred order of voices
 const voicePrefs = [
   { lang: "en-KE", gender: "female" }, // Kenya Female
   { lang: "en-KE", gender: "male" },   // Kenya Male
@@ -6145,52 +6148,30 @@ const voicePrefs = [
   { lang: "en-GB", gender: "male" }    // UK Male
 ];
 
-/* Load voices only once */
+// Load voices
 function loadVoices() {
   voices = speechSynthesis.getVoices();
-  if (!voices.length) {
-    // Safari/Chrome sometimes need a delay
-    setTimeout(loadVoices, 250);
-  }
+  if (!voices.length) setTimeout(loadVoices, 200);
 }
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
 
-/* Select next available voice in order */
+// Cycle through voices
 function getNextVoice() {
   for (let i = 0; i < voicePrefs.length; i++) {
     const pref = voicePrefs[(voiceIndex + i) % voicePrefs.length];
-
     let match = voices.find(v =>
       v.lang.toLowerCase().startsWith(pref.lang.toLowerCase()) &&
       v.name.toLowerCase().includes(pref.gender)
     );
-
     if (match) {
-      voiceIndex = (voiceIndex + i + 1) % voicePrefs.length; // move pointer
+      voiceIndex = (voiceIndex + i + 1) % voicePrefs.length;
       return match;
     }
   }
   return voices[0] || null; // fallback
 }
 
-/* Speak helper */
-function speak(html) {
-  const text = new DOMParser().parseFromString(html, "text/html").body.textContent;
-  speechSynthesis.cancel();
-
-  selectedVoice = getNextVoice();
-  if (!selectedVoice) {
-    console.warn("⚠️ No matching voices found, using default.");
-  }
-
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.voice = selectedVoice;
-  utter.rate = 0.85;
-  speechSynthesis.speak(utter);
-}
-
-/* Voices event */
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
 
 /* ---------- App Features ---------- */
 const appFeatures = [
@@ -6245,7 +6226,8 @@ function startTutor() {
       return;
     }
 
-    selectedVoice = getVoice();
+    selectedVoice = getNextVoice();
+
     const now = new Date();
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const today = dayNames[now.getDay()];
