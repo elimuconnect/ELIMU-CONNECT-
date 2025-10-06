@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Preacher – Mahubiri ya Kiswahili</title>
+  <title>Smart Poet – Mashairi ya Kiswahili</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
- 
-    /* (keeping your full CSS exactly as before) */
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
@@ -22,100 +20,44 @@
     #editor { flex: 1; padding: 40px 20px; display: flex; align-items: center; justify-content: center; }
     .card { 
       max-width: 90vw; 
-      width: 100%; 
       margin: 20px auto; 
       padding: 40px; 
       background: white; 
       border-radius: 25px; 
       border: 2px solid #ccc; 
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); 
-      font-size: 1.3em;   /* reduced by half */
-      line-height: 1.6;   /* adjusted for readability */
+      font-size: 1.3em;
+      line-height: 1.6; 
       font-weight: bold; 
       animation: fadeIn 1s ease; 
-      overflow-wrap: break-word; 
-      word-break: break-word; 
       color: #1a237e; 
-      box-sizing: border-box; 
       transition: all 0.3s ease-in-out; 
     }
-    .card h2 { 
-      margin-top: 0; 
-      font-size: 1.8em;   /* reduced heading size */
-      font-weight: bold; 
-    }
-    #status { 
-      padding: 15px; 
-      background: #388e3c; 
-      color: white; 
-      font-weight: bold; 
-      text-align: center; 
-      font-size: 16px; 
-    }
+    .card h2 { font-size: 1.8em; font-weight: bold; margin-top: 0; }
+    #status { padding: 15px; background: #388e3c; color: white; font-weight: bold; text-align: center; font-size: 16px; }
 
-
-
-.subscribe-text {
-  font-size: 0.9em;  /* slightly bigger than sermon text */
-  font-weight: bold;
-  color: purple;
-}
-
-    
-
- /* reduced from 16px */
-    }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
- 
+    @keyframes zoomIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1.2); opacity: 1; } }
+    @keyframes slideSide { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+    @keyframes bounce { 0%,20%,50%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-30px); } 60% { transform: translateY(-15px); } }
+    @keyframes rotate { 0% { transform: rotate(-360deg); opacity: 0; } 100% { transform: rotate(0); opacity: 1; } }
 
-@keyframes zoomIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1.2); opacity: 1; }
-}
-
-@keyframes slideSide {
-  0% { transform: translateX(-100%); opacity: 0; }
-  100% { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-30px); }
-  60% { transform: translateY(-15px); }
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes rotate {
-  0% { transform: rotate(-360deg); opacity: 0; }
-  100% { transform: rotate(0); opacity: 1; }
-}
-
-.subscribe-text {
-  font-size: 24px;
-  font-weight: bold;
-  color: red;
-  text-align: center;
-}
-
+    .subscribe-text { font-size: 20px; font-weight: bold; color: red; text-align: center; }
   </style>
 </head>
 <body>
 
 <div id="app">
  <div id="toolbar">
-    <button onclick="startPreacher()">▶️ Anza Mahubiri</button>
-    <button onclick="prevSermon()">⬅️ Nyuma</button>
-    <button onclick="nextSermon()">➡️ Mbele</button>
+    <button onclick="startPreacher()">▶️ Anza Shairi</button>
+    <button onclick="prevPoem()">⬅️ Nyuma</button>
+    <button onclick="nextPoem()">➡️ Mbele</button>
   </div>
 
   <div id="editor">
     <div class="card">
-      <h2>Karibu kwenye Mahubiri ya Kiswahili</h2>
-      <p>Sikiliza neno la Mungu kwa Kiswahili, ukiwa mahali popote, wakati wowote.</p>
+      <h2>Karibu kwenye Mashairi ya Kiswahili</h2>
+      <p>Sikiliza shairi zikiwa zinakaririwa kwa mtindo wa uimbaji.</p>
     </div>
   </div>
 
@@ -123,24 +65,20 @@
 </div>
 
 <script>
-
-
+/* ---------- Data: Mashairi ---------- */
 const poemsArray = [
 `
 <span style="color: purple; font-size: 1.2em;">
   🌙 Shairi 1: Safari ya Ndoto
 </span><br><br>
-
 Usiku umetulia, nyota zinang'ara,<br>
 Ndoto zangu zasafiri mbali sana,<br>
 Mto wa matumaini unaniburudisha,<br>
 Nikiota kesho itakuwa bora.<br><br>
-
 Niliona taa zikimetameta angani,<br>
 Kama vile malaika wakiimba pamoja,<br>
 Sauti zao zikiwa za faraja,<br>
 Zikituma upendo kwa dunia nzima.<br><br>
-
 <span style="color:blue;"><b>Safari ya ndoto ni mwalimu wa moyo,</b></span><br>
 Ikifundisha imani, matumaini na upendo.<br><br>
 `,
@@ -148,24 +86,21 @@ Ikifundisha imani, matumaini na upendo.<br><br>
 <span style="color: purple; font-size: 1.2em;">
   🌅 Shairi 2: Alfajiri Mpya
 </span><br><br>
-
 Alfajiri inachomoza taratibu,<br>
 Miale ya jua ikipenya mawingu,<br>
 Dunia inafufuka kwa mwanga wa dhahabu,<br>
 Na upepo mwanana ukinong’ona siri zake.<br><br>
-
 Ndege wanaimba wimbo wa asubuhi,<br>
 Mito inacheza midundo yake,<br>
 Na moyo wangu unaamka kwa furaha,<br>
 Kwa siku mpya yenye tumaini jipya.<br><br>
-
 <span style="color:green;"><b>Alfajiri mpya ni zawadi ya Mungu,</b></span><br>
 Kila saa mpya ni nafasi ya upendo.<br><br>
 `
 ];
 
-
-let currentSermon = 0;
+/* ---------- Global Vars ---------- */
+let currentPoem = 0;
 let preacherStarted = false;
 let selectedVoice = null;
 
@@ -186,10 +121,9 @@ speechSynthesis.onvoiceschanged = () => {
   selectedVoice = getVoice();
 };
 
-/* ---------- Poem / Song Style Speak ---------- */
+/* ---------- Poem / Chant Style Speak ---------- */
 function speakPoem(text, onEnd) {
   speechSynthesis.cancel();
-
   const lines = text.split(/[\n\.]+/).filter(l => l.trim().length > 0);
   let i = 0;
 
@@ -197,34 +131,23 @@ function speakPoem(text, onEnd) {
     if (i < lines.length) {
       const utter = new SpeechSynthesisUtterance(lines[i].trim());
       utter.voice = selectedVoice;
-
-      // 🎶 Poem / chant style
       utter.rate = 0.75;
-      utter.pitch = (i % 2 === 0) ? 1.4 : 0.9;
+      utter.pitch = (i % 2 === 0) ? 1.4 : 0.9; // vary pitch for chant feel
 
       utter.onend = () => {
         i++;
-        setTimeout(readLine, 1200); // pause kidogo kati ya mistari
+        setTimeout(readLine, 1200);
       };
-
       speechSynthesis.speak(utter);
     } else {
       if (onEnd) onEnd();
     }
   }
-
   readLine();
 }
 
-/* ---------- Format Bible Verses ---------- */
-function formatBibleVerse(text) {
-  return text.replace(/(\d+):(\d+)/g, (match, sura, aya) => {
-    return `${sura} aya ya ${aya}`;
-  });
-}
-
 /* ---------- Show Poem ---------- */
-function showSermon(index) { 
+function showPoem(index) { 
   if (index >= poemsArray.length) {
     editor.innerHTML = `
       <div class="card">
@@ -246,7 +169,7 @@ function showSermon(index) {
         <div class="subscribe-text top-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
       </div>
 
-      <div id="sermonContent">${poemHTML}</div>
+      <div id="poemContent">${poemHTML}</div>
 
       <div style="margin-top:20px; text-align:center;">
         <div class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
@@ -260,36 +183,62 @@ function showSermon(index) {
     </div>
   `;
 
-  // speak text (shairi/kuimba style)
-  const plainText = document.getElementById("sermonContent").textContent;
-  const formattedText = formatBibleVerse(plainText);
+  // animate subscribe texts
+  const effects = ["zoomIn", "slideSide", "bounce", "fadeIn", "rotate"];
+  let i = 0;
+  const animateTexts = () => {
+    document.querySelectorAll(".subscribe-text").forEach(el => {
+      el.style.animation = `${effects[i]} 1.5s ease forwards`;
+    });
+    i = (i + 1) % effects.length;
+  };
+  animateTexts(); 
+  setInterval(animateTexts, 2000);
 
+  // speak text
+  const plainText = document.getElementById("poemContent").textContent;
   status.textContent = `📖 Kusoma Shairi ${index + 1}`;
-  speakPoem(formattedText, () => {
+  speakPoem(plainText, () => {
     status.textContent = `✅ Umesoma Shairi ${index + 1}. Bonyeza ➡️ Mbele ili kuendelea.`;
-    currentSermon = index + 1;
+    currentPoem = index + 1;
   });
 
   document.getElementById("nextBtn").addEventListener("click", () => {
-    showSermon(currentSermon);
+    showPoem(currentPoem);
   });
 }
 
-/* ---------- Next / Prev Poem ---------- */
-function nextSermon() {
-  if (currentSermon < poemsArray.length - 1) {
-    currentSermon++;
-    showSermon(currentSermon);
-  }
+/* ---------- Start ---------- */
+function startPreacher() {
+  if (preacherStarted) return;
+  preacherStarted = true;
+
+  const voiceCheck = setInterval(() => {
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      clearInterval(voiceCheck);
+      selectedVoice = getVoice();
+      showPoem(currentPoem);
+    }
+  }, 200);
+
+  status.textContent = "🟢 Inapakia sauti na kuanza...";
 }
 
-function prevSermon() {
-  if (currentSermon > 0) {
-    currentSermon--;
-    showSermon(currentSermon);
+/* ---------- Next / Prev ---------- */
+function nextPoem() {
+  if (currentPoem < poemsArray.length - 1) {
+    currentPoem++;
+    showPoem(currentPoem);
   }
 }
-
+function prevPoem() {
+  if (currentPoem > 0) {
+    currentPoem--;
+    showPoem(currentPoem);
+  }
+}
 </script>
 </body>
 </html>
+
