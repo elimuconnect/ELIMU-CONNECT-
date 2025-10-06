@@ -31,17 +31,11 @@
       font-weight: bold; 
       animation: fadeIn 1s ease; 
       color: #1a237e; 
-      transition: all 0.3s ease-in-out; 
     }
     .card h2 { font-size: 1.8em; font-weight: bold; margin-top: 0; }
     #status { padding: 15px; background: #388e3c; color: white; font-weight: bold; text-align: center; font-size: 16px; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes zoomIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1.2); opacity: 1; } }
-    @keyframes slideSide { 0% { transform: translateX(-100%); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
-    @keyframes bounce { 0%,20%,50%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-30px); } 60% { transform: translateY(-15px); } }
-    @keyframes rotate { 0% { transform: rotate(-360deg); opacity: 0; } 100% { transform: rotate(0); opacity: 1; } }
-
     .subscribe-text { font-size: 20px; font-weight: bold; color: red; text-align: center; }
   </style>
 </head>
@@ -49,7 +43,7 @@
 
 <div id="app">
  <div id="toolbar">
-    <button onclick="startPreacher()">▶️ Anza Shairi</button>
+    <button onclick="startPoems()">▶️ Anza Shairi</button>
     <button onclick="prevPoem()">⬅️ Nyuma</button>
     <button onclick="nextPoem()">➡️ Mbele</button>
   </div>
@@ -57,7 +51,7 @@
   <div id="editor">
     <div class="card">
       <h2>Karibu kwenye Mashairi ya Kiswahili</h2>
-      <p>Sikiliza shairi zikiwa zinakaririwa kwa mtindo wa uimbaji 🎶.</p>
+      <p>Sikiliza mashairi yakikaririwa kwa sauti ya mashairi 🎶.</p>
     </div>
   </div>
 
@@ -67,8 +61,7 @@
 <script>
 /* ---------- Data: Mashairi ---------- */
 const poemsArray = [
-`
-🌙 Shairi 1: Safari ya Ndoto
+`🌙 Shairi 1: Safari ya Ndoto
 
 Usiku umetulia, nyota zinang'ara,
 Ndoto zangu zasafiri mbali sana,
@@ -81,10 +74,9 @@ Sauti zao zikiwa za faraja,
 Zikituma upendo kwa dunia nzima.
 
 Safari ya ndoto ni mwalimu wa moyo,
-Ikifundisha imani, matumaini na upendo.
-`,
-`
-🌅 Shairi 2: Alfajiri Mpya
+Ikifundisha imani, matumaini na upendo.`,
+
+`🌅 Shairi 2: Alfajiri Mpya
 
 Alfajiri inachomoza taratibu,
 Miale ya jua ikipenya mawingu,
@@ -97,129 +89,93 @@ Na moyo wangu unaamka kwa furaha,
 Kwa siku mpya yenye tumaini jipya.
 
 Alfajiri mpya ni zawadi ya Mungu,
-Kila saa mpya ni nafasi ya upendo.
-`
+Kila saa mpya ni nafasi ya upendo.`
 ];
 
 /* ---------- Global Vars ---------- */
 let currentPoem = 0;
-let preacherStarted = false;
+let started = false;
 let selectedVoice = null;
 
-const editor = document.getElementById("editor");
-const status = document.getElementById("status");
-
-/* ---------- Voice Selection ---------- */
-function getVoice() {
+/* ---------- Load Voices ---------- */
+function pickVoice() {
   const voices = speechSynthesis.getVoices();
-  return voices.find(v =>
-    v.lang.toLowerCase().startsWith("sw") && v.name.toLowerCase().includes("female")
-  ) || voices.find(v =>
-    v.lang.toLowerCase().startsWith("sw")
-  ) || voices[0];
+  return voices.find(v => v.lang.toLowerCase().startsWith("sw"))
+      || voices.find(v => v.lang.toLowerCase().startsWith("en"))
+      || voices[0];
 }
 
 speechSynthesis.onvoiceschanged = () => {
-  selectedVoice = getVoice();
+  if (!selectedVoice) {
+    selectedVoice = pickVoice();
+  }
 };
 
-/* ---------- Poem Singing Style ---------- */
-function singPoem(text, onEnd) {
-  speechSynthesis.cancel();
+/* ---------- Speak Poem Line by Line ---------- */
+function speakPoem(text, onEnd) {
   const lines = text.split(/\n/).filter(l => l.trim().length > 0);
   let i = 0;
 
-  function singLine() {
+  function speakLine() {
     if (i < lines.length) {
       const utter = new SpeechSynthesisUtterance(lines[i].trim());
       utter.voice = selectedVoice;
-
-      // vary pitch + tempo like a melody
-      utter.pitch = (i % 3 === 0) ? 1.8 : (i % 3 === 1 ? 1.2 : 0.9);
-      utter.rate = (i % 2 === 0) ? 0.85 : 0.95;
-
+      utter.rate = 0.9;
+      utter.pitch = (i % 2 === 0) ? 1.1 : 0.9;
       utter.onend = () => {
         i++;
-        setTimeout(singLine, 1000); // pause like a bar in music
+        setTimeout(speakLine, 800);
       };
       speechSynthesis.speak(utter);
-    } else {
-      if (onEnd) onEnd();
+    } else if (onEnd) {
+      onEnd();
     }
   }
-  singLine();
+  speakLine();
 }
 
 /* ---------- Show Poem ---------- */
-function showPoem(index) { 
+function showPoem(index) {
   if (index >= poemsArray.length) {
-    editor.innerHTML = `
+    document.getElementById("editor").innerHTML = `
       <div class="card">
         <h2>✅ Mashairi Yamekamilika</h2>
-        <p>Asante kwa kusikiliza 🎶. Mungu akubariki!</p>
-        <div style="margin:20px 0; text-align:center;">
-          <div class="subscribe-text">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
-        </div>
-      </div>
-    `;
-    status.textContent = "✅ Mwisho.";
+        <p>Asante kwa kusikiliza 🎶.</p>
+      </div>`;
+    document.getElementById("status").textContent = "✅ Mwisho.";
     return;
   }
 
-  const poemHTML = poemsArray[index];
-  editor.innerHTML = `
-    <div class="card">
-      <div style="margin-bottom:20px; text-align:center;">
-        <div class="subscribe-text top-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
-      </div>
-
-      <div id="poemContent">${poemHTML.replace(/\n/g, "<br>")}</div>
-
-      <div style="margin-top:20px; text-align:center;">
-        <div class="subscribe-text bottom-subscribe">🔔 Tafadhali Subscribe kwa Mashairi Zaidi</div>
-      </div>
-
-      <div style="margin-top:20px; text-align:center;">
-        <button id="nextBtn" style="padding:10px 20px; font-size:16px; border:none; border-radius:5px; background:purple; color:white; cursor:pointer;">
-          ➡️ Mbele
-        </button>
-      </div>
-    </div>
+  const poem = poemsArray[index];
+  document.getElementById("editor").innerHTML = `
+    <div class="card"><div id="poemContent">${poem.replace(/\n/g, "<br>")}</div></div>
   `;
+  document.getElementById("status").textContent = `🎵 Shairi ${index + 1} linaimbwa...`;
 
   const plainText = document.getElementById("poemContent").textContent;
-  status.textContent = `🎵 Kuimba Shairi ${index + 1}`;
-  singPoem(plainText, () => {
-    status.textContent = `✅ Umesikia Shairi ${index + 1}. Bonyeza ➡️ Mbele ili kuendelea.`;
+  speakPoem(plainText, () => {
+    document.getElementById("status").textContent = `✅ Shairi ${index + 1} limekamilika.`;
     currentPoem = index + 1;
-  });
-
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    showPoem(currentPoem);
   });
 }
 
-/* ---------- Start ---------- */
-function startPreacher() {
-  if (preacherStarted) return;
-  preacherStarted = true;
-
-  const voiceCheck = setInterval(() => {
+/* ---------- Controls ---------- */
+function startPoems() {
+  if (started) return;
+  started = true;
+  const check = setInterval(() => {
     const voices = speechSynthesis.getVoices();
     if (voices.length > 0) {
-      clearInterval(voiceCheck);
-      selectedVoice = getVoice();
+      clearInterval(check);
+      selectedVoice = pickVoice();
       showPoem(currentPoem);
     }
   }, 200);
-
-  status.textContent = "🟢 Inapakia sauti na kuanza...";
+  document.getElementById("status").textContent = "🟢 Inapakia sauti...";
 }
 
-/* ---------- Next / Prev ---------- */
 function nextPoem() {
-  if (currentPoem < poemsArray.length - 1) {
-    currentPoem++;
+  if (currentPoem < poemsArray.length) {
     showPoem(currentPoem);
   }
 }
@@ -232,7 +188,6 @@ function prevPoem() {
 </script>
 </body>
 </html>
-
 
 
 
