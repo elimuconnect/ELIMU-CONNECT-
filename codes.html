@@ -3,16 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elimu Connect Referrals and Payments</title>
+  <title>Elimu Connect Payments</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    }
+    section {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    h2, h3 {
+      text-align: center;
     }
     input, button, select {
       padding: 10px;
@@ -26,88 +32,82 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .link-btn {
-      background-color: #007bff;
-    }
-    #payment-form-kenya, #payment-form-international {
-      display: none;
-      width: 100%;
-    }
-    #payment-image {
-      margin-top: 30px;
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-    h2 {
-      text-align: center;
-    }
   </style>
 </head>
 <body>
-  <h2>🎉 Elimu Connect Referrals and Payments</h2>
-  <p>You’ve been invited! Install the app and pay using the options below:</p>
+  <h2>🎉 Elimu Connect Referrals & Payments</h2>
 
-  <a href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" target="_blank">
-    <button class="link-btn">📲 Install Elimu Connect: Learn and Tutor App</button>
-  </a>
+  <!-- SECTION 1: How to Pay -->
+  <section>
+    <h3>💳 How to Pay</h3>
+    <select id="region" onchange="toggleInstructions()">
+      <option value="">-- Select Your Region --</option>
+      <option value="kenya">Kenya (MPesa)</option>
+      <option value="international">International (PayPal, Remitly, Wise, Western Union)</option>
+    </select>
 
-  <!-- Choose Region -->
-  <select id="region" onchange="showPaymentForm()">
-    <option value="">-- Select Your Region --</option>
-    <option value="kenya">Kenya (Pay with MPesa)</option>
-    <option value="international">International (PayPal, Remitly, Wise, Western Union)</option>
-  </select>
+    <!-- Kenya Payment Instructions -->
+    <div id="instructions-kenya" style="display:none;">
+      <p><strong>Kenya Students:</strong> Pay via MPesa to:</p>
+      <p>Phone: <b>0769255782</b><br/>Name: <b>Solomon Ndegwa Wamithi</b></p>
+      <img
+        src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png"
+        alt="MPesa Payment Instructions"
+        style="width:100%; border:1px solid #ddd; border-radius:8px;"
+      />
+    </div>
 
-  <!-- Kenya Payment Form -->
-  <form id="payment-form-kenya">
-    <input type="text" id="name-ke" placeholder="Your Name" required />
-    <input type="text" id="phone-ke" placeholder="Phone Number" required />
-    <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
-    <button type="button" onclick="submitPaymentProof('kenya')">Submit Payment</button>
-    <p><strong>For Kenya only</strong></p>
-    <img
-      id="payment-image"
-      src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1753469056/ChatGPT_Image_Jul_25_2025_08_38_48_PM_dehdsv.png"
-      alt="MPesa Payment Instructions"
-    />
-  </form>
+    <!-- International Payment Instructions -->
+    <div id="instructions-international" style="display:none;">
+      <p><strong>International Students:</strong> You can pay using:</p>
+      <ul>
+        <li>1️⃣ PayPal → <b>wamithisolomon@gmail.com</b></li>
+        <li>2️⃣ Remitly, WorldRemit, Wise, or Western Union → Send to MPesa:</li>
+      </ul>
+      <p>Phone: <b>+254769255782</b><br/>Name: <b>Solomon Ndegwa Wamithi</b></p>
+    </div>
+  </section>
 
-  <!-- International Payment Form -->
-  <form id="payment-form-international">
-    <input type="text" id="name-int" placeholder="Your Name" required />
-    <input type="email" id="email-int" placeholder="Email Used in Payment" required />
-    <input type="text" id="country-int" placeholder="Your Country" required />
-    <input type="text" id="txid-int" placeholder="Transaction ID (Last 4–6 digits)" required />
-    <button type="button" onclick="submitPaymentProof('international')">Submit Payment</button>
-  </form>
+  <!-- SECTION 2: Confirm Payment -->
+  <section>
+    <h3>✅ Confirm Your Payment</h3>
+
+    <!-- Kenya Payment Form -->
+    <form id="form-kenya" style="display:none;">
+      <input type="text" id="name-ke" placeholder="Your Name" required />
+      <input type="text" id="phone-ke" placeholder="Phone Number" required />
+      <input type="text" id="mpesa" placeholder="MPesa Transaction Code" required />
+      <button type="button" onclick="submitPaymentProof('kenya')">Submit Kenya Payment</button>
+    </form>
+
+    <!-- International Payment Form -->
+    <form id="form-international" style="display:none;">
+      <input type="text" id="name-int" placeholder="Your Name" required />
+      <input type="email" id="email-int" placeholder="Email Used in Payment" required />
+      <input type="text" id="country-int" placeholder="Your Country" required />
+      <input type="text" id="txid-int" placeholder="Transaction ID (Last 4–6 digits)" required />
+      <button type="button" onclick="submitPaymentProof('international')">Submit International Payment</button>
+    </form>
+  </section>
 
 <script>
-  // Step 1: Save referral code if present in URL
+  // Toggle instructions & forms
+  function toggleInstructions() {
+    const region = document.getElementById("region").value;
+    document.getElementById("instructions-kenya").style.display = (region === "kenya") ? "block" : "none";
+    document.getElementById("instructions-international").style.display = (region === "international") ? "block" : "none";
+    document.getElementById("form-kenya").style.display = (region === "kenya") ? "block" : "none";
+    document.getElementById("form-international").style.display = (region === "international") ? "block" : "none";
+  }
+
+  // Save referral code if present
   window.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
-
-    if (ref) {
-      localStorage.setItem("referral_code", ref);
-      fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/visits.json", {
-        method: "POST",
-        body: JSON.stringify({
-          referral: ref,
-          timestamp: new Date().toISOString()
-        })
-      });
-    }
+    if (ref) localStorage.setItem("referral_code", ref);
   });
 
-  // Step 2: Show correct payment form
-  function showPaymentForm() {
-    const region = document.getElementById("region").value;
-    document.getElementById("payment-form-kenya").style.display = (region === "kenya") ? "block" : "none";
-    document.getElementById("payment-form-international").style.display = (region === "international") ? "block" : "none";
-  }
-
-  // Step 3: Submit payment info
+  // Submit payment proof
   function submitPaymentProof(region) {
     const referral = localStorage.getItem("referral_code") || "none";
     let data = {};
@@ -116,36 +116,25 @@
       const name = document.getElementById("name-ke").value.trim();
       const phone = document.getElementById("phone-ke").value.trim();
       const mpesaCode = document.getElementById("mpesa").value.trim();
-      if (!name || !phone || !mpesaCode) {
-        alert("Please fill all MPesa details.");
-        return;
-      }
-      data = { name, phone, mpesaCode, referral, region: "Kenya", timestamp: new Date().toISOString() };
+      if (!name || !phone || !mpesaCode) return alert("Fill all MPesa details.");
+      data = { region:"Kenya", name, phone, mpesaCode, referral, timestamp: new Date().toISOString() };
     } else {
       const name = document.getElementById("name-int").value.trim();
       const email = document.getElementById("email-int").value.trim();
       const country = document.getElementById("country-int").value.trim();
       const txid = document.getElementById("txid-int").value.trim();
-      if (!name || !email || !country || !txid) {
-        alert("Please fill all international payment details.");
-        return;
-      }
-      data = { name, email, country, txid, referral, region: "International", timestamp: new Date().toISOString() };
+      if (!name || !email || !country || !txid) return alert("Fill all international details.");
+      data = { region:"International", name, email, country, txid, referral, timestamp: new Date().toISOString() };
     }
 
+    // Save in Firebase
     fetch("https://tutor-students-mapping-default-rtdb.firebaseio.com/referrals.json", {
       method: "POST",
       body: JSON.stringify(data)
-    })
-    .then(() => {
-      const message = `NEW SUBSCRIPTION 🚀\nRegion: ${region}\nName: ${data.name}\nReferral: ${referral}`;
-      const encoded = encodeURIComponent(message);
-      const yourWhatsApp = "254769255782";
-      window.location.href = `https://wa.me/${yourWhatsApp}?text=${encoded}`;
-    })
-    .catch((err) => {
-      alert("❌ Failed to submit. Please try again later.");
-      console.error(err);
+    }).then(() => {
+      const msg = `NEW PAYMENT 🚀\nRegion: ${data.region}\nName: ${data.name}\nReferral: ${referral}`;
+      const encoded = encodeURIComponent(msg);
+      window.location.href = `https://wa.me/254769255782?text=${encoded}`;
     });
   }
 </script>
