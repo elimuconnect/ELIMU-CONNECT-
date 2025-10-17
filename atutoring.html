@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ELIMU CONNECT / SMARTLEARN — Online Tutoring</title>
+  <meta name="description" content="Elimu Connect / SmartLearn — Affordable live online tutoring for Kenya & globally. Free consultation, demo lessons, bookings, pricing, curricula and subjects covered. Install the app for full features." />
+  <style>
+    :root {
+      --teal: #0b7b61;
+      --blue: #007bff;
+      --purple: #8b5cf6;
+      --orange: #f59e0b;
+      --pink: #ec4899;
+      --bg: linear-gradient(135deg, #f0f9ff, #fffaf5);
+      --text: #04302a;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Smooth animation when scrolling into view */
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+    [data-animate].visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 0;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 72px; height: 72px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--teal), var(--blue));
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 22px;
+    }
+    .site-title { font-weight: 800; font-size: 22px; }
+    .site-sub { color: var(--muted); font-size: 13px; }
+    nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .nav-link { text-decoration: none; color: var(--text); font-weight: 700; }
+    .install {
+      background: linear-gradient(90deg, var(--purple), var(--blue));
+      color: white; padding: 12px 18px; border-radius: 12px;
+      font-weight: 800; text-decoration: none;
+      transition: 0.3s;
+    }
+    .install:hover { transform: scale(1.05); }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(120deg, #e0f7fa, #fff8e1);
+      border-radius: 24px; padding: 40px; display: flex; gap: 30px; align-items: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+    .hero h1 { font-size: 34px; margin: 0; }
+    .lead { color: var(--muted); margin-top: 10px; }
+    .hero-ctas { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--teal), var(--blue));
+      color: white; padding: 12px 18px; border-radius: 12px; font-weight: 800;
+      text-decoration: none; transition: 0.3s;
+    }
+    .btn-primary:hover { transform: scale(1.05); }
+    .btn-outline {
+      border: 2px solid var(--teal);
+      color: var(--teal); border-radius: 12px; padding: 12px 18px;
+      font-weight: 700; text-decoration: none; transition: 0.3s;
+    }
+    .btn-outline:hover { background: var(--teal); color: white; }
+
+    /* Card sections */
+    .big-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+      padding: 28px;
+      margin-top: 28px;
+      transition: 0.4s;
+    }
+    .big-card:hover { transform: scale(1.02); }
+
+    /* Pricing cards */
+    .pricing-wrap { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; }
+    .pricing-item {
+      background: linear-gradient(180deg, #ffffff, #f0faff);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      transition: 0.3s;
+    }
+    .pricing-item:hover { transform: translateY(-6px); }
+    .price-tag {
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--orange), var(--pink));
+      color: white;
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Curricula */
+    .curr-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+      gap: 14px; margin-top: 16px;
+    }
+    .curr-card {
+      background: linear-gradient(135deg, #fff, #e8fdf5);
+      padding: 20px; border-radius: 14px;
+      text-align: center; font-weight: 700;
+      transition: 0.3s;
+    }
+    .curr-card:hover { transform: scale(1.08); background: linear-gradient(135deg, #dff6ff, #fff); }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 20px; }
+    .feature-list { list-style: none; padding: 0; margin: 0; }
+    .feature-list li {
+      display: flex; gap: 12px; align-items: flex-start;
+      margin-bottom: 12px;
+      transition: 0.3s;
+    }
+    .feature-list li:hover { transform: scale(1.02); }
+    .dot { width: 14px; height: 14px; border-radius: 4px; margin-top: 6px; background: var(--blue); }
+
+    footer {
+      margin-top: 30px; text-align: center; color: var(--muted); font-size: 13px; padding: 18px;
+    }
+
+    @media(max-width:900px){
+      .hero{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+  
+
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 5%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+
+  <!-- Left: Brand Section -->
+  <div class="brand" style="display:flex;align-items:center;gap:12px;">
+    <img src="https://res.cloudinary.com/dwvt4e9o2/image/upload/v1759334886/ChatGPT_Image_Oct_1_2025_06_53_30_PM_uzag3g.png" 
+         alt="Elimu Connect Logo" 
+         style="width:75px;height:75px;border-radius:50%;object-fit:cover;">
+    <div>
+      <div class="site-title" style="font-weight:700;font-size:22px;color:#1a237e;">ELIMU CONNECT / SMARTLEARN</div>
+      <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring — Kenya & Global</div>
+    </div>
+  </div>
+
+  <!-- Right: Navigation -->
+  <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+    <a class="nav-link" href="#pricing" 
+       style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">
+       Charges
+    </a>
+    <a class="nav-link" href="#curricula" 
+       style="text-decoration:none;color:#8e24aa;font-weight:600;transition:0.3s;">
+       Curricula
+    </a>
+    <a class="nav-link" href="#subjects" 
+       style="text-decoration:none;color:#f4511e;font-weight:600;transition:0.3s;">
+       Subjects Taught
+    </a>
+    <a class="nav-link" href="#features" 
+       style="text-decoration:none;color:#43a047;font-weight:600;transition:0.3s;">
+       Features
+    </a>
+    <a class="install" 
+       href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" 
+       style="background:linear-gradient(45deg,#007bff,#00c6ff);color:#fff;padding:8px 16px;border-radius:25px;text-decoration:none;font-weight:600;transition:0.3s;">
+       Install App
+    </a>
+  </nav>
+</header>
+
+
+
+    <section class="hero" data-animate>
+      <div class="hero-left">
+        <h1>Affordable Live Tutoring for CBC, IGCSE, CBSE & IB — Kenya & Global</h1>
+        <p class="lead">Book verified tutors for one-on-one and small-group online lessons. Free consultation, free demo & transparent pricing.</p>
+        <div class="hero-ctas">
+         
+		 
+		  <a
+        class="btn-primary"
+        href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%27m%20interested%20in%20a%20free%20consultation%20about%20online%20tutoring."
+        target="_blank"
+      >
+        Free Consultation
+      </a>
+      <a class="btn-outline" href="#pricing">View Charges</a>
+    </div>
+  </div>
+
+  <div style="width:400px">
+    <div class="big-card">
+      <h3>Quick Actions</h3>
+      <p class="muted">Book or chat instantly via WhatsApp.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <a
+          class="btn-primary"
+          href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%27d%20like%20a%20free%20consultation%20about%20tutoring%20options."
+          target="_blank"
+        >
+          Free Consultation
+        </a>
+        <a
+          class="btn-outline"
+          href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%27d%20like%20to%20book%20a%20free%20demo%20lesson."
+          target="_blank"
+        >
+          Free Demo Lesson
+        </a>
+        <a
+          class="btn-primary"
+          href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%20want%20to%20book%20an%20online%20lesson."
+          target="_blank"
+        >
+          Book Online Lesson
+        </a>
+        <a
+          class="btn-outline"
+          href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%20am%20interested%20in%20joining%20as%20a%20tutor."
+          target="_blank"
+        >
+          Join as Tutor
+        </a>
+		 
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+<!-- 🌍 Our Impact Section -->
+<section id="impact" style="background:#f9fafb;padding:60px 20px;">
+  <div style="max-width:1100px;margin:auto;text-align:center;">
+    <h2 style="font-size:32px;font-weight:700;margin-bottom:20px;color:#00796b;">📊 Our Impact</h2>
+    <p style="color:#555;font-size:16px;max-width:800px;margin:auto;margin-bottom:40px;line-height:1.6;">
+      Elimu Connect (Kenya) and SmartLearn (Global) have been transforming education for the past 2 years, 
+      making quality learning accessible and affordable for students and tutors worldwide.
+    </p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;">
+      <div class="impact-card" style="background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.1);border-radius:15px;padding:25px;transition:transform 0.5s, box-shadow 0.5s;">
+        <h3 style="font-size:28px;font-weight:700;color:#1e88e5;margin-bottom:6px;">2+</h3>
+        <p style="color:#555;">Years of Impact</p>
+      </div>
+
+      <div class="impact-card" style="background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.1);border-radius:15px;padding:25px;transition:transform 0.5s, box-shadow 0.5s;">
+        <h3 style="font-size:28px;font-weight:700;color:#43a047;margin-bottom:6px;">1,000+</h3>
+        <p style="color:#555;">Students Served</p>
+      </div>
+
+      <div class="impact-card" style="background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.1);border-radius:15px;padding:25px;transition:transform 0.5s, box-shadow 0.5s;">
+        <h3 style="font-size:28px;font-weight:700;color:#f4511e;margin-bottom:6px;">100+</h3>
+        <p style="color:#555;">Tutors Onboarded</p>
+      </div>
+
+      <div class="impact-card" style="background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.1);border-radius:15px;padding:25px;transition:transform 0.5s, box-shadow 0.5s;">
+        <h3 style="font-size:28px;font-weight:700;color:#8e24aa;margin-bottom:6px;">700+</h3>
+        <p style="color:#555;">Active Clients</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+   <section id="pricing" data-animate>
+  <div class="big-card">
+    <h2>Charges & Packages</h2>
+    <p class="muted">Transparent per-learner pricing for digital, online, and full packages.</p>
+
+    <div class="pricing-wrap">
+
+      <!-- Category 1 -->
+      <div class="pricing-item">
+        <div class="price-tag">🟢 Category 1</div>
+        <div class="price-content">
+          <h3>Digital Access Only</h3>
+          <p class="muted">App + Website Access, AI Tutor, Video Lessons, Past Papers, Quizzes, eBooks & Tools.</p>
+          <div class="price-grid">
+            <div><strong>CBC / KCSE (Kenya)</strong><div class="muted">KES 500 / USD ~4</div></div>
+            <div><strong>IGCSE / IB / CBSE / American</strong><div class="muted">USD ~8</div></div>
+          </div>
+          <p class="muted" style="margin-top:10px">Perfect for self-paced learners. Students can also request custom lessons or quotes.</p>
+        </div>
+      </div>
+
+      <!-- Category 2 -->
+      <div class="pricing-item">
+        <div class="price-tag">🟡 Category 2</div>
+        <div class="price-content">
+          <h3>Digital Access + Online Tutoring</h3>
+          <p class="muted">Includes all Category 1 features + 2 online tutoring sessions per week, interactive Q&A and assignments.</p>
+          <div class="price-grid">
+            <div>
+              <strong>CBC / KCSE (Kenya)</strong>
+              <div class="muted">
+                1 student: KES 700 / USD ~5.40<br>
+                2 students: KES 500 each / USD ~3.85<br>
+                5 students: KES 200 each / USD ~1.55
+              </div>
+            </div>
+            <div>
+              <strong>International Curricula</strong>
+              <div class="muted">
+                1 student: USD ~10.80<br>
+                2 students: USD ~7.70 each<br>
+                5 students: USD ~3.10 each
+              </div>
+            </div>
+          </div>
+          <p class="muted" style="margin-top:10px">Ideal for guided learners who benefit from regular tutor access. Personalized quotes available.</p>
+        </div>
+      </div>
+
+      <!-- Category 3 -->
+      <div class="pricing-item">
+        <div class="price-tag">🔴 Category 3</div>
+        <div class="price-content">
+          <h3>Full Package (Digital + Online + Physical)</h3>
+          <p class="muted">Includes all Category 1 and 2 features plus 2 physical tutoring sessions per week, mentorship, and personal follow-up (Kenya only). It should include all.</p>
+          <div class="price-grid">
+            <div>
+              <strong>CBC / KCSE (Kenya)</strong>
+              <div class="muted">
+                1 student: KES 700 / USD ~5.40<br>
+                2 students: KES 500 each / USD ~3.85
+              </div>
+            </div>
+            <div>
+              <strong>Notes</strong>
+              <div class="muted">
+                Designed for learners who prefer blended learning and personal mentorship. Custom quotes available.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+    <section id="curricula" data-animate>
+      <div class="big-card">
+        <h2>Curricula & Subjects</h2>
+        <div class="curr-grid">
+          <div class="curr-card">CBC (Kenya)</div>
+          <div class="curr-card">KCSE</div>
+          <div class="curr-card">IGCSE</div>
+          <div class="curr-card">IB</div>
+          <div class="curr-card">CBSE / ICSE</div>
+          <div class="curr-card">American, SAT & Others</div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="subjects">
+      <div class="big-card">
+        <h2 style="margin-top:0">Popular Subjects for Tuition</h2>
+        <p class="muted">Most requested subjects for personalized online tutoring across different curricula.</p>
+
+        <div class="curr-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:20px">
+          <div class="curr-card" style="background:linear-gradient(180deg,#e0f7fa,#ffffff);">Mathematics</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#fce4ec,#ffffff);">English Language</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#e8f5e9,#ffffff);">Kiswahili</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#fff3e0,#ffffff);">Physics</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#ede7f6,#ffffff);">Chemistry</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#e3f2fd,#ffffff);">Biology</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#fffde7,#ffffff);">Business Studies</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#f3e5f5,#ffffff);">Computer Science / ICT</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#f1f8e9,#ffffff);">Geography</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#f9fbe7,#ffffff);">History</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#fff8e1,#ffffff);">Accounting / Economics</div>
+          <div class="curr-card" style="background:linear-gradient(180deg,#e8eaf6,#ffffff);">French / German / Arabic</div>
+        </div>
+
+        <div style="text-align:center;margin-top:22px">
+          <a class="btn-primary" href="https://wa.me/254769255782?text=Hello%20Elimu%20Connect%2C%20I%27d%20like%20to%20book%20tuition%20in%20specific%20subjects">
+            Request Tutor for Your Subject
+          </a>
+        </div>
+      </div>
+    </section>
+
+
+<section id="features" data-animate>
+  <div class="big-card">
+    <h2>Key Features</h2>
+
+    <!-- For Students -->
+    <h3 style="margin-top:20px;">🎓 For Students</h3>
+    <div class="features-grid">
+      <ul class="feature-list">
+        <li><div class="dot"></div><div>Affordable Live Online Lessons</div></li>
+        <li><div class="dot"></div><div>FREE AI-Powered Virtual Tutor – 24/7 homework & exam support</div></li>
+        <li><div class="dot"></div><div>Find Nearby Private Tutors – Based on subject & location</div></li>
+        <li><div class="dot"></div><div>Evening School-Based Tuition for Class 4–12</div></li>
+        <li><div class="dot"></div><div>On-Demand Homework Help (AI + Human Tutors)</div></li>
+        <li><div class="dot"></div><div>Access 2000+ Video Lessons & 5000+ Quizzes</div></li>
+        <li><div class="dot"></div><div>Weekly National Tests & Digital Certificates</div></li>
+        <li><div class="dot"></div><div>1000+ Q&A Pairs from Previous Exams</div></li>
+        <li><div class="dot"></div><div>30,000+ CBC, KCSE, IGCSE & International Exam Past Papers (with Answers)</div></li>
+        <li><div class="dot"></div><div>200+ Ebooks for Junior & Senior Secondary Students</div></li>
+        <li><div class="dot"></div><div>3 Fun Math Games & 3 Kiswahili/English Language Games</div></li>
+        <li><div class="dot"></div><div>Peer-to-Peer Student Forums & Discussion Hubs</div></li>
+        <li><div class="dot"></div><div>Career Guidance Tools for Teens</div></li>
+        <li><div class="dot"></div><div>AI-Powered Study Timetable Generator</div></li>
+        <li><div class="dot"></div><div>Digital Notebook, Notes Organizer & Revision Tracker</div></li>
+        <li><div class="dot"></div><div>Scientific Calculator + Graph Plotting Tools</div></li>
+        <li><div class="dot"></div><div>Math, Chemistry & Physics Formula Tools</div></li>
+        <li><div class="dot"></div><div>Online Dictionary & Kiswahili Kamusi</div></li>
+        <li><div class="dot"></div><div>Similes, Metaphors, Methali & Nahau Reference Tools</div></li>
+        <li><div class="dot"></div><div>Human, Fish & Plant 3D Anatomy Simulators</div></li>
+        <li><div class="dot"></div><div>Interactive Digital Periodic Table</div></li>
+        <li><div class="dot"></div><div>Physics Concepts & Mole Calculators</div></li>
+        <li><div class="dot"></div><div>Chemical Equations Balancer + Organic Chemistry Guide</div></li>
+        <li><div class="dot"></div><div>Math Tools: Area, Volume, Trigonometry, Logarithms</div></li>
+        <li><div class="dot"></div><div>Financial Math Tools: Income Tax, Interest, Binomial, Variation</div></li>
+        <li><div class="dot"></div><div>Geography Tools: Latitude/Longitude, Errors & Approximations</div></li>
+        <li><div class="dot"></div><div>Advanced Statistics & Matrix Solvers</div></li>
+        <li><div class="dot"></div><div>Calculus: Differentiation & Integration Calculators</div></li>
+      </ul>
+    </div>
+
+    <!-- For Tutors -->
+    <h3 style="margin-top:40px;">👩🏽‍🏫 For Tutors</h3>
+    <div class="features-grid">
+      <ul class="feature-list">
+        <li><div class="dot"></div><div>Find Students Nearby for Physical or Online Lessons</div></li>
+        <li><div class="dot"></div><div>Teach in School-Based Evening Programs</div></li>
+        <li><div class="dot"></div><div>Get Listed in the International Tutor Directory</div></li>
+        <li><div class="dot"></div><div>Join Monthly Math Game Competitions</div></li>
+        <li><div class="dot"></div><div>Forum & File Sharing for Teachers</div></li>
+        <li><div class="dot"></div><div>Download Notes, Exams & Teaching Resources</div></li>
+        <li><div class="dot"></div><div>Ready-to-Use Schemes of Work & Lesson Plans</div></li>
+        <li><div class="dot"></div><div>Track Remedial Lessons & Student Performance</div></li>
+        <li><div class="dot"></div><div>Apply for Verified International Teaching Jobs</div></li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-top:20px;">
+      <a class="btn-primary" href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre">Install App for Full Access</a>
+    </div>
+  </div>
+</section>
+
+
+
+    <footer>© 2025 ELIMU CONNECT / SMARTLEARN • WhatsApp: <a href="https://wa.me/254769255782">+254 769 255 782</a></footer>
+  </div>
+
+  <script>
+    // Scroll reveal animations
+    const els = document.querySelectorAll('[data-animate]');
+    const reveal = () => {
+      els.forEach(el => {
+        const rect = el.getBoundingClientRect().top;
+        if (rect < window.innerHeight - 100) el.classList.add('visible');
+      });
+    };
+    window.addEventListener('scroll', reveal);
+    reveal();
+	
+	
+	
+	// Simple hover effect for color pop
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('mouseover', () => link.style.opacity = '0.7');
+  link.addEventListener('mouseout', () => link.style.opacity = '1');
+});
+	
+	
+// Scroll animation: fade + zoom effect
+const cards = document.querySelectorAll('.impact-card');
+const revealImpact = () => {
+  const trigger = window.innerHeight * 0.85;
+  cards.forEach(card => {
+    const top = card.getBoundingClientRect().top;
+    if (top < trigger) {
+      card.style.transform = 'scale(1.05)';
+      card.style.boxShadow = '0 6px 14px rgba(0,0,0,0.15)';
+    } else {
+      card.style.transform = 'scale(1)';
+      card.style.boxShadow = '0 3px 8px rgba(0,0,0,0.1)';
+    }
+  });
+};
+window.addEventListener('scroll', revealImpact);	
+	
+	
+	
+  </script>
+</body>
+</html>
