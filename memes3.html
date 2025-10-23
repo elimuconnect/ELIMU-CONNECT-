@@ -162,35 +162,6 @@
  
 
   
-  
-  /* Hide video by default */
-  #laughing-cartoon {
-    display: none;
-  }
-
-  /* Show only on small screens (phones) */
-  @media (max-width: 600px) {
-    #laughing-cartoon {
-      display: block;
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      width: 100px;
-      height: auto;
-      border-radius: 10px;
-      z-index: 9999;
-      pointer-events: none;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-      animation: laughBounce 1.5s infinite alternate ease-in-out;
-    }
-  }
-
-  @keyframes laughBounce {
-    from { transform: rotate(-5deg) scale(1); }
-    to { transform: rotate(5deg) scale(1.05); }
-  }
-
-
   </style>
 </head>
 <body>
@@ -211,9 +182,6 @@
 
   <div id="status">⏳ Ready when you are!</div>
 
-
-<!-- Laughing Cartoon Video -->
-  <video id="laughing-cartoon" autoplay loop muted playsinline preload="auto"> <source src="https://www.pexels.com/download/video/4994316/"> Your browser does not support the video tag. </video>
 
 <script>
 /* === Floating Emoji Animation === */
@@ -377,6 +345,7 @@ function stopReading() {
 
 </body>
 </html>
+
 
 
 
