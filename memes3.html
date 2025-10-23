@@ -164,27 +164,25 @@
     }
 	
 	
+
+
 #laughing-cartoon {
   position: fixed;
   bottom: 10px;
   right: 10px;
-  width: 150px;       /* default size for desktop */
+  width: 120px;      /* small enough for phones */
   height: auto;
-  border-radius: 20px;
+  border-radius: 15px;
   z-index: 9999;
-  box-shadow: 0 0 25px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
   animation: laughBounce 1.5s infinite alternate ease-in-out;
 }
 
-/* Mobile screens: make video smaller */
-@media (max-width: 600px) {
+@media (min-width: 601px) {
   #laughing-cartoon {
-    width: 90px;      /* smaller on mobile */
-    bottom: 5px;
-    right: 5px;
+    width: 200px;    /* larger on desktop */
   }
 }
-
 
 	  
   </style>
@@ -204,10 +202,12 @@
       <p>Catchy, funny, and voice-narrated memes to make your day — powered by <b>Elimu Connect</b>.</p>
     </div>
   </div>
+<!-- Laughing Cartoon Video -->
+<video id="laughing-cartoon" autoplay loop muted playsinline preload="auto">
+  <source src="https://cdn.pixabay.com/vimeo/249781/man-laugh-laughing-happy-smile-249781-1080p.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
-  <div id="status">⏳ Ready when you are!</div>
-
-<!-- Laughing Cartoon Video --> <video id="laughing-cartoon" autoplay loop muted playsinline preload="auto"> <source src="https://www.pexels.com/download/video/4994316/"> Your browser does not support the video tag. </video>
 
 
 <script>
@@ -382,6 +382,7 @@ function stopReading() {
 
 </body>
 </html>
+
 
 
 
