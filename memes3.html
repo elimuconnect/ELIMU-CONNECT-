@@ -246,7 +246,7 @@ function speak(text, onEnd) {
 
   const utter = new SpeechSynthesisUtterance(clean);
   utter.voice = selectedVoice;
-  utter.rate = 0.95;
+  utter.rate = 0.85;
   utter.pitch = 1.05;
   utter.onend = () => onEnd && onEnd();
   speechSynthesis.speak(utter);
@@ -345,6 +345,7 @@ function stopReading() {
 
 </body>
 </html>
+
 
 
 
