@@ -163,24 +163,30 @@
       #laughing-cartoon { width: 100px; }
     }
 	
+
 #laughing-cartoon {
   position: fixed;
-  bottom: 15px;
-  right: 15px;
-  width: 100px;       /* was 200px, now half */
+  bottom: 10px;
+  right: 10px;
+  width: 120px;   /* smaller for phones */
   height: auto;
-  border-radius: 10px; /* reduced proportionally */
-  background: #000;
-  z-index: 999999 !important;
-  box-shadow: 0 0 12px rgba(0,0,0,0.5); /* smaller shadow */
-  animation: laughBounce 1.5s infinite alternate ease-in-out;
-  display: block !important;
+  border-radius: 10px;
+  z-index: 9999;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
   pointer-events: none;
+  display: block;
+  animation: laughBounce 1.5s infinite alternate ease-in-out;
+}
+
+@media (min-width: 601px) {
+  #laughing-cartoon {
+    width: 200px; /* larger on desktop */
+  }
 }
 
 @keyframes laughBounce {
   from { transform: rotate(-5deg) scale(1); }
-  to { transform: rotate(5deg) scale(1.05); } /* slightly smaller scale */
+  to { transform: rotate(5deg) scale(1.05); }
 }
 
 
@@ -204,7 +210,11 @@
 
   <div id="status">⏳ Ready when you are!</div>
 
-<!-- Laughing Cartoon Video --> <video id="laughing-cartoon" autoplay loop muted playsinline preload="auto"> <source src="https://www.pexels.com/download/video/4994316/"> Your browser does not support the video tag. </video>
+	<!-- Laughing Cartoon Video -->
+<video id="laughing-cartoon" autoplay loop muted playsinline preload="auto">
+  <source src="https://cdn.pixabay.com/vimeo/249781/man-laugh-laughing-happy-smile-249781-1080p.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 
 <script>
@@ -378,6 +388,7 @@ function stopReading() {
 
 </body>
 </html>
+
 
 
 
