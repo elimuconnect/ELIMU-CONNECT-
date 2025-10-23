@@ -164,26 +164,29 @@
     }
 	
 	
-	#laughing-cartoon {
+#laughing-cartoon {
   position: fixed;
-  bottom: 15px;
-  right: 15px;
-  width: 200px;
+  bottom: 10px;
+  right: 10px;
+  width: 150px;       /* default size for desktop */
   height: auto;
   border-radius: 20px;
-  background: #000;
-  z-index: 999999 !important;
-  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  z-index: 9999;
+  box-shadow: 0 0 25px rgba(0,0,0,0.3);
   animation: laughBounce 1.5s infinite alternate ease-in-out;
-  display: block !important;
-  pointer-events: none;
 }
 
-@keyframes laughBounce {
-  from { transform: rotate(-5deg) scale(1); }
-  to { transform: rotate(5deg) scale(1.1); }
+/* Mobile screens: make video smaller */
+@media (max-width: 600px) {
+  #laughing-cartoon {
+    width: 90px;      /* smaller on mobile */
+    bottom: 5px;
+    right: 5px;
+  }
 }
 
+
+	  
   </style>
 </head>
 <body>
@@ -379,5 +382,6 @@ function stopReading() {
 
 </body>
 </html>
+
 
 
