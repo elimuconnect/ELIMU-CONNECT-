@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Meme Narrator – Elimu Connect Fun</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #fce4ec, #e3f2fd, #fff9c4);
+      background-size: 300% 300%;
+      animation: bgShift 8s ease infinite;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    @keyframes bgShift {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    #toolbar {
+      background: #1976d2;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 10;
+    }
+
+    #toolbar button {
+      background: white;
+      border: none;
+      border-radius: 25px;
+      color: #1976d2;
+      font-weight: bold;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #toolbar button:hover {
+      background: #e3f2fd;
+      transform: scale(1.05);
+    }
+
+    #editor {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+   body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+     
+
+    }
+
+   
+.card {
+  max-width: 90%;
+  max-height: 75vh;              /* keeps card inside the screen */
+  background: white;
+  border-radius: 25px;
+  padding: 40px 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  font-size: 2em;
+  color: #1a237e;
+  animation: fadeInUp 1s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow-y: auto;              /* scroll if content too tall */
+  scrollbar-width: thin;         /* thin scrollbar for Firefox */
+}
+
+/* Scrollbar styling for WebKit browsers */
+.card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #90caf9;
+  border-radius: 10px;
+}
+
+/* Hover effect */
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 25px #64b5f6;
+}
+
+/* Meme text styling */
+.meme-item {
+  margin: 20px 0;
+  line-height: 1.5;
+  font-weight: bold;
+}
+
+
+    .emoji {
+      font-size: 3rem;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #status {
+      background: #388e3c;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      color: #1976d2;
+      font-size: 2.3em;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #42a5f5, 0 0 10px #42a5f5; }
+      to { text-shadow: 0 0 20px #82b1ff, 0 0 30px #bbdefb; }
+    }
+
+    /* Floating Emojis */
+    @keyframes floatUp {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-100vh); opacity: 0; }
+    }
+
+    .floatingEmoji {
+      position: absolute;
+      font-size: 3rem;
+      user-select: none;
+      pointer-events: none;
+      animation: floatUp linear forwards;
+    }
+
+ 
+
+  
+  
+    @media (max-width: 600px) {
+      .card { font-size: 1.3em; padding: 20px; }
+      #laughing-cartoon { width: 100px; }
+    }
+	
+	
+	#laughing-cartoon {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  width: 200px;
+  height: auto;
+  border-radius: 20px;
+  background: #000;
+  z-index: 999999 !important;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  animation: laughBounce 1.5s infinite alternate ease-in-out;
+  display: block !important;
+  pointer-events: none;
+}
+
+@keyframes laughBounce {
+  from { transform: rotate(-5deg) scale(1); }
+  to { transform: rotate(5deg) scale(1.1); }
+}
+
+  </style>
+</head>
+<body>
+
+  <div id="toolbar">
+    <button onclick="startTutor()">▶️ Start Memes</button>
+    <button onclick="prevLesson()">⬅️ Prev</button>
+    <button onclick="nextLesson()">➡️ Next</button>
+    <button onclick="stopReading()">⏹️ Stop</button>
+  </div>
+
+  <div id="editor">
+    <div class="card">
+      <h2 id="title">😂 Smart Meme Narrator</h2>
+      <p>Catchy, funny, and voice-narrated memes to make your day — powered by <b>Elimu Connect</b>.</p>
+    </div>
+  </div>
+
+  <div id="status">⏳ Ready when you are!</div>
+
+<!-- Laughing Cartoon Video --> <video id="laughing-cartoon" autoplay loop muted playsinline preload="auto"> <source src="https://www.pexels.com/download/video/4588235/" type="video/mp4"> Your browser does not support the video tag. </video>
+
+
+<script>
+/* === Floating Emoji Animation === */
+const emojis = ["😂","🤣","🤓","🔥","😅","🙌","💸"];
+function createEmoji() {
+  const emoji = document.createElement("div");
+  emoji.className = "floatingEmoji";
+  emoji.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+  emoji.style.left = Math.random()*100 + "vw";
+  emoji.style.bottom = "-5vh";
+  emoji.style.animationDuration = 3 + Math.random()*4 + "s";
+  document.getElementById("editor").appendChild(emoji);
+  setTimeout(()=> emoji.remove(), 7000);
+}
+setInterval(createEmoji, 600);
+
+/* === Meme Logic === */
+const memesArray = [
+  "Me: I’ll just rest for 5 minutes. Also me: *wakes up next year.* 😴",
+  "When WiFi disconnects during an online interview… 💀",
+  "Mom: ‘Why are you always on your phone?’ Me: ‘Because it’s smarter than me.’ 🤖📱",
+  "Teacher: ‘You had all holiday to revise.’ Me: ‘Yes, and I used all of it not to.’ 😂",
+  "When you open M-PESA expecting 2,000 and see 43 bob. 💸😭",
+  "That one friend who says ‘I’m on the way’ but is still in the shower. 🚿😂",
+  "POV: You charge your phone at 2% but the socket is 3 meters away. ⚡📱",
+  "‘Don’t chase your dreams.’ Let them rest, they’re tired too. 😴",
+  "If money doesn’t buy happiness, send it to me. I’ll confirm. 💵😏",
+  "When SafariCom deducts airtime for no reason — that’s emotional theft. 😭",
+  "Interviewer: ‘Where do you see yourself in 5 years?’ Me: ‘Still waiting for this interview to end.’ 🕐",
+  "When your crush texts ‘Hey’ and you reply in 0.0001 seconds. ⚡❤️",
+  "Me: I’ll start working out tomorrow. Tomorrow: *system error* 😅",
+  "Modern faith: ‘I prayed, but the WiFi is still slow.’ 🙏📶",
+  "Sleep early. Wake up late. That’s called balanced life. 😎",
+  "When your phone falls but lands screen up — God’s grace is real. 🙌📱",
+  "Opening group chat after 2 hours: 532 new messages, zero useful ones. 😂",
+  "Teachers said ‘Don’t copy.’ Now AI says ‘Copy this prompt.’ 🤯",
+  "My wallet after adulting for 3 days: *flatline sound* 💀💸",
+  "I opened my heart. SafariCom deducted 20 bob. 💔📱"
+];
+
+let currentLesson = 0;
+let tutorStarted = false;
+let selectedVoice = null;
+let cancelRequested = false;
+const editor = document.getElementById("editor");
+const status = document.getElementById("status");
+
+/* ✅ Voice handling with guaranteed initialization */
+function getVoice() {
+  const voices = speechSynthesis.getVoices();
+  return voices.find(v => v.lang.toLowerCase().includes("en-ke"))
+      || voices.find(v => v.lang.toLowerCase().includes("en-ng"))
+      || voices.find(v => v.lang.toLowerCase().includes("en-us"))
+      || voices[0];
+}
+
+/* === Clean text (remove emojis before speaking) === */
+function cleanTextForSpeech(text) {
+  try {
+    return text.replace(/[\p{Emoji_Presentation}\p{Emoji}\p{Extended_Pictographic}]/gu, '').trim();
+  } catch {
+    return text.replace(/[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+  }
+}
+
+/* === Speak helper === */
+function speak(text, onEnd) {
+  if (cancelRequested) { cancelRequested = false; return; }
+  const clean = cleanTextForSpeech(text);
+  if (!clean) { onEnd && onEnd(); return; }
+
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.voice = selectedVoice;
+  utter.rate = 0.95;
+  utter.pitch = 1.05;
+  utter.onend = () => onEnd && onEnd();
+  speechSynthesis.speak(utter);
+}
+
+/* === Auto-scroll === */
+function autoScrollCard() {
+  const card = document.querySelector(".card");
+  if (!card) return;
+  card.scrollTop = 0;
+  const interval = setInterval(() => {
+    if (card.scrollTop + card.clientHeight >= card.scrollHeight - 1) clearInterval(interval);
+    else card.scrollTop += 1;
+  }, 100);
+}
+
+/* === Show and narrate memes === */
+function showLesson(index) {
+  if (index >= memesArray.length) {
+    editor.innerHTML = `<div class="card"><h2>✅ All Memes Complete</h2><p>Thanks for laughing with Smart Meme Narrator! 😂</p></div>`;
+    status.textContent = "✅ Done.";
+    return;
+  }
+
+  const memesGroup = memesArray.slice(index, index + 5);
+  const html = memesGroup.map(m => `<div class="meme-item">🤣 ${m}</div>`).join("");
+  editor.innerHTML = `<div class="card"><h2>😂 Meme Pack</h2>${html}</div>`;
+  autoScrollCard();
+
+  status.textContent = `🎤 Narrating memes ${index + 1}–${Math.min(index + 5, memesArray.length)} of ${memesArray.length}`;
+
+  let i = 0;
+  cancelRequested = false;
+  function narrateNext() {
+    if (cancelRequested) return;
+    if (i < memesGroup.length) {
+      speak(memesGroup[i], () => setTimeout(() => { i++; narrateNext(); }, 350));
+    } else {
+      currentLesson += 5;
+      setTimeout(() => showLesson(currentLesson), 800);
+    }
+  }
+  narrateNext();
+}
+
+/* === Start Tutor (now guaranteed to work) === */
+function startTutor() {
+  if (tutorStarted) return;
+  tutorStarted = true;
+
+  // Clear any existing voices, re-fetch
+  const loadVoices = () => {
+    selectedVoice = getVoice();
+    if (!selectedVoice) {
+      status.textContent = "⚠️ No voice found. Try again.";
+      tutorStarted = false;
+      return;
+    }
+    status.textContent = "🟢 Voice loaded. Starting memes...";
+    showLesson(currentLesson);
+  };
+
+  // Load voices (both fallback and event listener)
+  const checkVoices = () => {
+    if (speechSynthesis.getVoices().length) loadVoices();
+    else speechSynthesis.onvoiceschanged = loadVoices;
+  };
+
+  // Some browsers require async delay before voices available
+  setTimeout(checkVoices, 200);
+}
+
+/* === Navigation === */
+function nextLesson() {
+  speechSynthesis.cancel();
+  cancelRequested = true;
+  currentLesson = Math.min(currentLesson + 5, memesArray.length);
+  setTimeout(() => showLesson(currentLesson), 150);
+}
+
+function prevLesson() {
+  speechSynthesis.cancel();
+  cancelRequested = true;
+  currentLesson = Math.max(currentLesson - 5, 0);
+  setTimeout(() => showLesson(currentLesson), 150);
+}
+
+function stopReading() {
+  cancelRequested = true;
+  speechSynthesis.cancel();
+  status.textContent = "⏸️ Stopped.";
+}
+
+
+</script>
+
+</body>
+</html>
