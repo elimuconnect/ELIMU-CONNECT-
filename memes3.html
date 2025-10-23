@@ -163,35 +163,27 @@
       #laughing-cartoon { width: 100px; }
     }
 	
-	
-
 #laughing-cartoon {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
-  width: 100px;      /* small for phones */
-  max-height: 150px;
-  border-radius: 12px;
-  z-index: 9999;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  bottom: 15px;
+  right: 15px;
+  width: 100px;       /* was 200px, now half */
+  height: auto;
+  border-radius: 10px; /* reduced proportionally */
+  background: #000;
+  z-index: 999999 !important;
+  box-shadow: 0 0 12px rgba(0,0,0,0.5); /* smaller shadow */
   animation: laughBounce 1.5s infinite alternate ease-in-out;
+  display: block !important;
   pointer-events: none;
-}
-
-@media (min-width: 601px) {
-  #laughing-cartoon {
-    width: 200px;
-    max-height: 300px;
-  }
 }
 
 @keyframes laughBounce {
   from { transform: rotate(-5deg) scale(1); }
-  to { transform: rotate(5deg) scale(1.05); }
+  to { transform: rotate(5deg) scale(1.05); } /* slightly smaller scale */
 }
 
 
-	  
   </style>
 </head>
 <body>
@@ -210,11 +202,9 @@
     </div>
   </div>
 
-<!-- Laughing Cartoon Video -->
-<video id="laughing-cartoon" autoplay loop muted playsinline preload="auto">
-  <source src="https://cdn.pixabay.com/vimeo/249781/man-laugh-laughing-happy-smile-249781-1080p.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+  <div id="status">⏳ Ready when you are!</div>
+
+<!-- Laughing Cartoon Video --> <video id="laughing-cartoon" autoplay loop muted playsinline preload="auto"> <source src="https://www.pexels.com/download/video/4994316/"> Your browser does not support the video tag. </video>
 
 
 <script>
@@ -238,14 +228,14 @@ const memesArray = [
   "When WiFi disconnects during an online interview… 💀",
   "Mom: ‘Why are you always on your phone?’ Me: ‘Because it’s smarter than me.’ 🤖📱",
   "Teacher: ‘You had all holiday to revise.’ Me: ‘Yes, and I used all of it not to.’ 😂",
-  "When you check your bank account after a weekend out… 💸😭",
+  "When you open M-PESA expecting 2,000 and see 43 bob. 💸😭",
   "That one friend who says ‘I’m on the way’ but is still in the shower. 🚿😂",
   "POV: You charge your phone at 2% but the socket is 3 meters away. ⚡📱",
   "‘Don’t chase your dreams.’ Let them rest, they’re tired too. 😴",
   "If money doesn’t buy happiness, send it to me. I’ll confirm. 💵😏",
-  "When your mobile provider deducts airtime for no reason — that’s emotional theft. 😭",
+  "When SafariCom deducts airtime for no reason — that’s emotional theft. 😭",
   "Interviewer: ‘Where do you see yourself in 5 years?’ Me: ‘Still waiting for this interview to end.’ 🕐",
-  "When your crush texts ‘Hey’ and you reply faster than the speed of light. ⚡❤️",
+  "When your crush texts ‘Hey’ and you reply in 0.0001 seconds. ⚡❤️",
   "Me: I’ll start working out tomorrow. Tomorrow: *system error* 😅",
   "Modern faith: ‘I prayed, but the WiFi is still slow.’ 🙏📶",
   "Sleep early. Wake up late. That’s called balanced life. 😎",
@@ -253,9 +243,8 @@ const memesArray = [
   "Opening group chat after 2 hours: 532 new messages, zero useful ones. 😂",
   "Teachers said ‘Don’t copy.’ Now AI says ‘Copy this prompt.’ 🤯",
   "My wallet after adulting for 3 days: *flatline sound* 💀💸",
-  "When you finally open your heart… and SafariCom deducts 20 bob. 💔📱"
+  "I opened my heart. SafariCom deducted 20 bob. 💔📱"
 ];
-
 
 let currentLesson = 0;
 let tutorStarted = false;
@@ -389,6 +378,8 @@ function stopReading() {
 
 </body>
 </html>
+
+
 
 
 
