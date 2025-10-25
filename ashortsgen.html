@@ -599,25 +599,33 @@ useUploadBtn.addEventListener('click', ()=> {
 let recordedChunks = [];
 let mediaRecorder = null;
 
-async function startRecordingAuto(){
+async function startRecordingAuto() {
   ensureAudioCtx();
-  if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
-  if(!currentTopic){ statusEl.textContent = 'Generate preview first.'; return; }
+  if (audioCtx.state === 'suspended') {
+    try { await audioCtx.resume(); } catch (e) {}
+  }
 
-  // ensure background track loaded
-  if(!currentBgSource) await playRandomBackgroundTrack().catch(()=>{ /* ok */ });
+  // ✅ get subtitle text directly (no topics)
+  const subtitleText = scene?.subtitle?.text || document.getElementById('subtitleText')?.textContent || '';
+  if (!subtitleText.trim()) {
+    statusEl.textContent = 'Generate preview first.';
+    return;
+  }
 
-  const dur = parseInt(durationSel.value,10) || 60;
+  // ✅ ensure background music
+  if (!currentBgSource) await playRandomBackgroundTrack().catch(() => {});
+
+  const dur = parseInt(durationSel.value, 10) || 60;
   statusEl.textContent = 'Recording: ' + dur + 's — preparing streams...';
 
-  // small wait to ensure at least one frame drawn and audio started (avoids black video)
+  // wait for first frame
   await new Promise(r => setTimeout(r, 350));
 
-  // capture canvas stream
-  let videoStream = null;
-  try{
+  // capture canvas
+  let videoStream;
+  try {
     videoStream = canvas.captureStream(30);
-  }catch(err){
+  } catch (err) {
     statusEl.textContent = 'Canvas capture not supported: ' + err.message;
     return;
   }
@@ -628,83 +636,123 @@ async function startRecordingAuto(){
 
   // live mic
   let liveMicStream = null;
-  if(voiceMethodSel.value === 'mic'){
-    try{
+  if (voiceMethodSel.value === 'mic') {
+    try {
       liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       liveMicStream.getAudioTracks().forEach(t => combined.addTrack(t));
-      statusEl.textContent = 'Live mic connected — speak during recording.';
-    }catch(err){
-      statusEl.textContent = 'Mic unavailable. If you uploaded a narration it will be used.';
+      statusEl.textContent = '🎙️ Live mic connected — speak during recording.';
+    } catch (err) {
+      statusEl.textContent = 'Mic unavailable. Uploaded narration will be used if present.';
       console.warn('Mic error', err);
     }
   }
 
-  // if upload selected, play uploaded buffer into masterGain so it is recorded
-  if(voiceMethodSel.value === 'upload' && uploadedAudioBuffer){
+  // uploaded narration
+  if (voiceMethodSel.value === 'upload' && uploadedAudioBuffer) {
     const src = audioCtx.createBufferSource();
     src.buffer = uploadedAudioBuffer;
-    src.connect(audioCtx.masterGain);
+    src.connect(audioCtx.masterGain || audioCtx.destination);
     src.start();
   }
 
-  // add WebAudio destination tracks (bg music, sfx, uploaded buffer)
-  audioCtx.masterDest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
+  // add background + sfx
+  if (audioCtx.masterDest && audioCtx.masterDest.stream) {
+    audioCtx.masterDest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
+  }
 
+  // start recording
   recordedChunks = [];
-  try{
+  try {
     mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm;codecs=vp8,opus' });
-  }catch(err){
+  } catch (err) {
     statusEl.textContent = 'MediaRecorder failed: ' + err.message;
     return;
   }
 
-  mediaRecorder.ondataavailable = e => { if(e.data && e.data.size) recordedChunks.push(e.data); };
+  mediaRecorder.ondataavailable = e => { if (e.data && e.data.size) recordedChunks.push(e.data); };
   mediaRecorder.onstart = () => { statusEl.textContent = 'Recording... (auto stops after ' + dur + 's)'; };
   mediaRecorder.onerror = e => { statusEl.textContent = 'Recording error: ' + e.message; };
   mediaRecorder.onstop = async () => {
-    if(liveMicStream) liveMicStream.getTracks().forEach(t=> t.stop());
-    stopCurrentBgTrack();
-    // assemble blob
-    const blob = new Blob(recordedChunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
-    downloadLink.href = url;
-    downloadLink.download = `elimu_short_${dur}s_${Date.now()}.webm`;
-    downloadLink.textContent = '⬇️ Download WebM (9:16)';
-    downloadLink.classList.remove('hidden');
-    setTimeout(()=> { try{ downloadLink.click(); }catch(e){} }, 300);
-    statusEl.textContent = 'Recording complete — file ready.';
-  };
+  if (liveMicStream) liveMicStream.getTracks().forEach(t => t.stop());
+  stopCurrentBgTrack();
+
+  const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+  const url = URL.createObjectURL(blob);
+  downloadLink.href = url;
+  downloadLink.download = `elimu_short_${dur}s_${Date.now()}.mp4`;
+  downloadLink.textContent = '⬇️ Download MP4 (9:16)';
+  downloadLink.classList.remove('hidden');
+  setTimeout(() => { try { downloadLink.click(); } catch (e) {} }, 300);
+  statusEl.textContent = '✅ Recording complete — MP4 file ready.';
+};
+
 
   mediaRecorder.start(1000);
 
-  // schedule subtitle parts and small sfx in 3 parts
-  const parts = splitText(currentTopic.text, 3);
-  parts.forEach((p,i)=>{
-    setTimeout(()=> { scene.subtitle.text = p; playBoing(); }, Math.floor((i+0.5)*(dur/parts.length)*1000));
+  // ✅ subtitles and sfx
+  const parts = splitText(subtitleText, 3);
+  parts.forEach((p, i) => {
+    setTimeout(() => {
+      if (scene?.subtitle) scene.subtitle.text = p;
+      playBoing();
+    }, Math.floor((i + 0.5) * (dur / parts.length) * 1000));
   });
 
   // auto stop
-  setTimeout(()=>{
-    try{ if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); }catch(e){ console.warn('stop error', e); }
-  }, dur*1000 + 500);
+  setTimeout(() => {
+    try {
+      if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+    } catch (e) {
+      console.warn('stop error', e);
+    }
+  }, dur * 1000 + 500);
 }
 
-/* ---------- Helpers ---------- */
-function splitText(text, n){
+// helper
+function splitText(text, n) {
   const words = text.split(' ');
   const per = Math.ceil(words.length / n);
   const out = [];
-  for(let i=0;i<n;i++) out.push(words.slice(i*per,(i+1)*per).join(' '));
+  for (let i = 0; i < n; i++) out.push(words.slice(i * per, (i + 1) * per).join(' '));
   return out;
 }
 
+
+
+
 /* ---------- Events ---------- */
-recordBtn.addEventListener('click', async ()=>{
+recordBtn.addEventListener('click', async () => {
   ensureAudioCtx();
-  if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
-  if(!currentTopic) await prepareScene();
-  setTimeout(()=> startRecordingAuto(), 250);
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+  // 1️⃣ Prepare scene if not loaded
+  if (!assetsLoaded) {
+    statusEl.textContent = 'Scene not ready. Preparing...';
+    try {
+      await prepareScene();
+      startAnimation();
+    } catch (e) {
+      statusEl.textContent = 'Failed to prepare scene: ' + e.message;
+      console.error(e);
+      return;
+    }
+  }
+
+  // 2️⃣ Request microphone access directly from this click handler
+  if (voiceMethodSel.value === 'mic' && !navigator.mediaDevices.getUserMedia) {
+    statusEl.textContent = 'Mic not supported in this browser.';
+    return;
+  }
+
+  // 3️⃣ Start recording immediately
+  try {
+    await startRecordingAuto();
+  } catch (err) {
+    statusEl.textContent = 'Recording failed: ' + err.message;
+    console.error(err);
+  }
 });
+
 
 window.addEventListener('load', ()=> {
   // Warm audio context/voices (no TTS used)
