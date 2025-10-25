@@ -520,8 +520,8 @@ const bottomText = KNOWLEDGE_ITEMS[knowledgeIndex % KNOWLEDGE_ITEMS.length];
 ctx.fillStyle = 'yellow';
 ctx.font = 'bold 56px "Patrick Hand", Arial';
 ctx.textAlign = 'center';
-ctx.textBaseline = 'bottom';
-wrapText(ctx, bottomText, CANVAS_W/2, CANVAS_H - 80, CANVAS_W - 60, 60);
+ctx.textBaseline = 'middle';
+wrapText(ctx, bottomText, CANVAS_W / 2, CANVAS_H / 2, CANVAS_W - 60, 60);
 
 
 // logo tag (auto-fit)
