@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Elimu Connect • ShortsGen v2 (Auto WebM)</title>
+<title>Elimu Connect • ShortsGen v3 (9:16 Canvas)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
   :root{
     --accent:#1976d2; --math:#ef6c00; --sci:#2e7d32; --eng:#0d47a1;
-    --bubble:#fff9e6; --subtitle-bg: rgba(10,25,90,0.85);
+    --bubble-bg:#fff9e6; --subtitle-bg: rgba(10,25,90,0.85);
   }
   html,body{height:100%;margin:0;font-family:'Patrick Hand', ComicSans, Arial;background:linear-gradient(#e6f7ff,#ffffff);display:flex;justify-content:center;padding:12px}
   .app{width:420px;max-width:100%}
@@ -18,28 +18,20 @@
   select,input[type="file"],button{padding:8px;border-radius:8px;border:1px solid #ddd;font-weight:bold}
   button{background:var(--accent);color:white;border:none;cursor:pointer}
   .small{font-size:.8rem;color:#444}
-  #stageWrap{width:360px;height:640px;margin:12px auto;border-radius:18px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.2);position:relative;background:#88c}
-  /* stage is a DIV (we may fallback to screen capture) */
-  #stage{width:100%;height:100%;position:relative;background-size:cover;background-position:center;display:block}
-  .cloud{position:absolute;width:140px;height:72px;background:#fff;border-radius:40px;box-shadow:38px 18px 0 0 #fff;opacity:.95}
-  .bubble{position:absolute;left:50%;transform:translateX(-50%);top:7%;padding:12px 18px;border-radius:22px;background:var(--bubble);color:#1a237e;font-size:20px;text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.18);max-width:85%}
-  .subtitle{position:absolute;left:50%;transform:translateX(-50%);bottom:10%;padding:8px 12px;border-radius:12px;background:var(--subtitle-bg);color:white;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.2);max-width:90%}
-  #lottieHolder{position:absolute;left:50%;transform:translateX(-50%);top:36%;width:220px;height:220px}
-  .animal{position:absolute;bottom:12%;width:110px;pointer-events:none;border-radius:10px;background:transparent;transition:transform .3s ease}
-  .logoTag{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,0.95);padding:6px 10px;border-radius:12px;font-weight:bold;color:#111}
+  #stageWrap{width:360px;height:640px;margin:12px auto;border-radius:18px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.2);position:relative;background:#222}
+  /* Canvas fits inside stageWrap but actual pixels are 720x1280 (portrait) */
+  #canvasPreview{width:100%;height:100%;display:block}
+  .controls .row{display:flex;gap:6px}
   .status{font-size:.9rem;margin-top:8px}
-  #downloadLink{display:block;margin-top:8px}
-  .row{display:flex;gap:6px;align-items:center}
-  .hidden{display:none}
+  a.hidden{display:none}
   .hint{font-size:.8rem;color:#555;margin-top:6px}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Elimu Connect • ShortsGen v2</h1>
-      <div class="small">Auto WebM • Subtitles shown • 30/45/60s</div>
+      <h1>Elimu Connect • ShortsGen v3</h1>
+      <div class="small">9:16 Canvas • Cartoon bubble subtitles • Auto WebM</div>
     </header>
 
     <div class="controls">
@@ -64,46 +56,35 @@
       <input type="file" id="voiceUpload" accept="audio/*" />
       <button id="useUploadBtn">Use Upload</button>
       <button id="genBtn">🎲 Generate Preview</button>
-      <button id="recordBtn">🔴 Start & Record (auto stop)</button>
+      <button id="recordBtn">🔴 Start & Record (auto-stop)</button>
     </div>
 
-    <div id="stageWrap">
-      <div id="stage" aria-live="polite" aria-label="short preview">
-        <div id="cloud1" class="cloud" style="top:12%;left:-30%"></div>
-        <div id="cloud2" class="cloud" style="top:24%;left:-45%;width:160px;height:84px;opacity:.9"></div>
-
-        <div id="bubble" class="bubble">Welcome to the lesson!</div>
-        <div id="lottieHolder"></div>
-        <div id="subtitle" class="subtitle">Subtitles will appear here.</div>
-
-        <img id="animalA" class="animal" src="" style="left:18%;" />
-        <img id="animalB" class="animal" src="" style="left:62%;width:95px" />
-
-        <div class="logoTag">Elimu Connect</div>
-      </div>
+    <div id="stageWrap" title="This box is the recorded 9:16 area">
+      <canvas id="canvasPreview" width="720" height="1280"></canvas>
     </div>
 
     <div class="controls">
       <a id="downloadLink" class="hidden"></a>
     </div>
 
-    <div class="status" id="status">Click any button (e.g., Generate Preview) to activate audio permission. Then click Record to start automatic capture.</div>
-    <div class="hint">If the browser asks to share screen, choose the current tab (recommended) to capture visuals. For best results use desktop Chrome/Edge.</div>
+    <div class="status" id="status">Click Generate Preview to unlock audio, then press Start & Record.</div>
+    <div class="hint">Tip: if browser prompts to allow mic or screen, allow them. Best on desktop Chrome/Edge.</div>
   </div>
 
 <script>
-/* ---------- Assets ---------- */
+/* ---------- Configuration & assets ---------- */
+const CANVAS_W = 720, CANVAS_H = 1280; // portrait 9:16
 const BACKGROUNDS = [
-  {name:'Sunny Schoolyard', url:'https://images.unsplash.com/photo-1528484701800-2b6e5b9f7f9c?auto=format&fit=crop&w=800&q=60'},
-  {name:'Green Park', url:'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=60'},
-  {name:'Sky & Clouds', url:'https://images.unsplash.com/photo-1502082553048-5f26f4c8d3e0?auto=format&fit=crop&w=800&q=60'},
-  {name:'Playground', url:'https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=800&q=60'},
-  {name:'Chalkboard Classroom', url:'https://images.unsplash.com/photo-1515165562835-c15a6f7b1f88?auto=format&fit=crop&w=800&q=60'},
-  {name:'Beach', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60'},
-  {name:'Space (kids)', url:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=60'},
-  {name:'Forest Glade', url:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=60'},
-  {name:'Rainbow Hills', url:'https://images.unsplash.com/photo-1501785888041-9f8b9485fb55?auto=format&fit=crop&w=800&q=60'},
-  {name:'Science Lab', url:'https://images.unsplash.com/photo-1581091012184-7c3a7b291a46?auto=format&fit=crop&w=800&q=60'}
+  {name:'Sunny Schoolyard', url:'https://images.unsplash.com/photo-1528484701800-2b6e5b9f7f9c?auto=format&fit=crop&w=720&q=60'},
+  {name:'Green Park', url:'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=720&q=60'},
+  {name:'Sky & Clouds', url:'https://images.unsplash.com/photo-1502082553048-5f26f4c8d3e0?auto=format&fit=crop&w=720&q=60'},
+  {name:'Playground', url:'https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=720&q=60'},
+  {name:'Chalkboard Classroom', url:'https://images.unsplash.com/photo-1515165562835-c15a6f7b1f88?auto=format&fit=crop&w=720&q=60'},
+  {name:'Beach', url:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=720&q=60'},
+  {name:'Space (kids)', url:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=720&q=60'},
+  {name:'Forest Glade', url:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=720&q=60'},
+  {name:'Rainbow Hills', url:'https://images.unsplash.com/photo-1501785888041-9f8b9485fb55?auto=format&fit=crop&w=720&q=60'},
+  {name:'Science Lab', url:'https://images.unsplash.com/photo-1581091012184-7c3a7b291a46?auto=format&fit=crop&w=720&q=60'}
 ];
 
 const TOPICS = [
@@ -124,181 +105,326 @@ const ANIMALS = {
   cats:['https://cdn-icons-png.flaticon.com/512/617/617498.png','https://cdn-icons-png.flaticon.com/512/1998/1998615.png']
 };
 
-const LOTTIES = [
-  "https://assets10.lottiefiles.com/packages/lf20_tll0j4bb.json",
-  "https://assets10.lottiefiles.com/packages/lf20_5ngs2ksb.json",
-  "https://assets10.lottiefiles.com/packages/lf20_9p1qcihj.json",
-  "https://assets10.lottiefiles.com/packages/lf20_2ks3pjua.json",
-  "https://assets10.lottiefiles.com/packages/lf20_2glqweqs.json"
-];
+/* ---------- Canvas & drawing ---------- */
+const canvas = document.getElementById('canvasPreview');
+const ctx = canvas.getContext('2d', { alpha: false }); // opaque for speed
+const displayScale = 1; // we'll draw at native 720x1280
 
-/* ---------- DOM ---------- */
-const stage = document.getElementById('stage');
-const bubble = document.getElementById('bubble');
-const subtitle = document.getElementById('subtitle');
-const cloud1 = document.getElementById('cloud1');
-const cloud2 = document.getElementById('cloud2');
-const animalA = document.getElementById('animalA');
-const animalB = document.getElementById('animalB');
-const lottieHolder = document.getElementById('lottieHolder');
-const statusEl = document.getElementById('status');
-const downloadLink = document.getElementById('downloadLink');
+// keep animated elements state
+let scene = {
+  backgroundImg: null,
+  bgName: '',
+  cloud1: {x:-200, y:100, w:200, h:90, speed: 0.2},
+  cloud2: {x:-350, y:200, w:250, h:110, speed: 0.12},
+  animalA: {img:null, x:CANVAS_W*0.18, y:CANVAS_H-220, w:160, h:160, bounceTimer:0},
+  animalB: {img:null, x:CANVAS_W*0.62, y:CANVAS_H-200, w:140, h:140, bounceTimer:0},
+  bubble: {text:'Welcome!', x:CANVAS_W*0.5, y:120},
+  subtitle: {text:'', x:CANVAS_W*0.5, y:CANVAS_H - 120}
+};
 
-const durationSelect = document.getElementById('duration');
-const voiceMethod = document.getElementById('voiceMethod');
-const voiceGender = document.getElementById('voiceGender');
-const voiceUpload = document.getElementById('voiceUpload');
+/* ---------- UI elements ---------- */
+const durationSel = document.getElementById('duration');
+const voiceMethodSel = document.getElementById('voiceMethod');
+const voiceGenderSel = document.getElementById('voiceGender');
+const voiceUploadEl = document.getElementById('voiceUpload');
 const useUploadBtn = document.getElementById('useUploadBtn');
 const genBtn = document.getElementById('genBtn');
 const recordBtn = document.getElementById('recordBtn');
+const statusEl = document.getElementById('status');
+const downloadLink = document.getElementById('downloadLink');
 
 let currentTopic = null;
 let uploadedAudioBuffer = null;
-let recordedChunks = [];
-let mediaRecorder = null;
-let currentLottie = null;
 
-/* ---------- AudioContext & WebAudio ---------- */
+/* ---------- WebAudio: master mix ---------- */
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null; // will create on first gesture
+let audioCtx = null;
 function ensureAudioCtx(){
   if(!audioCtx){
     audioCtx = new AudioContextClass();
-    // master gain & destination
     audioCtx.masterGain = audioCtx.createGain();
     audioCtx.masterGain.gain.value = 1;
     audioCtx.masterDest = audioCtx.createMediaStreamDestination();
     audioCtx.masterGain.connect(audioCtx.masterDest);
-    // also connect to speakers for preview
     audioCtx.masterGain.connect(audioCtx.destination);
   }
   return audioCtx;
 }
 
-/* Ensure we resume audio after a user gesture */
-function userGestureInit(){
-  // listen once
-  const onGesture = async ()=>{
-    try{ ensureAudioCtx(); if(audioCtx.state === 'suspended') await audioCtx.resume(); }catch(e){}
-    document.body.removeEventListener('click', onGesture);
-    document.body.removeEventListener('keydown', onGesture);
+// unlock audio on first gesture
+function unlockAudioOnGesture(){
+  const init = async ()=>{
+    ensureAudioCtx();
+    if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
+    document.body.removeEventListener('click', init);
+    document.body.removeEventListener('keydown', init);
     statusEl.textContent = 'Audio unlocked — ready.';
   };
-  document.body.addEventListener('click', onGesture);
-  document.body.addEventListener('keydown', onGesture);
+  document.body.addEventListener('click', init);
+  document.body.addEventListener('keydown', init);
 }
-userGestureInit();
+unlockAudioOnGesture();
 
-/* ---------- Background music & SFX ---------- */
-let bgInterval = null, bgOscs = [];
-function startBackgroundMusic(){
+/* ---------- Background music patterns (alternate) ---------- */
+let bgPattern = null, bgPatternInterval = null, bgOscs = [];
+
+function startBgPattern(idx){
+  stopBgPattern();
   const ctx = ensureAudioCtx();
-  stopBackgroundMusic();
-  const notes = [523.25, 659.25, 783.99, 1046.5];
-  bgOscs = notes.map((n)=>{
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = n;
-    g.gain.value = 0;
-    o.connect(g); g.connect(ctx.masterGain); o.start();
-    return {o,g};
-  });
-  bgInterval = setInterval(()=>{
-    const t = ctx.currentTime;
-    bgOscs.forEach((og,i)=>{
-      og.g.gain.cancelScheduledValues(t);
-      og.g.gain.linearRampToValueAtTime(0.06, t+0.01);
-      og.g.gain.linearRampToValueAtTime(0.0, t+0.45);
+  // three simple patterns — arpeggio, plucky, playful rhythm
+  if(idx === 0){
+    // arpeggio pattern (light)
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    bgOscs = notes.map(n => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = n; g.gain.value = 0;
+      o.connect(g); g.connect(ctx.masterGain); o.start();
+      return {o,g};
     });
-  }, 520);
+    bgPatternInterval = setInterval(()=>{
+      const t = ctx.currentTime;
+      bgOscs.forEach((og,i)=>{
+        og.g.gain.cancelScheduledValues(t);
+        og.g.gain.linearRampToValueAtTime(0.05, t+0.01);
+        og.g.gain.linearRampToValueAtTime(0, t+0.45);
+      });
+    }, 520);
+  } else if(idx === 1){
+    // plucky marimba-like pattern
+    const notes = [392, 523.25, 659.25, 784];
+    bgOscs = notes.map(n => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'square'; o.frequency.value = n; g.gain.value = 0;
+      o.connect(g); g.connect(ctx.masterGain); o.start();
+      return {o,g};
+    });
+    bgPatternInterval = setInterval(()=>{
+      const t = ctx.currentTime;
+      bgOscs.forEach((og,i)=>{
+        og.g.gain.cancelScheduledValues(t);
+        og.g.gain.linearRampToValueAtTime(0.045, t+0.01);
+        og.g.gain.linearRampToValueAtTime(0, t+0.5);
+      });
+    }, 480);
+  } else {
+    // playful rhythm (short pulses)
+    bgOscs = [];
+    bgPatternInterval = setInterval(()=>{
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = 600;
+      o.connect(g); g.connect(ctx.masterGain);
+      const t = ctx.currentTime;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.12, t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t+0.5);
+      o.start(); o.stop(t+0.55);
+    }, 700);
+  }
+  bgPattern = idx;
 }
-function stopBackgroundMusic(){
-  if(bgInterval){ clearInterval(bgInterval); bgInterval = null; }
+function stopBgPattern(){
+  if(bgPatternInterval){ clearInterval(bgPatternInterval); bgPatternInterval = null; }
   if(bgOscs){ bgOscs.forEach(x=>{ try{x.o.stop()}catch(e){} }); bgOscs = []; }
 }
-function playBoing(){ const ctx=ensureAudioCtx(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type='triangle'; o.frequency.value=520; o.connect(g); g.connect(ctx.masterGain); const t=ctx.currentTime; g.gain.linearRampToValueAtTime(0.12,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+0.6); o.start(); o.stop(t+0.8); }
-function playWow(){ const ctx=ensureAudioCtx(); const o=ctx.createOscillator(), g=ctx.createGain(); o.type='sawtooth'; o.frequency.value=220; o.connect(g); g.connect(ctx.masterGain); const t=ctx.currentTime; g.gain.linearRampToValueAtTime(0.09,t+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+1.0); o.start(); o.stop(t+1.1); }
 
-/* ---------- Lottie ---------- */
-let currentLottieObj = null;
-function loadLottie(url){
-  try{ if(currentLottieObj) currentLottieObj.destroy(); }catch(e){}
-  currentLottieObj = lottie.loadAnimation({container:lottieHolder,renderer:'svg',loop:true,autoplay:true,path:url});
+/* ---------- SFX ---------- */
+function playBoing(){
+  const ctx = ensureAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = 'triangle'; o.frequency.value = 520; o.connect(g); g.connect(ctx.masterGain);
+  const t = ctx.currentTime;
+  g.gain.linearRampToValueAtTime(0.12, t+0.01); g.gain.exponentialRampToValueAtTime(0.001, t+0.6);
+  o.start(); o.stop(t+0.8);
+}
+function playSparkle(){
+  const ctx = ensureAudioCtx(); const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = 'sine'; o.frequency.value = 1200; o.connect(g); g.connect(ctx.masterGain);
+  const t = ctx.currentTime;
+  g.gain.linearRampToValueAtTime(0.08, t+0.01); g.gain.exponentialRampToValueAtTime(0.001, t+0.4);
+  o.start(); o.stop(t+0.6);
 }
 
-/* ---------- Helpers ---------- */
-function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
-function chooseBackground(bg){ stage.style.backgroundImage = `url('${bg.url}')`; stage.setAttribute('data-bg', bg.name); }
-function splitText(text, parts){ const words=text.split(' '); const per=Math.ceil(words.length/parts); const out=[]; for(let i=0;i<parts;i++) out.push(words.slice(i*per,(i+1)*per).join(' ')); return out; }
+/* ---------- Load images helper ---------- */
+function loadImg(url){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>res(i); i.onerror=rej; i.src=url; }); }
 
-/* ---------- UI: preview generation ---------- */
-function animateClouds(){
-  [cloud1,cloud2].forEach((c,i)=>{
-    const start = -40 - Math.random()*40;
-    c.style.left = start + '%';
-    c.style.top = (8 + i*12 + Math.random()*8) + '%';
-    c.style.transition = `left ${28 + i*12 + Math.random()*12}s linear`;
-    void c.offsetWidth;
-    setTimeout(()=> c.style.left = '110%', 30 + i*20);
-  });
-}
-function placeAnimals(){
-  const dog = pick(ANIMALS.dogs);
-  const cat = pick(ANIMALS.cats);
-  animalA.src = dog; animalB.src = cat;
-  [animalA, animalB].forEach((el, idx)=>{
-    if(el._t) clearInterval(el._t);
-    const bounce = ()=>{ el.style.transform = 'translateY(-20px) scale(1.05)'; setTimeout(()=> el.style.transform='translateY(0) scale(1)', 420); };
-    setTimeout(bounce, 120 + idx*80);
-    el._t = setInterval(bounce, 1500 + Math.random()*800);
-  });
+/* ---------- Randomize & prepare scene ---------- */
+async function prepareScene(){
+  // pick background
+  const bg = BACKGROUNDS[Math.floor(Math.random()*BACKGROUNDS.length)];
+  scene.bgName = bg.name;
+  scene.backgroundImg = await loadImg(bg.url);
+  // pick animals
+  const dog = ANIMALS.dogs[Math.floor(Math.random()*ANIMALS.dogs.length)];
+  const cat = ANIMALS.cats[Math.floor(Math.random()*ANIMALS.cats.length)];
+  scene.animalA.img = await loadImg(dog);
+  scene.animalB.img = await loadImg(cat);
+  // pick topic
+  currentTopic = TOPICS[Math.floor(Math.random()*TOPICS.length)];
+  scene.bubble.text = currentTopic.title;
+  scene.subtitle.text = currentTopic.text;
+  // choose background music pattern random 0..2
+  const bgIdx = Math.floor(Math.random()*3);
+  startBgPattern(bgIdx);
+  statusEl.textContent = `Prepared: ${scene.bgName} • ${currentTopic.title} • bg-music #${bgIdx+1}`;
 }
 
-function generatePreview(){
-  const bg = pick(BACKGROUNDS);
-  chooseBackground(bg);
-  const topic = pick(TOPICS);
-  currentTopic = topic;
-  bubble.textContent = topic.title;
-  subtitle.textContent = topic.text;
-  // set bubble color for topic
-  if(topic.class === 'math'){ bubble.style.background = '#fff3e0'; bubble.style.color = '#bf360c'; }
-  else if(topic.class === 'science'){ bubble.style.background = '#e8f5e9'; bubble.style.color = '#1b5e20'; }
-  else { bubble.style.background = '#e3f2fd'; bubble.style.color = '#0d47a1'; }
+/* ---------- Drawing functions ---------- */
+function drawRoundRect(x,y,w,h,r, fill, stroke, lineWidth=2){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if(stroke){ ctx.lineWidth = lineWidth; ctx.strokeStyle = stroke; ctx.stroke(); }
+}
+function drawScene(t){
+  // clear
+  ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+  // background image (cover)
+  if(scene.backgroundImg){
+    ctx.drawImage(scene.backgroundImg, 0,0,CANVAS_W,CANVAS_H);
+  } else {
+    ctx.fillStyle = '#87ceeb'; ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+  }
 
-  loadLottie(pick(LOTTIES));
-  animateClouds();
-  placeAnimals();
+  // moving clouds (simple circles)
+  // update cloud positions
+  scene.cloud1.x += scene.cloud1.speed * (1 + Math.sin(t/200));
+  scene.cloud2.x += scene.cloud2.speed * (1 + Math.cos(t/300));
+  if(scene.cloud1.x > CANVAS_W + 200) scene.cloud1.x = -250;
+  if(scene.cloud2.x > CANVAS_W + 250) scene.cloud2.x = -300;
+  // draw them as soft white blobs
+  function drawCloud(c){
+    ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, c.w*0.6, c.h*0.6, 0, 0, Math.PI*2);
+    ctx.ellipse(c.x + c.w*0.4, c.y - 10, c.w*0.5, c.h*0.45, 0,0,Math.PI*2);
+    ctx.ellipse(c.x + c.w*0.7, c.y + 6, c.w*0.35, c.h*0.33, 0,0,Math.PI*2);
+    ctx.fill(); ctx.restore();
+  }
+  drawCloud(scene.cloud1); drawCloud(scene.cloud2);
+
+  // draw animals (with bounce)
+  function drawAnimal(a, tOffset){
+    const bounce = Math.sin((t + (a.bounceTimer||0)) / 300) * 12; // -12..12
+    const x = a.x; const y = a.y + bounce;
+    ctx.save();
+    // small shadow
+    ctx.beginPath(); ctx.ellipse(x + a.w/2, y + a.h - 20, a.w*0.3, 12, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fill();
+    // draw image
+    if(a.img) ctx.drawImage(a.img, x, y, a.w, a.h);
+    ctx.restore();
+  }
+  // position animals relative to canvas width
+  scene.animalA.x = CANVAS_W * 0.12;
+  scene.animalB.x = CANVAS_W * 0.62;
+  drawAnimal(scene.animalA, t);
+  drawAnimal(scene.animalB, t);
+
+  // bubble (cartoon bubble top)
+  const bubbleW = Math.min( (scene.bubble.text.length*12) + 80, CANVAS_W*0.9);
+  const bubbleH = 80;
+  const bx = (CANVAS_W - bubbleW)/2;
+  const by = 60;
+  // draw speech bubble with tail
+  drawRoundRect(bx, by, bubbleW, bubbleH, 32, 'rgba(255,249,230,0.98)', '#f0c987', 4);
+  // tail
+  ctx.beginPath(); ctx.moveTo(bx + bubbleW*0.6, by + bubbleH); ctx.lineTo(bx + bubbleW*0.6 + 18, by + bubbleH + 28); ctx.lineTo(bx + bubbleW*0.6 + 46, by + bubbleH - 6); ctx.closePath();
+  ctx.fillStyle = 'rgba(255,249,230,0.98)'; ctx.fill(); ctx.strokeStyle = '#f0c987'; ctx.lineWidth=4; ctx.stroke();
+
+  // bubble text
+  ctx.fillStyle = '#1a237e'; ctx.font = 'bold 36px "Patrick Hand", ComicSans, Arial'; ctx.textAlign = 'center';
+  wrapText(ctx, scene.bubble.text, CANVAS_W/2, by + bubbleH/2 + 8, bubbleW - 40, 36);
+
+  // subtitle bubble bottom
+  const subW = Math.min((scene.subtitle.text.length*10) + 80, CANVAS_W*0.95);
+  const sbx = (CANVAS_W - subW)/2;
+  const sby = CANVAS_H - 160;
+  drawRoundRect(sbx, sby, subW, 90, 28, 'rgba(10,25,90,0.90)', null, 0);
+  // subtitle text white, multiline
+  ctx.fillStyle = '#fff'; ctx.font = '24px "Patrick Hand", ComicSans, Arial'; ctx.textAlign = 'center';
+  wrapText(ctx, scene.subtitle.text, CANVAS_W/2, sby + 46, subW - 28, 28);
+
+  // logo tag bottom-right
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  drawRoundRect(CANVAS_W - 150, CANVAS_H - 70, 130, 46, 18, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.06)', 1);
+  ctx.fillStyle = '#111'; ctx.font = '20px "Patrick Hand", Arial'; ctx.textAlign = 'center';
+  ctx.fillText('Elimu Connect', CANVAS_W - 85, CANVAS_H - 42);
+}
+
+// text wrap helper
+function wrapText(context, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '', testLine, metrics, testWidth;
+  let curY = y - (lineHeight/2);
+  for (let n = 0; n < words.length; n++) {
+    testLine = line + words[n] + ' ';
+    metrics = context.measureText(testLine);
+    testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      context.fillText(line, x, curY);
+      line = words[n] + ' ';
+      curY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, curY);
+}
+
+/* ---------- Animation loop ---------- */
+let animRunning = false;
+function startAnimation(){
+  if(animRunning) return;
+  animRunning = true;
+  let start = performance.now();
+  function loop(now){
+    const t = now - start;
+    // small dynamic updates
+    scene.animalA.bounceTimer = t;
+    scene.animalB.bounceTimer = t + 70;
+    // draw
+    drawScene(t);
+    if(animRunning) requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+}
+function stopAnimation(){ animRunning = false; }
+
+/* ---------- Prepare scene on Generate ---------- */
+genBtn.addEventListener('click', async ()=>{
+  statusEl.textContent = 'Preparing scene...';
   ensureAudioCtx();
-  startBackgroundMusic();
-  setTimeout(()=> playBoing(), 250);
-  setTimeout(()=> playWow(), 850);
-  statusEl.textContent = `Preview ready — ${topic.title} on "${bg.name}"`;
-}
+  try{ await prepareScene(); startAnimation(); statusEl.textContent = 'Preview ready: ' + scene.bgName + ' • ' + currentTopic.title; }catch(e){ statusEl.textContent = 'Prepare failed: ' + e.message; console.error(e); }
+});
 
-/* ---------- voice upload handling ---------- */
-voiceUpload.addEventListener('change', async (e)=>{
+/* ---------- Voice upload handling ---------- */
+voiceUploadEl.addEventListener('change', async (e)=>{
   const f = e.target.files[0];
   if(!f) return;
   statusEl.textContent = 'Decoding uploaded audio...';
   const ab = await f.arrayBuffer();
   ensureAudioCtx();
   uploadedAudioBuffer = await audioCtx.decodeAudioData(ab);
-  statusEl.textContent = 'Uploaded audio ready (will be embedded).';
+  statusEl.textContent = 'Uploaded voice ready (will be embedded).';
 });
 useUploadBtn.addEventListener('click', ()=> {
-  if(!uploadedAudioBuffer) { statusEl.textContent = 'Choose an audio file first.'; return; }
-  voiceMethod.value = 'upload';
-  statusEl.textContent = 'Uploaded audio selected for narration.';
+  if(!uploadedAudioBuffer){ statusEl.textContent = 'No uploaded file. Choose an audio file first.'; return; }
+  voiceMethodSel.value = 'upload';
+  statusEl.textContent = 'Upload selected as narration method.';
 });
 
-/* ---------- Speaking preview (speechSynthesis) ---------- */
+/* ---------- SpeechSynthesis preview (not embedded) ---------- */
 function speakPreview(text, gender){
   try{
     const voices = speechSynthesis.getVoices();
     let chosen = null;
-    if(gender === 'male') chosen = voices.find(v=>/male|en-GB|en-US/i.test(v.name)) || voices[0];
-    else if(gender === 'female') chosen = voices.find(v=>/female|en-GB|en-US/i.test(v.name)) || voices[0];
+    if(gender === 'male') chosen = voices.find(v => /male|en-GB|en-US/i.test(v.name)) || voices[0];
+    else if(gender === 'female') chosen = voices.find(v => /female|en-GB|en-US/i.test(v.name)) || voices[0];
     else chosen = voices.find(v=>v.lang && v.lang.toLowerCase().includes('en')) || voices[0];
     const ut = new SpeechSynthesisUtterance(text);
     if(chosen) ut.voice = chosen;
@@ -307,129 +433,139 @@ function speakPreview(text, gender){
   }catch(e){ console.warn('TTS preview error', e); }
 }
 
-/* ---------- RECORDING: captureStream fallback & automatic stop ---------- */
+/* ---------- Recording: capture only the canvas (canvas.captureStream) ---------- */
+let recordedChunks = [];
+let mediaRecorder = null;
+
 async function startRecordingAuto(){
-  if(!currentTopic) generatePreview();
-  const dur = parseInt(durationSelect.value,10) || 60;
-  statusEl.textContent = 'Preparing to record — please allow any prompts (screen / mic) if shown.';
+  // ensure audio unlocked
   ensureAudioCtx();
-  // ensure audio unlocked if suspended
-  if(audioCtx.state === 'suspended'){ try{ await audioCtx.resume(); }catch(e){} }
+  if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
+  // must have a prepared scene
+  if(!currentTopic){ statusEl.textContent = 'Generate preview first.'; return; }
+  // start background music (already started in prepareScene) - ensure it is running
+  if(!bgPattern) startBgPattern(Math.floor(Math.random()*3));
 
-  // Try captureStream on stage (works for <canvas> but not div) — fallback to getDisplayMedia
+  const dur = parseInt(durationSel.value,10) || 60;
+  statusEl.textContent = 'Recording: ' + dur + 's — preparing streams...';
+
+  // canvas capture stream (video)
   let videoStream = null;
-  if(typeof stage.captureStream === 'function'){
-    try{
-      videoStream = stage.captureStream(30); // may not be supported on div; but try
-    }catch(err){ videoStream = null; }
-  }
-  if(!videoStream){
-    // ask for display capture (user must allow) — pick 'this tab' for best result
-    try{
-      videoStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: false });
-      // if the returned stream includes audio track (some browsers allow system audio), we still ignore it
-    }catch(err){
-      statusEl.textContent = 'Screen capture denied or unavailable: ' + err.message;
-      return;
-    }
+  try{
+    // draw at desired frames per second
+    videoStream = canvas.captureStream(30);
+  }catch(err){
+    statusEl.textContent = 'Canvas capture not supported: ' + err.message;
+    return;
   }
 
-  // Build combined stream: video tracks + (live mic tracks if needed) + WebAudio masterDest tracks
+  // assemble combined MediaStream
   const combined = new MediaStream();
-  videoStream.getVideoTracks().forEach(t=> combined.addTrack(t));
+  // add video tracks
+  videoStream.getVideoTracks().forEach(t => combined.addTrack(t));
 
-  // Add live mic tracks (if user selected live mic)
+  // add live mic if chosen
   let liveMicStream = null;
-  if(voiceMethod.value === 'mic'){
+  if(voiceMethodSel.value === 'mic'){
     try{
       liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      liveMicStream.getAudioTracks().forEach(t=> combined.addTrack(t));
-      statusEl.textContent = 'Live mic added — recording will include what you speak now.';
+      liveMicStream.getAudioTracks().forEach(t => combined.addTrack(t));
+      statusEl.textContent = 'Live mic connected — speak during recording.';
     }catch(err){
-      statusEl.textContent = 'Could not open mic for live recording: ' + err.message + '. If you uploaded a narration, it will be used instead.';
+      statusEl.textContent = 'Mic unavailable. If you uploaded narration it will be used.';
+      console.warn('Mic error', err);
     }
   }
 
-  // If user chose uploaded audio, queue it to play into WebAudio master (so it's captured)
-  if(voiceMethod.value === 'upload' && uploadedAudioBuffer){
+  // if upload selected and uploadedAudioBuffer exists, schedule it to play into audioCtx.masterGain now
+  if(voiceMethodSel.value === 'upload' && uploadedAudioBuffer){
     const src = audioCtx.createBufferSource();
     src.buffer = uploadedAudioBuffer;
     src.connect(audioCtx.masterGain);
     src.start();
+    // also show subtitle parts timed across duration
+  } else if(voiceMethodSel.value === 'tts'){
+    // speechSynthesis preview (not embedded usually)
+    speakPreview(currentTopic.title + '. ' + currentTopic.text, voiceGenderSel.value);
   }
 
-  // Now add WebAudio masterDest tracks (background music + sfx + uploaded buffer if played)
-  audioCtx.masterDest.stream.getAudioTracks().forEach(t=> combined.addTrack(t));
+  // include WebAudio masterDest tracks (bg music + sfx + uploaded buffer if played)
+  audioCtx.masterDest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
 
-  // Prepare MediaRecorder
   recordedChunks = [];
   try{
     mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm;codecs=vp8,opus' });
   }catch(err){
-    statusEl.textContent = 'MediaRecorder creation failed: ' + err.message;
+    statusEl.textContent = 'MediaRecorder failed: ' + err.message;
     return;
   }
 
   mediaRecorder.ondataavailable = e => { if(e.data && e.data.size) recordedChunks.push(e.data); };
-  mediaRecorder.onstart = () => { statusEl.textContent = 'Recording... (auto-stop after ' + dur + 's)'; };
-  mediaRecorder.onstop = async ()=>{
-    // stop any mic tracks we opened
+  mediaRecorder.onstart = () => { statusEl.textContent = 'Recording... (auto stops after ' + dur + 's)'; };
+  mediaRecorder.onerror = e => { statusEl.textContent = 'Recording error: ' + e.message; };
+  mediaRecorder.onstop = async () => {
+    // stop any live mic we opened
     if(liveMicStream) liveMicStream.getTracks().forEach(t=> t.stop());
-    // stop background music
-    stopBackgroundMusic();
+    stopBgPattern();
     // assemble blob
     const blob = new Blob(recordedChunks, { type: 'video/webm' });
     const url = URL.createObjectURL(blob);
     downloadLink.href = url;
     downloadLink.download = `elimu_short_${dur}s_${Date.now()}.webm`;
-    downloadLink.textContent = '⬇️ Download WebM (auto)';
+    downloadLink.textContent = '⬇️ Download WebM (9:16)';
     downloadLink.classList.remove('hidden');
-    // auto-click to download
-    setTimeout(()=> {
-      try{ downloadLink.click(); }catch(e){}
-    }, 300);
-    statusEl.textContent = 'Recording finished — file ready to download.';
-    // stop any video tracks from getDisplayMedia if used (to release share)
-    try{
-      videoStream.getTracks().forEach(t=> t.stop());
-    }catch(e){}
+    // auto-trigger download (some browsers block but it tries)
+    setTimeout(()=> { try{ downloadLink.click(); }catch(e){} }, 300);
+    statusEl.textContent = 'Recording complete — file ready.';
   };
 
-  // start
-  mediaRecorder.start(1000); // slice every second
+  // start recording
+  mediaRecorder.start(1000);
 
-  // show subtitles progressively based on dur (split into 3 parts)
-  const parts = splitText(currentTopic.text || '', 3);
+  // schedule subtitles in 3 parts across duration
+  const parts = splitText(currentTopic.text, 3);
   parts.forEach((p,i)=>{
-    setTimeout(()=> { subtitle.textContent = p; playBoing(); }, Math.floor((i+0.5)*(dur/parts.length)*1000));
+    setTimeout(()=> { scene.subtitle.text = p; playBoing(); }, Math.floor((i+0.5)*(dur/parts.length)*1000));
   });
 
-  // If user chose TTS preview (not embedded): speak now for preview
-  if(voiceMethod.value === 'tts'){ speakPreview(currentTopic.title + '. ' + currentTopic.text, voiceGender.value); }
-
-  // stop automatically after duration
+  // auto stop
   setTimeout(()=>{
-    try{ if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); }catch(e){}
-  }, dur*1000 + 400);
+    try{ if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); }catch(e){ console.warn('stop error', e); }
+  }, dur*1000 + 500);
 }
 
-/* ---------- events ---------- */
-genBtn.addEventListener('click', ()=> generatePreview());
+/* ---------- Helpers ---------- */
+function splitText(text, n){
+  const words = text.split(' ');
+  const per = Math.ceil(words.length / n);
+  const out = [];
+  for(let i=0;i<n;i++) out.push(words.slice(i*per,(i+1)*per).join(' '));
+  return out;
+}
+
+/* ---------- Events ---------- */
 recordBtn.addEventListener('click', async ()=>{
-  // record action is a user gesture (allows audio and display prompts)
-  await ensureAudioCtx();
+  // user gesture unlocks audio & allows mic
+  ensureAudioCtx();
   if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
-  // small delay then start
+  // ensure scene prepared
+  if(!currentTopic) await prepareScene();
+  // small delay so music and visuals start
   setTimeout(()=> startRecordingAuto(), 250);
 });
 
-/* ---------- init ---------- */
 window.addEventListener('load', ()=> {
   // warm voices
   speechSynthesis.getVoices();
-  generatePreview();
-  statusEl.textContent = 'Ready. Click Generate Preview then Record (first click unlocks audio).';
+  // quick auto prepare
+  generateOnLoad();
+  statusEl.textContent = 'Ready. Click Generate Preview and then Start & Record.';
 });
+
+async function generateOnLoad(){
+  try{ await prepareScene(); startAnimation(); }catch(e){}
+}
+
 </script>
 </body>
 </html>
