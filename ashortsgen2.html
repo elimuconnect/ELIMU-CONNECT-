@@ -647,14 +647,21 @@ async function prepareScene() {
   // spawn emojis
   spawnEmojis(16);
 
-// --- Random fact selection without repeats ---
-if (typeof window.unusedFacts === 'undefined' || window.unusedFacts.length === 0) {
-  // All used or first load → reset with a shuffled copy
-  window.unusedFacts = [...KNOWLEDGE_ITEMS].sort(() => Math.random() - 0.5);
+// --- Random fact selection without repeats and saved progress ---
+
+// Load saved facts from localStorage if available
+let unusedFacts = JSON.parse(localStorage.getItem('unusedFacts')) || [];
+
+// If none left or none saved, reset and shuffle new list
+if (unusedFacts.length === 0) {
+  unusedFacts = [...KNOWLEDGE_ITEMS].sort(() => Math.random() - 0.5);
 }
 
-// Get one random unused fact
-const knowledge = window.unusedFacts.pop(); // removes from the end
+// Get one random unused fact (pop removes from the end)
+const knowledge = unusedFacts.pop();
+
+// Save updated list back to localStorage
+localStorage.setItem('unusedFacts', JSON.stringify(unusedFacts));
 
 // Assign to scene
 scene.bubble.text = knowledge;
