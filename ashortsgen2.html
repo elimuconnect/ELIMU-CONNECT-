@@ -649,23 +649,32 @@ async function prepareScene() {
 
 // --- Random fact selection without repeats and saved progress ---
 
-// Load saved facts from localStorage if available
-let unusedFacts = JSON.parse(localStorage.getItem('unusedFacts')) || [];
+// Retrieve used facts from localStorage
+let usedFacts = JSON.parse(localStorage.getItem('usedFacts')) || [];
 
-// If none left or none saved, reset and shuffle new list
-if (unusedFacts.length === 0) {
-  unusedFacts = [...KNOWLEDGE_ITEMS].sort(() => Math.random() - 0.5);
+// Create a fresh list of available facts
+let availableFacts = KNOWLEDGE_ITEMS.filter(f => !usedFacts.includes(f));
+
+// If all facts are used, reset the cycle
+if (availableFacts.length === 0) {
+  usedFacts = [];
+  availableFacts = [...KNOWLEDGE_ITEMS];
 }
 
-// Get one random unused fact (pop removes from the end)
-const knowledge = unusedFacts.pop();
+// Pick a truly random fact from available ones
+const randomIndex = Math.floor(Math.random() * availableFacts.length);
+const knowledge = availableFacts[randomIndex];
 
-// Save updated list back to localStorage
-localStorage.setItem('unusedFacts', JSON.stringify(unusedFacts));
+// Add to used list
+usedFacts.push(knowledge);
 
-// Assign to scene
+// Save progress
+localStorage.setItem('usedFacts', JSON.stringify(usedFacts));
+
+// Display the chosen fact
 scene.bubble.text = knowledge;
 scene.subtitle.text = knowledge;
+
 
   // ensure audio unlocked
   ensureAudioCtx();
