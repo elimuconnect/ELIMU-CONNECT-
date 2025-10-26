@@ -647,12 +647,10 @@ async function prepareScene() {
   // spawn emojis
   spawnEmojis(16);
 
- // **pick next knowledge item in sequence (not random)**
-scene.bubble.text = KNOWLEDGE_ITEMS[knowledgeIndex];
-scene.subtitle.text = KNOWLEDGE_ITEMS[knowledgeIndex];
-
-// move to next fact for next generation
-knowledgeIndex = (knowledgeIndex + 1) % KNOWLEDGE_ITEMS.length;
+ // **pick random knowledge item**
+const randomIndex = Math.floor(Math.random() * KNOWLEDGE_ITEMS.length);
+scene.bubble.text = KNOWLEDGE_ITEMS[randomIndex];
+scene.subtitle.text = KNOWLEDGE_ITEMS[randomIndex];
 
 
   // ensure audio unlocked
