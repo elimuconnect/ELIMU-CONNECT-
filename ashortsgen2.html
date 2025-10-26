@@ -647,11 +647,18 @@ async function prepareScene() {
   // spawn emojis
   spawnEmojis(16);
 
- // **pick random knowledge item**
-const randomIndex = Math.floor(Math.random() * KNOWLEDGE_ITEMS.length);
-scene.bubble.text = KNOWLEDGE_ITEMS[randomIndex];
-scene.subtitle.text = KNOWLEDGE_ITEMS[randomIndex];
+// --- Random fact selection without repeats ---
+if (typeof window.unusedFacts === 'undefined' || window.unusedFacts.length === 0) {
+  // All used or first load → reset with a shuffled copy
+  window.unusedFacts = [...KNOWLEDGE_ITEMS].sort(() => Math.random() - 0.5);
+}
 
+// Get one random unused fact
+const knowledge = window.unusedFacts.pop(); // removes from the end
+
+// Assign to scene
+scene.bubble.text = knowledge;
+scene.subtitle.text = knowledge;
 
   // ensure audio unlocked
   ensureAudioCtx();
