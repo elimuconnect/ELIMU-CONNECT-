@@ -1198,7 +1198,6 @@ const backgroundMusicList = [
    'https://elimuconnect.github.io/ELIMU-CONNECT-/music3.mp3',
     'https://elimuconnect.github.io/ELIMU-CONNECT-/music4.mp3',
 ];
-
 /* ---------- Generic shuffler utility (persistent) ---------- */
 /*
   createShuffler(key, items)
@@ -1607,24 +1606,7 @@ function drawRoundRect(x,y,w,h,r, fill, stroke, lineWidth=2){
   if(fill){ ctx.fillStyle = fill; ctx.fill(); }
   if(stroke){ ctx.lineWidth = lineWidth; ctx.strokeStyle = stroke; ctx.stroke(); }
 }
-function wrapText(context, text, x, y, maxWidth, lineHeight){
-  const words = text.split(' ');
-  let line = '', testLine, metrics, testWidth;
-  let curY = y - (lineHeight/2);
-  for (let n = 0; n < words.length; n++) {
-    testLine = line + words[n] + ' ';
-    metrics = context.measureText(testLine);
-    testWidth = metrics.width;
-    if (testWidth > maxWidth && n > 0) {
-      context.fillText(line, x, curY);
-      line = words[n] + ' ';
-      curY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  context.fillText(line, x, curY);
-}
+
 
 /* ---------- Drawing scene ---------- */
 function drawScene(t){
@@ -1727,10 +1709,26 @@ const bottomText = scene.subtitle.text || '';
 
 // draw wrapped
 ctx.fillStyle = 'yellow';
+
+
 ctx.font = 'bold 56px "Patrick Hand", Arial';
+ctx.fillStyle = 'yellow';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
-wrapText(ctx, bottomText, CANVAS_W / 2, CANVAS_H / 2, CANVAS_W - 60, 60);
+
+const lines = splitText(ctx, bottomText, CANVAS_W - 60);
+const totalHeight = lines.length * 60;
+let startY = CANVAS_H * 0.5 - totalHeight / 2 + 30;
+
+for (let i = 0; i < lines.length; i++) {
+  ctx.fillText(lines[i], CANVAS_W / 2, startY + i * 60);
+}
+
+
+
+
+
+
 
 // Text to split into two lines
 const logoText = '🎓 Get Top Tuition Now!📱Install Elimu Connect App(Kenya), SmartLearn: IGCSE IB CBSE ICSE (global)!';
@@ -1934,15 +1932,25 @@ async function startRecordingAuto() {
     }
   }, dur * 1000 + 500);
 }
+function splitText(ctx, text, maxWidth) {
+  const words = text.trim().split(/\s+/);
+  const lines = [];
+  let line = '';
 
-// helper
-function splitText(text, n) {
-  const words = text.split(' ');
-  const per = Math.ceil(words.length / n);
-  const out = [];
-  for (let i = 0; i < n; i++) out.push(words.slice(i * per, (i + 1) * per).join(' '));
-  return out;
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    const testWidth = ctx.measureText(testLine).width;
+    if (testWidth > maxWidth && i > 0) {
+      lines.push(line.trim());
+      line = words[i] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines.push(line.trim());
+  return lines;
 }
+
 
 /* ---------- Events ---------- */
 recordBtn.addEventListener('click', async () => {
