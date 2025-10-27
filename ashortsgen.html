@@ -6,31 +6,161 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --accent:#1976d2; --math:#ef6c00; --sci:#2e7d32; --eng:#0d47a1;
-    --bubble-bg:#fff9e6; --subtitle-bg: rgba(10,25,90,0.85);
+  :root {
+    --accent: #1976d2;
+    --math: #ef6c00;
+    --sci: #2e7d32;
+    --eng: #0d47a1;
+    --bubble-bg: #fff9e6;
+    --subtitle-bg: rgba(10, 25, 90, 0.85);
   }
-  html,body{height:100%;margin:0;font-family:'Patrick Hand', ComicSans, Arial;background:linear-gradient(#e6f7ff,#ffffff);display:flex;justify-content:center;padding:12px}
-  .app{width:420px;max-width:100%}
-  header{display:flex;justify-content:space-between;align-items:center}
-  h1{font-size:1rem;margin:0}
-  .controls{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-  select,input[type="file"],button{padding:8px;border-radius:8px;border:1px solid #ddd;font-weight:bold}
-  button{background:var(--accent);color:white;border:none;cursor:pointer}
-  .small{font-size:.8rem;color:#444}
-  #stageWrap{width:360px;height:640px;margin:12px auto;border-radius:18px;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.2);position:relative;background:#222}
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Patrick Hand', ComicSans, Arial;
+    background: linear-gradient(#e6f7ff, #ffffff);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .app {
+    width: 420px;
+    max-width: 100%;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 1rem;
+    margin: 0;
+    text-align: center;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+    justify-content: center;
+  }
+
+  select,
+  input[type="file"],
+  button {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-weight: bold;
+  }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  button:hover {
+    transform: scale(1.04);
+  }
+
+  .small {
+    font-size: 0.8rem;
+    color: #444;
+    text-align: center;
+  }
+
+  #stageWrap {
+    width: 360px;
+    height: 640px;
+    margin: 12px auto;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.2);
+    position: relative;
+    background: #222;
+  }
+
   /* Canvas fits inside stageWrap but actual pixels are 720x1280 (portrait) */
-  #canvasPreview{width:100%;height:100%;display:block;background:#000}
-  .controls .row{display:flex;gap:6px}
-  .status{font-size:.9rem;margin-top:8px}
-  a.hidden{display:none}
-  .hint{font-size:.8rem;color:#555;margin-top:6px}
-  @keyframes flash { 0% { opacity: 0; filter: brightness(3); } 100% { opacity: 1; filter: brightness(1); } }
-  /* Slight title glow */
-  header h1 { background: linear-gradient(90deg,#ff9800,#2196f3); -webkit-background-clip:text; color:transparent; }
-  button{ transition: transform .15s ease; }
-  button:hover{ transform: scale(1.04); }
+  #canvasPreview {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+  }
+
+  .controls .row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .status {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  a.hidden {
+    display: none;
+  }
+
+  .hint {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  @keyframes flash {
+    0% { opacity: 0; filter: brightness(3); }
+    100% { opacity: 1; filter: brightness(1); }
+  }
+
+  header h1 {
+    background: linear-gradient(90deg, #ff9800, #2196f3);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* 📱 MOBILE RESPONSIVE ADJUSTMENTS */
+  @media (max-width: 480px) {
+    .app {
+      width: 100%;
+    }
+
+    #stageWrap {
+      width: 100%;
+      height: 80vh;
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 0.9rem;
+    }
+
+    button,
+    select,
+    input[type="file"] {
+      font-size: 0.85rem;
+      padding: 6px 8px;
+    }
+
+    .status,
+    .hint {
+      font-size: 0.8rem;
+    }
+  }
 </style>
+
 </head>
 <body>
   <div class="app">
