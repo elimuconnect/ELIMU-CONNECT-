@@ -76,12 +76,13 @@
     <div class="hint">Tip: if browser prompts to allow mic, allow it. For embedded narration use Upload or Mic. TTS is disabled (no narration).</div>
   </div>
 
+
+
 <script>
 /* ---------- Configuration & assets ---------- */
 const CANVAS_W = 720, CANVAS_H = 1280; // portrait 9:16
 
 // updated to free catchy backgrounds (Pixabay/Unsplash style)
-
 const BACKGROUNDS = [
   {name:'Sunny Schoolyard', url:'https://cdn.pixabay.com/photo/2022/10/07/06/11/verbena-7504222_640.jpg'},
   {name:'Green Park', url:'https://cdn.pixabay.com/photo/2020/06/21/10/56/flower-5324314_640.jpg'},
@@ -105,8 +106,6 @@ const BACKGROUNDS = [
   {name:'Rainbow Hills', url:'https://cdn.pixabay.com/photo/2024/08/20/13/51/images-8983354_640.jpg'},
   {name:'Science Lab', url:'https://cdn.pixabay.com/photo/2024/08/20/13/51/images-8983354_640.jpg'}
 ];
-
-
 const KNOWLEDGE_ITEMS = [
   "The Moon has moonquakes.",
   "Bananas are berries, but strawberries aren't.",
@@ -207,21 +206,867 @@ const KNOWLEDGE_ITEMS = [
   "Human saliva contains a painkiller stronger than morphine.",
   "Whales can communicate across entire oceans.",
   "The human eye can distinguish about 10 million colors.",
-  "Bananas glow blue under black light."
+  "Bananas glow blue under black light.",
+    "Butterflies can’t fly if they’re too cold.",
+  "The human body glows in the dark, but our eyes can’t see it.",
+  "Spiders can’t stand the smell of peppermint.",
+  "There’s a planet made entirely of diamonds.",
+  "A shrimp’s heart beats in its head.",
+  "Apples float in water because they’re 25% air.",
+  "Humans are the only animals that cook food.",
+  "The tongue is the strongest muscle relative to its size.",
+  "There are more bacteria in your mouth than people on Earth.",
+  "Bubble wrap was originally invented as wallpaper.",
+  "Koalas sleep up to 22 hours a day.",
+  "The inventor of the frisbee was turned into a frisbee after he died.",
+  "Your brain shrinks slightly when you’re dehydrated.",
+  "Banging your head against a wall burns 150 calories an hour.",
+  "Cows produce more milk when listening to music.",
+  "Blue whales have hearts the size of small cars.",
+  "Carrots were originally purple, not orange.",
+  "Some fish can climb trees.",
+  "Lobsters taste with their legs.",
+  "Butterflies remember being caterpillars.",
+  "Your bones are about five times stronger than steel of the same density.",
+  "The average person spends six months of their life waiting for red lights.",
+  "Sea cucumbers eat with their feet.",
+  "Owls can’t move their eyes — that’s why they turn their heads.",
+  "Some lizards can squirt blood from their eyes.",
+  "The smell of rain is called petrichor.",
+  "Crows can recognize and remember human faces.",
+  "Pineapples take nearly two years to grow.",
+  "The first alarm clock could only ring at 4 a.m.",
+  "Orcas are actually dolphins.",
+  "The inventor of the microwave was inspired by a melting chocolate bar.",
+  "Snails have thousands of tiny teeth.",
+  "A crocodile can’t stick its tongue out.",
+  "Sharks are immune to cancer — mostly.",
+  "Apples wake you up better than coffee in the morning.",
+  "A group of owls is called a parliament.",
+  "Gorillas can catch human colds.",
+  "Your fingernails grow faster on your dominant hand.",
+  "The average person walks around the world three times in a lifetime.",
+  "Pigs can’t look up into the sky.",
+  "Bamboo can grow almost one meter in a single day.",
+  "Jellyfish have been around for more than 500 million years.",
+  "Humans and giraffes have the same number of neck bones.",
+  "The strongest muscle in your body is your jaw.",
+  "There’s enough salt in the ocean to cover all land 500 feet deep.",
+  "Rats multiply so quickly that in 18 months, two rats could have a million descendants.",
+  "Apples, peaches, and raspberries are all members of the rose family.",
+  "Birds don’t urinate.",
+  "Antarctica has no official time zone.",
+  "If you could fold paper 42 times, it would reach the moon.",
+  "The first computer virus was created in 1986.",
+  "The human stomach can dissolve razor blades.",
+  "Some cats have thumbs.",
+  "The first oranges were actually green.",
+  "Sound travels 15 times faster through steel than through air.",
+  "Earth once had two moons.",
+  "Potatoes can absorb and reflect Wi-Fi signals.",
+  "An octopus can taste with its tentacles.",
+  "Sea lions have rhythm — they can dance to a beat.",
+  "Dolphins have names for each other.",
+  "In Japan, letting a sumo wrestler make your baby cry is considered good luck.",
+  "Bubble tea was invented by accident.",
+  "A group of frogs is called an army.",
+  "Your heart beats about 100,000 times a day.",
+  "Some jellyfish can clone themselves.",
+  "Chewing gum helps you concentrate.",
+  "A single strand of spider silk is thinner than human hair but five times stronger than steel.",
+  "The average person produces 25,000 quarts of saliva in a lifetime.",
+  "Bees sometimes sting other bees.",
+  "The inventor of matchsticks was a pharmacist.",
+  "The fingerprints of twins are different.",
+  "The world’s largest desert isn’t the Sahara — it’s Antarctica.",
+  "Koalas have chlamydia.",
+  "Your taste buds have a lifespan of about 10 days.",
+  "A single sneeze can spread over 100,000 germs.",
+  "Sharks can live for up to 500 years.",
+  "Some plants can count and do math.",
+  "The smell of vanilla comes from beaver glands in some perfumes.",
+  "A bolt of lightning is five times hotter than the sun.",
+  "The average human eats 70 insects a year while sleeping.",
+  "Tigers’ skin is striped, not just their fur.",
+  "Dolphins sleep half their brain at a time.",
+  "Bees can make colored honey if they eat colored syrup.",
+  "Snakes can help predict earthquakes.",
+  "Some turtles can live without food for over a year.",
+  "Humans are born with 300 bones but die with 206.",
+  "Caterpillars have 12 eyes.",
+  "There’s a mushroom that can control ants’ minds.",
+  "Elephants use their trunks as snorkels.",
+  "Bats always turn left when leaving a cave.",
+  "Pineapple works as a natural meat tenderizer.",
+  "Ants can lift up to 50 times their body weight.",
+  "Rain contains vitamin B12.",
+  "You can’t breathe and swallow at the same time.",
+  "Cows moo in regional accents.",
+  "Goldfish lose their color if kept in dim light.",
+  "There’s a phobia of long words — called hippopotomonstrosesquippedaliophobia.",
+  "Humans are the only animals that cry emotional tears.",
+  "The unicorn is Scotland’s national animal.",
+  "Dragonflies have six legs but can’t walk.",
+  "Some sea cucumbers fight by vomiting their organs.",
+  "The average person will spend six years of their life dreaming.",
+  "Giraffes only sleep about 30 minutes a day.",
+  "Slugs have four noses.",
+  "A group of porcupines is called a prickle.",
+  "The inventor of the lightbulb also created the first movie camera.",
+  "Male seahorses give birth to babies.",
+  "Roses can grow taller than humans in some regions.",
+  "Coconuts kill more people each year than sharks.",
+  "Some animals dream just like humans.",
+  "There are more stars in the universe than all the grains of sand on Earth.",
+  "Bees can fly higher than Mount Everest.",
+  "A crocodile can’t move its tongue.",
+  "Kangaroos can’t walk backward.",
+  "The longest wedding veil was longer than 60 football fields.",
+  "Your brain is 73% water.",
+  "The first person convicted of speeding was going 13 km/h.",
+  "A day on Pluto lasts 153 hours.",
+  "A group of jellyfish is called a smack.",
+  "Sharks can smell a drop of blood from miles away.",
+  "The dot on the number 9 is called a 'plume'.",
+  "Ravens can solve puzzles as well as seven-year-old children.",
+  "Camels have three eyelids.",
+  "Some frogs give birth through their skin.",
+  "Humans and cows share about 80% of their DNA.",
+  "A shrimp’s heart beats 120 times per minute.",
+  "Snakes can sense heat with their tongues.",
+  "There’s enough water in Lake Superior to cover North and South America in one foot of water.",
+  "Ants never get fat.",
+  "Your left lung is smaller than your right to make room for your heart.",
+  "The fingerprints of a lemur are almost identical to humans.",
+  "Jellyfish don’t have brains, hearts, or bones.",
+  "Sharks are older than dinosaurs.",
+  "Some moths drink the tears of sleeping birds.",
+  "Apples are 25% air — that’s why they float.",
+  "Bananas share 50% of their DNA with humans.",
+  "Sea sponges are animals, not plants.",
+  "Otters use rocks as tools.",
+  "You can’t tickle yourself.",
+  "A sneeze can travel faster than a hurricane wind.",
+  "An octopus has nine brains.",
+  "It rains metal on Venus.",
+  "Humans can live longer without food than sleep.",
+  "There are more plastic flamingos than real ones on Earth.",
+  "Dolphins can recognize themselves in mirrors.",
+  "A bolt of lightning can power 200 homes for a day.",
+  "You are taller in the morning than at night.",
+  "Some frogs glow under UV light.",
+  "The world’s largest living structure is the Great Barrier Reef.",
+  "Some plants can hear themselves being eaten.",
+  "A baby blue whale gains 90 kilograms every day.",
+  "Sea otters have the thickest fur in the animal kingdom.",
+  "Butterflies can see ultraviolet light.",
+  "Your body has enough carbon to make 900 pencils.",
+  "A starfish has no brain or blood.",
+  "The first email was sent in 1971.",
+  "Some mushrooms glow in the dark.",
+  "Rabbits can’t vomit.",
+  "An octopus has three hearts and blue blood.",
+  "The longest time someone has hiccupped is 68 years.",
+  "A bolt of lightning lasts less than one second but is 30,000°C hot.",
+  "A cat’s whiskers are as wide as its body.",
+  "Most of the dust in your house is made from dead skin.",
+  "Sharks don’t have bones.",
+  "The smell of cut grass is a distress signal.",
+  "The human brain stops growing at age 25.",
+  "The ocean produces 70% of the Earth’s oxygen.",
+  "The first person to be called a 'nerd' was in 1950.",
+  "Pigeons can recognize themselves in a mirror.",
+  "Cows produce different milk when they hear happy music.",
+  "Every year, millions of trees grow from squirrels forgetting their nuts.",
+  "Rainbows can appear double or even triple at once.",
+   "The fingerprints of a cat’s nose are unique, like human fingerprints.",
+  "Sharks can go into a trance-like state when flipped upside down.",
+  "There’s a lake in Australia that is naturally bright pink.",
+  "The word 'muscle' comes from the Latin word meaning 'little mouse'.",
+  "An eagle’s eyesight is about eight times stronger than a human’s.",
+  "A crocodile’s jaw can’t move sideways.",
+  "Rain sometimes falls as fish or frogs during rare weather phenomena.",
+  "The longest recorded flight of a chicken is 13 seconds.",
+  "Human bones are replaced every 10 years through regeneration.",
+  "There are more fake flamingos than real flamingos on Earth.",
+  "A hummingbird’s heart beats over 1,200 times per minute.",
+  "Snails have both male and female reproductive organs.",
+  "The average cumulus cloud contains enough water to fill 80 elephants.",
+  "In Japan, it’s common to find square watermelons grown in boxes.",
+  "Some turtles can live without their shells — they would die instantly.",
+  "The fingerprints of chimpanzees are so similar to humans they can confuse crime scene analysis.",
+  "A group of crows is called a murder.",
+  "The first bar of chocolate was invented in 1847.",
+  "Venus is the only planet that spins clockwise.",
+  "An ostrich’s kick can kill a lion.",
+  "Spiders have blue blood like octopuses.",
+  "The only continent with no reptiles or snakes is Antarctica.",
+  "Horses can’t breathe through their mouths.",
+  "Each year, the Moon moves about 3.8 cm farther from Earth.",
+  "The first recorded Olympic Games were held in 776 BC.",
+  "Sloths take about two weeks to digest a single leaf.",
+  "The average human will take 7,000 steps a day.",
+  "Butterflies can’t see the color red.",
+  "The deepest part of the ocean is over 11 kilometers deep.",
+  "Cats can rotate their ears 180 degrees.",
+  "The longest-living insect is the termite queen, which can live 50 years.",
+  "A full head of human hair can support 12 tons in weight collectively.",
+  "The giant squid has the largest eyes in the animal kingdom.",
+  "The word 'alphabet' comes from the first two Greek letters: alpha and beta.",
+  "A blue whale’s tongue weighs as much as an elephant.",
+  "Tigers’ roars can be heard from two miles away.",
+  "There are volcanoes on Mars taller than Mount Everest.",
+  "The average adult human has about 100,000 miles of blood vessels.",
+  "Hummingbirds can fly backward.",
+  "A raindrop falls at an average speed of 14 km/h.",
+  "Some ants farm fungi for food.",
+  "A group of kangaroos is called a mob.",
+  "Bees communicate through a dance called the waggle dance.",
+  "The average lifespan of a red blood cell is 120 days.",
+  "There’s a metal that melts in your hand — gallium.",
+  "Some species of worms can regrow their entire bodies from a fragment.",
+  "Cats dream when they sleep deeply, just like humans.",
+  "The heaviest onion ever grown weighed over 8 kilograms.",
+  "Some fish can change their gender.",
+  "There are volcanoes that erupt under the sea.",
+  "The first recorded use of the word 'robot' was in 1921.",
+  "The Amazon rainforest produces 20% of the world’s oxygen.",
+  "Venus is hotter than Mercury despite being farther from the Sun.",
+  "A newborn kangaroo is smaller than a cherry.",
+  "It’s impossible to burp in space without vomiting.",
+  "Polar bear fur is transparent, not white.",
+  "A day on Jupiter is only 10 hours long.",
+  "Some snakes can fly — they glide through the air using their ribs.",
+  "Human bones are stronger than concrete by weight.",
+  "There’s a spider that can jump 50 times its body length.",
+  "Every year, thousands of new species are discovered.",
+  "Caterpillars completely liquefy before becoming butterflies.",
+  "There’s enough gold in Earth’s core to cover the planet knee-deep.",
+  "Your liver can regenerate up to 75% of its tissue.",
+  "Rainbows can form full circles, but we usually see only half.",
+  "Sharks can be born from unfertilized eggs in rare cases (parthenogenesis).",
+  "The Sun makes up 99.86% of the solar system’s mass.",
+  "Most of the oxygen you breathe comes from ocean algae.",
+  "The world’s smallest mammal is the bumblebee bat.",
+  "A group of hippos is called a bloat.",
+  "A human sneeze can travel 8 meters away.",
+  "Giraffes clean their ears with their 45 cm-long tongues.",
+  "Humans can’t taste food well without saliva.",
+  "Some ants explode themselves to protect the colony.",
+  "Wolves have over 200 million scent cells in their noses.",
+  "A shark can lose and regrow over 20,000 teeth in a lifetime.",
+  "Venus has no moons or rings.",
+  "Some trees can ‘talk’ through underground fungi networks.",
+  "The first recorded map was drawn around 2,300 BC.",
+  "A newborn panda is about the size of a stick of butter.",
+  "There’s a waterfall in Antarctica that flows red due to iron.",
+  "The Sun is about 93 million miles from Earth.",
+  "The first airplane flew for only 12 seconds.",
+  "Owls can rotate their heads 270 degrees.",
+  "Bananas grow upside down.",
+  "Cows can climb upstairs but not down.",
+  "Octopuses can open jars from the inside.",
+  "The Pacific Ocean is larger than all land combined.",
+  "Some frogs give birth through their backs.",
+  "The Eiffel Tower can be 15 cm taller in summer.",
+  "The Sahara Desert used to be a tropical rainforest.",
+  "Cats spend about 70% of their lives sleeping.",
+  "The smell of space has been described as burnt metal and steak.",
+  "Bees can sense electric fields.",
+  "The oldest tree in the world is over 4,800 years old.",
+  "A blue whale’s heartbeat can be heard two miles away.",
+  "Humans are bioluminescent, but the glow is invisible to our eyes.",
+  "There’s a lake in Africa that explodes every few centuries.",
+  "A bolt of lightning contains enough energy to toast 100,000 slices of bread.",
+  "The human brain uses 20% of the body’s oxygen supply.",
+  "Pigeons can recognize all 26 letters of the English alphabet.",
+  "Some fish can survive being frozen solid.",
+  "The first vending machine dispensed holy water in ancient Greece.",
+  "Bamboo can survive nuclear explosions.",
+  "The average lifespan of a taste bud is 10 days.",
+  "Wombats run faster than humans.",
+  "A single strand of hair can support up to 100 grams.",
+  "The word 'planet' means 'wanderer' in Greek.",
+  "There’s a species of jellyfish that never dies naturally.",
+  "Slugs are hermaphrodites — they have both male and female organs.",
+  "Male lions sleep up to 20 hours a day.",
+  "The largest snowflake ever recorded was 38 cm wide.",
+  "The longest-living animal is a clam over 500 years old.",
+  "Elephants are right or left-tusked, like humans are right or left-handed.",
+  "Sharks don’t have vocal cords — they can’t make sound.",
+  "Earth’s core is as hot as the Sun’s surface.",
+  "Camels store fat, not water, in their humps.",
+  "There’s enough air inside a soda can to support a small insect for hours.",
+  "A single ant can carry 50 times its body weight.",
+  "A hummingbird’s wings beat up to 80 times per second.",
+  "The human stomach replaces its lining every few days to avoid digesting itself.",
+  "Some starfish can regenerate their entire bodies from one arm.",
+  "The deepest living fish was found over 8,000 meters below sea level.",
+  "Spiders can’t chew; they liquefy their food before eating.",
+  "There’s a lake in Tanzania that turns animals into stone.",
+  "Some jellyfish can turn back into their younger form after maturity.",
+  "The Milky Way galaxy is moving through space at 2.1 million km/h.",
+  "Your ears never stop growing.",
+  "Horseshoe crabs have blue blood due to copper.",
+  "Cats can jump up to six times their body length.",
+  "The smallest bone in the human body is in the ear.",
+  "Each taste bud has about 50 sensory cells.",
+  "Dogs’ sense of smell is 40 times better than humans’.",
+  "The largest volcano in the solar system is Olympus Mons on Mars.",
+  "Some birds can sleep while flying.",
+  "A full moon always rises at sunset.",
+  "The Great Wall of China is over 21,000 kilometers long.",
+  "Tigers have striped skin as well as fur.",
+  "There’s a frog that gives birth through its mouth.",
+  "Ants never sleep but do take naps.",
+  "Clouds move at speeds of up to 160 km/h.",
+  "The human heart creates enough pressure to squirt blood 9 meters.",
+  "It’s impossible to tickle yourself because your brain predicts the touch.",
+  "The oldest known animal lived for 507 years.",
+  "Whales sleep vertically in the water.",
+  "The heaviest rain ever recorded fell in 1 minute — 31 mm.",
+  "A group of flamingos is called a flamboyance.",
+  "The fingerprints of pandas are nearly indistinguishable from humans.",
+  "Birds can see Earth’s magnetic field.",
+  "The first camera took eight hours to capture an image.",
+  "Rainbows can appear at 360 degrees from an airplane.",
+  "There are more bacteria in your mouth than people on Earth.",
+  "Venus’s clouds rain sulfuric acid.",
+  "Jupiter’s moon Europa has more water than Earth.",
+  "An adult human has about 37 trillion cells.",
+  "Honey bees flap their wings about 230 times per second.",
+  "Earth’s atmosphere extends over 10,000 km into space.",
+  "Some fish can walk on land.",
+  "A 'jiffy' is an actual unit of time — 1/100 of a second.",
+  "Lightning can strike the same place twice — and often does.",
+  "A spider’s silk is five times stronger than steel by weight.",
+  "Rats and mice can sing ultrasonic songs.",
+  "Crows can use tools and understand cause and effect.",
+  "A teaspoon of neutron star material weighs about a billion tons.",
+  "The largest living organism is a fungus that covers 9 km² in Oregon.",
+  "There’s a planet where it rains glass sideways.",
+  "A sneeze travels faster than a speeding car.",
+  "Sharks can detect one drop of blood in 25 gallons of water.",
+  "The Moon is moving away from Earth each year.",
+  "Some worms have more than 10 hearts.",
+  "A day on Neptune lasts 16 hours.",
+  "Human skin renews itself every 27 days.",
+  "A hummingbird weighs less than a coin.",
+  "Space is completely silent.",
+  "There are more cells in your body than stars in the Milky Way.",
+  "Birds evolved from small, feathered dinosaurs.",
+  "Most lipsticks contain fish scales for shine.",
+  "It snows metal on Venus.",
+  "The coldest temperature ever recorded on Earth was -128°F.",
+  "Your brain contains 86 billion neurons.",
+  "A crocodile can live for over 100 years.",
+  "Butterflies can see colors invisible to humans.",
+  "A lightning bolt lasts less than one second but is hotter than the Sun.",
+  "Frogs drink water through their skin.",
+  "Some animals can glow to attract mates or warn predators.",
+"Bananas are naturally radioactive due to potassium-40.",
+"The Sahara Desert can reach temperatures over 50°C in summer.",
+"Sharks can detect electrical fields produced by other animals.",
+"A cheetah can accelerate from 0 to 100 km/h faster than most sports cars.",
+"The oldest known living tree is over 5,000 years old.",
+"Water can exist in all three states simultaneously at the triple point.",
+"The human brain has about 86 billion neurons.",
+"Mars has the tallest volcano in the solar system, Olympus Mons.",
+"A honeybee visits about 50-100 flowers on a single trip.",
+"Lake Victoria is the largest lake in Africa by area.",
+"Humans blink about 15-20 times per minute on average.",
+"Some frogs can survive being frozen solid during winter.",
+"Mount Kilimanjaro is the highest peak in Africa.",
+"The fastest recorded raindrop falls at 18 mph.",
+"Julius Caesar was once kidnapped by pirates.",
+"Light from the Sun takes approximately 8 minutes to reach Earth.",
+"The tongue of a blue whale can weigh as much as an elephant.",
+"Kenya is home to the Great Rift Valley, a major geological formation.",
+"The longest recorded flight of a chicken lasted 13 seconds.",
+"Mercury’s day is longer than its year.",
+"Camels can drink up to 40 gallons of water in one go.",
+"The first computer mouse was made of wood.",
+"The Pyramids of Giza were built around 4,500 years ago.",
+"A goldfish has a memory span of several months.",
+"Your body has about 60,000 miles of blood vessels.",
+"The Nile River is the longest river in Africa.",
+"The Sun makes up 99.86% of the total mass of the Solar System.",
+"Elephants can communicate using low-frequency sounds called infrasound.",
+"The first known Olympic Games took place in 776 BC.",
+"Ants can carry up to 50 times their body weight.",
+"Lightning strikes can reach up to 30,000 Kelvin.",
+"A cheetah’s spots are unique like human fingerprints.",
+"The first photograph ever taken was in 1826.",
+"Kenya’s Maasai Mara National Reserve is home to the Big Five.",
+"The human skeleton is completely replaced every 10 years.",
+"Some species of octopus can change both color and texture to camouflage.",
+"Chocolate was once used as currency in ancient Mesoamerica.",
+"Rainforests cover less than 2% of the Earth’s surface but contain over 50% of species.",
+"The Moon is moving away from Earth at 3.8 centimeters per year.",
+"Honey never spoils if stored properly.",
+"The Eiffel Tower can be 15 cm taller during summer due to thermal expansion.",
+"The cheetah is the only big cat that cannot retract its claws.",
+"A crocodile cannot stick out its tongue.",
+"Kenya’s Lake Naivasha is a freshwater lake known for its hippos.",
+"A day on Venus lasts 243 Earth days.",
+"Some species of bamboo can grow nearly 1 meter per day.",
+"The average person walks about 70,000 miles in their lifetime.",
+"Sharks are older than trees by millions of years.",
+"The Great Wall of China is over 21,000 km long.",
+"Polar bears have black skin under their white fur.",
+"The first written recipe dates back over 4,000 years to Mesopotamia.",
+"A group of flamingos is called a 'flamboyance'.",
+"The Sahara was once a lush green landscape thousands of years ago.",
+"Saturn’s rings are made mostly of ice and rock particles.",
+"Kenya’s Mount Kenya is the second-highest peak in Africa.",
+"A honeybee produces about 1/12 teaspoon of honey in its lifetime.",
+"Octopuses have three hearts and blue blood.",
+"Some lizards can squirt blood from their eyes to deter predators.",
+"The first email was sent in 1971 by Ray Tomlinson.",
+"The Sahara Desert is roughly the size of the United States.",
+"The fingerprints of a koala are nearly identical to humans.",
+"Lightning can strike the same place multiple times.",
+"Butterflies can see ultraviolet light.",
+"The largest volcano in the solar system is Olympus Mons on Mars.",
+"Kenya’s Amboseli National Park is famous for its elephants with huge tusks.",
+"The Amazon Rainforest produces 20% of the Earth’s oxygen.",
+"Human bones are about 5 times stronger than steel of the same density.",
+"Penguins mate for life and use stones to propose.",
+"The first smartphone was invented in 1992 and called Simon.",
+"A hummingbird can flap its wings up to 80 times per second.",
+"The Nile crocodile can hold its breath for up to 2 hours.",
+"The human heart beats about 100,000 times per day.",
+"Some jellyfish are biologically immortal.",
+"The largest desert on Earth is Antarctica, not the Sahara.",
+"The fastest recorded gust of wind on Earth reached 253 mph.",
+"The average lifespan of a red blood cell is 120 days.",
+"Kenya is known for producing world-class long-distance runners.",
+"The tongue of a giraffe can be 45 cm long.",
+"The first known book was written in ancient Sumeria around 2600 BC.",
+"Sloths can hold their breath longer than dolphins — up to 40 minutes.",
+"The Moon has moonquakes caused by tidal forces.",
+"Sharks can live up to 500 years in some species.",
+"A single bolt of lightning contains enough energy to toast 100,000 slices of bread.",
+"The Great Barrier Reef is the largest living structure on Earth.",
+"The first vaccine was developed by Edward Jenner in 1796.",
+"A cheetah can reach speeds up to 112 km/h.",
+"The Sahara Desert has temperatures that can exceed 50°C in summer.",
+"The blue whale is the largest animal to have ever lived.",
+"Some frogs can survive complete freezing during winter.",
+"The human brain consumes about 20% of the body’s oxygen.",
+"Kenya’s Rift Valley is home to hundreds of species of birds.",
+"Jellyfish have been around for over 500 million years.",
+"The Sun is about 4.6 billion years old.",
+"Otters use rocks to crack open shells.",
+"Some fish can climb waterfalls, like the Hawaiian goby.",
+"The first programmable computer was the Z3, invented in 1941.",
+"A group of owls is called a parliament.",
+"The Nile River flows north for over 6,600 km.",
+"Some spiders can fly using tiny threads of silk in a process called ballooning.",
+"The human body has enough iron to make a small nail.",
+"Kenya has over 60 ethnic groups, each with unique traditions.",
+"An ostrich’s eye is bigger than its brain.",
+"Your stomach lining renews itself every 3-4 days.",
+"Some ants farm fungi and protect them like crops.",
+"Space smells like burnt steak to astronauts.",
+"The tallest tree on Earth is a coast redwood named Hyperion, over 115 meters tall.",
+"The first satellite, Sputnik, was launched in 1957.",
+"A snail can sleep for up to three years.",
+"Bananas are naturally radioactive due to potassium content.",
+"The Sun accounts for 99.86% of the Solar System’s mass.",
+"Some bats can eat up to 1,000 mosquitoes in a night.",
+"The Great Pyramid of Giza was the tallest man-made structure for over 3,800 years.",
+"Kenya’s Tsavo National Park is famous for its 'red elephants'.",
+"The first known use of zero as a number was in India around the 5th century.",
+"A giraffe’s tongue is prehensile and dark-colored to prevent sunburn.",
+"The first recorded marathon was run in 490 BC.",
+"The Earth’s core is as hot as the Sun’s surface.",
+"Some turtles can breathe through their butts.",
+"Humans share about 50% of their DNA with bananas.",
+"The Sahara Desert is expanding at a rate of about 0.5 km per month.",
+"The human eye can distinguish about 10 million colors.",
+"The first person in space was Yuri Gagarin in 1961.",
+"The longest river in the world is the Nile, though some argue for the Amazon.",
+"Kenya is one of the largest producers of tea in the world.",
+"The fastest land animal is the cheetah, reaching 112 km/h.",
+"A day on Venus is longer than its year.",
+"Some fungi can glow in the dark, called bioluminescence.",
+"Sharks are immune to most diseases including cancer.",
+"Octopuses can regrow lost arms.",
+"The tallest mammal is the giraffe, up to 6 meters tall.",
+"The first Olympic Games were held in Olympia, Greece in 776 BC.",
+"The Nile tilapia is one of the most farmed fish in Africa.",
+"Some trees can communicate via underground fungal networks.",
+"The world’s smallest mammal is the bumblebee bat.",
+"Water can boil and freeze at the same time at the triple point.",
+"The average person blinks around 15-20 times per minute.",
+"Some penguins propose with pebbles.",
+"Kenya’s Lamu Old Town is a UNESCO World Heritage Site.",
+"Some spiders can survive underwater for over 30 minutes.",
+"Lightning strikes about 8 million times per day worldwide.",
+"Sea otters hold hands while sleeping to avoid drifting apart.",
+"The first known currency was created in Lydia around 600 BC.",
+"The blue whale’s heart can weigh over 400 kg.",
+"Some plants can sense being eaten and release chemicals in defense.",
+"Sharks existed before trees on Earth.",
+"The oldest known living animal is a quahog clam named Ming, aged 507 years.",
+"Kenya’s Amboseli National Park has stunning views of Mount Kilimanjaro.",
+"A group of crows is called a murder.",
+"The longest recorded flight of a chicken is 13 seconds.",
+"Humans have more than 600 muscles in the body.",
+"A teaspoon of honey represents the lifetime work of 12 bees.",
+"The first known written language was Sumerian cuneiform.",
+"Some frogs can change sex depending on environmental conditions.",
+"Saturn could float on water because it is mostly gas.",
+"Butterflies taste with their feet.",
+"Some lizards can detach their tails to escape predators.",
+"The first vaccine for smallpox was created in 1796.",
+"Kenya’s Nairobi National Park is unique for wildlife near a capital city.",
+"Sea turtles can migrate thousands of kilometers to lay eggs.",
+"The Amazon River discharges about 209,000 cubic meters of water per second.",
+"The fingerprints of a koala are nearly identical to humans.",
+"The average person walks about 150,000 km in a lifetime.",
+"Some birds can mimic human speech, like parrots.",
+"The human body contains enough carbon to produce 900 pencils.",
+"A group of hippos is called a bloat.",
+"The first digital computer was ENIAC, completed in 1945.",
+"The Sun will eventually become a red giant in about 5 billion years.",
+"The Moon is moving away from Earth at about 3.8 cm per year.",
+"Some sharks give live birth instead of laying eggs.",
+"A cat’s whiskers are roughly as wide as its body.",
+"The Sahara Desert was once a green and fertile region.",
+"The fastest-growing plant is bamboo, which can grow up to 1 meter per day.",
+"The Great Wall of China can be seen from low Earth orbit.",
+"Some birds see magnetic fields to navigate during migration.",
+"Kenya’s Mount Longonot is an active stratovolcano.",
+"The Earth’s atmosphere is composed of about 78% nitrogen and 21% oxygen.",
+"A group of ferrets is called a business.",
+"The first satellite to orbit Earth was Sputnik 1.",
+"Sloths can rotate their heads nearly 270 degrees.",
+"The human heart pumps about 7,570 liters of blood per day.",
+"Some spiders can spin silk stronger than steel of the same thickness.",
+"Some frogs can survive being frozen for months.",
+"Kenya has the world’s largest population of giraffes in Africa.",
+"Some plants can communicate via airborne chemicals.",
+"The first electric car was built in 1884 by Thomas Parker.",
+"The tongue of a blue whale can weigh as much as an elephant.",
+"Lightning can strike the same place twice.",
+"Sea cucumbers fight by ejecting their internal organs as defense.",
+"A day on Mercury lasts about 1,408 hours.",
+"Some lizards can squirt blood from their eyes as a defense mechanism.",
+"The largest living organism is a fungus in Oregon covering 2,385 acres.",
+"Kenya’s Maasai people are known for their unique culture and jumping dance.",
+"The human brain contains more connections than there are stars in the Milky Way.",
+"Some sharks can live for hundreds of years.",
+"The Amazon Rainforest is home to over 400 billion trees.",
+"A giraffe’s neck contains the same number of vertebrae as a human neck (7).",
+"The first computer virus was created in 1986.",
+"Some jellyfish can revert to their juvenile stage and potentially live forever.",
+"The fastest bird is the peregrine falcon, reaching speeds over 320 km/h.",
+"Some mushrooms glow in the dark through bioluminescence.",
+"The fingerprints of identical twins are still unique.",
+"Kenya’s tea industry is one of the largest in the world.",
+"The first known use of antibiotics was with mold in 1928 by Alexander Fleming.",
+"Some fish can walk on land, like the mudskipper.",
+"Your liver can regenerate completely even after losing up to 75% of its tissue.",
+"Octopuses have nine brains and three hearts.",
+"Sea lions can dance to a rhythm.",
+"The first telephone call was made by Alexander Graham Bell in 1876.",
+"A group of dolphins is called a pod.",
+"The average person laughs around 15 times per day.",
+"Some bats use echolocation to navigate perfectly in total darkness.",
+"Kenya’s Lake Turkana is the world’s largest desert lake.",
+"Some spiders can detect earthquakes before humans.",
+"The first known map was created over 6,000 years ago in Babylon.",
+"A cat can make over 100 different sounds.",
+"The Amazon River is home to the pink river dolphin.",
+"Some frogs lay eggs on land instead of water.",
+"The human body produces about 1 to 1.5 liters of mucus per day.",
+"A lightning bolt is five times hotter than the surface of the Sun.",
+"The Sahara Desert covers about 9 million square kilometers.",
+"Kenya has over 60 spoken languages and dialects.",
+"The first known telescope was invented in 1608.",
+"A blue whale’s heart beats only about 8-10 times per minute.",
+"Some turtles can live over 100 years.",
+"The fastest mammal in water is the common dolphin, reaching 60 km/h.",
+"Kenya’s Mombasa is the country’s main coastal city and port.",
+"Some birds can sleep while flying.",
+"A human sneeze can travel over 160 km/h.",
+"The first programmable robot was invented in 1954.",
+"Sea otters wrap themselves in kelp to keep from drifting away.",
+"The Moon has water ice in permanently shadowed craters.",
+"The Sahara Desert was once home to prehistoric humans.",
+"Some sharks must keep swimming to breathe.",
+"The tallest building in Africa is The Leonardo in South Africa at 234 meters.",
+"A cat can rotate its ears 180 degrees.",
+"Kenya’s capital, Nairobi, is nicknamed the 'Green City in the Sun'.",
+"The first artificial satellite to send messages was Sputnik 1.",
+"Some plants can close their leaves when touched, like the Mimosa pudica.",
+"Humans and dolphins are among the few species that have sex for pleasure.",
+"The fastest land mammal is the cheetah, capable of 0-100 km/h in 3 seconds.",
+"The Amazon Rainforest spans nine countries in South America.",
+"Kenya’s Mount Elgon is an extinct shield volcano.",
+"The oldest known animal fossil is 558 million years old.",
+"A blue whale’s tongue can weigh as much as an elephant.",
+"Some frogs can survive total decapitation for short periods.",
+"The first video game was created in 1958, called Tennis for Two.",
+"The fingerprints of koalas are nearly identical to humans.",
+"Some spiders can survive underwater for extended periods.",
+"The Sahara Desert receives less than 25 mm of rainfall per year.",
+"Kenya’s Rift Valley lakes are home to flamingos and hippos.",
+"A group of rhinos is called a crash.",
+"Some jellyfish can be immortal.",
+"The first photograph of Earth from space was taken in 1946.",
+"Your brain generates about 20 watts of electrical power.",
+"The first known writing instrument was a reed pen in ancient Egypt.",
+"The tallest waterfall in the world is Angel Falls in Venezuela.",
+"Some plants can grow without soil using hydroponics.",
+"A human hair can support about 100 grams in weight.",
+"Kenya’s tea estates produce over 400,000 tons of tea annually.",
+"The first flight by the Wright brothers was in 1903.",
+"Some lizards can walk on water, like the basilisk lizard.",
+"The Sahara Desert was once covered with lakes and grasslands.",
+"Some dolphins have unique signature whistles like names.",
+"Humans can distinguish over 1 trillion different smells.",
+"A group of ferrets is called a business.",
+"The first rocket to reach space was the V-2 rocket in 1944.",
+"Kenya’s savannahs are home to lions, elephants, and cheetahs.",
+"The average human body has about 37.2 trillion cells.",
+"A giraffe’s tongue is black to prevent sunburn.",
+"Some mushrooms are edible, while others are poisonous.",
+"The Earth’s magnetic field protects us from solar wind.",
+"Sea cucumbers expel their internal organs to scare predators.",
+"The fastest insect is the Australian dragonfly, reaching 60 mph.",
+"Kenya has a population of over 55 million people.",
+"The first nuclear reactor was built in 1942 in Chicago.",
+"The blue whale is the loudest animal on Earth.",
+"Some spiders can detect sound through their legs.",
+"A group of owls is called a parliament.",
+"Lightning can strike water and travel through it.",
+"Kenya’s Lamu Archipelago is famous for its Swahili culture and architecture.",
+"Some plants can live thousands of years, like the Bristlecone pine.",
+"The fastest bird in level flight is the spine-tailed swift.",
+"Some fish can see ultraviolet light.",
+"The Sahara Desert’s sand dunes can reach over 180 meters high.",
+"The first electric light was invented by Humphry Davy in 1802.",
+"Some turtles can survive without food for over a year.",
+"The human heart pumps about 5 liters of blood per minute.",
+"Kenya’s wildlife migration attracts millions of tourists annually.",
+"Some frogs can jump over 20 times their body length.",
+"The first known map of the stars was created in Babylon over 5,000 years ago.",
+"A group of lions is called a pride.",
+"Sharks can sense electrical impulses of prey.",
+"Kenya has over 50 national parks and reserves.",
+"The Amazon River is home to over 2,000 species of fish.",
+"The fingerprints of humans are unique even among identical twins.",
+"Some spiders can survive freezing temperatures.",
+"The Earth rotates at about 1,670 km/h at the equator.",
+"Some plants can grow in deserts with very little water.",
+"Kenya’s Mombasa is a major cultural and trade center.",
+"Some jellyfish can clone themselves.",
+"The first computer programmer was Ada Lovelace.",
+"The Sahara Desert covers about 3.6 million square miles.",
+"A cat can make over 100 different sounds.",
+"The first satellite to send a signal was Sputnik 1.",
+"Some fish can breathe air, like the lungfish.",
+"The human body contains about 60,000 miles of blood vessels.",
+"The tallest mountain in Africa is Mount Kilimanjaro.",
+"Some sharks can detect prey from over 1 km away.",
+"Kenya’s Maasai Mara is famous for the annual wildebeest migration.",
+"A day on Venus is longer than its year.",
+"The fingerprints of a lemur resemble those of humans.",
+"The largest living reptile is the saltwater crocodile.",
+"A group of porcupines is called a prickle.",
+"Some plants can 'hear' predators eating them and release toxins.",
+"The first photograph ever taken was in 1826 by Joseph Nicéphore Niépce.",
+"Kenya’s Mount Kenya is an extinct volcano and second-highest peak in Africa.",
+"Some spiders can survive underwater by trapping air in their silk.",
+"The human body has enough DNA to stretch from the Earth to the Sun and back.",
+"A cheetah can accelerate faster than a Formula 1 car.",
+"The first email was sent in 1971 by Ray Tomlinson.",
+"The Sahara Desert has shifted its dunes for thousands of years.",
+"Kenya’s Lake Victoria is shared with Uganda and Tanzania.",
+"The fastest mammal is the cheetah, capable of speeds up to 112 km/h.",
+"Some birds can see magnetic fields to navigate during migration.",
+"A group of dolphins is called a pod.",
+"The fingerprints of koalas are nearly identical to humans.",
+"The Sahara Desert was once a lush green landscape.",
+"Some plants can communicate through underground fungal networks.",
+"The first known vaccine was developed for smallpox in 1796.",
+"The blue whale is the largest animal ever known.",
+"Kenya’s Amboseli National Park is famous for its elephant herds.",
+"Some sharks can live for hundreds of years.",
+"Lightning can strike the same location multiple times.",
+"The tallest tree in the world is a redwood named Hyperion.",
+"Some frogs can survive being frozen for months.",
+"The first computer was invented in the 1940s.",
+"Some jellyfish are biologically immortal.",
+"Kenya’s Rift Valley lakes attract flamingos and hippos.",
+"A cat’s whiskers are about as wide as its body.",
+"Some plants can grow without soil using hydroponics.",
+"The human tongue has about 10,000 taste buds.",
+"A group of owls is called a parliament.",
+"The first telescope was invented in 1608.",
+"Some lizards can squirt blood from their eyes.",
+"Kenya has over 60 ethnic groups with unique cultures.",
+"The fingerprints of identical twins are different.",
+"Some spiders can detect earthquakes before humans.",
+"The Earth is 4.6 billion years old.",
+"The first artificial satellite was Sputnik 1.",
+"The fastest bird is the peregrine falcon.",
+"Some plants can live thousands of years.",
+"A giraffe’s neck has the same number of vertebrae as a human neck.",
+"Kenya’s Lamu Old Town is a UNESCO World Heritage Site.",
+"The Sahara Desert receives less than 25 mm of rain annually.",
+"Some turtles can breathe through their butts.",
+"The first programmable computer was the Z3 in 1941.",
+"Some birds can sleep while flying.",
+"The Amazon Rainforest produces 20% of the Earth’s oxygen.",
+"A group of lions is called a pride.",
+"Some sharks can sense electrical impulses from prey.",
+"The tallest waterfall in the world is Angel Falls in Venezuela.",
+"Some frogs can jump over 20 times their body length.",
+"Kenya’s tea industry produces over 400,000 tons annually.",
+"The fingerprints of a lemur are almost identical to humans.",
+"Some plants can 'hear' predators eating them.",
+"The first flight by the Wright brothers was in 1903.",
+"A blue whale’s tongue can weigh as much as an elephant.",
+"The Sahara Desert was once home to prehistoric humans.",
+"Some spiders can survive freezing temperatures.",
+"Kenya’s Maasai Mara hosts the annual wildebeest migration.",
+"The first known book was written in ancient Sumeria around 2600 BC.",
+"The fingerprints of humans are unique even among identical twins.",
+"A cheetah can accelerate from 0 to 100 km/h faster than most cars.",
+"Some jellyfish can revert to their juvenile stage.",
+"The fastest insect is the Australian dragonfly, reaching 60 mph.",
+"Some plants can grow in deserts with very little water.",
+"Kenya’s Mombasa is a major coastal city and port.",
+"The Sahara Desert is roughly the size of the United States.",
+"The first known use of zero was in India around the 5th century.",
+"Some bats use echolocation to navigate in total darkness.",
+"The Amazon River is home to over 2,000 fish species.",
+"The first telephone call was made by Alexander Graham Bell in 1876.",
+"A human hair can support about 100 grams in weight.",
+"The fingerprints of koalas and humans are nearly identical.",
+"Kenya’s Mount Elgon is an extinct shield volcano.",
+"Some plants can live thousands of years, like the Bristlecone pine.",
+"Some turtles can live over 100 years.",
+"The first photograph ever taken was in 1826.",
+"Some spiders can fly using tiny threads of silk called ballooning.",
+"Kenya has over 50 national parks and reserves.",
+"The first known map of the stars was created in Babylon over 5,000 years ago.",
+"Some sharks must keep swimming to breathe.",
+"A group of hippos is called a bloat.",
+"The fastest mammal in water is the common dolphin.",
+"Some birds can mimic human speech.",
+"Kenya’s Rift Valley lakes are home to flamingos and hippos.",
+"The Sahara Desert is expanding at a rate of about 0.5 km per month.",
+"Some frogs can survive total decapitation for short periods.",
+"The first computer programmer was Ada Lovelace.",
+"A group of dolphins is called a pod.",
+"The human body has about 37.2 trillion cells.",
+"Some fish can see ultraviolet light.",
+"The fingerprints of identical twins are different.",
+"Kenya’s Nairobi National Park is unique for wildlife near a capital city.",
+"The Sahara Desert was once covered with lakes and grasslands.",
+"The tallest mountain in Africa is Mount Kilimanjaro.",
+"The human heart pumps about 5 liters of blood per minute.",
+"Some turtles can survive without food for over a year.",
+"The fingerprints of a lemur resemble those of humans.",
+"Kenya has a population of over 55 million people.",
+"The Earth rotates at about 1,670 km/h at the equator.",
+"Some plants can communicate via underground fungal networks.",
+"The first video game was created in 1958, called Tennis for Two.",
+"Kenya’s Maasai people are known for their unique culture and jumping dance.",
+"The Amazon Rainforest spans nine countries in South America.",
+"The fastest bird in level flight is the spine-tailed swift.",
+"Some lizards can walk on water, like the basilisk lizard.",
+"The Sahara Desert’s sand dunes can reach over 180 meters high.",
+"The first electric light was invented by Humphry Davy in 1802.",
+"Some plants can grow without soil using hydroponics.",
+"The human tongue has about 10,000 taste buds.",
+"The fingerprints of humans are unique even among identical twins.",
+"A group of lions is called a pride.",
+"The first telescope was invented in 1608.",
+"Some spiders can survive underwater for extended periods.",
+"Kenya’s Lake Turkana is the world’s largest desert lake.",
+"The fingerprints of koalas are nearly identical to humans.",
+"The first artificial satellite to send messages was Sputnik 1.",
+"Some birds can sleep while flying.",
+"A cheetah can reach speeds up to 112 km/h.",
+"The Sahara Desert was once home to prehistoric humans.",
+"Some sharks can detect prey from over 1 km away.",
+"Kenya’s Maasai Mara is famous for the annual wildebeest migration.",
+"The blue whale is the largest animal ever known.",
+"A group of owls is called a parliament.",
+"Some frogs can survive being frozen for months.",
+"The fingerprints of a lemur are almost identical to humans.",
+"Kenya’s Amboseli National Park is famous for its elephant herds.",
+"The fastest land mammal is the cheetah, capable of 0-100 km/h in 3 seconds.",
+"Some plants can 'hear' predators eating them.",
+"The first known book was written in ancient Sumeria around 2600 BC.",
+"Some jellyfish are biologically immortal.",
+"The Sahara Desert receives less than 25 mm of rainfall per year.",
+"Kenya has over 60 ethnic groups with unique cultures."
+
 ];
-
-let knowledgeIndex = 0; // track which item is currently shown
-
-
-
-
 // animals + birds + butterflies
+
 const ANIMALS = {
-  dogs:['https://cdn.pixabay.com/photo/2025/06/20/10/47/dog-9670619_640.jpg'],
-  cats:['https://cdn.pixabay.com/photo/2022/03/27/11/23/cat-7094808_640.jpg'],
-  birds:['https://cdn.pixabay.com/photo/2023/07/24/22/07/european-herring-gull-8147941_640.jpg','https://cdn.pixabay.com/photo/2017/12/16/16/47/bat-3022923_640.jpg','https://cdn.pixabay.com/photo/2024/08/15/13/28/keeled-skimmer-8971155_640.jpg'],
-  butterflies:['https://cdn.pixabay.com/photo/2023/05/30/15/12/blue-butterfuly-8028888_640.jpg','https://cdn.pixabay.com/photo/2021/07/12/05/02/mazarine-blue-6405362_640.jpg','https://cdn.pixabay.com/photo/2016/10/19/13/42/eagle-1753002_640.jpg']
+  dogs: [
+    'https://cdn.pixabay.com/photo/2025/06/20/10/47/dog-9670619_640.jpg',
+    'https://cdn.pixabay.com/photo/2016/02/19/10/00/dog-1207809_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/09/25/13/12/dog-2785074_640.jpg'
+  ],
+  cats: [
+    'https://cdn.pixabay.com/photo/2022/03/27/11/23/cat-7094808_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/11/09/21/41/cat-2934720_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/03/27/13/16/cat-694730_640.jpg'
+  ],
+  birds: [
+    'https://cdn.pixabay.com/photo/2023/07/24/22/07/european-herring-gull-8147941_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/12/16/16/47/bat-3022923_640.jpg',
+    'https://cdn.pixabay.com/photo/2024/08/15/13/28/keeled-skimmer-8971155_640.jpg',
+    'https://cdn.pixabay.com/photo/2016/11/29/04/16/owl-1867693_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/03/07/12/25/kingfisher-3201816_640.jpg'
+  ],
+  butterflies: [
+    'https://cdn.pixabay.com/photo/2023/05/30/15/12/blue-butterfuly-8028888_640.jpg',
+    'https://cdn.pixabay.com/photo/2021/07/12/05/02/mazarine-blue-6405362_640.jpg',
+    'https://cdn.pixabay.com/photo/2016/10/19/13/42/eagle-1753002_640.jpg',
+    'https://cdn.pixabay.com/photo/2022/07/05/10/42/butterfly-7307361_640.jpg',
+    'https://cdn.pixabay.com/photo/2020/06/28/07/40/butterfly-5345151_640.jpg'
+  ],
+  exotic: [
+    'https://cdn.pixabay.com/photo/2016/11/29/10/07/parrot-1869315_640.jpg',
+    'https://cdn.pixabay.com/photo/2020/09/28/14/12/tiger-5612463_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/03/26/14/43/lion-2174320_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/09/25/23/50/peacock-2788556_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/01/02/19/06/zebra-3056213_640.jpg'
+  ],
+  fish: [
+    'https://cdn.pixabay.com/photo/2016/11/18/17/47/fish-1834823_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/01/20/00/30/fish-1996055_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/09/20/17/13/fish-3696966_640.jpg'
+  ],
+  cartoons: [
+    'https://cdn.pixabay.com/photo/2020/06/23/18/10/cartoon-5331106_640.png',
+    'https://cdn.pixabay.com/photo/2013/07/12/19/39/cartoon-153574_640.png',
+    'https://cdn.pixabay.com/photo/2017/06/20/17/38/cartoon-2428554_640.png'
+  ],
+  insects: [
+    'https://cdn.pixabay.com/photo/2017/03/27/13/16/bee-2178341_640.jpg',
+    'https://cdn.pixabay.com/photo/2016/03/27/21/42/dragonfly-1280002_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/09/05/21/51/moth-926820_640.jpg'
+  ],
+  reptiles: [
+    'https://cdn.pixabay.com/photo/2016/11/23/14/45/lizard-1850046_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/08/06/22/05/snake-2591536_640.jpg',
+    'https://cdn.pixabay.com/photo/2014/09/07/18/44/chameleon-438258_640.jpg'
+  ]
 };
+
+
 
 /* ---------- PIXABAY TRACKS (your chosen 4)
    We use direct mp3 download CDN links (these should stream from Pixabay).
@@ -234,10 +1079,101 @@ const backgroundMusicList = [
     'https://elimuconnect.github.io/ELIMU-CONNECT-/music4.mp3',
 ];
 
+/* ---------- Generic shuffler utility (persistent) ---------- */
+/*
+  createShuffler(key, items)
+  - key: unique string to store state in localStorage
+  - items: source array (strings or objects)
+  returns { next(), peek(), reset(), remainingCount() }
+  Behavior:
+  - stores a shuffled list of indices in localStorage and a pointer
+  - if source array length changes, it resets the shuffle
+  - cycles through all items exactly once before reshuffling
+*/
+function createShuffler(key, items) {
+  const storageKey = 'shuffler_' + key;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn('shuffler load failed', e);
+      return null;
+    }
+  }
+  function saveState(state) {
+    try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (e) { console.warn('shuffler save failed', e); }
+  }
+  function makeOrder(n) {
+    const arr = Array.from({length:n}, (_,i)=>i);
+    // Fisher-Yates shuffle
+    for (let i = arr.length -1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  let state = loadState();
+  // if state invalid or length mismatch -> reset
+  if (!state || !Array.isArray(state.order) || state.sourceLength !== items.length) {
+    state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length, createdAt: Date.now() };
+    saveState(state);
+  }
+
+  function ensureFresh() {
+    // if source length changed since creation -> reset
+    if (state.sourceLength !== items.length) {
+      state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length, createdAt: Date.now() };
+      saveState(state);
+    }
+  }
+
+  function next() {
+    ensureFresh();
+    if (state.idx >= state.order.length) {
+      // reshuffle once done
+      state.order = makeOrder(items.length);
+      state.idx = 0;
+      state.sourceLength = items.length;
+    }
+    const resultIndex = state.order[state.idx++];
+    saveState(state);
+    return items[resultIndex];
+  }
+
+  function peek() {
+    ensureFresh();
+    if (state.idx >= state.order.length) return null;
+    return items[state.order[state.idx]];
+  }
+
+  function reset() {
+    state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length, createdAt: Date.now() };
+    saveState(state);
+  }
+
+  function remainingCount() {
+    ensureFresh();
+    return Math.max(0, state.order.length - state.idx);
+  }
+
+  return { next, peek, reset, remainingCount };
+}
 
 /* ---------- Canvas & drawing ---------- */
 const canvas = document.getElementById('canvasPreview');
 const ctx = canvas.getContext('2d', { alpha: false });
+
+// create shufflers for knowledge, backgrounds and animals
+const knowledgeShuffler = createShuffler('knowledge', KNOWLEDGE_ITEMS);
+const backgroundsShuffler = createShuffler('backgrounds', BACKGROUNDS);
+const dogsShuffler = createShuffler('dogs', ANIMALS.dogs);
+const catsShuffler = createShuffler('cats', ANIMALS.cats);
+const birdsShuffler = createShuffler('birds', ANIMALS.birds);
+const butterfliesShuffler = createShuffler('butterflies', ANIMALS.butterflies);
 
 // scene state with flying animals & emojis
 let scene = {
@@ -290,10 +1226,6 @@ function unlockAudioOnGesture(){
   const init = async ()=>{
     ensureAudioCtx();
     if(audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
-    // allow bg music to start if prepareScene already requested it
-    if(!currentBgSource){ 
-      // playRandomBackgroundTrack() will be called by prepareScene if possible; but also allow click to trigger it if not loaded
-    }
     document.body.removeEventListener('click', init);
     document.body.removeEventListener('keydown', init);
     statusEl.textContent = 'Audio unlocked — ready.';
@@ -340,8 +1272,6 @@ async function playRandomBackgroundTrack(){
     return null;
   }
 }
-
-
 
 function stopCurrentBgTrack(){
   try{ if(currentBgSource){ currentBgSource.stop(); currentBgSource.disconnect(); currentBgSource=null; } }catch(e){}
@@ -408,36 +1338,80 @@ function playSparkle(){ const ctx = ensureAudioCtx(); const o = ctx.createOscill
 function loadImg(url){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>res(i); i.onerror=()=>rej(new Error('Image load error '+url)); i.src=url; }); }
 
 /* ---------- Floating emojis setup ---------- */
-const EMOJIS = ['📚','🧮','🎨','✏️','💡','🔢','🧑‍🏫','🌈','🐶','🐱'];
-function spawnEmojis(count=12){
+const EMOJIS = [
+  '📚','🧮','🎨','✏️','💡','🔢','🧑‍🏫','🌈',
+  '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮',
+  '🐷','🐸','🐵','🦄','🐝','🦋','🐌','🐞','🦗','🐢','🐍','🐠','🐟','🐡','🦑','🦐',
+  '🦖','🦕','🐙','🐚','🦜','🐊','🦎','🐉','🐲','🐳','🐋','🦈',
+  '🌟','✨','🎵','🎶','🏫','📝','📖','📎','✂️','🖍️','🖌️','🧪','🔬','🧫',
+  '🌍','🌏','🪐','☀️','🌙','⚡','🔥','💧','🌊','🌳','🎯','🏆','🏅','🎁','🎉','🎈',
+  '🪁','🚀','🚲','🛶'
+];
+
+function spawnEmojis(count = 20) { // more emojis at once
   scene.emojis = [];
-  for(let i=0;i<count;i++){
+  for (let i = 0; i < count; i++) {
     scene.emojis.push({
-      ch: EMOJIS[Math.floor(Math.random()*EMOJIS.length)],
-      x: Math.random()*CANVAS_W,
-      y: Math.random()*CANVAS_H,
-      vx: (Math.random()*2-1)*0.6,
-      vy: - (0.3 + Math.random()*0.9),
-      size: 20 + Math.random()*36,
-      rot: Math.random()*Math.PI*2,
-      rotV: (Math.random()*2-1)*0.03
+      ch: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+      x: Math.random() * CANVAS_W,
+      y: Math.random() * CANVAS_H,
+      vx: (Math.random() * 2 - 1) * 0.6,
+      vy: -(0.3 + Math.random() * 0.9),
+      size: 20 + Math.random() * 36,
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() * 2 - 1) * 0.03
     });
   }
 }
 
-/* ---------- Flying animals (birds & butterflies) ---------- */
-function spawnFlyingAnimals(){
+
+/* ---------- Flying animals (all visible) ---------- */
+function spawnFlyingAnimals() {
   scene.flying = [];
-  // spawn 2 birds and 2 butterflies for a lively scene
-  for(let i=0;i<2;i++){
-    const imgUrl = ANIMALS.birds[i % ANIMALS.birds.length];
-    scene.flying.push({ type:'bird', imgUrl, x: -50 - Math.random()*200, y: 100 + Math.random()*300, vx: 0.6 + Math.random()*1.2, vy: Math.sin(Math.random()*2)*0.3, size: 60 + Math.random()*60, img:null });
+
+  // spawn all birds
+  for (const url of ANIMALS.birds) {
+    scene.flying.push({
+      type: 'bird',
+      imgUrl: url,
+      x: -50 - Math.random() * 300, // start offscreen left
+      y: 50 + Math.random() * (CANVAS_H / 2),
+      vx: 0.5 + Math.random() * 1.5,
+      vy: Math.sin(Math.random() * 2 * Math.PI) * 0.4,
+      size: 50 + Math.random() * 50,
+      img: null
+    });
   }
-  for(let i=0;i<2;i++){
-    const imgUrl = ANIMALS.butterflies[i % ANIMALS.butterflies.length];
-    scene.flying.push({ type:'butterfly', imgUrl, x: CANVAS_W + 50 + Math.random()*200, y: 200 + Math.random()*500, vx: - (0.4 + Math.random()*1.1), vy: Math.sin(Math.random()*2)*0.2, size: 50 + Math.random()*40, img:null });
+
+  // spawn all butterflies
+  for (const url of ANIMALS.butterflies) {
+    scene.flying.push({
+      type: 'butterfly',
+      imgUrl: url,
+      x: CANVAS_W + 50 + Math.random() * 300, // start offscreen right
+      y: 100 + Math.random() * (CANVAS_H / 2),
+      vx: - (0.4 + Math.random() * 1.2),
+      vy: Math.sin(Math.random() * 2 * Math.PI) * 0.3,
+      size: 40 + Math.random() * 50,
+      img: null
+    });
+  }
+
+  // spawn exotic flying animals (parrots, etc.)
+  for (const url of ANIMALS.exotic) {
+    scene.flying.push({
+      type: 'exotic',
+      imgUrl: url,
+      x: Math.random() > 0.5 ? -50 - Math.random() * 300 : CANVAS_W + 50 + Math.random() * 300,
+      y: 50 + Math.random() * (CANVAS_H / 2),
+      vx: (Math.random() > 0.5 ? 0.5 : -0.5) + Math.random() * 1.5,
+      vy: Math.sin(Math.random() * 2 * Math.PI) * 0.3,
+      size: 50 + Math.random() * 50,
+      img: null
+    });
   }
 }
+
 
 /* ---------- Randomize & prepare scene (load images & spawn objects) ---------- */
 let assetsLoaded = false;
@@ -446,8 +1420,8 @@ async function prepareScene() {
   statusEl.textContent = 'Preparing scene and assets...';
   assetsLoaded = false;
 
-  // pick background
-  const bg = BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
+  // pick background via shuffler (persistent, non-repeating)
+  const bg = backgroundsShuffler.next();
   scene.bgName = bg.name;
   try {
     scene.backgroundImg = await loadImg(bg.url);
@@ -456,9 +1430,9 @@ async function prepareScene() {
     scene.backgroundImg = null;
   }
 
-  // pick animals and load them
-  const dogUrl = ANIMALS.dogs[Math.floor(Math.random() * ANIMALS.dogs.length)];
-  const catUrl = ANIMALS.cats[Math.floor(Math.random() * ANIMALS.cats.length)];
+  // pick animals and load them using shufflers
+  const dogUrl = dogsShuffler.next();
+  const catUrl = catsShuffler.next();
   try { scene.animalA.img = await loadImg(dogUrl); } catch (e) { scene.animalA.img = null; }
   try { scene.animalB.img = await loadImg(catUrl); } catch (e) { scene.animalB.img = null; }
 
@@ -471,8 +1445,8 @@ async function prepareScene() {
   // spawn emojis
   spawnEmojis(16);
 
-  // **pick knowledge item instead of topic**
-  const knowledge = KNOWLEDGE_ITEMS[Math.floor(Math.random() * KNOWLEDGE_ITEMS.length)];
+  // **pick knowledge item via shuffler**
+  const knowledge = knowledgeShuffler.next();
   scene.bubble.text = knowledge;
   scene.subtitle.text = knowledge;
 
@@ -552,17 +1526,40 @@ function drawScene(t){
   }
 
   // flying animals
-  for(const f of scene.flying){
-    // update
-    f.x += f.vx * (1 + Math.sin(t/600 + f.y*0.01));
-    f.y += Math.sin((t + f.x) / 600) * 0.8 + f.vy * 0.5;
-    // wrap or bounce
-    if(f.vx > 0 && f.x > CANVAS_W + 150) { f.x = -150; f.y = 50 + Math.random()*600; }
-    if(f.vx < 0 && f.x < -150) { f.x = CANVAS_W + 150; f.y = 50 + Math.random()*600; }
-    ctx.save();
-    if(f.img) ctx.drawImage(f.img, f.x, f.y, f.size, f.size);
-    ctx.restore();
+  // ---------------- Flying animals animation ----------------
+for (const f of scene.flying) {
+  // update horizontal position
+  f.x += f.vx * (1 + Math.sin((performance.now() + f.y * 0.01) / 600));
+  
+  // add gentle vertical oscillation
+  f.y += Math.sin((performance.now() / 500 + f.x * 0.01)) * 0.5 + f.vy * 0.5;
+  
+  // wrap around canvas edges
+  if (f.vx > 0 && f.x > CANVAS_W + 150) { // moving right
+    f.x = -150;
+    f.y = 50 + Math.random() * (CANVAS_H / 2);
   }
+  if (f.vx < 0 && f.x < -150) { // moving left
+    f.x = CANVAS_W + 150;
+    f.y = 50 + Math.random() * (CANVAS_H / 2);
+  }
+
+  // optional: keep vertical range within upper half to avoid overlapping bottom animals
+  if (f.y < 30) f.y = 30;
+  if (f.y > CANVAS_H / 2) f.y = CANVAS_H / 2;
+
+  // draw image
+  ctx.save();
+  if (f.img) {
+    // rotate slightly for motion effect
+    ctx.translate(f.x + f.size/2, f.y + f.size/2);
+    const rotAngle = Math.sin(f.x / 50) * 0.15;
+    ctx.rotate(rotAngle);
+    ctx.drawImage(f.img, -f.size/2, -f.size/2, f.size, f.size);
+  }
+  ctx.restore();
+}
+
 
   // animals (bounce)
   function drawAnimal(a, tOffset){
@@ -605,34 +1602,54 @@ ctx.textBaseline = 'top';
 ctx.fillText("Do you Know?", CANVAS_W/2, 40);
 
 // BOTTOM text - current knowledge item
-const bottomText = KNOWLEDGE_ITEMS[knowledgeIndex % KNOWLEDGE_ITEMS.length];
+// draw the scene.subtitle.text (keeps synced with shuffler)
+const bottomText = scene.subtitle.text || '';
 
+// draw wrapped
 ctx.fillStyle = 'yellow';
 ctx.font = 'bold 56px "Patrick Hand", Arial';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 wrapText(ctx, bottomText, CANVAS_W / 2, CANVAS_H / 2, CANVAS_W - 60, 60);
 
+// Text to split into two lines
+const logoText = '🎓 Get Top Tuition Now!📱Install Elimu Connect App(Kenya), SmartLearn: IGCSE IB CBSE ICSE (global)!';
+ctx.font = '28px "Patrick Hand", Arial'; // larger font
+const paddingX = 20;
+const paddingY = 14;
 
-// logo tag (auto-fit)
-const logoText = 'Install Elimu Connect App from play store';
-ctx.font = '20px "Patrick Hand", Arial';
-const paddingX = 16; // horizontal padding
-const paddingY = 10; // vertical padding
-const textMetrics = ctx.measureText(logoText);
-const rectW = textMetrics.width + paddingX * 2;
-const rectH = 20 + paddingY * 2; // font size 20 + vertical padding
-const rectX = CANVAS_W - rectW - 20; // 20px from right edge
-const rectY = CANVAS_H - rectH - 20;  // 20px from bottom edge
+// Split text roughly in the middle (or by a custom rule)
+const mid = Math.floor(logoText.length / 2);
+let splitIndex = logoText.indexOf(' ', mid); // split at nearest space after middle
+if (splitIndex === -1) splitIndex = mid;
+const logoText1 = logoText.slice(0, splitIndex);
+const logoText2 = logoText.slice(splitIndex + 1);
 
-drawRoundRect(rectX, rectY, rectW, rectH, 18, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.06)', 1);
+// Measure widths to determine rectangle width
+const textMetrics1 = ctx.measureText(logoText1);
+const textMetrics2 = ctx.measureText(logoText2);
+const rectW = Math.max(textMetrics1.width, textMetrics2.width) + paddingX * 2;
 
+const lineHeight = 34; // slightly larger than font size for spacing
+const rectH = lineHeight * 2 + paddingY * 2;
+
+const rectX = CANVAS_W - rectW - 20;
+const rectY = CANVAS_H - rectH - 20;
+
+// Draw rounded rectangle
+drawRoundRect(rectX, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.08)', 2);
+
+// Draw centered text
 ctx.fillStyle = '#111';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
-ctx.fillText(logoText, rectX + rectW/2, rectY + rectH/2);
+const centerX = rectX + rectW / 2;
+const centerY = rectY + rectH / 2;
 
+ctx.fillText(logoText1, centerX, centerY - lineHeight / 2); // first line
+ctx.fillText(logoText2, centerX, centerY + lineHeight / 2); // second line
 }
+
 
 /* ---------- Animation loop ---------- */
 let animRunning = false;
@@ -658,7 +1675,7 @@ genBtn.addEventListener('click', async ()=>{
     await prepareScene();
     // Wait small moment to ensure first frames drawn
     startAnimation();
-    setTimeout(()=> { if(!assetsLoaded) return; statusEl.textContent = 'Preview ready: ' + scene.bgName + ' • ' + currentTopic.title; }, 350);
+    setTimeout(()=> { if(!assetsLoaded) return; statusEl.textContent = 'Preview ready: ' + scene.bgName; }, 350);
   }catch(e){
     statusEl.textContent = 'Prepare failed: ' + e.message;
     console.error(e);
@@ -807,9 +1824,6 @@ function splitText(text, n) {
   return out;
 }
 
-
-
-
 /* ---------- Events ---------- */
 recordBtn.addEventListener('click', async () => {
   ensureAudioCtx();
@@ -852,10 +1866,26 @@ window.addEventListener('load', ()=> {
   statusEl.textContent = 'Ready. Click Generate Preview and then Start & Record.';
 });
 
-// Change knowledge item every 3 seconds
-setInterval(()=>{
-  knowledgeIndex = (knowledgeIndex + 1) % KNOWLEDGE_ITEMS.length;
+/* ---------- Rotate knowledge every 10s using the shuffler order ----------
+   We will cycle by asking the shuffler for the next item (but don't consume it twice
+   when prepareScene already set the current scene.subtitle). To keep rotation consistent
+   we use a rotating index that references the same persistent shuffled order.
+*/
+setInterval(async ()=>{
+  // if scene.subtitle already exists, get the next item from shuffler
+  try{
+    const nextKnowledge = knowledgeShuffler.next();
+    scene.subtitle.text = nextKnowledge;
+  }catch(e){
+    console.warn('knowledge rotate error', e);
+  }
 }, 10000);
+
+
+
+
+
+
 
 
 </script>
