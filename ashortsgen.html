@@ -1703,30 +1703,25 @@ ctx.textAlign = 'center';
 ctx.textBaseline = 'top';
 ctx.fillText("Do you Know?", CANVAS_W/2, 40);
 
-// BOTTOM text - current knowledge item
-// draw the scene.subtitle.text (keeps synced with shuffler)
+// Draw bottom text (current knowledge item)
 const bottomText = scene.subtitle.text || '';
 
-// draw wrapped
-ctx.fillStyle = 'yellow';
-
-
+// Set text style
 ctx.font = 'bold 56px "Patrick Hand", Arial';
 ctx.fillStyle = 'yellow';
 ctx.textAlign = 'center';
 ctx.textBaseline = 'middle';
 
-const lines = splitText(ctx, bottomText, CANVAS_W - 60);
-const totalHeight = lines.length * 60;
+// Use a unique name to avoid redeclaration
+const wrappedLines = splitText(ctx, bottomText, CANVAS_W - 60);
+const textLineHeight = 60; // renamed from lineHeight
+const totalHeight = wrappedLines.length * textLineHeight;
 let startY = CANVAS_H * 0.5 - totalHeight / 2 + 30;
 
-for (let i = 0; i < lines.length; i++) {
-  ctx.fillText(lines[i], CANVAS_W / 2, startY + i * 60);
+// Draw each line centered
+for (let i = 0; i < wrappedLines.length; i++) {
+  ctx.fillText(wrappedLines[i], CANVAS_W / 2, startY + i * textLineHeight);
 }
-
-
-
-
 
 
 
@@ -1933,45 +1928,31 @@ async function startRecordingAuto() {
   }, dur * 1000 + 500);
 }
 
+function splitText(ctx, text, maxWidth) {
+  if (!text || typeof text !== "string") return [];
+  const words = text.trim().split(/\s+/);
+  const lines = [];
+  let line = "";
 
-function splitText(ctxOrText, textOrParts, maxWidthOrUnused) {
-  // Support both styles of calling:
-  // splitText(ctx, text, maxWidth)  ✅ (for canvas drawing)
-  // splitText(text, parts)          ✅ (for subtitles)
-  if (typeof ctxOrText === 'string') {
-    // called as splitText(text, parts)
-    const text = ctxOrText;
-    const parts = textOrParts || 3;
-    const words = text.trim().split(/\s+/);
-    const perPart = Math.ceil(words.length / parts);
-    const lines = [];
-    for (let i = 0; i < words.length; i += perPart) {
-      lines.push(words.slice(i, i + perPart).join(' '));
-    }
-    return lines;
-  } else {
-    // called as splitText(ctx, text, maxWidth)
-    const ctx = ctxOrText;
-    const text = textOrParts;
-    const maxWidth = maxWidthOrUnused;
-    const words = text.trim().split(/\s+/);
-    const lines = [];
-    let line = '';
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line ? line + " " + words[i] : words[i];
+    const testWidth = ctx.measureText(testLine).width;
 
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      const testWidth = ctx.measureText(testLine).width;
-      if (testWidth > maxWidth && i > 0) {
-        lines.push(line.trim());
-        line = words[i] + ' ';
-      } else {
-        line = testLine;
-      }
+    // if the line would exceed max width, push the old one
+    if (testWidth > maxWidth && line !== "") {
+      lines.push(line);
+      line = words[i]; // start a new line
+    } else {
+      line = testLine;
     }
-    if (line) lines.push(line.trim());
-    return lines;
   }
+
+  // push any remaining text
+  if (line) lines.push(line);
+
+  return lines;
 }
+
 
 /* ---------- Events ---------- */
 recordBtn.addEventListener('click', async () => {
