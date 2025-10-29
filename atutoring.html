@@ -69,86 +69,94 @@
 
   <!-- Styles (you can keep your CSS here or below this) -->
 	
-  <style>
-  /* Colors and variables */
-  :root {
-    --teal: #0b7b61;
-    --blue: #007bff;
-    --purple: #8b5cf6;
-    --orange: #f59e0b;
-    --pink: #ec4899;
-    --bg: linear-gradient(135deg, #f0f9ff, #fffaf5);
-    --text: #04302a;
-    --muted: #6b7280;
-    --card: #ffffff;
-    --radius: 20px;
+ whats wrong, 
+/* Mobile-specific styles: max-width 900px */
+@media (max-width: 900px) {
+  /* Hide desktop nav by default */
+  nav.header-nav { 
+    display: none; 
+    flex-direction: column; 
+    gap: 15px; 
+    margin-top: 15px;
+  }
+  
+  /* Show toggle button (3 dots) */
+  .menu-toggle { 
+    display: block; 
+    font-size: 40px;      /* Bigger dots */
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    color: #0d47a1;
+    margin-top: 10px;
   }
 
-  * { box-sizing: border-box; scroll-behavior: smooth; }
-  body { margin:0; font-family:'Poppins','Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
-
-  .wrap { max-width:1200px; margin:0 auto; padding:20px; }
-
-  header.main-header {
-    display:flex; justify-content:space-between; align-items:center; padding:20px 0;
+  /* Adjust header layout for mobile */
+  header.main-header { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 25px; 
+    border-radius: 40px; 
   }
-
-  .header-left { display:flex; align-items:center; gap:12px; }
-  .logo-circle { width:72px; height:72px; border-radius:16px; overflow:hidden; }
-  .logo-circle img { width:100%; height:100%; object-fit:cover; }
-
-  .site-title { font-weight:800; font-size:22px; }
-  .site-sub { font-size:13px; color:var(--muted); }
-
-  /* Nav desktop */
-  nav#mainNav { display:flex; gap:18px; flex-wrap:wrap; align-items:center; }
-  nav#mainNav .link1 { color:#1e88e5; }
-  nav#mainNav .link2 { color:#8e24aa; }
-  nav#mainNav .link3 { color:#f4511e; }
-  nav#mainNav .link4 { color:#43a047; }
-  nav#mainNav a { text-decoration:none; font-weight:600; transition:0.3s; }
-  nav#mainNav .install { background:linear-gradient(45deg,#007bff,#00c6ff); color:#fff; padding:8px 16px; border-radius:25px; font-weight:600; transition:0.3s; }
-
-  /* Mobile toggle (3 dots) */
-  .menu-toggle {
-    display:none;   /* hidden on PC */
-    font-size:40px;
-    background:none;
-    border:none;
-    cursor:pointer;
-    color:#0d47a1;
+  .header-left { 
+    flex-direction: column; 
   }
+  .site-title { font-size: 22px; }
+  .site-sub { font-size: 16px; }
+  .lead { font-size: 13px; }
+}
 
-  /* Mobile styles */
-  @media(max-width:900px){
-    nav#mainNav { display:none; flex-direction:column; gap:15px; margin-top:10px; }
-    nav#mainNav.show { display:flex; }
-    .menu-toggle { display:block; }
-  }
-</style>
+/* Show nav when menu is toggled */
+nav.header-nav.show { 
+  display: flex; 
+}
 
-<header class="main-header">
-  <div class="header-left">
-    <div class="logo-circle">
-      <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Logo">
-    </div>
+	  
+  </style>
+</head>
+<body>
+  <div class="wrap">
+  
+
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 5%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+
+  <!-- Left: Brand Section -->
+  <div class="brand" style="display:flex;align-items:center;gap:12px;">
+    <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
+         alt="Smart Elimu Connect Logo" 
+         style="width:75px;height:75px;border-radius:50%;object-fit:cover;">
     <div>
-      <div class="site-title">SMART ELIMU CONNECT / SMARTLEARN</div>
-      <div class="site-sub">Online Tutoring/Tuition — Kenya & Global</div>
+      <div class="site-title" style="font-weight:700;font-size:22px;color:#1a237e;">SMART ELIMU CONNECT / SMARTLEARN</div>
+      <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring/Tuition — Kenya & Global</div>
     </div>
   </div>
+<button class="menu-toggle" onclick="toggleMenu()">⋮</button>
 
-  <button class="menu-toggle" onclick="toggleMenu()">⋮</button>
-
-  <nav id="mainNav">
-    <a class="nav-link link1" href="#pricing">Charges</a>
-    <a class="nav-link link2" href="#curricula">Curricula</a>
-    <a class="nav-link link3" href="#subjects">Subjects Taught</a>
-    <a class="nav-link link4" href="#features">Features</a>
-    <a class="install" href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre">Install App</a>
+   
+  <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;" id="mainNav">
+    <a class="nav-link" href="#pricing" 
+       style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">
+       Charges
+    </a>
+    <a class="nav-link" href="#curricula" 
+       style="text-decoration:none;color:#8e24aa;font-weight:600;transition:0.3s;">
+       Curricula
+    </a>
+    <a class="nav-link" href="#subjects" 
+       style="text-decoration:none;color:#f4511e;font-weight:600;transition:0.3s;">
+       Subjects Taught
+    </a>
+    <a class="nav-link" href="#features" 
+       style="text-decoration:none;color:#43a047;font-weight:600;transition:0.3s;">
+       Features
+    </a>
+    <a class="install" 
+       href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" 
+       style="background:linear-gradient(45deg,#007bff,#00c6ff);color:#fff;padding:8px 16px;border-radius:25px;text-decoration:none;font-weight:600;transition:0.3s;">
+       Install App
+    </a>
   </nav>
 </header>
-
 
     <section class="hero" data-animate>
       <div class="hero-left">
