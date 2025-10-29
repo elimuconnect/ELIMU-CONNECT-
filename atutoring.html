@@ -211,45 +211,44 @@
       .hero{flex-direction:column}
     }
 
-/* Mobile-specific styles: max-width 900px */
+/* Hide toggle button by default (desktop) */
+.menu-toggle {
+  display: none;      /* Hidden on PC */
+  font-size: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0d47a1;
+}
+
+/* Mobile styles */
 @media (max-width: 900px) {
-  /* Hide desktop nav by default */
-  nav.header-nav { 
-    display: none; 
-    flex-direction: column; 
-    gap: 15px; 
-    margin-top: 15px;
+  .menu-toggle {
+    display: block;   /* Show toggle button on mobile */
   }
-  
-  /* Show toggle button (3 dots) */
-  .menu-toggle { 
-    display: block; 
-    font-size: 40px;      /* Bigger dots */
-    background: none; 
-    border: none; 
-    cursor: pointer; 
-    color: #0d47a1;
+
+  nav#mainNav {
+    display: none;      /* Hide nav by default on mobile */
+    flex-direction: column;
+    gap: 15px;
     margin-top: 10px;
   }
 
-  /* Adjust header layout for mobile */
-  header.main-header { 
-    flex-direction: column; 
-    text-align: center; 
-    padding: 25px; 
-    border-radius: 40px; 
+  nav#mainNav.show {
+    display: flex;     /* Show nav when toggled */
   }
-  .header-left { 
-    flex-direction: column; 
+
+  header {
+    flex-direction: column;
+    text-align: center;
   }
+
+  .brand {
+    flex-direction: column;
+  }
+
   .site-title { font-size: 22px; }
   .site-sub { font-size: 16px; }
-  .lead { font-size: 13px; }
-}
-
-/* Show nav when menu is toggled */
-nav.header-nav.show { 
-  display: flex; 
 }
 
 	  
@@ -273,7 +272,7 @@ nav.header-nav.show {
   </div>
 <button class="menu-toggle" onclick="toggleMenu()">⋮</button>
 
-   id="mainNav">
+   
   <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;" id="mainNav">
     <a class="nav-link" href="#pricing" 
        style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">
