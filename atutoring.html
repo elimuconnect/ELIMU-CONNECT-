@@ -66,11 +66,222 @@
 
   <!-- Optional Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #0b7b61;
+  --blue: #007bff;
+  --purple: #8b5cf6;
+  --orange: #f59e0b;
+  --pink: #ec4899;
+  --bg: linear-gradient(135deg, #f0f9ff, #fffaf5);
+  --text: #04302a;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --radius: 20px;
+}
 
-  <!-- Styles (you can keep your CSS here or below this) -->
-<style> :root { --teal: #0b7b61; --blue: #007bff; --purple: #8b5cf6; --orange: #f59e0b; --pink: #ec4899; --bg: linear-gradient(135deg, #f0f9ff, #fffaf5); --text: #04302a; --muted: #6b7280; --card: #ffffff; --radius: 20px; } * { box-sizing: border-box; scroll-behavior: smooth; } body { margin: 0; font-family: 'Poppins', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); } /* Smooth animation when scrolling into view */ [data-animate] { opacity: 0; transform: translateY(40px); transition: all 0.8s ease; } [data-animate].visible { opacity: 1; transform: translateY(0); } .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; } header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; } .brand { display: flex; align-items: center; gap: 12px; } .logo { width: 72px; height: 72px; border-radius: 16px; background: linear-gradient(135deg, var(--teal), var(--blue)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px; } .site-title { font-weight: 800; font-size: 22px; } .site-sub { color: var(--muted); font-size: 13px; } nav { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; } .nav-link { text-decoration: none; color: var(--text); font-weight: 700; } .install { background: linear-gradient(90deg, var(--purple), var(--blue)); color: white; padding: 12px 18px; border-radius: 12px; font-weight: 800; text-decoration: none; transition: 0.3s; } .install:hover { transform: scale(1.05); } /* Hero */ .hero { background: linear-gradient(120deg, #e0f7fa, #fff8e1); border-radius: 24px; padding: 40px; display: flex; gap: 30px; align-items: center; box-shadow: 0 8px 20px rgba(0,0,0,0.05); } .hero h1 { font-size: 34px; margin: 0; } .lead { color: var(--muted); margin-top: 10px; } .hero-ctas { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; } .btn-primary { background: linear-gradient(90deg, var(--teal), var(--blue)); color: white; padding: 12px 18px; border-radius: 12px; font-weight: 800; text-decoration: none; transition: 0.3s; } .btn-primary:hover { transform: scale(1.05); } .btn-outline { border: 2px solid var(--teal); color: var(--teal); border-radius: 12px; padding: 12px 18px; font-weight: 700; text-decoration: none; transition: 0.3s; } .btn-outline:hover { background: var(--teal); color: white; } /* Card sections */ .big-card { background: var(--card); border-radius: var(--radius); box-shadow: 0 12px 30px rgba(0,0,0,0.06); padding: 28px; margin-top: 28px; transition: 0.4s; } .big-card:hover { transform: scale(1.02); } /* Pricing cards */ .pricing-wrap { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; } .pricing-item { background: linear-gradient(180deg, #ffffff, #f0faff); border-radius: 16px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.05); transition: 0.3s; } .pricing-item:hover { transform: translateY(-6px); } .price-tag { font-weight: 800; background: linear-gradient(90deg, var(--orange), var(--pink)); color: white; display: inline-block; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; } /* Curricula */ .curr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-top: 16px; } .curr-card { background: linear-gradient(135deg, #fff, #e8fdf5); padding: 20px; border-radius: 14px; text-align: center; font-weight: 700; transition: 0.3s; } .curr-card:hover { transform: scale(1.08); background: linear-gradient(135deg, #dff6ff, #fff); } /* Features */ .features-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 20px; } .feature-list { list-style: none; padding: 0; margin: 0; } .feature-list li { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; transition: 0.3s; } .feature-list li:hover { transform: scale(1.02); } .dot { width: 14px; height: 14px; border-radius: 4px; margin-top: 6px; background: var(--blue); } footer { margin-top: 30px; text-align: center; color: var(--muted); font-size: 13px; padding: 18px; } @media(max-width:900px){ .hero{flex-direction:column} } @media (max-width: 900px) { /* Hide desktop nav by default */ nav.header-nav { display: none; flex-direction: column; gap: 15px; margin-top: 15px; } /* Show toggle button (3 dots) */ .menu-toggle { display: block; font-size: 40px; /* Bigger dots */ background: none; border: none; cursor: pointer; color: #0d47a1; margin-top: 10px; } /* Adjust header layout for mobile */ header.main-header { flex-direction: column; text-align: center; padding: 25px; border-radius: 40px; } .header-left { flex-direction: column; } .site-title { font-size: 22px; } .site-sub { font-size: 16px; } .lead { font-size: 13px; } } /* Show nav when menu is toggled */ nav.header-nav.show { display: flex; } </style> </head> <body> <div class="wrap"> <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 5%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.1);"> <!-- Left: Brand Section --> <div class="brand" style="display:flex;align-items:center;gap:12px;"> <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Smart Elimu Connect Logo" style="width:75px;height:75px;border-radius:50%;object-fit:cover;"> <div> <div class="site-title" style="font-weight:700;font-size:22px;color:#1a237e;">SMART ELIMU CONNECT / SMARTLEARN</div> <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring/Tuition — Kenya & Global</div> </div> </div> <button class="menu-toggle" onclick="toggleMenu()">⋮</button> <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;" id="mainNav"> <a class="nav-link" href="#pricing" style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;"> Charges </a> <a class="nav-link" href="#curricula" style="text-decoration:none;color:#8e24aa;font-weight:600;transition:0.3s;"> Curricula </a> <a class="nav-link" href="#subjects" style="text-decoration:none;color:#f4511e;font-weight:600;transition:0.3s;"> Subjects Taught </a> <a class="nav-link" href="#features" style="text-decoration:none;color:#43a047;font-weight:600;transition:0.3s;"> Features </a> <a class="install" href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" style="background:linear-gradient(45deg,#007bff,#00c6ff);color:#fff;padding:8px 16px;border-radius:25px;text-decoration:none;font-weight:600;transition:0.3s;"> Install App </a> </nav> </header>
-    <section class="hero" data-animate>
-      <div class="hero-left">
+* { box-sizing: border-box; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+[data-animate] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+[data-animate].visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.site-title { font-weight: 800; font-size: 22px; }
+.site-sub { color: var(--muted); font-size: 13px; }
+
+nav#mainNav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.install {
+  background: linear-gradient(90deg, var(--purple), var(--blue));
+  color: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.install:hover { transform: scale(1.05); }
+
+.hero {
+  background: linear-gradient(120deg, #e0f7fa, #fff8e1);
+  border-radius: 24px;
+  padding: 40px;
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+.hero h1 { font-size: 34px; margin: 0; }
+.lead { color: var(--muted); margin-top: 10px; }
+.hero-ctas { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--teal), var(--blue));
+  color: white;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.btn-primary:hover { transform: scale(1.05); }
+
+.btn-outline {
+  border: 2px solid var(--teal);
+  color: var(--teal);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.btn-outline:hover { background: var(--teal); color: white; }
+
+.big-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+  padding: 28px;
+  margin-top: 28px;
+  transition: 0.4s;
+}
+.big-card:hover { transform: scale(1.02); }
+
+.pricing-wrap { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; }
+.pricing-item {
+  background: linear-gradient(180deg, #ffffff, #f0faff);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+.pricing-item:hover { transform: translateY(-6px); }
+.price-tag {
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--orange), var(--pink));
+  color: white;
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.curr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.curr-card {
+  background: linear-gradient(135deg, #fff, #e8fdf5);
+  padding: 20px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: 700;
+  transition: 0.3s;
+}
+.curr-card:hover { transform: scale(1.08); background: linear-gradient(135deg, #dff6ff, #fff); }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 20px; }
+.feature-list { list-style: none; padding: 0; margin: 0; }
+.feature-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  transition: 0.3s;
+}
+.feature-list li:hover { transform: scale(1.02); }
+.dot { width: 14px; height: 14px; border-radius: 4px; margin-top: 6px; background: var(--blue); }
+
+footer { margin-top: 30px; text-align: center; color: var(--muted); font-size: 13px; padding: 18px; }
+
+@media(max-width:900px){ .hero{flex-direction:column} }
+
+.menu-toggle { display: none; font-size: 40px; background: none; border: none; cursor: pointer; color: #0d47a1; }
+@media(max-width:900px){
+  .menu-toggle { display: block; }
+  nav#mainNav { display: none; flex-direction: column; gap: 15px; margin-top: 15px; }
+  nav#mainNav.show { display: flex; }
+
+  header.main-header { flex-direction: column; text-align: center; padding: 25px; border-radius: 40px; }
+  .header-left { flex-direction: column; }
+  .site-title { font-size: 22px; }
+  .site-sub { font-size: 16px; }
+  .lead { font-size: 13px; }
+}
+</style>
+
+<body>
+<div class="wrap">
+<header class="main-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 5%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
+  <div class="brand" style="display:flex;align-items:center;gap:12px;">
+    <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Smart Elimu Connect Logo" style="width:75px;height:75px;border-radius:50%;object-fit:cover;">
+    <div>
+      <div class="site-title" style="font-weight:700;font-size:22px;color:#1a237e;">SMART ELIMU CONNECT / SMARTLEARN</div>
+      <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring/Tuition — Kenya & Global</div>
+    </div>
+  </div>
+  <button class="menu-toggle" onclick="toggleMenu()">⋮</button>
+  <nav id="mainNav">
+    <a class="nav-link" href="#pricing" style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">Charges</a>
+    <a class="nav-link" href="#curricula" style="text-decoration:none;color:#8e24aa;font-weight:600;transition:0.3s;">Curricula</a>
+    <a class="nav-link" href="#subjects" style="text-decoration:none;color:#f4511e;font-weight:600;transition:0.3s;">Subjects Taught</a>
+    <a class="nav-link" href="#features" style="text-decoration:none;color:#43a047;font-weight:600;transition:0.3s;">Features</a>
+    <a class="install" href="https://play.google.com/store/apps/details?id=elimuconnect.tuitioncentre" style="background:linear-gradient(45deg,#007bff,#00c6ff);color:#fff;padding:8px 16px;border-radius:25px;text-decoration:none;font-weight:600;transition:0.3s;">Install App</a>
+  </nav>
+</header>
+
+
+
         <h1>Affordable Live Tutoring for CBC, IGCSE, CBSE & IB — Kenya & Global</h1>
         <p class="lead">Book verified tutors for one-on-one and small-group online lessons. Free consultation, free demo & transparent pricing.</p>
         <div class="hero-ctas">
