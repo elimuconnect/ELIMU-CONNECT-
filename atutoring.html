@@ -210,6 +210,49 @@
     @media(max-width:900px){
       .hero{flex-direction:column}
     }
+
+/* Mobile-specific styles: max-width 900px */
+@media (max-width: 900px) {
+  /* Hide desktop nav by default */
+  nav.header-nav { 
+    display: none; 
+    flex-direction: column; 
+    gap: 15px; 
+    margin-top: 15px;
+  }
+  
+  /* Show toggle button (3 dots) */
+  .menu-toggle { 
+    display: block; 
+    font-size: 40px;      /* Bigger dots */
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    color: #0d47a1;
+    margin-top: 10px;
+  }
+
+  /* Adjust header layout for mobile */
+  header.main-header { 
+    flex-direction: column; 
+    text-align: center; 
+    padding: 25px; 
+    border-radius: 40px; 
+  }
+  .header-left { 
+    flex-direction: column; 
+  }
+  .site-title { font-size: 22px; }
+  .site-sub { font-size: 16px; }
+  .lead { font-size: 13px; }
+}
+
+/* Show nav when menu is toggled */
+nav.header-nav.show { 
+  display: flex; 
+}
+
+	  
   </style>
 </head>
 <body>
@@ -228,9 +271,10 @@
       <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring/Tuition — Kenya & Global</div>
     </div>
   </div>
+<button class="menu-toggle" onclick="toggleMenu()">⋮</button>
 
-  <!-- Right: Navigation -->
-  <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+   id="mainNav">
+  <nav style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;" id="mainNav">>
     <a class="nav-link" href="#pricing" 
        style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">
        Charges
@@ -579,6 +623,10 @@ const revealImpact = () => {
 window.addEventListener('scroll', revealImpact);	
 	
 	
+function toggleMenu() {
+  document.getElementById('mainNav').classList.toggle('show');
+}
+
 	
   </script>
 </body>
