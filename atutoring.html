@@ -252,12 +252,14 @@ footer { margin-top: 30px; text-align: center; color: var(--muted); font-size: 1
   nav#mainNav { display: none; flex-direction: column; gap: 15px; margin-top: 15px; }
   nav#mainNav.show { display: flex; }
 
-  header.main-header { flex-direction: column; text-align: center; padding: 25px; border-radius: 40px; }
-  .header-left { flex-direction: column; }
-  .site-title { font-size: 22px; }
-  .site-sub { font-size: 16px; }
-  .lead { font-size: 13px; }
-}
+ /* Adjust header layout for mobile */
+  header.main-header { 
+    flex-direction: row;            /* Row so menu is to the right */
+    justify-content: space-between; /* Brand left, menu right */
+    align-items: center;            /* Vertical alignment */
+    padding: 20px 5%; 
+    border-radius: 40px; 
+  }
 </style>
 
 <body>
@@ -270,6 +272,8 @@ footer { margin-top: 30px; text-align: center; color: var(--muted); font-size: 1
       <div class="site-sub" style="font-size:14px;color:#00796b;">Online Tutoring/Tuition — Kenya & Global</div>
     </div>
   </div>
+  <!-- With this -->
+<div style="display:flex; align-items:center; gap:12px;">
   <button class="menu-toggle" onclick="toggleMenu()">⋮</button>
   <nav id="mainNav">
     <a class="nav-link" href="#pricing" style="text-decoration:none;color:#1e88e5;font-weight:600;transition:0.3s;">Charges</a>
