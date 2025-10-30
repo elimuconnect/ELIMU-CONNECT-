@@ -468,7 +468,7 @@ const ANIMALS = {
      'https://cdn.pixabay.com/photo/2019/12/26/02/45/fish-with-lotus-4719551_640.png',
     'https://cdn.pixabay.com/photo/2013/07/12/18/20/santa-claus-153309_640.png',
     'https://cdn.pixabay.com/photo/2024/01/24/22/22/knight-8530654_640.jpg',
-    'https://cdn.pixabay.com/photo/2020/10/14/01/40/parrot-5653140_640.jpg',
+   
     'https://cdn.pixabay.com/photo/2016/05/02/12/58/tiger-1367197_640.jpg',
     'https://cdn.pixabay.com/photo/2022/03/16/01/52/animal-7071426_640.jpg',
     'https://cdn.pixabay.com/photo/2021/06/20/15/40/buffalo-6351352_640.jpg',
@@ -507,8 +507,7 @@ const ANIMALS = {
   ],
 
 exotic: [
-    'https://cdn.pixabay.com/photo/2016/11/29/10/07/parrot-1869315_640.jpg',
-   
+    'https://cdn.pixabay.com/photo/2022/08/25/20/44/bird-7411270_640.jpg',
   ],
   fish: [
     'https://cdn.pixabay.com/photo/2016/11/18/17/47/fish-1834823_640.jpg',
@@ -963,63 +962,94 @@ function getRandomKnowledgeItem() {
 
 /* ---------- Randomize & prepare scene ---------- */
 let assetsLoaded = false;
+/* ---------- Safe prepareScene ---------- */
 async function prepareScene() {
   statusEl.textContent = 'Preparing scene and assets...';
+
+  // Ensure scene object and sub-objects exist
+  scene = scene || {};
+  scene.animalA = scene.animalA || {};
+  scene.animalB = scene.animalB || {};
+  scene.flying = scene.flying || [];
+  scene.clouds = scene.clouds || [];
+  scene.emojis = scene.emojis || [];
+  scene.subtitle = scene.subtitle || {};
+  scene.bubble = scene.bubble || {};
+
   assetsLoaded = false;
 
-  // --- Background ---
-  const bg = backgroundsShuffler.next();
-  scene.bgName = bg.name;
-  try { scene.backgroundImg = await loadImg(bg.url); } catch { scene.backgroundImg = null; }
+  try {
+    // --- Background ---
+    const bg = (backgroundsShuffler?.next() || { name: "Default", url: null });
+    scene.bgName = bg.name;
+    scene.backgroundImg = bg.url ? await loadImg(bg.url).catch(() => null) : null;
 
-  // --- Animals ---
-  try { scene.animalA.img = await loadImg(dogsShuffler.next()); } catch { scene.animalA.img = null; }
-  try { scene.animalB.img = await loadImg(catsShuffler.next()); } catch { scene.animalB.img = null; }
+    // --- Animals ---
+    scene.animalA.img = dogsShuffler?.next() ? await loadImg(dogsShuffler.next()).catch(() => null) : null;
+    scene.animalB.img = catsShuffler?.next() ? await loadImg(catsShuffler.next()).catch(() => null) : null;
 
-  // --- Flying animals ---
-  spawnFlyingAnimals();
-  for (const f of scene.flying) {
-    try { f.img = await loadImg(f.imgUrl); } catch { f.img = null; }
+    // --- Flying animals ---
+    spawnFlyingAnimals();
+    for (const f of scene.flying) {
+      f.img = f.imgUrl ? await loadImg(f.imgUrl).catch(() => null) : null;
+    }
+
+    // --- Clouds ---
+    scene.clouds = [];
+    const NUM_CLOUDS = 6;
+    for (let i = 0; i < NUM_CLOUDS; i++) {
+      scene.clouds.push({
+        x: Math.random() * CANVAS_W,
+        y: Math.random() * (CANVAS_H / 2),
+        w: 100 + Math.random() * 150,
+        h: 40 + Math.random() * 30,
+        speed: 0.2 + Math.random() * 0.3
+      });
+    }
+
+    // --- Emojis ---
+    spawnEmojis(16);
+
+    // --- Knowledge item ---
+    const firstItem = getRandomKnowledgeItem() || { text: "No knowledge item", askComment: false };
+    scene.subtitle.item = firstItem;
+    scene.bubble.item = firstItem;
+    scene.subtitle.text = firstItem.askComment ? "💬 What do you think?" : firstItem.text;
+    scene.bubble.text = firstItem.text;
+
+    // --- Audio ---
+    ensureAudioCtx();
+    try { await playRandomBackgroundTrack(); } catch (e) { console.warn("Audio failed:", e); }
+
+    // --- Emoji burst ---
+    for (let e of scene.emojis) e.vy -= Math.random() * 4 + 2;
+    playSparkle();
+
+    assetsLoaded = true;
+
+    // --- Flash effect ---
+    if (canvas) {
+      canvas.style.animation = 'flash 0.6s ease-out';
+      setTimeout(() => canvas.style.animation = '', 600);
+    }
+
+    statusEl.textContent = `Prepared: ${scene.bgName}`;
+  } catch (err) {
+    console.error("Scene preparation failed:", err);
+    statusEl.textContent = "Error preparing scene. Using fallback visuals.";
+
+    // Fallback scene
+    scene.bgName = "Fallback";
+    scene.backgroundImg = null;
+    scene.animalA.img = null;
+    scene.animalB.img = null;
+    scene.flying = [];
+    scene.clouds = [];
+    scene.emojis = [];
+    scene.subtitle.text = "Something went wrong 😅";
+    scene.bubble.text = "Try refreshing!";
+    assetsLoaded = true;
   }
-
-  // --- Clouds ---
-  scene.clouds = [];
-  const NUM_CLOUDS = 6;
-  for (let i = 0; i < NUM_CLOUDS; i++) {
-    scene.clouds.push({
-      x: Math.random() * CANVAS_W,
-      y: Math.random() * (CANVAS_H/2),
-      w: 100 + Math.random()*150,
-      h: 40 + Math.random()*30,
-      speed: 0.2 + Math.random()*0.3
-    });
-  }
-
-  // --- Emojis ---
-  spawnEmojis(16);
-
-  // --- Knowledge item ---
-  const firstItem = getRandomKnowledgeItem();
-  scene.subtitle.item = firstItem;
-  scene.bubble.item = firstItem;
-  scene.subtitle.text = firstItem.askComment ? "💬 What do you think?" : firstItem.text;
-  scene.bubble.text = firstItem.text;
-
-  // --- Audio ---
-  ensureAudioCtx();
-  try { await playRandomBackgroundTrack(); } catch (e) { console.warn(e); }
-
-  // --- Emoji burst ---
-  for (let e of scene.emojis) e.vy -= Math.random()*4+2;
-  playSparkle();
-
-  assetsLoaded = true;
-
-  // --- Flash ---
-  canvas.style.animation = 'flash 0.6s ease-out';
-  setTimeout(()=>canvas.style.animation='', 600);
-
-  statusEl.textContent = `Prepared: ${scene.bgName}`;
 }
 
 function drawRoundRect(x, y, width, height, radius, fillColor, strokeColor, lineWidth) {
@@ -1048,8 +1078,6 @@ function drawRoundRect(x, y, width, height, radius, fillColor, strokeColor, line
   }
   ctx.restore();
 }
-
-
 
 /* ---------- Drawing scene ---------- */
 function drawScene(t) {
@@ -1384,6 +1412,8 @@ function nextKnowledgeItem() {
     return;
   }
 
+
+
   const item = KNOWLEDGE_ITEMS[knowledgeIndex];
   knowledgeIndex++;
 
@@ -1530,6 +1560,32 @@ function stopAnimation() {
   animRunning = false;
 }
 
+
+
+
+
+function drawCommentEffect(time, item) {
+  if (!ctx || !item) return;
+
+  // Example: draw a simple floating comment at the center
+  ctx.save();
+  ctx.font = '32px "Patrick Hand", Arial';
+  ctx.fillStyle = 'cyan';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // Floating up effect
+  const floatY = CANVAS_H / 2 - (Math.sin(time / 300) * 20);
+  ctx.fillText('💬 ' + item.text, CANVAS_W / 2, floatY);
+
+  ctx.restore();
+}
+
+
+
+
+
+
 function showKnowledgeItem(item) {
   if (!item) return;
 
@@ -1586,3 +1642,5 @@ function showKnowledgeItem(item) {
 </script>
 </body> 
 </html>
+
+
