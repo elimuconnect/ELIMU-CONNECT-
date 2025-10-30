@@ -245,6 +245,11 @@
 const CANVAS_W = 720, CANVAS_H = 1280; // portrait 9:16
 
 
+let animRunning = false;
+let lastItemTime = 0;
+const ITEM_INTERVAL = 5000; // show new knowledge item every 5 seconds
+let currentItem = null;
+
 
 
 // updated to free catchy backgrounds (Pixabay/Unsplash style)
@@ -371,87 +376,83 @@ const BACKGROUNDS = [
   { name: 'Animal 4', url: 'https://cdn.pixabay.com/photo/2021/10/31/09/25/animal-6756751_640.jpg' }
 ];
 
-
 const KNOWLEDGE_ITEMS = [
   {
-    text: "The shortest war in history lasted just 38 minutes between Britain and Zanzibar.",
-    textSW: "Vita kifupi zaidi katika historia vilidumu dakika 38 tu kati ya Uingereza na Zanzibar.",
-    category: "History", duration: 10, askComment: false
+    text: "Riddle: I’m tall when I’m young and short when I’m old. What am I?",
+    textSW: "Kitendawili: Niko mrefu ninapokuwa mchanga na mfupi ninapokuwa mzee. Mimi ni nini?",
+    category: "Riddles", duration: 10, askComment: true
   },
   {
-    text: "Riddle: I speak without a mouth and hear without ears. What am I?",
-    textSW: "Kitendawili: Ninaongea bila mdomo na kusikia bila masikio. Mimi ni nini?",
-    category: "Riddles", duration: 12, askComment: true
+    text: "Mind trick: 6 + 4 ÷ 2 = ? Many get this wrong!",
+    textSW: "Mbinu ya akili: 6 + 4 ÷ 2 = ? Wengi wanakosea!",
+    category: "Maths", duration: 8, askComment: true
   },
   {
-    text: "Did you know octopuses have three hearts and blue blood? Imagine if humans did too!",
-    textSW: "Je, unajua pweza wana mioyo mitatu na damu ya buluu? Fikiria kama binadamu pia wangekuwa hivyo!",
-    category: "Fun Science", duration: 11, askComment: false
+    text: "Fun fact: Octopuses have three hearts and blue blood!",
+    textSW: "Fakta ya kufurahisha: Pweza wana mioyo mitatu na damu ya buluu!",
+    category: "Fun Science", duration: 9, askComment: false
   },
   {
-    text: "Math trick: Multiply 111,111,111 × 111,111,111. Can you guess the answer?",
-    textSW: "Mbinu ya hesabu: Zidisha 111,111,111 × 111,111,111. Je, unaweza kubashiri jibu?",
-    category: "Maths", duration: 12, askComment: true
+    text: "Riddle: The more you take, the more you leave behind. What am I?",
+    textSW: "Kitendawili: Kadri unavyotoa, ndivyo unavyobaki. Mimi ni nini?",
+    category: "Riddles", duration: 10, askComment: true
   },
   {
-    text: "Why don’t penguins get cold feet in icy waters? Comment your guess!",
-    textSW: "Kwa nini pingwini hawana baridi kwenye miguu kwenye maji ya barafu? Toa makisio yako!",
-    category: "Biology", duration: 12, askComment: true
+    text: "Trivia: Your brain uses 20% of your body's energy but weighs only 2%.",
+    textSW: "Fakta: Ubongo wako hutumia 20% ya nishati ya mwili lakini unauza 2% tu.",
+    category: "Science", duration: 8, askComment: false
   },
   {
-    text: "The number 0 was invented in India. Imagine counting without zero!",
-    textSW: "Sifuri ilibuniwa India. Fikiria kuhesabu bila sifuri!",
-    category: "Maths", duration: 10, askComment: true
+    text: "Math trick: Multiply any number by 9, then sum the digits. The result is always 9!",
+    textSW: "Mbinu ya hesabu: Zidisha namba yoyote kwa 9, kisha jumlisha tarakimu. Matokeo ni 9 kila mara!",
+    category: "Maths", duration: 9, askComment: true
   },
   {
-    text: "Fun fact: A day on Venus is longer than a year on Venus!",
-    textSW: "Fakta ya kufurahisha: Siku kwenye Venus ni ndefu kuliko mwaka kwenye Venus!",
-    category: "Astronomy", duration: 10, askComment: false
+    text: "Fun fact: Venus spins backward compared to most planets.",
+    textSW: "Fakta: Venus inazunguka kinyume na sayari nyingi.",
+    category: "Astronomy", duration: 8, askComment: false
   },
   {
-    text: "ICT Challenge: If everyone had free internet, what would you do first?",
-    textSW: "Changamoto ya ICT: Kila mtu angekuwa na internet bure, ungenfanya nini kwanza?",
-    category: "ICT & Society", duration: 12, askComment: true
+    text: "Creative challenge: Think of an object that could float in water in a funny way.",
+    textSW: "Changamoto ya ubunifu: Fikiria kitu kinachoweza kuogelea kwenye maji kwa njia ya kuchekesha.",
+    category: "Creative", duration: 10, askComment: true
   },
   {
-    text: "Laugh challenge: Can you solve this riddle before your friends? I’m tall when I’m young and short when I’m old.",
-    textSW: "Changamoto ya kicheko: Unaweza kutatua kitendawili hiki kabla ya marafiki zako? Niko mrefu ninapokuwa mchanga na mfupi ninapokuwa mzee.",
-    category: "Riddles & Fun", duration: 12, askComment: true
-  },
-  {
-    text: "Imagine a plant telling jokes. What joke would it tell?",
-    textSW: "Fikiria mmea likicheka. Ningehitaji ni kicheke gani kitapiga?",
-    category: "Fun Science", duration: 12, askComment: true
-  },
-  {
-    text: "Brain Fact: Your brain uses 20% of your body's energy but weighs only 2%!",
-    textSW: "Fakta ya ubongo: Ubongo wako hutumia 20% ya nishati ya mwili lakini unauza 2% tu!",
-    category: "Science", duration: 9, askComment: false
+    text: "Trivia: The number 0 was invented in India.",
+    textSW: "Fakta: Sifuri ilibuniwa India.",
+    category: "Maths", duration: 7, askComment: true
   },
   {
     text: "Riddle: What comes once in a minute, twice in a moment, but never in a thousand years?",
     textSW: "Kitendawili: Nini huja mara moja kwa dakika, mara mbili kwa wakati, lakini kamwe katika miaka elfu moja?",
+    category: "Riddles", duration: 10, askComment: true
+  },
+  {
+    text: "Fun fact: A day on Venus is longer than a year on Venus!",
+    textSW: "Fakta: Siku kwenye Venus ni ndefu kuliko mwaka kwenye Venus!",
+    category: "Astronomy", duration: 8, askComment: false
+  },
+  {
+    text: "Math trick: Divide 25 by 1/2 and add 10. What’s the answer?",
+    textSW: "Mbinu ya hesabu: Gawanya 25 kwa 1/2 kisha ongeza 10. Jibu ni nini?",
+    category: "Maths", duration: 9, askComment: true
+  },
+  {
+    text: "Fun Science: Honey never spoils. Archaeologists found edible honey in ancient tombs!",
+    textSW: "Fakta ya sayansi: Asali haiharibiki. Waakiolojia walipata asali inayokula katika makaburi ya kale!",
+    category: "Fun Science", duration: 10, askComment: false
+  },
+  {
+    text: "Riddle: I have keys but no locks. I have space but no room. You can enter but can’t go outside. What am I?",
+    textSW: "Kitendawili: Nina funguo lakini sina mnyozo. Nina nafasi lakini sina chumba. Unaweza kuingia lakini huwezi kutoka nje. Mimi ni nini?",
     category: "Riddles", duration: 12, askComment: true
   },
   {
-    text: "Fun Math Trick: 9 × any number, then sum the digits. The result is always 9. Try it!",
-    textSW: "Mbinu ya Hesabu ya Kufurahisha: Zidisha 9 × namba yoyote, kisha jumlisha tarakimu. Matokeo ni 9 kila mara. Jaribu!",
-    category: "Maths", duration: 12, askComment: true
-  },
-  {
-    text: "Funny fact: Sloths can hold their breath longer than dolphins!",
-    textSW: "Fakta ya kuchekesha: Panya-mitini wanaweza kushikilia pumzi zao kwa muda mrefu kuliko dolfini!",
-    category: "Biology", duration: 10, askComment: false
-  },
-  {
-    text: "Creative challenge: Invent a school gadget that makes everyone laugh while learning.",
-    textSW: "Changamoto ya ubunifu: Buni kifaa cha shule kinachofanya kila mtu acheke anapojifunza.",
-    category: "Creative", duration: 12, askComment: true
+    text: "Fun fact: Some turtles can breathe through their butts!",
+    textSW: "Fakta: Baadhi ya kobe wanaweza kupumua kupitia matako yao!",
+    category: "Fun Science", duration: 8, askComment: false
   }
 ];
-
-
-
 
 // animals + birds + butterflies
 const ANIMALS = {
@@ -1399,29 +1400,30 @@ function splitText(ctx, text, maxWidth) {
   return lines;
 }
 
-
 // ---------- Knowledge items counter ----------
 let knowledgeIndex = 0; // starts at 0
 let showingKnowledge = false; // ensures nothing shows before clicking
 
 function nextKnowledgeItem() {
-  if (!showingKnowledge) return; // do nothing if recording hasn't started
+  if (!showingKnowledge) return;
 
-  if (knowledgeIndex >= KNOWLEDGE_ITEMS.length) {
+  if (usedFacts.length >= KNOWLEDGE_ITEMS.length) {
     statusEl.textContent = 'All items completed!';
     return;
   }
 
+  // Pick random unused item
+  const unused = KNOWLEDGE_ITEMS.filter((_, i) => !usedFacts.includes(i));
+  const idx = Math.floor(Math.random() * unused.length);
+  const item = unused[idx];
+  const realIndex = KNOWLEDGE_ITEMS.indexOf(item);
+  usedFacts.push(realIndex);
 
+  // Show numbering (optional)
+  const counterText = `${usedFacts.length}/6`;
 
-  const item = KNOWLEDGE_ITEMS[knowledgeIndex];
-  knowledgeIndex++;
-
-  // Show numbering as "current / total", total forced to 6
-  const counterText = `${knowledgeIndex}/6`;
-  
-  showKnowledgeItem({ 
-    ...item, 
+  showKnowledgeItem({
+    ...item,
     text: `${counterText} • ${item.text}`
   });
 
@@ -1430,8 +1432,6 @@ function nextKnowledgeItem() {
   }
 }
 
-
-// Call this only when Start & Record is clicked
 recordBtn.addEventListener('click', async () => {
   ensureAudioCtx();
   if (audioCtx.state === 'suspended') await audioCtx.resume();
@@ -1444,35 +1444,38 @@ recordBtn.addEventListener('click', async () => {
     } catch (e) {
       statusEl.textContent = 'Failed to prepare scene: ' + e.message;
       console.error(e);
-      return;
+      return; // ✅ valid inside async arrow
     }
   }
-
-  // ✅ Start the flow only now
+  
+  // Start the flow
   showingKnowledge = true;
-  knowledgeIndex = 0; // reset counter
-  nextKnowledgeItem(); // show first item
+  usedFacts = [];           // reset used items
+  nextKnowledgeItem();      // show first random item
 
-  // Start a mini loop to update the Swahili bubble effects
+  // Mini loop for Swahili bubble effects
   function bubbleLoop() {
-    if (!showingKnowledge) return; // stop if flow ends
-    if (scene.bubble.item) drawSwahiliBubble(); // draw bubble with effects
+    if (!showingKnowledge) return;
+    if (scene.bubble.item) drawSwahiliBubble();
     requestAnimationFrame(bubbleLoop);
   }
   requestAnimationFrame(bubbleLoop);
 
-  if (voiceMethodSel.value === 'mic' && !navigator.mediaDevices.getUserMedia) {
+  // Mic support check
+  if (voiceMethodSel.value === 'mic' && !navigator.mediaDevices?.getUserMedia) {
     statusEl.textContent = 'Mic not supported in this browser.';
     return;
   }
 
+  // Start recording
   try {
     await startRecordingAuto();
   } catch (err) {
     statusEl.textContent = 'Recording failed: ' + err.message;
     console.error(err);
   }
-});
+}); // ✅ closes the click listener
+
 
 
 
@@ -1524,6 +1527,35 @@ function showCommentPrompt(item) {
 
 
 
+
+
+
+
+function getRandomKnowledgeItem() {
+  if (usedFacts.length >= KNOWLEDGE_ITEMS.length) {
+    usedFacts = []; // Reset when all have been used
+  }
+
+  // Pick only unused items
+  const unused = KNOWLEDGE_ITEMS.filter((_, i) => !usedFacts.includes(i));
+  const idx = Math.floor(Math.random() * unused.length);
+  const item = unused[idx];
+
+  // Mark it as used
+  const realIndex = KNOWLEDGE_ITEMS.indexOf(item);
+  usedFacts.push(realIndex);
+
+  return item;
+}
+
+// When clicking Start & Record
+startBtn.addEventListener('click', () => {
+  currentItem = getRandomKnowledgeItem(); // Pick a random item to start with
+  startAnimation();
+});
+
+
+
 window.addEventListener('load', ()=> {
   // Warm audio context/voices (no TTS used)
   try { speechSynthesis.getVoices(); } catch(e){}
@@ -1539,28 +1571,44 @@ function getRandomKnowledgeItem() {
   return knowledgeShuffler.next();
 }
 
-/* ---------- Animation loop ---------- */
-let animRunning = false;
+
+
 
 function startAnimation() {
   if (animRunning) return;
   animRunning = true;
   let start = performance.now();
+
+  // Pick initial item immediately
+  currentItem = getRandomKnowledgeItem();
+  lastItemTime = start;
+
   function loop(now) {
     const t = now - start;
+
+    // Animate animals
     scene.animalA.bounceTimer = t;
     scene.animalB.bounceTimer = t + 70;
     drawScene(t);
+
+    // Update knowledge item every ITEM_INTERVAL
+    if (now - lastItemTime > ITEM_INTERVAL) {
+      currentItem = getRandomKnowledgeItem();
+      lastItemTime = now;
+    }
+
+    // Draw comment effect for current item
+    drawCommentEffect(t, currentItem);
+
     if (animRunning) requestAnimationFrame(loop);
   }
+
   requestAnimationFrame(loop);
 }
 
 function stopAnimation() {
   animRunning = false;
 }
-
-
 
 
 
@@ -1642,5 +1690,3 @@ function showKnowledgeItem(item) {
 </script>
 </body> 
 </html>
-
-
