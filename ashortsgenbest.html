@@ -159,6 +159,33 @@
       font-size: 0.8rem;
     }
   }
+  
+  
+  
+  .comment-bubble {
+  position: absolute; /* inside container */
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #fffa65, #ff6b6b);
+  color: #000;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 18px 28px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  z-index: 999;
+  pointer-events: none;
+  white-space: pre-wrap;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+  
 </style>
 
 </head>
@@ -206,7 +233,12 @@
     <div class="hint">Tip: if browser prompts to allow mic, allow it. For embedded narration use Upload or Mic. TTS is disabled (no narration).</div>
   </div>
 
-
+<div id="short-container">
+  <div class="short-item" id="item1"></div>
+  <div class="short-item" id="item2"></div>
+  <div class="short-item" id="item3"></div>
+  <div class="short-item" id="item4"></div>
+</div>
 
 <script>
 /* ---------- Configuration & assets ---------- */
@@ -340,25 +372,85 @@ const BACKGROUNDS = [
 ];
 
 
-// 🎓 Mixed Knowledge Items + Interactive Prompts
 const KNOWLEDGE_ITEMS = [
-  // --- General Knowledge ---
-  { text: "The first known book was written in ancient Sumeria around 2600 BC.", category: "History", duration: 10, askComment: false },
-  { text: "Some jellyfish are biologically immortal.", category: "Science", duration: 9, askComment: false },
-  { text: "Kenya has over 60 ethnic groups with unique cultures.", category: "Geography", duration: 9, askComment: false },
-
-  // --- Creative / Interactive Prompts ---
-  { text: "If you could invent one learning gadget for schools, what would it be?", category: "Creative", duration: 12, askComment: true },
-  { text: "Imagine plants could talk — what question would you ask them?", category: "Fun Science", duration: 12, askComment: true },
-  { text: "How would the world change if everyone had free internet?", category: "ICT & Society", duration: 12, askComment: true },
-  { text: "In maths, zero was first used in India. What would life be without it?", category: "Maths", duration: 10, askComment: true },
-  { text: "Why do some animals migrate thousands of kilometers each year?", category: "Biology", duration: 11, askComment: true },
-  { text: "If you had to teach your younger self one subject, which would it be?", category: "Life Skills", duration: 13, askComment: true },
-
-  // --- Factual Additions ---
-  { text: "The Milky Way is so wide that light takes 100,000 years to cross it.", category: "Astronomy", duration: 10, askComment: false },
-  { text: "Your brain uses about 20% of your body’s total energy.", category: "Science", duration: 8, askComment: false },
+  {
+    text: "The shortest war in history lasted just 38 minutes between Britain and Zanzibar.",
+    textSW: "Vita kifupi zaidi katika historia vilidumu dakika 38 tu kati ya Uingereza na Zanzibar.",
+    category: "History", duration: 10, askComment: false
+  },
+  {
+    text: "Riddle: I speak without a mouth and hear without ears. What am I?",
+    textSW: "Kitendawili: Ninaongea bila mdomo na kusikia bila masikio. Mimi ni nini?",
+    category: "Riddles", duration: 12, askComment: true
+  },
+  {
+    text: "Did you know octopuses have three hearts and blue blood? Imagine if humans did too!",
+    textSW: "Je, unajua pweza wana mioyo mitatu na damu ya buluu? Fikiria kama binadamu pia wangekuwa hivyo!",
+    category: "Fun Science", duration: 11, askComment: false
+  },
+  {
+    text: "Math trick: Multiply 111,111,111 × 111,111,111. Can you guess the answer?",
+    textSW: "Mbinu ya hesabu: Zidisha 111,111,111 × 111,111,111. Je, unaweza kubashiri jibu?",
+    category: "Maths", duration: 12, askComment: true
+  },
+  {
+    text: "Why don’t penguins get cold feet in icy waters? Comment your guess!",
+    textSW: "Kwa nini pingwini hawana baridi kwenye miguu kwenye maji ya barafu? Toa makisio yako!",
+    category: "Biology", duration: 12, askComment: true
+  },
+  {
+    text: "The number 0 was invented in India. Imagine counting without zero!",
+    textSW: "Sifuri ilibuniwa India. Fikiria kuhesabu bila sifuri!",
+    category: "Maths", duration: 10, askComment: true
+  },
+  {
+    text: "Fun fact: A day on Venus is longer than a year on Venus!",
+    textSW: "Fakta ya kufurahisha: Siku kwenye Venus ni ndefu kuliko mwaka kwenye Venus!",
+    category: "Astronomy", duration: 10, askComment: false
+  },
+  {
+    text: "ICT Challenge: If everyone had free internet, what would you do first?",
+    textSW: "Changamoto ya ICT: Kila mtu angekuwa na internet bure, ungenfanya nini kwanza?",
+    category: "ICT & Society", duration: 12, askComment: true
+  },
+  {
+    text: "Laugh challenge: Can you solve this riddle before your friends? I’m tall when I’m young and short when I’m old.",
+    textSW: "Changamoto ya kicheko: Unaweza kutatua kitendawili hiki kabla ya marafiki zako? Niko mrefu ninapokuwa mchanga na mfupi ninapokuwa mzee.",
+    category: "Riddles & Fun", duration: 12, askComment: true
+  },
+  {
+    text: "Imagine a plant telling jokes. What joke would it tell?",
+    textSW: "Fikiria mmea likicheka. Ningehitaji ni kicheke gani kitapiga?",
+    category: "Fun Science", duration: 12, askComment: true
+  },
+  {
+    text: "Brain Fact: Your brain uses 20% of your body's energy but weighs only 2%!",
+    textSW: "Fakta ya ubongo: Ubongo wako hutumia 20% ya nishati ya mwili lakini unauza 2% tu!",
+    category: "Science", duration: 9, askComment: false
+  },
+  {
+    text: "Riddle: What comes once in a minute, twice in a moment, but never in a thousand years?",
+    textSW: "Kitendawili: Nini huja mara moja kwa dakika, mara mbili kwa wakati, lakini kamwe katika miaka elfu moja?",
+    category: "Riddles", duration: 12, askComment: true
+  },
+  {
+    text: "Fun Math Trick: 9 × any number, then sum the digits. The result is always 9. Try it!",
+    textSW: "Mbinu ya Hesabu ya Kufurahisha: Zidisha 9 × namba yoyote, kisha jumlisha tarakimu. Matokeo ni 9 kila mara. Jaribu!",
+    category: "Maths", duration: 12, askComment: true
+  },
+  {
+    text: "Funny fact: Sloths can hold their breath longer than dolphins!",
+    textSW: "Fakta ya kuchekesha: Panya-mitini wanaweza kushikilia pumzi zao kwa muda mrefu kuliko dolfini!",
+    category: "Biology", duration: 10, askComment: false
+  },
+  {
+    text: "Creative challenge: Invent a school gadget that makes everyone laugh while learning.",
+    textSW: "Changamoto ya ubunifu: Buni kifaa cha shule kinachofanya kila mtu acheke anapojifunza.",
+    category: "Creative", duration: 12, askComment: true
+  }
 ];
+
+
 
 
 // animals + birds + butterflies
@@ -1012,51 +1104,96 @@ function drawScene(t) {
   }
 
   // --- Top text ---
-  ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 60px "Patrick Hand", Arial'; ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillStyle='rgba(255,255,255,0.9)'; 
+  ctx.font='bold 60px "Patrick Hand", Arial'; 
+  ctx.textAlign='center'; 
+  ctx.textBaseline='top';
   ctx.fillText("Fun,Facts,Memes,Laughs", CANVAS_W/2,40);
 
+  // --- Swahili bubble on top ---
+  drawSwahiliBubble();
 
-// --- Subtitle / bubble text ---
-const subtitleText = (scene.subtitle.item && scene.subtitle.item.text) || '';
-ctx.font = '"Patrick Hand", Arial, cursive';
-ctx.fillStyle = 'yellow';
-ctx.textAlign = 'center';
-ctx.textBaseline = 'middle';
+  // --- Subtitle / bubble text (center) ---
+  const subtitleText = (scene.subtitle.item && scene.subtitle.item.text) || '';
+  ctx.font = '"Patrick Hand", Arial, cursive';
+  ctx.fillStyle = 'yellow';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
 
-const wrapped = splitText(ctx, subtitleText, CANVAS_W - 60);
-const lineH = 60;
-const totalH = wrapped.length * lineH;
-let startY = CANVAS_H * 0.5 - totalH / 2 + 30;
+  const wrapped = splitText(ctx, subtitleText, CANVAS_W - 60);
+  const lineH = 60;
+  const totalH = wrapped.length * lineH;
+  let startY = CANVAS_H * 0.5 - totalH / 2 + 30;
 
-for (let i = 0; i < wrapped.length; i++) {
-  ctx.fillText(wrapped[i], CANVAS_W / 2, startY + i * lineH);
-}
-
-// --- Bubble (optional) ---
-if (scene.bubble.item) {
-  const bubbleText = scene.bubble.item.text || '';
-  const wrappedBubble = splitText(ctx, bubbleText, CANVAS_W - 80);
-  const bubbleY = 120;
-  ctx.font = 'bold 30 px "Gloria Hallelujah", cursive';
-  ctx.fillStyle = '#333';
-  
-  for (let i = 0; i < wrappedBubble.length; i++) {
-    ctx.fillText(wrappedBubble[i], CANVAS_W / 2, bubbleY + i * 50);
+  for (let i = 0; i < wrapped.length; i++) {
+    ctx.fillText(wrapped[i], CANVAS_W / 2, startY + i * lineH);
   }
-
-}
 
   // --- Bottom-right logo ---
   const logoText='🎓 Get Top Tuition Now!📱Install Elimu Connect App(Kenya), SmartLearn: IGCSE IB CBSE ICSE (global)!';
-  ctx.font='28px "Patrick Hand", Arial'; const padX=20,padY=14;
-  const mid=Math.floor(logoText.length/2); let splitIndex=logoText.indexOf(' ',mid); if(splitIndex==-1) splitIndex=mid;
-  const logoText1=logoText.slice(0,splitIndex); const logoText2=logoText.slice(splitIndex+1);
-  const m1=ctx.measureText(logoText1), m2=ctx.measureText(logoText2); const rectW=Math.max(m1.width,m2.width)+padX*2;
-  const rectH=lineH*2+padY*2; const rectX=CANVAS_W-rectW-20; const rectY=CANVAS_H-rectH-20;
+  ctx.font='28px "Patrick Hand", Arial'; 
+  const padX=20,padY=14;
+  const mid=Math.floor(logoText.length/2); 
+  let splitIndex=logoText.indexOf(' ',mid); 
+  if(splitIndex==-1) splitIndex=mid;
+  const logoText1=logoText.slice(0,splitIndex); 
+  const logoText2=logoText.slice(splitIndex+1);
+  const m1=ctx.measureText(logoText1), m2=ctx.measureText(logoText2); 
+  const rectW=Math.max(m1.width,m2.width)+padX*2;
+  const rectH=lineH*2+padY*2; 
+  const rectX=CANVAS_W-rectW-20; 
+  const rectY=CANVAS_H-rectH-20;
   drawRoundRect(rectX,rectY,rectW,rectH,20,'rgba(255,255,255,0.95)','rgba(0,0,0,0.08)',2);
-  ctx.fillStyle='#111'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(logoText1, rectX+rectW/2, rectY+lineH/2); ctx.fillText(logoText2, rectX+rectW/2, rectY+lineH/2+lineH);
+  ctx.fillStyle='#111'; 
+  ctx.textAlign='center'; 
+  ctx.textBaseline='middle';
+  ctx.fillText(logoText1, rectX+rectW/2, rectY+lineH/2); 
+  ctx.fillText(logoText2, rectX+rectW/2, rectY+lineH/2+lineH);
 }
+
+
+function drawSwahiliBubble() {
+  if (!scene.bubble || !scene.bubble.item) return;
+
+  const text = scene.bubble.item.textSW || scene.bubble.item.text || '';
+  if (!text) return;
+
+  ctx.save();
+
+  const t = performance.now();
+
+  // --- Sliding effect from right to left ---
+  ctx.font = 'bold 64px "Gloria Hallelujah", cursive';
+  const textWidth = ctx.measureText(text).width;
+  const padding = 20;
+
+  // Right-to-left sliding
+  const slideX = CANVAS_W - ((t / 5) % (CANVAS_W + textWidth));
+  ctx.translate(slideX, 120);
+
+  // --- Draw translucent background ---
+  ctx.globalAlpha = 0.5; // translucent
+  ctx.fillStyle = '#000'; // black background
+  ctx.fillRect(
+    -padding / 2,
+    -64 / 2 - padding / 2,
+    textWidth + padding,
+    64 + padding
+  );
+
+  // --- Draw text ---
+  ctx.globalAlpha = 1; // fully visible
+  ctx.fillStyle = '#ffb74d';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#000';
+  ctx.shadowBlur = 10;
+
+  ctx.fillText(text, 0, 0);
+
+  ctx.restore();
+}
+
 
 
 
@@ -1074,8 +1211,6 @@ genBtn.addEventListener('click', async ()=>{
     console.error(e);
   }
 });
-
-
 
 
 /* ---------- Voice upload handling (left intact) ---------- */
@@ -1237,12 +1372,40 @@ function splitText(ctx, text, maxWidth) {
 }
 
 
-/* ---------- Events ---------- */
+// ---------- Knowledge items counter ----------
+let knowledgeIndex = 0; // starts at 0
+let showingKnowledge = false; // ensures nothing shows before clicking
+
+function nextKnowledgeItem() {
+  if (!showingKnowledge) return; // do nothing if recording hasn't started
+
+  if (knowledgeIndex >= KNOWLEDGE_ITEMS.length) {
+    statusEl.textContent = 'All items completed!';
+    return;
+  }
+
+  const item = KNOWLEDGE_ITEMS[knowledgeIndex];
+  knowledgeIndex++;
+
+  // Show numbering as "current / total", total forced to 6
+  const counterText = `${knowledgeIndex}/6`;
+  
+  showKnowledgeItem({ 
+    ...item, 
+    text: `${counterText} • ${item.text}`
+  });
+
+  if (item.askComment) {
+    showCommentPrompt(item);
+  }
+}
+
+
+// Call this only when Start & Record is clicked
 recordBtn.addEventListener('click', async () => {
   ensureAudioCtx();
   if (audioCtx.state === 'suspended') await audioCtx.resume();
 
-  // 1️⃣ Prepare scene if not loaded
   if (!assetsLoaded) {
     statusEl.textContent = 'Scene not ready. Preparing...';
     try {
@@ -1255,13 +1418,24 @@ recordBtn.addEventListener('click', async () => {
     }
   }
 
-  // 2️⃣ Request microphone access directly from this click handler
+  // ✅ Start the flow only now
+  showingKnowledge = true;
+  knowledgeIndex = 0; // reset counter
+  nextKnowledgeItem(); // show first item
+
+  // Start a mini loop to update the Swahili bubble effects
+  function bubbleLoop() {
+    if (!showingKnowledge) return; // stop if flow ends
+    if (scene.bubble.item) drawSwahiliBubble(); // draw bubble with effects
+    requestAnimationFrame(bubbleLoop);
+  }
+  requestAnimationFrame(bubbleLoop);
+
   if (voiceMethodSel.value === 'mic' && !navigator.mediaDevices.getUserMedia) {
     statusEl.textContent = 'Mic not supported in this browser.';
     return;
   }
 
-  // 3️⃣ Start recording immediately
   try {
     await startRecordingAuto();
   } catch (err) {
@@ -1271,19 +1445,62 @@ recordBtn.addEventListener('click', async () => {
 });
 
 
+
+// Optional helper for comment items
+function showCommentPrompt(item) {
+  // Customize this for your shorts UI
+  console.log("💬 Ask your viewers:", item.text);
+  // Example: show a speech bubble overlay
+  const bubble = document.createElement('div');
+  bubble.className = 'comment-bubble';
+  bubble.textContent = item.text;
+  document.body.appendChild(bubble);
+  setTimeout(() => bubble.remove(), 5000); // remove after 5s
+}
+// Optional helper for comment items
+function showCommentPrompt(item) {
+  // Only show if item asks for comment
+  if (!item.askComment) return;
+
+  // Example: show a speech bubble overlay below the main card
+  const bubble = document.createElement('div');
+  bubble.className = 'comment-bubble';
+
+  // ✅ Fixed comment text instead of item.text
+  bubble.textContent = "💬 Comment your answer";
+
+  // Style it smartly
+  bubble.style.position = 'absolute';
+  bubble.style.bottom = '10%';      // below main bubble
+  bubble.style.left = '50%';
+  bubble.style.transform = 'translateX(-50%)';
+  bubble.style.fontSize = '32px';
+  bubble.style.color = '#ff5722';
+  bubble.style.background = 'rgba(255,255,255,0.8)';
+  bubble.style.padding = '8px 16px';
+  bubble.style.borderRadius = '12px';
+  bubble.style.textAlign = 'center';
+  bubble.style.fontFamily = "'Patrick Hand', Comic Sans";
+  bubble.style.boxShadow = '0 0 15px #fff';
+  bubble.style.zIndex = 9999;
+  bubble.style.maxWidth = '80%';      // fit nicely in card
+  bubble.style.whiteSpace = 'pre-wrap'; // allow line breaks
+
+  document.body.appendChild(bubble);
+
+  // Remove after 5 seconds
+  setTimeout(() => bubble.remove(), 5000);
+}
+
+
+
 window.addEventListener('load', ()=> {
   // Warm audio context/voices (no TTS used)
   try { speechSynthesis.getVoices(); } catch(e){}
-  // prepare initial scene quietly
-  (async ()=>{ try{ await prepareScene(); startAnimation(); }catch(e){console.warn(e);} })();
+
+  // Only update status — don't start scene yet
   statusEl.textContent = 'Ready. Click Generate Preview and then Start & Record.';
 });
-
-/* ---------- Rotate knowledge every 10s using the shuffler order ----------
-   We will cycle by asking the shuffler for the next item (but don't consume it twice
-   when prepareScene already set the current scene.subtitle). To keep rotation consistent
-   we use a rotating index that references the same persistent shuffled order.
-*/
 
 
 
@@ -1313,46 +1530,22 @@ function stopAnimation() {
   animRunning = false;
 }
 
-/* ---------- Start knowledge cycle after scene is ready ---------- */
-async function startKnowledgeCycle() {
-  try {
-    if (!assetsLoaded) {
-      await prepareScene();  // prepares all assets first
-      startAnimation();      // draw loop starts safely
-    }
-  } catch (e) {
-    console.warn('prepareScene failed in startKnowledgeCycle', e);
-  }
-
-  nextKnowledgeItem(); // start first knowledge item
-}
-
-/* ---------- Show next knowledge item ---------- */
-function nextKnowledgeItem() {
-  try {
-    if (!knowledgeShuffler) {
-      console.warn('knowledgeShuffler is not defined!');
-      return;
-    }
-    const item = knowledgeShuffler.next(); // always an object
-    if (item) showKnowledgeItem(item);
-  } catch (e) {
-    console.warn('nextKnowledgeItem error', e);
-  }
-}
 function showKnowledgeItem(item) {
   if (!item) return;
 
-  // Stop any previous timers
+  // Cancel previous timer
   if (activeTimer) cancelAnimationFrame(activeTimer);
 
-  // store object in bubble & subtitle
+  // Assign current item to scene
   scene.subtitle.item = item;
   scene.bubble.item = item;
   scene.subtitle.text = item.askComment ? "💬 What do you think?" : item.text;
   scene.bubble.text = item.text;
 
-  // timer setup
+  // Start time for animations
+  scene.subtitle.startTime = performance.now(); 
+
+  // Set timer duration
   timerValue = item.duration || 10;
   const startTime = performance.now();
 
@@ -1360,9 +1553,21 @@ function showKnowledgeItem(item) {
     const elapsed = (now - startTime) / 1000;
     timerProgress = Math.max(1 - elapsed / timerValue, 0);
 
-    drawScene(now);
-    drawTimerArc(timerProgress);
+    // Draw main scene
+    drawScene(now);            
 
+    // Draw timer
+    drawTimerArc(timerProgress); 
+
+    // Draw comment effect if applicable
+    if (item.askComment) {
+      drawCommentEffect(now, item);
+    }
+
+    // Draw top Swahili bubble with effects
+    drawSwahiliBubble();
+
+    // Continue or go to next item
     if (timerProgress > 0) {
       activeTimer = requestAnimationFrame(step);
     } else {
@@ -1378,18 +1583,6 @@ function showKnowledgeItem(item) {
 
 
 
-
-
-
-
-// Initialize on page load
-window.addEventListener("load", () => {
-  startKnowledgeCycle();
-});
-
-
 </script>
 </body> 
 </html>
-
-
