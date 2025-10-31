@@ -1158,26 +1158,44 @@ function drawScene(t) {
     ctx.fillText(wrapped[i], CANVAS_W / 2, startY + i * lineH);
   }
 
-  // --- Bottom-right logo ---
-  const logoText='🎓 Get Top Tuition Now!📱Install Elimu Connect App(Kenya), SmartLearn: IGCSE IB CBSE ICSE (global)!';
-  ctx.font='28px "Patrick Hand", Arial'; 
-  const padX=20,padY=14;
-  const mid=Math.floor(logoText.length/2); 
-  let splitIndex=logoText.indexOf(' ',mid); 
-  if(splitIndex==-1) splitIndex=mid;
-  const logoText1=logoText.slice(0,splitIndex); 
-  const logoText2=logoText.slice(splitIndex+1);
-  const m1=ctx.measureText(logoText1), m2=ctx.measureText(logoText2); 
-  const rectW=Math.max(m1.width,m2.width)+padX*2;
-  const rectH=lineH*2+padY*2; 
-  const rectX=CANVAS_W-rectW-20; 
-  const rectY=CANVAS_H-rectH-20;
-  drawRoundRect(rectX,rectY,rectW,rectH,20,'rgba(255,255,255,0.95)','rgba(0,0,0,0.08)',2);
-  ctx.fillStyle='#111'; 
-  ctx.textAlign='center'; 
-  ctx.textBaseline='middle';
-  ctx.fillText(logoText1, rectX+rectW/2, rectY+lineH/2); 
-  ctx.fillText(logoText2, rectX+rectW/2, rectY+lineH/2+lineH);
+  // --- Draw bottom-right sliding logo ---
+  drawSlidingLogo(t);
+}
+
+// --- Bottom-right continuous sliding logo ---
+let logoX = 0; // declare globally (outside drawScene)
+
+function drawSlidingLogo(time) {
+  const logoText = '🎓 Get Top Tuition Now! 📱 Install Elimu Connect App (Kenya) — SmartLearn: IGCSE • IB • CBSE • ICSE (Global)!';
+  ctx.font = '28px "Patrick Hand", Arial';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+
+  const textWidth = ctx.measureText(logoText).width;
+  const rectH = 70;
+  const rectY = CANVAS_H - rectH - 150; // position slightly above bottom
+  const rectW = CANVAS_W; // full width of canvas
+  const speed = 3; // slide speed
+
+  // Move text
+  logoX -= speed;
+  if (logoX <= -textWidth) {
+    // instantly restart (continuous)
+    logoX = 0;
+  }
+
+  // Draw background bar
+  drawRoundRect(0, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.08)', 2);
+
+  // Create gradient fill
+  const gradient = ctx.createLinearGradient(0, rectY, rectW, rectY + rectH);
+  gradient.addColorStop(0, '#ff6f00');
+  gradient.addColorStop(1, '#1976d2');
+  ctx.fillStyle = gradient;
+
+  // Draw text twice (for seamless continuous loop)
+  ctx.fillText(logoText, logoX, rectY + rectH / 2);
+  ctx.fillText(logoText, logoX + textWidth, rectY + rectH / 2);
 }
 
 
@@ -1427,9 +1445,8 @@ function nextKnowledgeItem() {
     text: `${counterText} • ${item.text}`
   });
 
-  if (item.askComment) {
-    showCommentPrompt(item);
-  }
+  
+  
 }
 
 recordBtn.addEventListener('click', async () => {
@@ -1611,45 +1628,73 @@ function stopAnimation() {
 }
 
 
-
-function drawCommentEffect(time, item) {
+function drawCommentEffect(time, item) { 
   if (!ctx || !item) return;
 
-  // Example: draw a simple floating comment at the center
   ctx.save();
-  ctx.font = '32px "Patrick Hand", Arial';
-  ctx.fillStyle = 'cyan';
+
+  // 💬 Floating animation (same style)
+  const baseY = CANVAS_H / 2 + 200; // position BELOW main text
+  const floatY = baseY - Math.sin(time / 400) * 12;
+
+  // Bubble background (rounded)
+  const bubbleWidth = 520;
+  const bubbleHeight = 150; // slightly taller for two lines
+  const bubbleX = (CANVAS_W / 2) - (bubbleWidth / 2);
+  const bubbleY = floatY - bubbleHeight / 2;
+
+  // 🔆 Gradient bubble background
+  const gradient = ctx.createLinearGradient(bubbleX, bubbleY, bubbleX, bubbleY + bubbleHeight);
+  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+  gradient.addColorStop(1, 'rgba(255, 220, 150, 0.9)');
+
+  // Draw bubble background
+  ctx.beginPath();
+  ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, 30);
+  ctx.fillStyle = gradient;
+  ctx.shadowColor = 'rgba(255, 200, 50, 0.9)';
+  ctx.shadowBlur = 25;
+  ctx.fill();
+
+  // Border
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(255, 100, 0, 0.8)';
+  ctx.stroke();
+
+  // 💬 Comment line
+  ctx.font = 'bold 42px "Patrick Hand", Comic Sans MS, Arial';
+  ctx.fillStyle = '#ff5722';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.2)';
+  ctx.shadowBlur = 0;
+  ctx.fillText('💬 Comment your answer!', CANVAS_W / 2, floatY - 25);
 
-  // Floating up effect
-  const floatY = CANVAS_H / 2 - (Math.sin(time / 300) * 20);
-  ctx.fillText('💬 ' + item.text, CANVAS_W / 2, floatY);
+  // 📢 Subscribe line (below)
+  ctx.font = 'bold 38px "Patrick Hand", Comic Sans MS, Arial';
+  ctx.fillStyle = '#1976d2';
+  ctx.fillText('📢 Please Subscribe!', CANVAS_W / 2, floatY + 35);
 
   ctx.restore();
 }
 
 
 
-
-
-
 function showKnowledgeItem(item) {
   if (!item) return;
 
-  // Cancel previous timer
   if (activeTimer) cancelAnimationFrame(activeTimer);
 
   // Assign current item to scene
   scene.subtitle.item = item;
   scene.bubble.item = item;
-  scene.subtitle.text = item.askComment ? "💬 What do you think?" : item.text;
+ // Always show the main item text only — comment will be drawn separately
+scene.subtitle.text = item.text;
+
   scene.bubble.text = item.text;
 
   // Start time for animations
   scene.subtitle.startTime = performance.now(); 
-
-  // Set timer duration
   timerValue = item.duration || 10;
   const startTime = performance.now();
 
@@ -1657,21 +1702,20 @@ function showKnowledgeItem(item) {
     const elapsed = (now - startTime) / 1000;
     timerProgress = Math.max(1 - elapsed / timerValue, 0);
 
-    // Draw main scene
+    // Draw the main scene (knowledge text)
     drawScene(now);            
 
-    // Draw timer
+    // Draw timer arc
     drawTimerArc(timerProgress); 
 
-    // Draw comment effect if applicable
+    // If this knowledge item needs a comment, draw it BELOW
     if (item.askComment) {
       drawCommentEffect(now, item);
     }
 
-    // Draw top Swahili bubble with effects
+    // Draw Swahili bubble
     drawSwahiliBubble();
 
-    // Continue or go to next item
     if (timerProgress > 0) {
       activeTimer = requestAnimationFrame(step);
     } else {
@@ -1687,7 +1731,7 @@ function showKnowledgeItem(item) {
 
 
 
+
 </script>
 </body> 
 </html>
-
