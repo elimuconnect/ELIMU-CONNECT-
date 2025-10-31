@@ -1162,10 +1162,13 @@ function drawScene(t) {
   drawSlidingLogo(t);
 }
 
-// --- Bottom-right continuous sliding logo ---
-let logoX = 0; // declare globally (outside drawScene)
 
-function drawSlidingLogo(time) {
+// --- Bottom-right continuous sliding logo with 1s pause ---
+let logoX = 0;
+let logoPauseTimer = 0;
+let isPaused = false;
+
+function drawSlidingLogo(time, deltaTime = 16) {
   const logoText = '🎓 Get Top Tuition Now! 📱 Install Elimu Connect App (Kenya) — SmartLearn: IGCSE • IB • CBSE • ICSE (Global)!';
   ctx.font = '28px "Patrick Hand", Arial';
   ctx.textBaseline = 'middle';
@@ -1173,27 +1176,35 @@ function drawSlidingLogo(time) {
 
   const textWidth = ctx.measureText(logoText).width;
   const rectH = 70;
-  const rectY = CANVAS_H - rectH - 150; // position slightly above bottom
-  const rectW = CANVAS_W; // full width of canvas
-  const speed = 3; // slide speed
+  const rectY = CANVAS_H - rectH - 150;
+  const rectW = CANVAS_W;
+  const speed = 0.8; // smooth readable scroll
 
-  // Move text
-  logoX -= speed;
-  if (logoX <= -textWidth) {
-    // instantly restart (continuous)
-    logoX = 0;
+  // Handle pause
+  if (isPaused) {
+    logoPauseTimer += deltaTime;
+    if (logoPauseTimer >= 1000) { // 1 second pause
+      isPaused = false;
+      logoPauseTimer = 0;
+      logoX = 0; // restart immediately
+    }
+  } else {
+    logoX -= speed;
+    if (logoX <= -textWidth) {
+      isPaused = true; // pause when full text is off screen
+    }
   }
 
   // Draw background bar
   drawRoundRect(0, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.08)', 2);
 
-  // Create gradient fill
+  // Text gradient color
   const gradient = ctx.createLinearGradient(0, rectY, rectW, rectY + rectH);
   gradient.addColorStop(0, '#ff6f00');
   gradient.addColorStop(1, '#1976d2');
   ctx.fillStyle = gradient;
 
-  // Draw text twice (for seamless continuous loop)
+  // Draw the scrolling text twice for seamless transition
   ctx.fillText(logoText, logoX, rectY + rectH / 2);
   ctx.fillText(logoText, logoX + textWidth, rectY + rectH / 2);
 }
@@ -1735,3 +1746,4 @@ scene.subtitle.text = item.text;
 </script>
 </body> 
 </html>
+
