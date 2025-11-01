@@ -3890,34 +3890,32 @@ function loadVideo(url) {
 
 
 
-
-/* ---------- Recording (canvas capture) ---------- */
-let recordedChunks = [];
-let mediaRecorder = null;
-
+/* ---------- TikTok + YouTube Shorts Optimized Recorder ---------- */
 async function startRecordingAuto() {
   ensureAudioCtx();
   if (audioCtx.state === 'suspended') {
     try { await audioCtx.resume(); } catch (e) {}
   }
 
-  // ✅ get subtitle text directly (no topics)
   const subtitleText = scene?.subtitle?.text || document.getElementById('subtitleText')?.textContent || '';
   if (!subtitleText.trim()) {
     statusEl.textContent = 'Generate preview first.';
     return;
   }
 
-  // ✅ ensure background music
+  // 🎵 ensure background track
   if (!currentBgSource) await playRandomBackgroundTrack().catch(() => {});
 
-  const dur = parseInt(durationSel.value, 10) || 60;
-  statusEl.textContent = 'Recording: ' + dur + 's — preparing streams...';
+  let dur = parseInt(durationSel.value, 10) || 30;
+  if (dur > 60) {
+    alert("TikTok allows max 60s — trimming to 60s.");
+    dur = 60;
+  }
 
-  // wait for first frame
+  statusEl.textContent = `Recording ${dur}s — preparing streams...`;
   await new Promise(r => setTimeout(r, 350));
 
-  // capture canvas
+  // 🎥 capture canvas
   let videoStream;
   try {
     videoStream = canvas.captureStream(30);
@@ -3926,19 +3924,17 @@ async function startRecordingAuto() {
     return;
   }
 
-  // build combined stream
   const combined = new MediaStream();
   videoStream.getVideoTracks().forEach(t => combined.addTrack(t));
 
-  // live mic
+  // 🎙️ optional mic
   let liveMicStream = null;
   if (voiceMethodSel.value === 'mic') {
     try {
       liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
       liveMicStream.getAudioTracks().forEach(t => combined.addTrack(t));
-      statusEl.textContent = '🎙️ Live mic connected — speak during recording.';
+      statusEl.textContent = '🎤 Live mic connected — speak now!';
     } catch (err) {
-      statusEl.textContent = 'Mic unavailable. Uploaded narration will be used if present.';
       console.warn('Mic error', err);
     }
   }
@@ -3951,41 +3947,63 @@ async function startRecordingAuto() {
     src.start();
   }
 
-  // add background + sfx
+  // background + sfx
   if (audioCtx.masterDest && audioCtx.masterDest.stream) {
     audioCtx.masterDest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
   }
 
-  // start recording
+  // 🎬 set recording options
+  let options = { mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"' };
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.warn('H.264 MP4 not supported, fallback to WebM.');
+    options = { mimeType: 'video/webm;codecs=vp8,opus' };
+  }
+
   recordedChunks = [];
+  let mediaRecorder;
   try {
-    mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm;codecs=vp8,opus' });
+    mediaRecorder = new MediaRecorder(combined, options);
   } catch (err) {
     statusEl.textContent = 'MediaRecorder failed: ' + err.message;
     return;
   }
 
-  mediaRecorder.ondataavailable = e => { if (e.data && e.data.size) recordedChunks.push(e.data); };
-  mediaRecorder.onstart = () => { statusEl.textContent = 'Recording... (auto stops after ' + dur + 's)'; };
-  mediaRecorder.onerror = e => { statusEl.textContent = 'Recording error: ' + e.message; };
+  mediaRecorder.ondataavailable = e => {
+    if (e.data && e.data.size) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstart = () => {
+    statusEl.textContent = 'Recording... (auto stops after ' + dur + 's)';
+  };
+  mediaRecorder.onerror = e => {
+    statusEl.textContent = 'Recording error: ' + e.message;
+  };
+
   mediaRecorder.onstop = async () => {
-  if (liveMicStream) liveMicStream.getTracks().forEach(t => t.stop());
-  stopCurrentBgTrack();
+    if (liveMicStream) liveMicStream.getTracks().forEach(t => t.stop());
+    stopCurrentBgTrack();
 
-  const blob = new Blob(recordedChunks, { type: 'video/mp4' });
-  const url = URL.createObjectURL(blob);
-  downloadLink.href = url;
-  downloadLink.download = `elimu_short_${dur}s_${Date.now()}.mp4`;
-  downloadLink.textContent = '⬇️ Download MP4 (9:16)';
-  downloadLink.classList.remove('hidden');
-  setTimeout(() => { try { downloadLink.click(); } catch (e) {} }, 300);
-  statusEl.textContent = '✅ Recording complete — MP4 file ready.';
-};
+    const mime = options.mimeType.includes('mp4') ? 'video/mp4' : 'video/webm';
+    let blob = new Blob(recordedChunks, { type: mime });
 
+    // ✅ Convert to TikTok MP4 if needed
+    if (mime === 'video/webm') {
+      statusEl.textContent = 'Converting WebM → MP4 for TikTok...';
+      blob = await convertToMp4(blob);
+    }
+
+    const url = URL.createObjectURL(blob);
+    const fileName = `elimu_short_${dur}s_${Date.now()}.mp4`;
+    downloadLink.href = url;
+    downloadLink.download = fileName;
+    downloadLink.textContent = '⬇️ Download TikTok & YouTube-Ready MP4';
+    downloadLink.classList.remove('hidden');
+    statusEl.textContent = '✅ Recording complete — ready to upload!';
+    setTimeout(() => { try { downloadLink.click(); } catch (e) {} }, 300);
+  };
 
   mediaRecorder.start(1000);
 
-  // ✅ subtitles and sfx
+  // 🗨️ subtitles + sfx timing
   const parts = splitText(subtitleText, 3);
   parts.forEach((p, i) => {
     setTimeout(() => {
@@ -3994,15 +4012,45 @@ async function startRecordingAuto() {
     }, Math.floor((i + 0.5) * (dur / parts.length) * 1000));
   });
 
-  // auto stop
+  // ⏱ auto stop
   setTimeout(() => {
     try {
       if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-    } catch (e) {
-      console.warn('stop error', e);
-    }
+    } catch (e) {}
   }, dur * 1000 + 500);
 }
+
+<!-- ✅ Add this near the end of your HTML file -->
+
+
+
+async function convertToMp4(webmBlob) {
+  try {
+    statusEl.textContent = "⏳ Converting to TikTok-friendly MP4...";
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg = createFFmpeg({ log: false });
+    await ffmpeg.load();
+
+    ffmpeg.FS('writeFile', 'input.webm', await fetchFile(webmBlob));
+    await ffmpeg.run('-i', 'input.webm', '-c:v', 'libx264', '-c:a', 'aac', '-b:a', '192k', 'output.mp4');
+
+    const data = ffmpeg.FS('readFile', 'output.mp4');
+    const mp4Blob = new Blob([data.buffer], { type: 'video/mp4' });
+
+    statusEl.textContent = "✅ Conversion complete — ready to download!";
+    return mp4Blob;
+  } catch (err) {
+    console.error("FFmpeg conversion failed:", err);
+    statusEl.textContent = "⚠️ Conversion failed — WebM used instead.";
+    return webmBlob;
+  }
+}
+
+
+
+
+
+  
 
 function splitText(ctx, text, maxWidth) {
   if (!text || typeof text !== "string") return [];
