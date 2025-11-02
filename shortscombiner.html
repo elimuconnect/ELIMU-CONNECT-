@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Shorts Combiner — Merge 100 Shorts into 1 Long Video</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f5f7fa;
+      color: #222;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #1976d2;
+      text-align: center;
+    }
+    input, button {
+      margin: 10px 0;
+    }
+    button {
+      background: #1976d2;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    #log {
+      background: #111;
+      color: #0f0;
+      padding: 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎥 Shorts Combiner (Offline)</h1>
+  <p>Select your short videos (MP4, WebM, etc.):</p>
+  <input type="file" id="fileInput" accept="video/*" multiple>
+  <button id="combineBtn">Combine All</button>
+  <p id="status"></p>
+  <video id="outputVideo" controls style="width:100%;display:none;margin-top:20px;"></video>
+  <a id="downloadLink" style="display:none;margin-top:10px;display:inline-block;padding:10px 15px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;">⬇️ Download Video</a>
+
+  <div id="log"></div>
+
+  <script type="module">
+    import { FFmpeg } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/+esm";
+
+    const ffmpeg = new FFmpeg();
+    const fileInput = document.getElementById("fileInput");
+    const combineBtn = document.getElementById("combineBtn");
+    const status = document.getElementById("status");
+    const outputVideo = document.getElementById("outputVideo");
+    const downloadLink = document.getElementById("downloadLink");
+    const log = document.getElementById("log");
+
+    combineBtn.addEventListener("click", async () => {
+      if (!fileInput.files.length) {
+        alert("Please select videos first!");
+        return;
+      }
+
+      log.textContent = "⏳ Loading FFmpeg core (may take ~20s first time)...\n";
+      status.textContent = "Initializing FFmpeg...";
+      await ffmpeg.load();
+
+      const files = Array.from(fileInput.files);
+      let list = "";
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const name = `input${i}.mp4`;
+        const array = new Uint8Array(await file.arrayBuffer());
+        await ffmpeg.writeFile(name, array);
+        list += `file '${name}'\n`;
+        log.textContent += `Added: ${file.name}\n`;
+      }
+
+      await ffmpeg.writeFile("list.txt", list);
+
+      log.textContent += "⚙️ Combining videos...\n";
+      status.textContent = "Merging all videos...";
+      await ffmpeg.exec(["-f", "concat", "-safe", "0", "-i", "list.txt", "-c", "copy", "output.mp4"]);
+
+      const data = await ffmpeg.readFile("output.mp4");
+      const blob = new Blob([data.buffer], { type: "video/mp4" });
+      const url = URL.createObjectURL(blob);
+
+      outputVideo.src = url;
+      outputVideo.style.display = "block";
+      downloadLink.href = url;
+      downloadLink.download = "combined_shorts.mp4";
+      downloadLink.style.display = "inline-block";
+
+      status.textContent = "✅ Done! Combined video ready.";
+      log.textContent += "✅ Finished successfully!\n";
+    });
+  </script>
+</body>
+</html>
