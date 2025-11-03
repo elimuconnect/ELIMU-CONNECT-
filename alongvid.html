@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Compilation Recorder</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the 9:16 aspect ratio container */
+        .portrait-container {
+            width: 100%;
+            max-width: 360px; /* Short-form video standard width */
+            aspect-ratio: 9 / 16;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            position: relative;
+            background-color: #000;
+        }
+        .video-player {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure the 9:16 video fits the container */
+            transition: opacity 0.3s ease-in-out; /* Smooth transition for clip changes */
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .rec-pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <!-- Main Application Container -->
+    <div class="w-full max-w-xl mx-auto">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Shorts Compilation Tool</h1>
+        <p class="text-center text-sm text-gray-600 mb-6">Upload multiple short clips to compile and record into one continuous video.</p>
+
+        <!-- Controls -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-6 flex flex-col space-y-4">
+            
+            <!-- File Input -->
+            <label class="block text-sm font-medium text-gray-700">1. Select Short Clips (MP4/WebM)</label>
+            <input type="file" id="videoFiles" accept="video/mp4,video/webm" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+
+            <div id="clipList" class="text-sm text-gray-600 space-y-1">No clips loaded.</div>
+
+            <!-- Action Buttons -->
+            <button id="recordBtn" disabled class="w-full px-4 py-3 bg-red-500 text-white font-bold rounded-xl shadow-md hover:bg-red-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                2. START COMPILATION RECORDING
+            </button>
+        </div>
+
+        <!-- Video Player & Status Area -->
+        <div class="flex justify-center mb-6">
+            <div id="videoDisplay" class="portrait-container">
+                <!-- Muted is set by default to allow JS to control playback without user interaction requirement -->
+                <video id="videoPlayer" class="video-player" muted style="opacity: 0;"></video>
+                <div id="recordingOverlay" class="hidden absolute top-4 right-4 text-white font-bold text-lg bg-red-600 px-3 py-1 rounded-full rec-pulse">
+                    REC
+                </div>
+                <div id="statusOverlay" class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center text-white text-center p-4 transition-opacity duration-300">
+                    <p id="status" class="text-xl font-semibold">Load your video clips to begin.</p>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-lg">
+            <p id="progressStatus" class="text-gray-700 text-center sm:text-left mb-2 sm:mb-0">Ready.</p>
+            <a id="downloadLink" href="#" class="hidden px-4 py-2 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition duration-150 z-10">
+                Download Final Video
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const videoFilesInput = document.getElementById('videoFiles');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const recordBtn = document.getElementById('recordBtn');
+        const clipListEl = document.getElementById('clipList');
+        const statusOverlay = document.getElementById('statusOverlay');
+        const statusEl = document.getElementById('status');
+        const progressStatusEl = document.getElementById('progressStatus');
+        const downloadLink = document.getElementById('downloadLink');
+        const recordingOverlay = document.getElementById('recordingOverlay');
+
+        // State variables
+        let videoQueue = [];
+        let currentClipIndex = 0;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let totalDuration = 0;
+        let recordingInProgress = false;
+        let currentBlobUrl = null; // CRITICAL: Tracks the current Blob URL for revocation
+
+        // --- Utility Functions ---
+
+        function formatDuration(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            const ms = Math.floor((seconds * 100) % 100);
+            return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
+        }
+
+        function finishLoadingQueue() {
+            const totalStr = formatDuration(totalDuration);
+            clipListEl.insertAdjacentHTML('beforeend', `<div class="mt-2 pt-2 border-t font-semibold flex justify-between"><span>Total Clips: ${videoQueue.length}</span><span>Total Duration: ${totalStr}</span></div>`);
+            
+            recordBtn.disabled = videoQueue.length === 0 || totalDuration === 0;
+            
+            statusEl.textContent = totalDuration > 0 || videoQueue.length > 0
+                ? `Ready to record ${videoQueue.length} clips.`
+                : `Error: No valid clips could be processed.`;
+            statusOverlay.style.opacity = '1';
+        }
+
+        // --- Core Functions ---
+
+        // 1. Queue Management (Loads clips and enables button)
+        videoFilesInput.addEventListener('change', (e) => {
+            videoQueue = Array.from(e.target.files);
+            currentClipIndex = 0;
+            totalDuration = 0;
+            
+            clipListEl.innerHTML = '';
+            
+            if (videoQueue.length === 0) {
+                clipListEl.textContent = 'No clips loaded.';
+                recordBtn.disabled = true;
+                statusEl.textContent = 'Load your video clips to begin.';
+                return;
+            }
+
+            statusEl.textContent = 'Analyzing clip durations...';
+            statusOverlay.style.opacity = '1';
+
+            let loadCount = 0;
+            videoQueue.forEach((file, index) => {
+                const li = document.createElement('div');
+                li.id = `clip-${index}`;
+                li.className = 'flex justify-between items-center p-2 rounded';
+                li.innerHTML = `<span>${index + 1}. ${file.name}</span><span class="text-xs font-mono duration-info text-gray-400">Loading...</span>`;
+                clipListEl.appendChild(li);
+
+                const tempVideo = document.createElement('video');
+                tempVideo.muted = true;
+                
+                tempVideo.onloadedmetadata = () => {
+                    const duration = tempVideo.duration;
+                    if (isFinite(duration) && duration > 0) {
+                        totalDuration += duration;
+                        const durationStr = formatDuration(duration);
+                        li.querySelector('.duration-info').textContent = durationStr;
+                        li.classList.remove('bg-yellow-200', 'text-yellow-800');
+                    } else {
+                        li.querySelector('.duration-info').textContent = 'Duration Unknown';
+                        li.classList.add('bg-yellow-200', 'text-yellow-800');
+                    }
+                    
+                    loadCount++;
+                    if (loadCount === videoQueue.length) {
+                        finishLoadingQueue();
+                    }
+                };
+
+                tempVideo.onerror = () => {
+                    console.error("Failed to load video metadata for file:", file.name, "Browser error code:", tempVideo.error ? tempVideo.error.code : 'Unknown');
+                    li.querySelector('.duration-info').textContent = 'Format Error! Try H.264 MP4.';
+                    li.classList.add('bg-yellow-200', 'text-yellow-800');
+                    
+                    loadCount++;
+                    if (loadCount === videoQueue.length) {
+                        finishLoadingQueue();
+                    }
+                };
+
+                tempVideo.src = URL.createObjectURL(file);
+            });
+        });
+
+        // Function to create the final download blob and update UI
+        function finishRecordingProcess() {
+            // CRITICAL: Revoke the URL of the last played video
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+            }
+
+            recordingInProgress = false;
+            recordBtn.textContent = '2. START COMPILATION RECORDING';
+            recordBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+            recordBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+            recordingOverlay.classList.add('hidden');
+            videoPlayer.pause();
+            videoPlayer.style.opacity = '0'; // Hide video on stop
+            
+            // Final file creation
+            // NOTE: The mimeType must be correctly derived from the last used recorder segment
+            const mimeType = mediaRecorder ? mediaRecorder.mimeType : 'video/webm'; 
+            const blob = new Blob(recordedChunks, { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            
+            downloadLink.href = url;
+            downloadLink.download = `compilation_${Date.now()}.webm`;
+            downloadLink.classList.remove('hidden');
+            
+            progressStatusEl.textContent = `✅ Recording complete! File ready for download.`;
+            statusEl.textContent = 'Recording finished. Download your video below.';
+            statusOverlay.style.opacity = '1';
+
+            // Cleanup highlights
+            document.querySelectorAll('#clipList > div').forEach(el => el.classList.remove('bg-indigo-100'));
+        }
+        
+        // Handler called when a segment is stopped
+        function handleSegmentStop() {
+             // 1. Clean up the stream tracks from the JUST-FINISHED segment
+            if (mediaRecorder && mediaRecorder.stream) {
+                mediaRecorder.stream.getTracks().forEach(track => {
+                    if (track.readyState === 'live') {
+                        track.stop();
+                        console.log("Track stopped.");
+                    }
+                });
+            }
+            
+            // 2. Determine next step
+            if (currentClipIndex >= videoQueue.length) {
+                // This was the stop call for the very last segment
+                finishRecordingProcess();
+            } else {
+                // This was a mid-segment stop. Proceed to load the next clip after delay.
+                setTimeout(() => {
+                    // This call will restart the recording process for the new segment
+                    playNextClip();
+                }, 300); 
+            }
+        }
+        
+        // Function to initialize and start a NEW recording segment
+        function startNewClipRecordingSegment() {
+            // Get a FRESH stream from the playing video element 
+            const stream = videoPlayer.captureStream(); 
+
+            let options = { mimeType: 'video/webm; codecs="vp8, opus"' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                 options = { mimeType: 'video/webm' }; // Fallback
+            }
+
+            try {
+                // Create a NEW recorder instance for the segment
+                mediaRecorder = new MediaRecorder(stream, options);
+            } catch (err) {
+                statusEl.textContent = 'MediaRecorder setup failed. Check console.';
+                console.error("MediaRecorder setup failed:", err);
+                statusOverlay.style.opacity = '1';
+                recordingInProgress = false;
+                return false;
+            }
+            
+            // Data is pushed to the global array
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            // Stop handler now points to our segment logic
+            mediaRecorder.onstop = handleSegmentStop; 
+            
+            // ADDED: General error listener for MediaRecorder issues
+            mediaRecorder.onerror = (e) => {
+                console.error("MediaRecorder encountered an error during recording:", e.error);
+                progressStatusEl.textContent = 'Recording error detected. Stopping process.';
+                stopRecording();
+            };
+
+            // Start recording the segment
+            mediaRecorder.start(100); 
+
+            return true;
+        }
+
+
+        // 2. Playback and Transition Logic
+        function playNextClip() {
+            // Revoke URL and clean up previous video resources
+            if (currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                videoPlayer.src = ''; 
+                videoPlayer.load(); // CRITICAL: Force the browser to discard the old media pipeline
+                currentBlobUrl = null; 
+            }
+            
+            if (currentClipIndex >= videoQueue.length) {
+                // All clips were loaded, but the last one hasn't stopped the recorder yet.
+                if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                } else {
+                    finishRecordingProcess();
+                }
+                return;
+            }
+
+            // --- UI Updates ---
+            videoPlayer.style.opacity = '0';
+            const clipFile = videoQueue[currentClipIndex];
+            statusEl.textContent = `Loading Clip ${currentClipIndex + 1} of ${videoQueue.length}...`;
+            statusOverlay.style.opacity = '1';
+            const clipName = clipFile.name.substring(0, 30) + (clipFile.name.length > 30 ? '...' : '');
+            progressStatusEl.textContent = `Recording | Clip ${currentClipIndex + 1}: ${clipName}`;
+            document.querySelectorAll('#clipList > div').forEach(el => el.classList.remove('bg-indigo-100'));
+            const currentClipEl = document.getElementById(`clip-${currentClipIndex}`);
+            if (currentClipEl) currentClipEl.classList.add('bg-indigo-100');
+            
+            // --- Media Load ---
+            currentBlobUrl = URL.createObjectURL(clipFile);
+            videoPlayer.src = currentBlobUrl;
+            
+            // Increment index NOW so the segment stop knows if it's the last one
+            currentClipIndex++; 
+
+            // 3. Wait for media readiness before playing and starting the new segment recorder
+            videoPlayer.oncanplaythrough = () => {
+                videoPlayer.oncanplaythrough = null; // Remove handler
+                
+                // CRITICAL: Start a FRESH RECORDER SEGMENT
+                if (!startNewClipRecordingSegment()) {
+                    return; // Stop the process if recorder fails to start
+                }
+
+                // 4. Start playback
+                videoPlayer.play().then(() => {
+                    // Update UI and fade in clip
+                    statusEl.textContent = `Playing Clip ${currentClipIndex} of ${videoQueue.length}...`;
+                    statusOverlay.style.opacity = '0';
+                    videoPlayer.style.opacity = '1';
+                    console.log(`Playing segment for clip ${currentClipIndex}`);
+
+                }).catch(e => {
+                    console.error(`Playback failed for clip ${currentClipIndex}:`, e);
+                    // If play fails, force clip end event to stop recorder and move on
+                    videoPlayer.onended(); 
+                });
+            };
+        }
+
+        // Event listener for clip end
+        videoPlayer.onended = () => {
+            if (recordingInProgress && mediaRecorder && mediaRecorder.state === 'recording') {
+                // Explicitly pause and reset the video player
+                videoPlayer.pause(); 
+                videoPlayer.currentTime = 0; 
+
+                // Fade out the video
+                videoPlayer.style.opacity = '0';
+                progressStatusEl.textContent = `Clip ${currentClipIndex} finished. Stopping segment...`;
+                
+                // CRITICAL: STOP THE RECORDER. This triggers handleSegmentStop.
+                // handleSegmentStop will now perform the stream track cleanup.
+                mediaRecorder.stop(); 
+            }
+        };
+        
+        // Error handler for video playback failure
+        videoPlayer.onerror = (e) => {
+            console.error("Video playback error detected during recording:", videoPlayer.error);
+            if (recordingInProgress) {
+                progressStatusEl.textContent = `Critical error playing clip ${currentClipIndex}. Stopping segment...`;
+                videoPlayer.style.opacity = '0'; // Black frame pause
+                if(mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                } else {
+                    handleSegmentStop();
+                }
+            }
+        }
+
+
+        // 4. Recording Controls
+        recordBtn.addEventListener('click', () => {
+            if (recordingInProgress) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        });
+
+        function startRecording() {
+            if (videoQueue.length === 0) {
+                statusEl.textContent = "Please load video clips first!";
+                statusOverlay.style.opacity = '1';
+                return;
+            }
+            
+            // Reset state
+            recordedChunks = [];
+            currentClipIndex = 0;
+            recordingInProgress = true;
+            mediaRecorder = null; 
+
+            // Start the sequence. The first call to playNextClip will start the first segment recorder.
+            playNextClip();
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                // If user hits stop button, we immediately stop and finalize the process.
+                mediaRecorder.onstop = finishRecordingProcess; // Override segment logic for immediate stop
+                mediaRecorder.stop();
+            }
+        }
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            statusOverlay.style.opacity = '1';
+        };
+
+    </script>
+</body>
+</html>
