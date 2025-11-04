@@ -1,0 +1,1359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Elimu Connect • 30-Minute Compilation (Merged)</title>
+  
+  
+ <style>
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    margin: 0;
+    padding: 0;
+    background: #0b1220;
+    color: #fff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  header {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0;
+  }
+
+  .small {
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 8px 0;
+  }
+
+  .controls label {
+    font-size: 14px;
+  }
+
+  /* ✅ Desktop: fills 3/4 of screen */
+  #stageWrap {
+    position: relative;
+    width: 75vw;       /* 3/4 of viewport width */
+    height: 75vh;      /* 3/4 of viewport height */
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    background: #000;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .status {
+    margin-top: 10px;
+    color: #fffb;
+    font-size: 13px;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #cbd5e1;
+    text-align: center;
+  }
+
+  button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 0;
+    background: #1f2937;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  a {
+    color: #9ae6b4;
+  }
+
+  /* ✅ On phones: auto switch to 9:16 portrait ratio */
+  @media (max-width: 768px) {
+    #stageWrap {
+      width: 90vw;
+      aspect-ratio: 9 / 16;
+      height: auto; /* maintain ratio automatically */
+    }
+  }
+</style>
+
+  
+  
+  
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Elimu Connect • 30-Minute Compilation</h1>
+      <div class="small">30 Clips (60s each) • Total Duration: 30 Minutes</div>
+    </header>
+
+    <div class="controls">
+      <label>Voice method:
+        <select id="voiceMethod">
+          <option value="mic">Mic live (embed)</option>
+          <option value="upload">Upload voice file (embed)</option>
+          <option value="tts" selected>TTS preview (not embedded)</option>
+        </select>
+      </label>
+
+      <label>Voice gender:
+        <select id="voiceGender"><option value="auto" selected>Auto</option><option value="male">Male</option><option value="female">Female</option></select>
+      </label>
+    </div>
+
+    <div class="controls">
+      <input type="file" id="voiceUpload" accept="audio/*" class="w-full sm:w-auto" />
+      <button id="useUploadBtn">Use Upload</button>
+    </div>
+    
+    <div class="controls">
+      <button id="genBtn" class="w-full sm:w-1/2">🎲 Generate Preview (Clip 1)</button>
+      <button id="recordBtn" class="w-full sm:w-1/2">🔴 Start 30-Minute Record</button>
+    </div>
+
+    <div id="stageWrap" title="This box is the recorded 9:16 area">
+      <canvas id="canvasPreview" width="720" height="1280"></canvas>
+    </div>
+
+    <div class="controls">
+      <a id="downloadLink" class="hidden"></a>
+    </div>
+
+    <div class="status" id="status">Click Generate Preview to check the first clip's visuals and audio.</div>
+    <div class="hint">The recording will automatically stop after 30 minutes (30 transitions). Audio is captured only from the background music and any embedded voice method (mic/upload).</div>
+  </div>
+
+<script>
+/* =========================
+   MERGED: A + assets from B
+   Single file output
+   ========================= */
+
+/* ---------- CONFIGURATION FOR 30 MIN VIDEO ---------- */
+const CANVAS_W = 720, CANVAS_H = 1280; // portrait 9:16
+const CLIP_DURATION_S = 60; 
+const TOTAL_CLIPS = 30;
+const TOTAL_DURATION_MS = TOTAL_CLIPS * CLIP_DURATION_S * 1000;
+
+/* ---------- Global State & Control ---------- */
+let currentClip = 0;
+let longRecordingTimeout = null;
+let clipCycleInterval = null;
+let animationFrameId = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let audioTrack = null;
+let videoTrack = null;
+let timerProgress = 1;
+let currentTopic = null;
+let assetsLoaded = false;
+let clipStartTime = 0;
+
+/* ---------- UI elements and Canvas Setup ---------- */
+const canvas = document.getElementById('canvasPreview');
+const ctx = canvas.getContext('2d', { alpha: false });
+canvas.width = CANVAS_W;
+canvas.height = CANVAS_H;
+
+const voiceMethodSel = document.getElementById('voiceMethod');
+const voiceGenderSel = document.getElementById('voiceGender');
+const voiceUploadEl = document.getElementById('voiceUpload');
+const useUploadBtn = document.getElementById('useUploadBtn');
+const genBtn = document.getElementById('genBtn');
+const recordBtn = document.getElementById('recordBtn');
+const statusEl = document.getElementById('status');
+const downloadLink = document.getElementById('downloadLink');
+
+recordBtn.disabled = false;
+
+/* =========================
+   ASSETS & DATA (from B)
+   ========================= */
+
+const BACKGROUNDS = [
+  {name:'Sunny Schoolyard', url:'https://cdn.pixabay.com/video/2020/11/23/57105-484330937_tiny.mp4'},
+   { name: 'Background 1', url: 'https://cdn.pixabay.com/video/2020/11/23/57105-484330937_tiny.mp4' },
+  { name: 'Background 2', url: 'https://cdn.pixabay.com/video/2021/09/21/89245-613200528_tiny.mp4' },
+  { name: 'Background 3', url: 'https://cdn.pixabay.com/video/2023/09/25/182283-868067131_tiny.mp4' },
+  { name: 'Background 4', url: 'https://cdn.pixabay.com/video/2020/11/07/55762-503981022_tiny.mp4' },
+  { name: 'Background 5', url: 'https://cdn.pixabay.com/video/2022/11/17/139433-772291290_tiny.mp4' },
+  { name: 'Background 6', url: 'https://cdn.pixabay.com/video/2017/12/09/13289-246909903_tiny.mp4' },
+  { name: 'Background 7', url: 'https://cdn.pixabay.com/video/2023/06/01/165379-832460315_tiny.mp4' },
+  { name: 'Background 8', url: 'https://cdn.pixabay.com/video/2022/06/10/119849-719283263_large.mp4' },
+  { name: 'Background 9', url: 'https://cdn.pixabay.com/video/2015/11/30/1462-147310229_tiny.mp4' },
+  { name: 'Background 10', url: 'https://cdn.pixabay.com/video/2022/02/02/106382-673007973_tiny.mp4' },
+  { name: 'Background 11', url: 'https://cdn.pixabay.com/video/2022/06/30/122684-726192372_tiny.mp4' },
+  { name: 'Background 12', url: 'https://cdn.pixabay.com/video/2021/06/05/76526-559511539_tiny.mp4' },
+  { name: 'Background 13', url: 'https://cdn.pixabay.com/video/2024/04/17/208306_tiny.mp4' },
+  { name: 'Background 14', url: 'https://cdn.pixabay.com/video/2023/12/04/191956-891301549_tiny.mp4' },
+  { name: 'Background 15', url: 'https://cdn.pixabay.com/video/2020/11/07/54846-479358521_tiny.mp4' },
+  { name: 'Background 16', url: 'https://cdn.pixabay.com/video/2022/06/24/121985-724732208_tiny.mp4' },
+  { name: 'Background 17', url: 'https://cdn.pixabay.com/video/2021/01/21/62556-504654653_large.mp4' },
+  { name: 'Background 18', url: 'https://cdn.pixabay.com/video/2023/12/04/191957-891301551_tiny.mp4' },
+  { name: 'Background 19', url: 'https://cdn.pixabay.com/video/2019/06/14/24405-342401498_tiny.mp4' },
+  { name: 'Background 20', url: 'https://cdn.pixabay.com/video/2022/03/02/109306-684501149_tiny.mp4' },
+  { name: 'Background 21', url: 'https://cdn.pixabay.com/video/2022/11/07/138088-769119564_tiny.mp4' },
+  { name: 'Background 22', url: 'https://cdn.pixabay.com/video/2020/11/21/56969-482090088_tiny.mp4' },
+  { name: 'Background 23', url: 'https://cdn.pixabay.com/video/2021/12/04/99691-656497305_tiny.mp4' },
+  { name: 'Background 24', url: 'https://cdn.pixabay.com/video/2022/03/09/110219-688187364_tiny.mp4' },
+  { name: 'Background 25', url: 'https://cdn.pixabay.com/video/2024/01/30/198620-907940175_tiny.mp4' },
+  { name: 'Background 26', url: 'https://cdn.pixabay.com/video/2021/06/15/77773-564423223_tiny.mp4' },
+  { name: 'Background 27', url: 'https://cdn.pixabay.com/video/2020/04/22/36902-412873827_large.mp4' },
+  { name: 'Background 28', url: 'https://cdn.pixabay.com/video/2021/08/08/84334-585553485_tiny.mp4' },
+  { name: 'Background 29', url: 'https://cdn.pixabay.com/video/2023/01/13/146408-789177007_tiny.mp4' },
+  { name: 'Background 30', url: 'https://cdn.pixabay.com/video/2018/04/26/15826-266811435_tiny.mp4' },
+  { name: 'Background 31', url: 'https://cdn.pixabay.com/video/2020/11/07/54929-483011932_tiny.mp4' },
+  { name: 'Background 32', url: 'https://cdn.pixabay.com/video/2020/05/16/39234-421020414_tiny.mp4' },
+  { name: 'Background 33', url: 'https://cdn.pixabay.com/video/2020/05/24/39969-423362341_tiny.mp4' },
+  { name: 'Background 34', url: 'https://cdn.pixabay.com/video/2020/11/07/55249-499594009_tiny.mp4' },
+  { name: 'Background 35', url: 'https://cdn.pixabay.com/video/2022/03/10/110339-688648503_tiny.mp4' },
+  { name: 'Background 36', url: 'https://cdn.pixabay.com/video/2024/02/21/201334-915360170_large.mp4' },
+  { name: 'Background 37', url: 'https://cdn.pixabay.com/video/2016/04/20/2864-163910609_tiny.mp4' },
+  { name: 'Background 38', url: 'https://cdn.pixabay.com/video/2023/10/19/185630-876210582_tiny.mp4' },
+  { name: 'Background 39', url: 'https://cdn.pixabay.com/video/2020/04/13/35905-408654239_tiny.mp4' },
+  { name: 'Background 40', url: 'https://cdn.pixabay.com/video/2020/09/15/50016-459915440_large.mp4' },
+  { name: 'Background 41', url: 'https://cdn.pixabay.com/video/2020/04/22/36884-412873792_tiny.mp4' },
+  { name: 'Background 42', url: 'https://cdn.pixabay.com/video/2022/11/18/139572-773417751_tiny.mp4' },
+  { name: 'Background 43', url: 'https://cdn.pixabay.com/video/2022/04/01/112553-695117361_tiny.mp4' },
+  { name: 'Background 44', url: 'https://cdn.pixabay.com/video/2021/01/13/61904-500763043_tiny.mp4' },
+  { name: 'Background 45', url: 'https://cdn.pixabay.com/video/2016/09/21/5411-183788474_tiny.mp4' },
+  { name: 'Background 46', url: 'https://cdn.pixabay.com/video/2022/03/12/110491-689510259_tiny.mp4' },
+  { name: 'Background 47', url: 'https://cdn.pixabay.com/video/2022/01/14/104386-666197775_tiny.mp4' },
+  { name: 'Background 48', url: 'https://cdn.pixabay.com/video/2021/09/13/88420-607824363_tiny.mp4' },
+  { name: 'Background 49', url: 'https://cdn.pixabay.com/video/2020/07/01/43522-436237366_tiny.mp4' },
+  { name: 'Background 50', url: 'https://cdn.pixabay.com/video/2020/11/19/56858-481625623_tiny.mp4' },
+  { name: 'Background 51', url: 'https://cdn.pixabay.com/video/2023/02/06/149538-796360005_tiny.mp4' },
+  { name: 'Background 52', url: 'https://cdn.pixabay.com/video/2023/04/03/157231-814315545_tiny.mp4' },
+  { name: 'Background 53', url: 'https://cdn.pixabay.com/video/2023/11/11/188720-883612354_tiny.mp4' },
+  { name: 'Background 54', url: 'https://cdn.pixabay.com/video/2023/03/31/156893-813654701_tiny.mp4' },
+  { name: 'Background 55', url: 'https://cdn.pixabay.com/video/2022/12/07/141981-778907209_tiny.mp4' },
+  { name: 'Background 56', url: 'https://cdn.pixabay.com/video/2022/06/01/118905-716230915_tiny.mp4' },
+  { name: 'Background 57', url: 'https://cdn.pixabay.com/video/2022/06/15/120475-720880598_tiny.mp4' },
+  { name: 'Background 58', url: 'https://cdn.pixabay.com/video/2022/12/21/143758-784138204_tiny.mp4' },
+  { name: 'Background 59', url: 'https://cdn.pixabay.com/video/2024/04/30/210082_tiny.mp4' },
+  { name: 'Background 60', url: 'https://cdn.pixabay.com/video/2023/01/10/145976-788094597_tiny.mp4' },
+  { name: 'Background 61', url: 'https://cdn.pixabay.com/video/2022/04/25/115067-703067890_tiny.mp4' },
+  { name: 'Background 62', url: 'https://cdn.pixabay.com/video/2024/09/25/233204_tiny.mp4' },
+  { name: 'Background 63', url: 'https://cdn.pixabay.com/video/2023/05/30/165119-832090797_tiny.mp4' },
+  { name: 'Background 64', url: 'https://cdn.pixabay.com/video/2023/04/03/157232-814315549_tiny.mp4' },
+  { name: 'Background 65', url: 'https://cdn.pixabay.com/video/2024/09/25/233202_tiny.mp4' },
+  { name: 'Background 66', url: 'https://cdn.pixabay.com/video/2024/07/08/220150_tiny.mp4' },
+  { name: 'Background 67', url: 'https://cdn.pixabay.com/video/2023/05/09/162382-825277028_tiny.mp4' },
+  { name: 'Background 68', url: 'https://cdn.pixabay.com/video/2022/05/09/116448-708008210_tiny.mp4' },
+  { name: 'Background 69', url: 'https://cdn.pixabay.com/video/2022/12/07/141985-778907234_tiny.mp4' },
+  { name: 'Background 70', url: 'https://cdn.pixabay.com/video/2024/02/04/199249-909835726_tiny.mp4' },
+  { name: 'Background 71', url: 'https://cdn.pixabay.com/video/2023/11/24/190549-888131757_tiny.mp4' },
+  { name: 'Background 72', url: 'https://cdn.pixabay.com/video/2022/04/25/115059-703067865_tiny.mp4' },
+  { name: 'Background 73', url: 'https://cdn.pixabay.com/video/2024/06/06/215534_tiny.mp4' },
+  { name: 'Background 74', url: 'https://cdn.pixabay.com/video/2023/11/24/190550-888131763_tiny.mp4' },
+  { name: 'Background 75', url: 'https://cdn.pixabay.com/video/2022/10/21/135875-764362174_tiny.mp4' },
+  { name: 'Background 76', url: 'https://cdn.pixabay.com/video/2023/06/20/168039-838076818_tiny.mp4' },
+  { name: 'Background 77', url: 'https://cdn.pixabay.com/video/2023/03/06/153480-805374145_tiny.mp4' },
+  { name: 'Background 78', url: 'https://cdn.pixabay.com/video/2023/10/20/185765-876514019_tiny.mp4' },
+  { name: 'Background 79', url: 'https://cdn.pixabay.com/video/2023/06/05/165867-833532201_tiny.mp4' },
+  { name: 'Background 80', url: 'https://cdn.pixabay.com/video/2024/02/04/199250-909835729_tiny.mp4' },
+  { name: 'Background 81', url: 'https://cdn.pixabay.com/video/2021/07/25/82670-580050749_tiny.mp4' },
+  { name: 'Background 82', url: 'https://cdn.pixabay.com/video/2022/09/23/132294-753175506_tiny.mp4' },
+  { name: 'Background 83', url: 'https://cdn.pixabay.com/video/2023/07/16/171850-846103451_tiny.mp4' },
+  { name: 'Background 84', url: 'https://cdn.pixabay.com/video/2024/04/17/208372_tiny.mp4' },
+  { name: 'Background 85', url: 'https://cdn.pixabay.com/video/2020/11/29/57753-486147545_tiny.mp4' },
+  { name: 'Background 86', url: 'https://cdn.pixabay.com/video/2021/07/25/82667-580050745_tiny.mp4' },
+  { name: 'Background 87', url: 'https://cdn.pixabay.com/video/2022/09/23/132295-753175509_tiny.mp4' },
+  { name: 'Background 88', url: 'https://cdn.pixabay.com/video/2024/02/04/199254-909835739_tiny.mp4' },
+  { name: 'Background 89', url: 'https://cdn.pixabay.com/video/2023/08/01/174146-850740062_tiny.mp4' },
+  { name: 'Background 90', url: 'https://cdn.pixabay.com/video/2022/09/16/131506-750569073_tiny.mp4' },
+  { name: 'Background 91', url: 'https://cdn.pixabay.com/video/2022/11/24/140315-774824218_tiny.mp4' },
+  { name: 'Background 92', url: 'https://cdn.pixabay.com/video/2024/03/12/203933-922571593_tiny.mp4' },
+  { name: 'Background 93', url: 'https://cdn.pixabay.com/video/2023/01/23/147644-791958963_tiny.mp4' },
+  { name: 'Background 94', url: 'https://cdn.pixabay.com/video/2022/09/22/132200-752646688_tiny.mp4' },
+  { name: 'Background 95', url: 'https://cdn.pixabay.com/video/2022/04/25/115017-703067690_tiny.mp4' },
+  { name: 'Background 96', url: 'https://cdn.pixabay.com/video/2020/11/14/56375-479358459_tiny.mp4' },
+  { name: 'Background 97', url: 'https://cdn.pixabay.com/video/2023/10/20/185803-876514093_tiny.mp4' },
+  { name: 'Background 98', url: 'https://cdn.pixabay.com/video/2024/04/17/208375_tiny.mp4' },
+  { name: 'Background 99', url: 'https://cdn.pixabay.com/video/2022/07/09/123589-728487663_tiny.mp4' },
+  { name: 'Background 100', url: 'https://cdn.pixabay.com/video/2022/12/01/141159-777088863_tiny.mp4' },
+  { name: 'Background 101', url: 'https://cdn.pixabay.com/video/2024/10/09/235497_tiny.mp4' },
+  { name: 'Background 102', url: 'https://cdn.pixabay.com/video/2023/10/02/183252-870457501_tiny.mp4' },
+  { name: 'Background 103', url: 'https://cdn.pixabay.com/video/2021/01/14/61945-501260349_tiny.mp4' },
+  { name: 'Background 104', url: 'https://cdn.pixabay.com/video/2015/11/28/1438-147170157_tiny.mp4' },
+  { name: 'Background 105', url: 'https://cdn.pixabay.com/video/2024/04/17/208376_tiny.mp4' },
+  { name: 'Background 106', url: 'https://cdn.pixabay.com/video/2023/01/04/145298-786403405_tiny.mp4' },
+  { name: 'Background 107', url: 'https://cdn.pixabay.com/video/2023/09/27/182536-868916394_tiny.mp4' },
+  { name: 'Background 108', url: 'https://cdn.pixabay.com/video/2019/06/14/24410-342401514_tiny.mp4' },
+  { name: 'Background 109', url: 'https://cdn.pixabay.com/video/2024/03/12/203934-922571602_tiny.mp4' },
+
+  { name: 'Background 110', url: 'https://cdn.pixabay.com/video/2023/12/04/191957-891301551_tiny.mp4' },
+  { name: 'Background 111', url: 'https://cdn.pixabay.com/video/2023/02/06/149538-796360005_tiny.mp4' },
+  { name: 'Background 112', url: 'https://cdn.pixabay.com/video/2023/04/03/157232-814315549_tiny.mp4' },
+  { name: 'Background 113', url: 'https://cdn.pixabay.com/video/2024/09/25/233204_tiny.mp4' },
+  { name: 'Background 114', url: 'https://cdn.pixabay.com/video/2024/09/25/233202_tiny.mp4' },
+  { name: 'Background 115', url: 'https://cdn.pixabay.com/video/2024/07/08/220150_tiny.mp4' },
+  { name: 'Background 116', url: 'https://cdn.pixabay.com/video/2024/02/04/199249-909835726_tiny.mp4' },
+  { name: 'Background 117', url: 'https://cdn.pixabay.com/video/2024/02/04/199250-909835729_tiny.mp4' },
+  { name: 'Background 118', url: 'https://cdn.pixabay.com/video/2024/02/04/199254-909835739_tiny.mp4' },
+  { name: 'Background 119', url: 'https://cdn.pixabay.com/video/2024/04/17/208372_tiny.mp4' },
+  { name: 'Background 120', url: 'https://cdn.pixabay.com/video/2024/04/17/208375_tiny.mp4' },
+  { name: 'Background 121', url: 'https://cdn.pixabay.com/video/2024/04/17/208376_tiny.mp4' },
+  { name: 'Background 122', url: 'https://cdn.pixabay.com/video/2024/04/30/210082_tiny.mp4' },
+  { name: 'Background 123', url: 'https://cdn.pixabay.com/video/2024/03/12/203933-922571593_tiny.mp4' },
+  { name: 'Background 124', url: 'https://cdn.pixabay.com/video/2024/03/12/203934-922571602_tiny.mp4' },
+  { name: 'Background 125', url: 'https://cdn.pixabay.com/video/2024/06/06/215534_tiny.mp4' },
+  { name: 'Background 126', url: 'https://cdn.pixabay.com/video/2024/10/09/235497_tiny.mp4' }
+];
+
+
+const KNOWLEDGE_ITEMS = [
+  
+   { text: "🐱 Domestic Animal: Cat", textSW: "🐱 Mnyama wa kufugwa: Paka", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐶 Domestic Animal: Dog", textSW: "🐶 Mnyama wa kufugwa: Mbwa", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐄 Domestic Animal: Cow", textSW: "🐄 Mnyama wa kufugwa: Ng’ombe", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐐 Domestic Animal: Goat", textSW: "🐐 Mnyama wa kufugwa: Mbuzi", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐔 Domestic Animal: Hen", textSW: "🐔 Mnyama wa kufugwa: Kuku", category: "Domestic Animals", duration: 7, askComment: false },
+
+  // 🦁 Wild Animals
+  { text: "🦁 Wild Animal: Lion", textSW: "🦁 Mnyama wa porini: Simba", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐘 Wild Animal: Elephant", textSW: "🐘 Mnyama wa porini: Ndovu", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦓 Wild Animal: Zebra", textSW: "🦓 Mnyama wa porini: Punda milia", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦒 Wild Animal: Giraffe", textSW: "🦒 Mnyama wa porini: Twiga", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐒 Wild Animal: Monkey", textSW: "🐒 Mnyama wa porini: Tumbili", category: "Wild Animals", duration: 7, askComment: false },
+
+  // 🚿 Good Hygiene
+  { text: "🪥 Brush your teeth every morning and night", textSW: "🪥 Piga mswaki kila asubuhi na jioni", category: "Good Hygiene", duration: 8, askComment: false },
+  { text: "👐 Wash your hands before eating", textSW: "👐 Nawa mikono kabla ya kula", category: "Good Hygiene", duration: 8, askComment: false },
+  { text: "🛁 Take a bath every day", textSW: "🛁 Oga kila siku", category: "Good Hygiene", duration: 8, askComment: false },
+  { text: "💅 Keep your nails short and clean", textSW: "💅 Kata kucha zako na uzisafishe", category: "Good Hygiene", duration: 8, askComment: false },
+  { text: "🤧 Cover your mouth when you sneeze", textSW: "🤧 Funika mdomo wako unapopiga chafya", category: "Good Hygiene", duration: 8, askComment: false },
+
+  // 🍎 Healthy Foods
+  { text: "🍎 Eat fruits every day", textSW: "🍎 Kula matunda kila siku", category: "Healthy Foods", duration: 8, askComment: false },
+  { text: "💧 Drink clean water often", textSW: "💧 Kunywa maji safi mara kwa mara", category: "Healthy Foods", duration: 8, askComment: false },
+  { text: "🥦 Eat vegetables to grow strong", textSW: "🥦 Kula mboga ili ukue mwenye nguvu", category: "Healthy Foods", duration: 8, askComment: false },
+  { text: "🍭 Avoid too many sweets", textSW: "🍭 Epuka peremende nyingi", category: "Healthy Foods", duration: 8, askComment: false },
+
+  // 🧮 Simple Maths
+  { text: "🔢 1 + 1 = 2", textSW: "🔢 1 jumlisha 1 ni sawa na 2", category: "Maths", duration: 6, askComment: false },
+  { text: "🔢 2 + 3 = 5", textSW: "🔢 2 jumlisha 3 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
+  { text: "🔢 5 - 2 = 3", textSW: "🔢 5 toa 2 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
+  { text: "🔢 3 + 4 = 7", textSW: "🔢 3 jumlisha 4 ni sawa na 7", category: "Maths", duration: 6, askComment: false },
+  { text: "🔢 10 - 5 = 5", textSW: "🔢 10 toa 5 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
+
+  // 🌦 Weather
+  { text: "☀️ Sunny day", textSW: "☀️ Siku ya jua", category: "Weather", duration: 6, askComment: false },
+  { text: "🌧️ Rainy day", textSW: "🌧️ Siku ya mvua", category: "Weather", duration: 6, askComment: false },
+  { text: "☁️ Cloudy sky", textSW: "☁️ Anga lenye mawingu", category: "Weather", duration: 6, askComment: false },
+  { text: "🌬️ Windy day", textSW: "🌬️ Siku yenye upepo", category: "Weather", duration: 6, askComment: false },
+  { text: "🌈 Rainbow after rain", textSW: "🌈 Upinde wa mvua baada ya mvua", category: "Weather", duration: 6, askComment: false },
+
+  // 👨‍👩‍👧 Good Manners
+  { text: "🙏 Say thank you", textSW: "🙏 Sema asante", category: "Good Manners", duration: 6, askComment: false },
+  { text: "😊 Say please", textSW: "😊 Sema tafadhali", category: "Good Manners", duration: 6, askComment: false },
+  { text: "🤝 Share with friends", textSW: "🤝 Shiriki na marafiki", category: "Good Manners", duration: 6, askComment: false },
+  { text: "🏡 Help your parents at home", textSW: "🏡 Saidia wazazi nyumbani", category: "Good Manners", duration: 6, askComment: false },
+  { text: "💖 Be kind to everyone", textSW: "💖 Kuwa mwema kwa wote", category: "Good Manners", duration: 6, askComment: false },
+
+  // 🎨 Colours & Shapes
+  { text: "🔴 Colour: Red", textSW: "🔴 Rangi: Nyekundu", category: "Colours", duration: 6, askComment: false },
+  { text: "🔵 Colour: Blue", textSW: "🔵 Rangi: Bluu", category: "Colours", duration: 6, askComment: false },
+  { text: "🟢 Colour: Green", textSW: "🟢 Rangi: Kijani", category: "Colours", duration: 6, askComment: false },
+  { text: "🟡 Colour: Yellow", textSW: "🟡 Rangi: Njano", category: "Colours", duration: 6, askComment: false },
+  { text: "⚪ Colour: White", textSW: "⚪ Rangi: Nyeupe", category: "Colours", duration: 6, askComment: false },
+
+  { text: "⚫ Shape: Circle", textSW: "⚫ Umbo: Duara", category: "Shapes", duration: 6, askComment: false },
+  { text: "🟥 Shape: Square", textSW: "🟥 Umbo: Mraba", category: "Shapes", duration: 6, askComment: false },
+  { text: "🔺 Shape: Triangle", textSW: "🔺 Umbo: Pembetatu", category: "Shapes", duration: 6, askComment: false },
+  { text: "🔵 Shape: Oval", textSW: "🔵 Umbo: Mviringo", category: "Shapes", duration: 6, askComment: false },
+  { text: "⭐ Shape: Star", textSW: "⭐ Umbo: Nyota", category: "Shapes", duration: 6, askComment: false },
+  
+  
+  
+  // 🎒 School Items
+   { text: "This is my school bag 🎒", textSW: "Hii ni begi langu la shule 🎒", category: "School", duration: 8, askComment: true },
+  { text: "I use a pencil ✏️ to write.", textSW: "Natunia penseli ✏️ kuandika.", category: "School", duration: 8, askComment: true },
+  { text: "This is my book 📖 for reading.", textSW: "Hii ni kitabu changu 📖 cha kusoma.", category: "School", duration: 8, askComment: false },
+  { text: "I use a ruler 📏 to draw straight lines.", textSW: "Natunia rula 📏 kuchora mistari sawa.", category: "School", duration: 8, askComment: true },
+  { text: "The teacher 👩‍🏫 helps us learn new things every day.", textSW: "Mwalimu 👩‍🏫 hutufundisha mambo mapya kila siku.", category: "School", duration: 9, askComment: true },
+  { text: "🧮 Counting frame", textSW: "🧮 Fremu ya kuhesabu", category: "School Items", duration: 6, askComment: false },
+
+  // 🚗 Transport
+  { text: "🚗 Car", textSW: "🚗 Gari", category: "Transport", duration: 6, askComment: false },
+  { text: "🚌 Bus", textSW: "🚌 Basi", category: "Transport", duration: 6, askComment: false },
+  { text: "🚲 Bicycle", textSW: "🚲 Baiskeli", category: "Transport", duration: 6, askComment: false },
+  { text: "✈️ Airplane", textSW: "✈️ Ndege", category: "Transport", duration: 6, askComment: false },
+  { text: "⛵ Boat", textSW: "⛵ Mashua", category: "Transport", duration: 6, askComment: false },
+  { text: "🚓 Police car", textSW: "🚓 Gari la polisi", category: "Transport", duration: 6, askComment: false },
+
+  // 👗 Clothes
+  { text: "👕 Shirt", textSW: "👕 Shati", category: "Clothes", duration: 6, askComment: false },
+  { text: "👖 Trousers", textSW: "👖 Suruali", category: "Clothes", duration: 6, askComment: false },
+  { text: "👗 Dress", textSW: "👗 Gauni", category: "Clothes", duration: 6, askComment: false },
+  { text: "🧦 Socks", textSW: "🧦 Soksi", category: "Clothes", duration: 6, askComment: false },
+  { text: "👟 Shoes", textSW: "👟 Viatu", category: "Clothes", duration: 6, askComment: false },
+  { text: "🧥 Jacket", textSW: "🧥 Jaketi", category: "Clothes", duration: 6, askComment: false },
+
+ 
+   { text: "Monday – Let’s start the week strong 💪", textSW: "Jumatatu – Tuanze wiki kwa nguvu 💪", category: "Days", duration: 8, askComment: true },
+  { text: "Tuesday – Time to learn new things 📚", textSW: "Jumanne – Wakati wa kujifunza mambo mapya 📚", category: "Days", duration: 8, askComment: true },
+  { text: "Wednesday – It’s a fun day 😄", textSW: "Jumatano – Ni siku ya furaha 😄", category: "Days", duration: 8, askComment: false },
+  { text: "Thursday – Let’s help our friends 🤝", textSW: "Alhamisi – Tuwasaidie marafiki zetu 🤝", category: "Days", duration: 8, askComment: true },
+  { text: "Friday – The last school day 🏫", textSW: "Ijumaa – Siku ya mwisho ya shule 🏫", category: "Days", duration: 8, askComment: true },
+  { text: "Saturday – Play and rest ⚽😴", textSW: "Jumamosi – Cheza na pumzika ⚽😴", category: "Days", duration: 8, askComment: false },
+  { text: "Sunday – Go to church ⛪ and spend time with family 👨‍👩‍👧‍👦", textSW: "Jumapili – Nenda kanisani ⛪ na uwe na familia 👨‍👩‍👧‍👦", category: "Days", duration: 9, askComment: true },
+  
+  
+  {
+    text: "Family: This is a father 👨. He loves and cares for his family.",
+    textSW: "Familia: Huyu ni baba 👨. Anapenda na kujali familia yake.",
+    category: "Family", duration: 8, askComment: true
+  },
+  {
+    text: "Family: This is a mother 👩. She cooks, helps, and loves everyone.",
+    textSW: "Familia: Huyu ni mama 👩. Anapika, husaidia, na anapenda kila mtu.",
+    category: "Family", duration: 8, askComment: true
+  },
+  {
+    text: "Family: This is a brother 👦. He plays and shares toys with others.",
+    textSW: "Familia: Huyu ni kaka 👦. Anacheza na kushiriki vitu na wengine.",
+    category: "Family", duration: 8, askComment: true
+  },
+  {
+    text: "Family: This is a sister 👧. She helps and learns new things every day.",
+    textSW: "Familia: Huyu ni dada 👧. Anasaidia na kujifunza mambo mapya kila siku.",
+    category: "Family", duration: 8, askComment: true
+  },
+  {
+    text: "Family: Grandpa 👴 and Grandma 👵 tell us stories and teach us good manners.",
+    textSW: "Familia: Babu 👴 na Bibi 👵 hutusimulia hadithi na kutufundisha tabia njema.",
+    category: "Family", duration: 9, askComment: false
+  },
+  {
+    text: "Family: We love each other 💖 and stay together as one happy family.",
+    textSW: "Familia: Tunapendana 💖 na kukaa pamoja kama familia yenye furaha.",
+    category: "Family", duration: 9, askComment: true
+  },
+  
+  
+  
+  {
+    text: "Feelings: I am happy 😀 when I play with my friends.",
+    textSW: "Hisia: Nina furaha 😀 ninapocheza na marafiki zangu.",
+    category: "Feelings", duration: 8, askComment: true
+  },
+  {
+    text: "Feelings: I am sad 😢 when I lose my toy.",
+    textSW: "Hisia: Nina huzuni 😢 ninapopoteza toy yangu.",
+    category: "Feelings", duration: 8, askComment: true
+  },
+  {
+    text: "Feelings: I get angry 😡 when someone takes my things.",
+    textSW: "Hisia: Ninakasirika 😡 mtu anapochukua vitu vyangu.",
+    category: "Feelings", duration: 8, askComment: true
+  },
+  {
+    text: "Feelings: I am scared 😨 of loud thunder.",
+    textSW: "Hisia: Ninaogopa 😨 radi kali.",
+    category: "Feelings", duration: 8, askComment: false
+  },
+  {
+    text: "Feelings: I feel proud 🥰 when I help others.",
+    textSW: "Hisia: Najivunia 🥰 ninaposaidia wengine.",
+    category: "Feelings", duration: 8, askComment: true
+  },
+  {
+    text: "Feelings: It’s okay to feel sad or angry. Always talk to an adult 👩‍🏫.",
+    textSW: "Hisia: Ni sawa kuhisi huzuni au hasira. Sema na mtu mzima 👩‍🏫.",
+    category: "Feelings", duration: 9, askComment: true
+  },
+  
+  
+  
+   {
+    text: "Colors: The sky is blue 💙, the grass is green 💚, and the sun is yellow 💛.",
+    textSW: "Rangi: Anga ni ya buluu 💙, nyasi ni za kijani 💚, na jua ni la manjano 💛.",
+    category: "Colors", duration: 9, askComment: true
+  },
+  {
+    text: "Fruits: Apples 🍎 are red, bananas 🍌 are yellow, and oranges 🍊 are orange!",
+    textSW: "Matunda: Tufaha 🍎 ni nyekundu, ndizi 🍌 ni za manjano, na machungwa 🍊 ni ya rangi ya chungwa!",
+    category: "Fruits", duration: 9, askComment: true
+  },
+  {
+    text: "Good Habits: Wash your hands 🧼 before eating.",
+    textSW: "Tabia Njema: Nawa mikono 🧼 kabla ya kula.",
+    category: "Hygiene", duration: 8, askComment: true
+  },
+  {
+    text: "Good Habits: Brush your teeth 🪥 twice a day to keep them clean.",
+    textSW: "Tabia Njema: Piga mswaki 🪥 mara mbili kwa siku kuweka meno safi.",
+    category: "Hygiene", duration: 8, askComment: true
+  },
+  {
+    text: "Good Habits: Always say 'please' 🙏 and 'thank you' 💬.",
+    textSW: "Tabia Njema: Sema 'tafadhali' 🙏 na 'asante' 💬 kila wakati.",
+    category: "Manners", duration: 8, askComment: true
+  },
+  {
+    text: "Simple Maths: 2 apples 🍎 + 2 apples 🍎 = 4 apples 🍎🍎🍎🍎!",
+    textSW: "Hesabu Rahisi: Tufaha 2 🍎 + Tufaha 2 🍎 = Tufaha 4 🍎🍎🍎🍎!",
+    category: "Maths", duration: 8, askComment: true
+  },
+  {
+    text: "Shapes: A circle ⚪ is round, a square 🟥 has four sides, and a triangle 🔺 has three sides.",
+    textSW: "Umbo: Duara ⚪ ni la mviringo, mraba 🟥 una pande nne, na pembetatu 🔺 ina pande tatu.",
+    category: "Shapes", duration: 9, askComment: true
+  },
+  {
+    text: "Safety: Always look 👀 both ways before crossing the road.",
+    textSW: "Usalama: Angalia 👀 pande zote mbili kabla ya kuvuka barabara.",
+    category: "Safety", duration: 9, askComment: true
+  },
+  
+  
+  
+  { text: "January is the first month of the year 🎉", textSW: "Januari ni mwezi wa kwanza wa mwaka 🎉", category: "Months", duration: 8, askComment: true },
+  { text: "February has Valentine’s Day ❤️", textSW: "Februari ina Siku ya Wapendanao ❤️", category: "Months", duration: 8, askComment: true },
+  { text: "March brings flowers 🌸 and green grass 🌿", textSW: "Machi huleta maua 🌸 na nyasi za kijani 🌿", category: "Months", duration: 8, askComment: true },
+  { text: "April has lots of rain ☔ and rainbows 🌈", textSW: "Aprili kuna mvua nyingi ☔ na upinde wa mvua 🌈", category: "Months", duration: 8, askComment: false },
+  { text: "May is a month of planting 🌱", textSW: "Mei ni mwezi wa kupanda mimea 🌱", category: "Months", duration: 8, askComment: true },
+  { text: "June is cold ❄️ in Kenya", textSW: "Juni ni baridi ❄️ nchini Kenya", category: "Months", duration: 8, askComment: false },
+  { text: "July is sunny ☀️ and full of fun!", textSW: "Julai ni ya jua ☀️ na furaha tele!", category: "Months", duration: 8, askComment: true },
+  { text: "August is for school holidays 🏫🎒", textSW: "Agosti ni likizo ya shule 🏫🎒", category: "Months", duration: 8, askComment: true },
+  { text: "September starts a new school term 📚", textSW: "Septemba ni mwanzo wa muhula mpya wa shule 📚", category: "Months", duration: 8, askComment: false },
+  { text: "October is full of fun and games 🎠", textSW: "Oktoba ni mwezi wa michezo na furaha 🎠", category: "Months", duration: 8, askComment: true },
+  { text: "November has light rains 🌦️", textSW: "Novemba kuna mvua nyepesi 🌦️", category: "Months", duration: 8, askComment: false },
+  { text: "December is for Christmas 🎄 and family 👨‍👩‍👧‍👦", textSW: "Desemba ni Krismasi 🎄 na wakati wa familia 👨‍👩‍👧‍👦", category: "Months", duration: 8, askComment: true },
+  
+  
+  
+  { text: "This is my head 🧠", textSW: "Huu ni kichwa changu 🧠", category: "Body Parts", duration: 7, askComment: true },
+  { text: "These are my eyes 👀", textSW: "Hizi ni macho yangu 👀", category: "Body Parts", duration: 7, askComment: false },
+  { text: "This is my nose 👃", textSW: "Huu ni pua yangu 👃", category: "Body Parts", duration: 7, askComment: true },
+  { text: "I use my mouth 👄 to talk and eat 🍎", textSW: "Natunia mdomo 👄 kuzungumza na kula 🍎", category: "Body Parts", duration: 8, askComment: true },
+  { text: "These are my hands 👋 to clap and help", textSW: "Hizi ni mikono yangu 👋 kwa kupiga makofi na kusaidia", category: "Body Parts", duration: 8, askComment: true },
+  { text: "These are my legs 🦵 to walk and run 🏃‍♂️", textSW: "Hizi ni miguu yangu 🦵 ya kutembea na kukimbia 🏃‍♂️", category: "Body Parts", duration: 8, askComment: true },
+  
+  
+   { text: "Spring 🌸 – Flowers bloom and birds sing 🎵", textSW: "Majira ya kuchipua 🌸 – Maua yanachanua na ndege wanaimba 🎵", category: "Seasons", duration: 9, askComment: true },
+  { text: "Summer ☀️ – It’s hot, let’s go swimming 🏊‍♂️", textSW: "Majira ya joto ☀️ – Ni joto, twende kuogelea 🏊‍♂️", category: "Seasons", duration: 9, askComment: true },
+  { text: "Autumn 🍁 – Leaves fall from trees 🍂", textSW: "Majira ya kupukutika 🍁 – Majani huanguka kutoka miti 🍂", category: "Seasons", duration: 9, askComment: false },
+  { text: "Winter ❄️ – It’s cold, wear your sweater 🧥", textSW: "Majira ya baridi ❄️ – Ni baridi, vaa sweta yako 🧥", category: "Seasons", duration: 9, askComment: true },
+  
+  ];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+
+// animals + birds + butterflies
+const ANIMALS = {
+  dogs: [
+    'https://cdn.pixabay.com/photo/2025/06/20/10/47/dog-9670619_640.jpg',
+     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/03/18/18/06/australian-shepherd-3237735_640.jpg',
+     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/09/25/13/12/dog-2785074_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+ 'https://cdn.pixabay.com/photo/2018/04/30/19/16/animal-3363688_640.jpg',
+    'https://cdn.pixabay.com/photo/2014/11/21/15/25/chameleon-540655_1280.jpg',
+    'https://cdn.pixabay.com/photo/2017/05/31/18/38/sea-2361247_640.jpg',
+     'https://cdn.pixabay.com/photo/2019/12/26/02/45/fish-with-lotus-4719551_640.png',
+    'https://cdn.pixabay.com/photo/2013/07/12/18/20/santa-claus-153309_640.png',
+    'https://cdn.pixabay.com/photo/2024/01/24/22/22/knight-8530654_640.jpg',
+   
+    'https://cdn.pixabay.com/photo/2016/05/02/12/58/tiger-1367197_640.jpg',
+    'https://cdn.pixabay.com/photo/2022/03/16/01/52/animal-7071426_640.jpg',
+    'https://cdn.pixabay.com/photo/2021/06/20/15/40/buffalo-6351352_640.jpg',
+    
+  ],
+  cats: [
+    'https://cdn.pixabay.com/photo/2022/03/27/11/23/cat-7094808_640.jpg',
+     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/11/09/21/41/cat-2934720_640.jpg',
+     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/11/15/20/21/cat-1044750_640.jpg',
+   'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
+    'https://cdn.pixabay.com/photo/2023/10/23/08/17/asian-giant-hornet-8335577_640.jpg',
+    'https://cdn.pixabay.com/photo/2020/04/10/07/42/wasp-5024465_640.jpg',
+    'https://cdn.pixabay.com/photo/2013/07/12/16/29/hornet-151003_640.png',
+      'https://cdn.pixabay.com/photo/2022/09/28/17/36/puffer-fish-7485602_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/04/07/21/12/lionfish-711799_640.jpg',
+    'https://cdn.pixabay.com/photo/2017/05/31/00/24/aquarium-2358739_640.jpg',
+     'https://cdn.pixabay.com/photo/2023/06/29/16/10/zebra-8096659_640.png',
+    'https://cdn.pixabay.com/photo/2020/05/04/09/09/giraffe-5128394_1280.jpg',
+    'https://cdn.pixabay.com/photo/2016/04/22/21/07/monkey-1346590_640.jpg'
+  ],
+  birds: [
+    'https://cdn.pixabay.com/photo/2023/07/24/22/07/european-herring-gull-8147941_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/06/22/18/30/seagull-3491309_640.jpg',
+    'https://cdn.pixabay.com/photo/2024/11/22/18/18/mute-swan-9217198_640.jpg',
+    'https://cdn.pixabay.com/photo/2022/08/25/20/44/bird-7411270_640.jpg',
+    'https://cdn.pixabay.com/photo/2016/10/19/13/42/eagle-1753002_640.jpg'
+  ],
+  butterflies: [
+    'https://cdn.pixabay.com/photo/2023/05/30/15/12/blue-butterfuly-8028888_640.jpg',
+    'https://cdn.pixabay.com/photo/2018/06/24/18/46/butterfly-3495224_640.jpg',
+    'https://cdn.pixabay.com/photo/2014/08/28/22/41/speckled-wood-430203_640.jpg',
+    'https://cdn.pixabay.com/photo/2024/12/27/10/28/butterfly-clipart-9293644_640.png',
+    'https://cdn.pixabay.com/photo/2023/01/17/18/26/moth-7725205_640.jpg'
+  ],
+
+exotic: [
+    'https://cdn.pixabay.com/photo/2022/08/25/20/44/bird-7411270_640.jpg',
+  ],
+  fish: [
+    'https://cdn.pixabay.com/photo/2016/11/18/17/47/fish-1834823_640.jpg',
+    
+  ],
+  cartoons: [
+    'https://cdn.pixabay.com/photo/2020/06/23/18/10/cartoon-5331106_640.png',
+    
+  ],
+  insects: [
+    'https://cdn.pixabay.com/photo/2017/03/27/13/16/bee-2178341_640.jpg',
+   
+  ],
+  reptiles: [
+    'https://cdn.pixabay.com/photo/2016/11/23/14/45/lizard-1850046_640.jpg',
+
+  ],
+   
+};
+
+
+
+
+const EMOJIS = ['📚','🧮','🎨','✏️','💡','🔢','🧑‍🏫','🌈','🐶','🐱','🐭','🌟','✨','🎵','🎶','📝','📖','🌍','🌏','☀️','🌙','⚡','🔥','💧','🌊','🌳','🎯','🏆','🏅','🎁','🎉','🎈','🚀','🚲','🛶'];
+
+const backgroundMusicList = [
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music1.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music2.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music3.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music4.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music5.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music6.mp3',
+ 
+  'https://elimuconnect.github.io/ELIMU-CONNECT-/music7.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music8.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music9.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music10.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music11.mp3',
+ 'https://elimuconnect.github.io/ELIMU-CONNECT-/music12.mp3'
+];
+
+/* ---------- Utility: Shuffler (persistent) ---------- */
+function createShuffler(key, items) {
+  const storageKey = 'shuffler_' + key;
+  function loadState() { try { const raw = localStorage.getItem(storageKey); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+  function saveState(state) { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (e) {} }
+  function makeOrder(n) {
+    const arr = Array.from({length:n}, (_,i)=>i);
+    for (let i = arr.length -1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+    return arr;
+  }
+  let state = loadState();
+  if (!state || !Array.isArray(state.order) || state.sourceLength !== items.length) {
+    state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length };
+    saveState(state);
+  }
+  function ensureFresh() {
+    if (state.sourceLength !== items.length) {
+      state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length };
+      saveState(state);
+    }
+  }
+  function next() {
+    ensureFresh();
+    if (state.idx >= state.order.length) {
+      state.order = makeOrder(items.length);
+      state.idx = 0;
+      state.sourceLength = items.length;
+    }
+    const resultIndex = state.order[state.idx++];
+    saveState(state);
+    return items[resultIndex];
+  }
+  return { next, reset: () => { state = { order: makeOrder(items.length), idx: 0, sourceLength: items.length }; saveState(state);} };
+}
+
+const backgroundsShuffler = createShuffler('backgrounds', BACKGROUNDS);
+const dogsShuffler = createShuffler('dogs', ANIMALS.dogs);
+const catsShuffler = createShuffler('cats', ANIMALS.cats);
+const birdsShuffler = createShuffler('birds', ANIMALS.birds);
+const butterfliesShuffler = createShuffler('butterflies', ANIMALS.butterflies);
+const knowledgeShuffler = createShuffler('knowledge', KNOWLEDGE_ITEMS);
+
+/* =========================
+   AUDIO: WebAudio Master Mix
+   ========================= */
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+function ensureAudioCtx(){
+  if(!audioCtx){
+    audioCtx = new AudioContextClass();
+    audioCtx.masterGain = audioCtx.createGain();
+    audioCtx.masterGain.gain.value = 1;
+    audioCtx.masterDest = audioCtx.createMediaStreamDestination();
+    audioCtx.masterGain.connect(audioCtx.masterDest);
+    audioCtx.masterGain.connect(audioCtx.destination);
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+
+let currentBgSource = null;
+let currentBgGain = null;
+let uploadedVoiceBuffer = null;
+let uploadedVoiceSource = null;
+let micStreamNode = null;
+let micStreamTrack = null;
+
+async function playRandomBackgroundTrack(){
+  const ctx = ensureAudioCtx();
+  if(currentBgSource){ try{ currentBgSource.stop(); currentBgSource.disconnect(); }catch(e){} currentBgSource = null; }
+  if(currentBgGain){ try{ currentBgGain.disconnect(); }catch(e){} currentBgGain=null; }
+
+  const url = backgroundMusicList[Math.floor(Math.random()*backgroundMusicList.length)];
+  try{
+    const resp = await fetch(url);
+    const ab = await resp.arrayBuffer();
+    const buf = await ctx.decodeAudioData(ab);
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    src.buffer = buf;
+    src.loop = true;
+    gain.gain.value = 0.6;
+    src.connect(gain); gain.connect(ctx.masterGain);
+    try{ src.start(); }catch(e){ try{ await ctx.resume(); src.start(); }catch(e){} }
+    currentBgSource = src; currentBgGain = gain;
+    return {src, gain};
+  }catch(err){
+    console.warn('Failed to load bg track', err);
+    statusEl.textContent = 'Background music failed to load.';
+    return null;
+  }
+}
+
+function stopCurrentBgTrack(){
+  try{ if(currentBgSource){ currentBgSource.stop(); currentBgSource.disconnect(); currentBgSource=null; } }catch(e){}
+  if(currentBgGain){ try{ currentBgGain.disconnect(); }catch(e){} currentBgGain=null; }
+}
+
+/* ---------- Voice handling: Upload & Mic ---------- */
+useUploadBtn.addEventListener('click', async ()=>{
+  const file = voiceUploadEl.files && voiceUploadEl.files[0];
+  if(!file){ statusEl.textContent = 'No upload selected.'; return; }
+  try{
+    const ctx = ensureAudioCtx();
+    const ab = await file.arrayBuffer();
+    uploadedVoiceBuffer = await ctx.decodeAudioData(ab);
+    statusEl.textContent = `Upload loaded: ${file.name} — will be embedded when recording starts.`;
+  }catch(err){
+    console.error('Upload decode failed', err);
+    statusEl.textContent = 'Failed to load uploaded audio.';
+  }
+});
+
+async function enableMicMixing(){
+  try{
+    if(micStreamNode) return;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStreamTrack = stream.getAudioTracks()[0];
+    const ctx = ensureAudioCtx();
+    const source = ctx.createMediaStreamSource(new MediaStream([micStreamTrack]));
+    source.connect(ctx.masterGain);
+    micStreamNode = source;
+    statusEl.textContent = 'Microphone connected and will be embedded.';
+  }catch(err){
+    console.warn('Mic not available', err);
+    statusEl.textContent = 'Microphone permission denied or unavailable.';
+  }
+}
+
+function disableMicMixing(){
+  if(micStreamNode){ try{ micStreamNode.disconnect(); }catch(e){} micStreamNode = null; }
+  if(micStreamTrack){ try{ micStreamTrack.stop(); }catch(e){} micStreamTrack = null; }
+}
+
+/* =========================
+   Asset loaders & scene helpers (from B)
+   ========================= */
+function loadImg(url){ return new Promise((res,rej)=>{ const i=new Image(); i.crossOrigin='anonymous'; i.onload=()=>res(i); i.onerror=()=>rej(new Error('Image load error '+url)); i.src=url; }); }
+
+function loadVideo(url) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.preload = 'auto';
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.oncanplaythrough = () => { video.play().catch(()=>{}); resolve(video); };
+    video.onerror = () => reject(new Error('Video load error ' + url));
+    video.src = '';
+    video.load();
+    video.src = url;
+    video.load();
+  });
+}
+
+function spawnEmojis(count = 20) { 
+  scene.emojis = [];
+  for (let i = 0; i < count; i++) {
+    scene.emojis.push({
+      ch: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+      x: Math.random() * CANVAS_W,
+      y: Math.random() * CANVAS_H,
+      vx: (Math.random() * 2 - 1) * 0.6,
+      vy: -(0.3 + Math.random() * 0.9) - (Math.random() * 4 + 2),
+      size: 20 + Math.random() * 36,
+      rot: Math.random() * Math.PI * 2,
+      rotV: (Math.random() * 2 - 1) * 0.03
+    });
+  }
+}
+
+function spawnFlyingAnimals() {
+  scene.flying = [];
+  for (const group of [ANIMALS.birds, ANIMALS.butterflies, ANIMALS.exotic]) {
+    for (const url of group) {
+      scene.flying.push({
+        type: 'animal',
+        imgUrl: url,
+        x: Math.random() > 0.5 ? -50 - Math.random() * 300 : CANVAS_W + 50 + Math.random() * 300,
+        y: 50 + Math.random() * (CANVAS_H / 2),
+        vx: (Math.random() > 0.5 ? 0.5 : -0.5) + Math.random() * 1.5,
+        vy: Math.sin(Math.random() * 2 * Math.PI) * 0.3,
+        size: 50 + Math.random() * 50,
+        img: null
+      });
+    }
+  }
+}
+
+function spawnClouds(n=6){ scene.clouds=[]; for(let i=0;i<n;i++){ scene.clouds.push({x:Math.random()*CANVAS_W, y:Math.random()*(CANVAS_H/2), w:100+Math.random()*150, h:40+Math.random()*30, speed:0.2+Math.random()*0.3}); } }
+
+/* =========================
+   Scene & drawing (combined)
+   ========================= */
+let scene = {
+  backgroundImg: null,
+  backgroundVideo: null,
+  bgName: '',
+  clouds: [],
+  animalA: {img:null, x:CANVAS_W*0.12, y:CANVAS_H-320, w:180, h:180, bounceTimer:0},
+  animalB: {img:null, x:CANVAS_W*0.62, y:CANVAS_H-300, w:150, h:150, bounceTimer:0},
+  flying: [],
+  emojis: [],
+  bubble: {text:'Welcome!', x:CANVAS_W*0.5, y:120},
+  subtitle: {text:'', x:CANVAS_W*0.5, y:CANVAS_H - 120}
+};
+
+function splitText(context, text, maxWidth) {
+  if(!text) return [];
+  const words = text.split(' ');
+  let lines = [];
+  let currentLine = words[0] || '';
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const testLine = currentLine + " " + word;
+    if (context.measureText(testLine).width > maxWidth) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else currentLine = testLine;
+  }
+  lines.push(currentLine);
+  return lines;
+}
+
+function drawRoundRect(x, y, w, h, r, fill, stroke, lw = 4) {
+  if (typeof r === 'number') r = {tl:r,tr:r,br:r,bl:r};
+  ctx.beginPath();
+  ctx.moveTo(x + r.tl, y);
+  ctx.lineTo(x + w - r.tr, y);
+  ctx.arcTo(x + w, y, x + w, y + r.tr, r.tr);
+  ctx.lineTo(x + w, y + h - r.br);
+  ctx.arcTo(x + w, y + h, x + w - r.br, y + h, r.br);
+  ctx.lineTo(x + r.bl, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r.bl, r.bl);
+  ctx.lineTo(x, y + r.tl);
+  ctx.arcTo(x, y, x + r.tl, y, r.tl);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
+}
+
+function drawSwahiliBubble(){
+  const text = (scene.bubble && (scene.bubble.text || (scene.bubble.item && scene.bubble.item.textSW))) || '';
+  if (!text) return;
+  const x = CANVAS_W * 0.5; const y = CANVAS_H * 0.1;
+  const padding = 22; const fontSize = 40;
+  ctx.font = `${fontSize}px "Patrick Hand", Arial`;
+  const wrapped = splitText(ctx, text, CANVAS_W - 100);
+  const lineH = fontSize * 1.15;
+  const textW = wrapped.reduce((max, line) => Math.max(max, ctx.measureText(line).width), 0);
+  const totalH = wrapped.length * lineH;
+  const rectW = textW + padding * 2; const rectH = totalH + padding * 2;
+  const rectX = x - rectW / 2; const rectY = y - rectH / 2;
+  const radius = 18;
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+  drawRoundRect(rectX, rectY, rectW, rectH, radius, 'white', '#222', 4);
+  ctx.restore();
+  // text
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  let startY = rectY + padding + lineH / 2 - 4;
+  for (let i = 0; i < wrapped.length; i++) ctx.fillText(wrapped[i], x, startY + i * lineH);
+}
+
+let logoX = 0;
+const logoText = '🎓 Online Tuition: @Sh500 P.M (Kenya)|Elimu Connect app/ $4 P.M(Global)|SmartLearn : IGCSE IB CBSE ICSE on Play Store! 💻 Need a Website from Sh10,000? WhatsApp +254769255782!';
+
+function drawSlidingLogo(time){
+  ctx.font = '28px "Patrick Hand", Arial';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  const textWidth = ctx.measureText(logoText).width;
+  const rectH = 70, rectY = CANVAS_H - rectH - 150, rectW = CANVAS_W, speed = 0.8;
+  logoX -= speed;
+  if (logoX <= -textWidth) logoX = 0;
+  drawRoundRect(0, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.08)', 2);
+  const grad = ctx.createLinearGradient(0, rectY, rectW, rectY + rectH);
+  grad.addColorStop(0, '#ff6f00'); grad.addColorStop(1, '#1976d2');
+  ctx.fillStyle = grad;
+  ctx.fillText(logoText, logoX, rectY + rectH / 2);
+  ctx.fillText(logoText, logoX + textWidth, rectY + rectH / 2);
+}
+
+function drawTimerArc(progress){
+  const cx = CANVAS_W - 100, cy = 100, r = 70;
+  const start = -Math.PI/2;
+  const end = start + progress * 2 * Math.PI;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth = 10; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r, end, start, true); ctx.strokeStyle = "#FFD700"; ctx.lineWidth = 10; ctx.stroke();
+  ctx.font = "bold 60px 'Patrick Hand', Arial"; ctx.fillStyle = "#FFD700"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(Math.ceil(progress*CLIP_DURATION_S), cx, cy);
+  ctx.font = "24px 'Patrick Hand', Arial"; ctx.fillStyle = "white"; ctx.fillText("Clip: " + currentClip, cx, cy + r + 25);
+}
+
+function drawScene(t){
+  ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+  // background
+  if(scene.backgroundVideo) try{ ctx.drawImage(scene.backgroundVideo,0,0,CANVAS_W,CANVAS_H); }catch(e){}
+  else if(scene.backgroundImg) ctx.drawImage(scene.backgroundImg,0,0,CANVAS_W,CANVAS_H);
+  else { ctx.fillStyle='#88d'; ctx.fillRect(0,0,CANVAS_W,CANVAS_H); }
+  // clouds
+  for(const c of scene.clouds){
+    c.x += c.speed*(1+Math.sin(t/200));
+    if(c.x>CANVAS_W+200) c.x=-250;
+    ctx.save(); ctx.fillStyle='rgba(255,255,255,0.95)'; ctx.beginPath();
+    ctx.ellipse(c.x,c.y,c.w*0.6,c.h*0.6,0,0,2*Math.PI);
+    ctx.ellipse(c.x+c.w*0.4,c.y-10,c.w*0.5,c.h*0.45,0,0,2*Math.PI);
+    ctx.ellipse(c.x+c.w*0.7,c.y+6,c.w*0.35,c.h*0.33,0,0,2*Math.PI);
+    ctx.fill(); ctx.restore();
+  }
+  // flying animals
+  for(const f of scene.flying){
+    f.x += f.vx*(1+Math.sin((performance.now()+f.y*0.01)/600));
+    f.y += Math.sin((performance.now()/500 + f.x*0.01))*0.5 + f.vy*0.5;
+    if(f.vx>0 && f.x>CANVAS_W+150){ f.x=-150; f.y=50+Math.random()*(CANVAS_H/2); }
+    if(f.vx<0 && f.x<-150){ f.x=CANVAS_W+150; f.y=50+Math.random()*(CANVAS_H/2); }
+    if(f.y<30) f.y=30; if(f.y>CANVAS_H/2) f.y=CANVAS_H/2;
+    if(f.img){ ctx.save(); ctx.translate(f.x+f.size/2,f.y+f.size/2); ctx.rotate(Math.sin(f.x/50)*0.15); ctx.drawImage(f.img,-f.size/2,-f.size/2,f.size,f.size); ctx.restore(); }
+  }
+  // animals
+  function drawAnimal(a){ const bounce=Math.sin((t+(a.bounceTimer||0))/300)*12; ctx.save(); ctx.beginPath(); ctx.ellipse(a.x+a.w/2,a.y+bounce+a.h-20,a.w*0.3,12,0,0,2*Math.PI); ctx.fillStyle='rgba(0,0,0,0.12)'; ctx.fill(); if(a.img) ctx.drawImage(a.img,a.x,a.y+bounce,a.w,a.h); ctx.restore(); }
+  scene.animalA.x=CANVAS_W*0.12; scene.animalB.x=CANVAS_W*0.62;
+  drawAnimal(scene.animalA); drawAnimal(scene.animalB);
+  // emojis
+  for(const e of scene.emojis){
+    e.x+=e.vx; e.y+=e.vy; e.vy+=0.01; e.rot+=e.rotV;
+    if(e.y<-120||e.y>CANVAS_H+120||e.x<-80||e.x>CANVAS_W+80){ e.y=Math.random()*CANVAS_H; e.x=Math.random()*CANVAS_W; e.vy=-0.3-Math.random()*0.9; e.vx=(Math.random()*2-1)*0.6; }
+    ctx.save(); ctx.translate(e.x,e.y); ctx.rotate(e.rot); ctx.font=`${e.size}px "Patrick Hand", Arial`; ctx.fillText(e.ch,0,0); ctx.restore();
+  }
+  
+  
+  
+  
+  
+  
+
+  
+  // 🎬 Top text
+ctx.fillStyle = 'rgba(255,255,255,0.9)';
+ctx.font = 'bold 100px "Patrick Hand", Arial';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'top';
+ctx.fillText("Fun, Facts, Memes, Laughs", CANVAS_W / 2, 40);
+
+// 💬 Swahili bubble (from B)
+drawSwahiliBubble();
+
+// ✨ Subtitle (center, clear and well-spaced, no shadow look)
+if (scene.subtitle && scene.subtitle.text) {
+  const text = scene.subtitle.text;
+  ctx.font = 'bold 70px "Patrick Hand", Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const lines = splitText(ctx, text, CANVAS_W - 100);
+  const lh = 90; // 🔹 Better spacing
+  const totalH = lines.length * lh;
+  let startY = CANVAS_H * 0.5 - totalH / 2;
+
+  for (let i = 0; i < lines.length; i++) {
+    const lineY = startY + i * lh;
+    const lineText = lines[i];
+
+    // 🩵 Soft light background box
+    const metrics = ctx.measureText(lineText);
+    const paddingX = 40;
+    const paddingY = 25;
+    const bgWidth = metrics.width + paddingX * 2;
+    const bgHeight = 80 + paddingY * 0.3;
+    const bgX = CANVAS_W / 2 - bgWidth / 2;
+    const bgY = lineY - 50;
+
+    // Rounded background (bright and clean)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.beginPath();
+    const radius = 30;
+    ctx.moveTo(bgX + radius, bgY);
+    ctx.lineTo(bgX + bgWidth - radius, bgY);
+    ctx.quadraticCurveTo(bgX + bgWidth, bgY, bgX + bgWidth, bgY + radius);
+    ctx.lineTo(bgX + bgWidth, bgY + bgHeight - radius);
+    ctx.quadraticCurveTo(bgX + bgWidth, bgY + bgHeight, bgX + bgWidth - radius, bgY + bgHeight);
+    ctx.lineTo(bgX + radius, bgY + bgHeight);
+    ctx.quadraticCurveTo(bgX, bgY + bgHeight, bgX, bgY + bgHeight - radius);
+    ctx.lineTo(bgX, bgY + radius);
+    ctx.quadraticCurveTo(bgX, bgY, bgX + radius, bgY);
+    ctx.closePath();
+    ctx.fill();
+
+    // ✨ Clear text — no heavy outline, just glow
+    ctx.fillStyle = 'yellow';
+    ctx.shadowColor = 'white';
+    ctx.shadowBlur = 20;
+    ctx.fillText(lineText, CANVAS_W / 2, lineY);
+    ctx.shadowBlur = 0; // reset shadow
+  }
+}
+
+  
+  
+  
+  
+  
+  
+  // logo
+  drawSlidingLogo(t);
+  // if recording preview: draw timer arc
+  if(currentClip>0) drawTimerArc(timerProgress);
+}
+
+/* ---------- animation loop controls ---------- */
+function startAnimationLoop(){
+  if(animationFrameId) return;
+  let last = performance.now();
+  function loop(now){
+    animationFrameId = requestAnimationFrame(loop);
+    drawScene(now);
+    last = now;
+  }
+  animationFrameId = requestAnimationFrame(loop);
+}
+
+function stopAnimationLoop(){
+  if(animationFrameId){ cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+}
+
+/* =========================
+   Scene preparation for each clip
+   ========================= */
+async function prepareScene() {
+  assetsLoaded = false;
+  statusEl.textContent = 'Loading assets for next clip...';
+  try {
+    const bg = (backgroundsShuffler.next() || { name: "Default", url: null });
+    scene.bgName = bg.name;
+    // reset previous video if any
+    if(scene.backgroundVideo){ try{ scene.backgroundVideo.pause(); scene.backgroundVideo.src = ''; }catch(e){} scene.backgroundVideo = null; }
+    scene.backgroundImg = null;
+    // load new background
+    if (bg.url && bg.url.endsWith('.mp4')) {
+      scene.backgroundVideo = await loadVideo(bg.url).catch(()=>null);
+    } else if (bg.url) {
+      scene.backgroundImg = await loadImg(bg.url).catch(()=>null);
+    }
+    // animals
+    const dogUrl = dogsShuffler.next() || null;
+    const catUrl = catsShuffler.next() || null;
+    scene.animalA.img = dogUrl ? await loadImg(dogUrl).catch(()=>null) : null;
+    scene.animalB.img = catUrl ? await loadImg(catUrl).catch(()=>null) : null;
+    // flying animals
+    spawnFlyingAnimals();
+    await Promise.all(scene.flying.map(f => f.imgUrl ? loadImg(f.imgUrl).then(img => f.img = img).catch(()=>null) : Promise.resolve()));
+    // clouds & emojis
+    spawnClouds(6); spawnEmojis(18);
+    // knowledge item
+    const nextItem = knowledgeShuffler.next() || { text: "No knowledge item available.", textSW: "Hakuna kitu.", askComment: false };
+    scene.subtitle.item = nextItem;
+    scene.bubble.item = nextItem;
+    scene.subtitle.text = nextItem.text;
+    scene.bubble.text = nextItem.textSW;
+    // audio: background
+    await playRandomBackgroundTrack().catch(()=>{});
+    // small flash effect to indicate change
+    if (canvas) { canvas.style.animation = 'flash 0.6s ease-out'; setTimeout(()=>canvas.style.animation='',600); }
+    assetsLoaded = true;
+    statusEl.textContent = `Prepared: ${scene.bgName}`;
+  } catch(err){
+    console.error("Scene preparation failed:", err);
+    statusEl.textContent = 'Error preparing clip — using fallback visuals.';
+    assetsLoaded = true;
+  }
+}
+
+/* =========================
+   Clips cycle & timing
+   ========================= */
+async function cycleClips() {
+  if (currentClip >= TOTAL_CLIPS) {
+    clearInterval(clipCycleInterval);
+    clipCycleInterval = null;
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    return;
+  }
+  currentClip++;
+  try {
+    await prepareScene();
+    clipStartTime = performance.now();
+    // set timer progress animation per CLIP_DURATION_S
+    timerProgress = 1;
+    // animate timer countdown using a simple interval that updates timerProgress
+    const start = performance.now();
+    const tick = setInterval(()=>{
+      const elapsed = (performance.now() - start)/1000;
+      timerProgress = Math.max(1 - elapsed/CLIP_DURATION_S, 0);
+      if(timerProgress <= 0) clearInterval(tick);
+    }, 200);
+    // update status
+    const remainingTimeS = (TOTAL_CLIPS - currentClip) * CLIP_DURATION_S;
+    const remainingMinutes = Math.floor(remainingTimeS / 60);
+    const remainingSeconds = remainingTimeS % 60;
+    let baseStatus = `Recording Clip ${currentClip}/${TOTAL_CLIPS}.`;
+    if (currentClip < TOTAL_CLIPS) baseStatus += ` Next transition in ${CLIP_DURATION_S}s.`;
+    baseStatus += ` Total remaining: ${remainingMinutes}m ${remainingSeconds}s.`;
+    statusEl.textContent = baseStatus;
+  } catch (err) {
+    console.error(`Failed to prepare clip ${currentClip}:`, err);
+    statusEl.textContent = `Error on Clip ${currentClip}. Continuing...`;
+  }
+}
+
+/* =========================
+   Media Recorder: combine canvas + audio into webm
+   ========================= */
+async function startLongRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') return;
+  currentClip = 0;
+  recordedChunks = [];
+  downloadLink.classList.add('hidden');
+  recordBtn.disabled = true;
+  genBtn.disabled = true;
+  stopAnimationLoop();
+  try {
+    // Prepare audio inputs: depending on voice method
+    const method = voiceMethodSel.value;
+    // Ensure audio context exists
+    const ctx = ensureAudioCtx();
+    // If upload present and selected, create source and connect
+    if(method === 'upload' && uploadedVoiceBuffer){
+      uploadedVoiceSource = ctx.createBufferSource();
+      uploadedVoiceSource.buffer = uploadedVoiceBuffer;
+      uploadedVoiceSource.loop = true;
+      const ug = ctx.createGain(); ug.gain.value = 1;
+      uploadedVoiceSource.connect(ug); ug.connect(ctx.masterGain);
+      try{ uploadedVoiceSource.start(); }catch(e){}
+    }
+    // If mic selected, enable mic mixing
+    if(method === 'mic'){
+      await enableMicMixing();
+    }
+    // Start bg music (ensures currentBgSource exists)
+    await playRandomBackgroundTrack().catch(()=>{});
+    // Grab canvas stream
+    const canvasStream = canvas.captureStream(30);
+    const audioStream = ctx.masterDest.stream;
+    const combinedStream = new MediaStream();
+    const vTrack = canvasStream.getVideoTracks()[0];
+    const aTrack = audioStream.getAudioTracks()[0];
+    if(vTrack) combinedStream.addTrack(vTrack);
+    if(aTrack) combinedStream.addTrack(aTrack);
+    videoTrack = vTrack; audioTrack = aTrack;
+    // Create MediaRecorder
+    const options = { mimeType: 'video/webm; codecs=vp9,opus' };
+    mediaRecorder = new MediaRecorder(combinedStream, options);
+    mediaRecorder.ondataavailable = (ev) => { if(ev.data && ev.data.size>0) recordedChunks.push(ev.data); };
+    mediaRecorder.onstop = () => {
+      // cleanup
+      stopCurrentBgTrack();
+      if(uploadedVoiceSource){ try{ uploadedVoiceSource.stop(); uploadedVoiceSource.disconnect(); }catch(e){} uploadedVoiceSource = null; }
+      disableMicMixing();
+      clearInterval(clipCycleInterval);
+      clearTimeout(longRecordingTimeout);
+      stopAnimationLoop();
+      statusEl.textContent = 'Finalizing 30-minute video...';
+      // stop tracks
+      if(videoTrack) try{ videoTrack.stop(); }catch(e){}
+      if(audioTrack) try{ audioTrack.stop(); }catch(e){}
+      // build blob and download link
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.download = `Elimu_30_Minute_Compilation_${Date.now()}.webm`;
+      downloadLink.textContent = `✅ Download 30-Minute Video (${(blob.size/(1024*1024)).toFixed(2)} MB)`;
+      downloadLink.classList.remove('hidden');
+      recordBtn.disabled = false; genBtn.disabled = false;
+      statusEl.textContent = 'Recording complete. Download link available.';
+      currentClip = 0; timerProgress = 1;
+      genBtn.click();
+    };
+    // start
+    mediaRecorder.start();
+    startAnimationLoop();
+    await cycleClips();
+    clipCycleInterval = setInterval(cycleClips, CLIP_DURATION_S * 1000);
+    longRecordingTimeout = setTimeout(()=>{
+      if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    }, TOTAL_DURATION_MS);
+  } catch(err){
+    console.error('Error starting recording', err);
+    statusEl.textContent = 'Error starting recording. Check console and permissions.';
+    recordBtn.disabled = false; genBtn.disabled = false;
+    stopCurrentBgTrack();
+    disableMicMixing();
+    if(uploadedVoiceSource){ try{ uploadedVoiceSource.stop(); uploadedVoiceSource.disconnect(); }catch(e){} uploadedVoiceSource=null; }
+    clearInterval(clipCycleInterval); clearTimeout(longRecordingTimeout);
+    stopAnimationLoop();
+    currentClip = 0;
+  }
+}
+
+/* =========================
+   Event listeners & boot
+   ========================= */
+genBtn.addEventListener('click', async ()=>{
+  if(mediaRecorder && mediaRecorder.state !== 'inactive'){ statusEl.textContent = 'Please wait for the current recording to finish.'; return; }
+  stopAnimationLoop();
+  stopCurrentBgTrack();
+  currentClip = 1; timerProgress = 1;
+  // If mic method selected, don't auto-start mic until recording unless chosen; but we will not enable mic here.
+  await prepareScene();
+  startAnimationLoop();
+  clipStartTime = performance.now();
+  statusEl.textContent = `Previewing Clip ${currentClip}/${TOTAL_CLIPS}. Press "Start 30-Minute Record" to begin compilation.`;
+});
+
+recordBtn.addEventListener('click', startLongRecording);
+
+/* Unlock audio on first gesture (helpful for mobile/Chrome) */
+function unlockAudioOnGesture(){
+  const init = async ()=>{
+    ensureAudioCtx();
+    if(audioCtx && audioCtx.state === 'suspended') try{ await audioCtx.resume(); }catch(e){}
+    document.body.removeEventListener('click', init);
+    document.body.removeEventListener('keydown', init);
+    statusEl.textContent = 'Audio unlocked — ready.';
+  };
+  document.body.addEventListener('click', init);
+  document.body.addEventListener('keydown', init);
+}
+unlockAudioOnGesture();
+
+/* Wire voiceMethod selection: enable mic immediately if mic selected by user before recording */
+voiceMethodSel.addEventListener('change', async ()=>{
+  const v = voiceMethodSel.value;
+  if(v === 'mic'){
+    statusEl.textContent = 'Please allow microphone when prompted.';
+    // do not force permission until recording; but if user explicitly chose mic, prompt now
+    await enableMicMixing();
+  } else {
+    // stop existing mic if user switched away
+    disableMicMixing();
+    statusEl.textContent = 'Voice set to: ' + v;
+  }
+});
+
+/* On load: initialize scene preview */
+window.addEventListener('load', async ()=>{
+  // small initial scene
+  spawnClouds(6);
+  spawnEmojis(22);
+  scene.animalA.img = await loadImg('https://i.imgur.com/5n6R2vI.png').catch(()=>null);
+  scene.animalB.img = await loadImg('https://i.imgur.com/9Y7kzKZ.png').catch(()=>null);
+  // spawn a few flying animals using placeholder lists
+  spawnFlyingAnimals();
+  for(const f of scene.flying){ if(f.imgUrl) f.img = await loadImg(f.imgUrl).catch(()=>null); }
+  startAnimationLoop();
+  ensureAudioCtx();
+  genBtn.click();
+});
+</script>
+</body>
+</html>
