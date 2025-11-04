@@ -961,24 +961,53 @@ function drawSwahiliBubble(){
   for (let i = 0; i < wrapped.length; i++) ctx.fillText(wrapped[i], x, startY + i * lineH);
 }
 
-let logoX = 0;
-const logoText = '🎓 Online Tuition: @Sh500 P.M (Kenya)|Elimu Connect app/ $4 P.M(Global)|SmartLearn : IGCSE IB CBSE ICSE on Play Store! 💻 Need a Website from Sh10,000? WhatsApp +254769255782!';
 
-function drawSlidingLogo(time){
-  ctx.font = '28px "Patrick Hand", Arial';
+
+
+let logoX = 0;
+const logoText = '🎓 Online Tuition: @Sh500 P.M (Kenya) | Elimu Connect app / $4 P.M (Global) | SmartLearn: IGCSE IB CBSE ICSE on Play Store! 💻 Need a Website from Sh10,000? WhatsApp +254769255782!';
+
+function drawSlidingLogo(time) {
+  ctx.font = 'bold 30px "Patrick Hand", Arial';
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
+
   const textWidth = ctx.measureText(logoText).width;
-  const rectH = 70, rectY = CANVAS_H - rectH - 150, rectW = CANVAS_W, speed = 0.8;
+  const rectH = 70;
+  const rectY = CANVAS_H - rectH - 150;
+  const rectW = CANVAS_W;
+
+  // 🚀 Increase speed for smoother motion
+  const speed = 2.5; // Try between 2.0–3.0 for ideal speed
   logoX -= speed;
-  if (logoX <= -textWidth) logoX = 0;
-  drawRoundRect(0, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.95)', 'rgba(0,0,0,0.08)', 2);
+  if (logoX <= -textWidth) logoX += textWidth; // wrap cleanly
+
+  // 🟦 Background bar (light, clean)
+  drawRoundRect(0, rectY, rectW, rectH, 20, 'rgba(255,255,255,0.92)', 'rgba(0,0,0,0.1)', 2);
+
+  // 🌈 Gradient text for modern look
   const grad = ctx.createLinearGradient(0, rectY, rectW, rectY + rectH);
-  grad.addColorStop(0, '#ff6f00'); grad.addColorStop(1, '#1976d2');
+  grad.addColorStop(0, '#ff8c00');
+  grad.addColorStop(1, '#1976d2');
   ctx.fillStyle = grad;
+
+  // ✨ Draw the text twice to create seamless scrolling
   ctx.fillText(logoText, logoX, rectY + rectH / 2);
   ctx.fillText(logoText, logoX + textWidth, rectY + rectH / 2);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
 function drawTimerArc(progress){
   const cx = CANVAS_W - 100, cy = 100, r = 70;
