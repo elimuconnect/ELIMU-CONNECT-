@@ -334,47 +334,176 @@ const BACKGROUNDS = [
 ];
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
 const KNOWLEDGE_ITEMS = [
   
-   { text: "🐱 Domestic Animal: Cat", textSW: "🐱 Mnyama wa kufugwa: Paka", category: "Domestic Animals", duration: 7, askComment: false },
+  
+  { text: "🐱 Domestic Animal: Cat", textSW: "🐱 Mnyama wa kufugwa: Paka", category: "Domestic Animals", duration: 7, askComment: false },
   { text: "🐶 Domestic Animal: Dog", textSW: "🐶 Mnyama wa kufugwa: Mbwa", category: "Domestic Animals", duration: 7, askComment: false },
   { text: "🐄 Domestic Animal: Cow", textSW: "🐄 Mnyama wa kufugwa: Ng’ombe", category: "Domestic Animals", duration: 7, askComment: false },
   { text: "🐐 Domestic Animal: Goat", textSW: "🐐 Mnyama wa kufugwa: Mbuzi", category: "Domestic Animals", duration: 7, askComment: false },
   { text: "🐔 Domestic Animal: Hen", textSW: "🐔 Mnyama wa kufugwa: Kuku", category: "Domestic Animals", duration: 7, askComment: false },
-
-  // 🦁 Wild Animals
+  { text: "🐓 Domestic Animal: Rooster", textSW: "🐓 Mnyama wa kufugwa: Jogoo", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐖 Domestic Animal: Pig", textSW: "🐖 Mnyama wa kufugwa: Nguruwe", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐑 Domestic Animal: Sheep", textSW: "🐑 Mnyama wa kufugwa: Kondoo", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐴 Domestic Animal: Horse", textSW: "🐴 Mnyama wa kufugwa: Farasi", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐇 Domestic Animal: Rabbit", textSW: "🐇 Mnyama wa kufugwa: Sungura", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🦆 Domestic Animal: Duck", textSW: "🦆 Mnyama wa kufugwa: Bata", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🕊️ Domestic Animal: Dove", textSW: "🕊️ Mnyama wa kufugwa: Njiwa", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐕‍🦺 Domestic Animal: Shepherd Dog", textSW: "🐕‍🦺 Mnyama wa kufugwa: Mbwa Mlinzi", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐎 Domestic Animal: Donkey", textSW: "🐎 Mnyama wa kufugwa: Punda", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🦙 Domestic Animal: Llama", textSW: "🦙 Mnyama wa kufugwa: Llama", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐕 Domestic Animal: Puppy", textSW: "🐕 Mnyama wa kufugwa: Mbwa Mdogo", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐈‍⬛ Domestic Animal: Kitten", textSW: "🐈‍⬛ Mnyama wa kufugwa: Paka Mdogo", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐂 Domestic Animal: Bull", textSW: "🐂 Mnyama wa kufugwa: Fahali", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🦃 Domestic Animal: Turkey", textSW: "🦃 Mnyama wa kufugwa: Bata mzinga", category: "Domestic Animals", duration: 7, askComment: false },
+  { text: "🐕 Domestic Animal: Guard Dog", textSW: "🐕 Mnyama wa kufugwa: Mbwa wa Ulinzi", category: "Domestic Animals", duration: 7, askComment: false },
+  
+  
+  
+  
   { text: "🦁 Wild Animal: Lion", textSW: "🦁 Mnyama wa porini: Simba", category: "Wild Animals", duration: 7, askComment: false },
   { text: "🐘 Wild Animal: Elephant", textSW: "🐘 Mnyama wa porini: Ndovu", category: "Wild Animals", duration: 7, askComment: false },
   { text: "🦓 Wild Animal: Zebra", textSW: "🦓 Mnyama wa porini: Punda milia", category: "Wild Animals", duration: 7, askComment: false },
   { text: "🦒 Wild Animal: Giraffe", textSW: "🦒 Mnyama wa porini: Twiga", category: "Wild Animals", duration: 7, askComment: false },
   { text: "🐒 Wild Animal: Monkey", textSW: "🐒 Mnyama wa porini: Tumbili", category: "Wild Animals", duration: 7, askComment: false },
-
+  { text: "🦍 Wild Animal: Gorilla", textSW: "🦍 Mnyama wa porini: Sokwe", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐅 Wild Animal: Tiger", textSW: "🐅 Mnyama wa porini: Chui wa Bengala", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐆 Wild Animal: Leopard", textSW: "🐆 Mnyama wa porini: Chui", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐊 Wild Animal: Crocodile", textSW: "🐊 Mnyama wa porini: Mamba", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐅 Wild Animal: Cheetah", textSW: "🐅 Mnyama wa porini: Duma", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦏 Wild Animal: Rhino", textSW: "🦏 Mnyama wa porini: Kifaru", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐃 Wild Animal: Buffalo", textSW: "🐃 Mnyama wa porini: Nyati", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐍 Wild Animal: Snake", textSW: "🐍 Mnyama wa porini: Nyoka", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐅 Wild Animal: Panther", textSW: "🐅 Mnyama wa porini: Chui mweusi", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦘 Wild Animal: Kangaroo", textSW: "🦘 Mnyama wa porini: Kangaroo", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦌 Wild Animal: Deer", textSW: "🦌 Mnyama wa porini: Swala", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦅 Wild Animal: Eagle", textSW: "🦅 Mnyama wa porini: Tai", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦜 Wild Animal: Parrot", textSW: "🦜 Mnyama wa porini: Kasuku", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐺 Wild Animal: Wolf", textSW: "🐺 Mnyama wa porini: Mbweha mwitu", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦩 Wild Animal: Flamingo", textSW: "🦩 Mnyama wa porini: Flamingo", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🦛 Wild Animal: Hippo", textSW: "🦛 Mnyama wa porini: Kiboko", category: "Wild Animals", duration: 7, askComment: false },
+  { text: "🐘 Wild Animal: Baby Elephant", textSW: "🐘 Mnyama wa porini: Ndovu Mdogo", category: "Wild Animals", duration: 7, askComment: false },
+  
+  
+  
   // 🚿 Good Hygiene
-  { text: "🪥 Brush your teeth every morning and night", textSW: "🪥 Piga mswaki kila asubuhi na jioni", category: "Good Hygiene", duration: 8, askComment: false },
-  { text: "👐 Wash your hands before eating", textSW: "👐 Nawa mikono kabla ya kula", category: "Good Hygiene", duration: 8, askComment: false },
-  { text: "🛁 Take a bath every day", textSW: "🛁 Oga kila siku", category: "Good Hygiene", duration: 8, askComment: false },
-  { text: "💅 Keep your nails short and clean", textSW: "💅 Kata kucha zako na uzisafishe", category: "Good Hygiene", duration: 8, askComment: false },
-  { text: "🤧 Cover your mouth when you sneeze", textSW: "🤧 Funika mdomo wako unapopiga chafya", category: "Good Hygiene", duration: 8, askComment: false },
-
-  // 🍎 Healthy Foods
+{ text: "🪥 Brush your teeth every morning and night", textSW: "🪥 Piga mswaki kila asubuhi na jioni", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧴 Use toothpaste while brushing", textSW: "🧴 Tumia dawa ya mswaki unapopiga mswaki", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧼 Wash your hands before eating", textSW: "🧼 Nawa mikono kabla ya kula", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🍽️ Wash your hands after eating too", textSW: "🍽️ Nawa mikono hata baada ya kula", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🛁 Take a bath every day", textSW: "🛁 Oga kila siku", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "👕 Wear clean clothes every day", textSW: "👕 Vaa nguo safi kila siku", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "💅 Keep your nails short and clean", textSW: "💅 Kata kucha zako na uzisafishe", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧹 Clean your shoes and uniform", textSW: "🧹 Safisha viatu na sare zako", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧽 Wash fruits before eating", textSW: "🧽 Osha matunda kabla ya kula", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🤧 Cover your mouth when you sneeze", textSW: "🤧 Funika mdomo wako unapopiga chafya", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "😷 Use a handkerchief or tissue when you cough", textSW: "😷 Tumia kitambaa au karatasi unapokohoa", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🚽 Always flush the toilet after use", textSW: "🚽 Vuta maji baada ya kutumia choo", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧻 Wash your hands after using the toilet", textSW: "🧻 Nawa mikono baada ya kutumia choo", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🪣 Keep your room clean and tidy", textSW: "🪣 Safisha na panga chumba chako vizuri", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "💧 Drink clean water every day", textSW: "💧 Kunywa maji safi kila siku", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🦷 Visit the dentist twice a year", textSW: "🦷 Tembelea daktari wa meno mara mbili kwa mwaka", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧴 Use soap when washing your body", textSW: "🧴 Tumia sabuni unapoooga", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "👃 Keep your nose clean", textSW: "👃 Safisha pua yako mara kwa mara", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧦 Change your socks often", textSW: "🧦 Badilisha soksi zako mara kwa mara", category: "Good Hygiene", duration: 8, askComment: false },
+{ text: "🧺 Put dirty clothes in the laundry basket", textSW: "🧺 Weka nguo chafu kwenye kikapu cha kufua", category: "Good Hygiene", duration: 8, askComment: false },
+  
+  
+  
   { text: "🍎 Eat fruits every day", textSW: "🍎 Kula matunda kila siku", category: "Healthy Foods", duration: 8, askComment: false },
-  { text: "💧 Drink clean water often", textSW: "💧 Kunywa maji safi mara kwa mara", category: "Healthy Foods", duration: 8, askComment: false },
-  { text: "🥦 Eat vegetables to grow strong", textSW: "🥦 Kula mboga ili ukue mwenye nguvu", category: "Healthy Foods", duration: 8, askComment: false },
-  { text: "🍭 Avoid too many sweets", textSW: "🍭 Epuka peremende nyingi", category: "Healthy Foods", duration: 8, askComment: false },
-
+{ text: "🍌 Bananas give you energy", textSW: "🍌 Ndizi zinakupa nguvu", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍊 Oranges help you stay healthy", textSW: "🍊 Machungwa hukusaidia kuwa na afya njema", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥦 Eat vegetables to grow strong", textSW: "🥦 Kula mboga ili ukue mwenye nguvu", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥕 Carrots are good for your eyes", textSW: "🥕 Karoti ni nzuri kwa macho yako", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍅 Tomatoes keep your body strong", textSW: "🍅 Nyanya husaidia mwili wako kuwa imara", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍚 Eat enough food to stay healthy", textSW: "🍚 Kula chakula cha kutosha ili uwe na afya", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥛 Drink milk to build strong bones", textSW: "🥛 Kunywa maziwa kujenga mifupa imara", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥚 Eggs help you grow strong", textSW: "🥚 Mayai husaidia ukuaji wako", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🐟 Fish is good for your brain", textSW: "🐟 Samaki ni mzuri kwa ubongo wako", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍞 Eat bread or ugali for energy", textSW: "🍞 Kula mkate au ugali kwa nguvu", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍠 Sweet potatoes are healthy and tasty", textSW: "🍠 Viazi vitamu ni vyenye afya na vitamu", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "💧 Drink clean water often", textSW: "💧 Kunywa maji safi mara kwa mara", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥜 Eat groundnuts for protein", textSW: "🥜 Kula karanga kwa ajili ya protini", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍭 Avoid too many sweets", textSW: "🍭 Epuka peremende nyingi", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥤 Avoid too much soda", textSW: "🥤 Epuka soda nyingi", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍔 Eat less junk food", textSW: "🍔 Punguza kula vyakula vya haraka", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥗 Eat a balanced diet every day", textSW: "🥗 Kula chakula chenye virutubisho vyote kila siku", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍯 Honey is a natural sweetener", textSW: "🍯 Asali ni tamu asilia", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🧂 Don’t eat too much salt", textSW: "🧂 Usitumie chumvi nyingi", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍳 Cook food properly before eating", textSW: "🍳 Pika chakula vizuri kabla ya kula", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🍇 Fruits and vegetables keep you strong", textSW: "🍇 Matunda na mboga hufanya mwili wako kuwa imara", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🧃 Choose fresh juice instead of soda", textSW: "🧃 Chagua juisi safi badala ya soda", category: "Healthy Foods", duration: 8, askComment: false },
+{ text: "🥬 Spinach makes you healthy and strong", textSW: "🥬 Mchicha hufanya uwe na afya na nguvu", category: "Healthy Foods", duration: 8, askComment: false },
+  
+  
+  
+  
   // 🧮 Simple Maths
-  { text: "🔢 1 + 1 = 2", textSW: "🔢 1 jumlisha 1 ni sawa na 2", category: "Maths", duration: 6, askComment: false },
-  { text: "🔢 2 + 3 = 5", textSW: "🔢 2 jumlisha 3 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
-  { text: "🔢 5 - 2 = 3", textSW: "🔢 5 toa 2 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
-  { text: "🔢 3 + 4 = 7", textSW: "🔢 3 jumlisha 4 ni sawa na 7", category: "Maths", duration: 6, askComment: false },
-  { text: "🔢 10 - 5 = 5", textSW: "🔢 10 toa 5 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
-
+{ text: "🔢 1 + 1 = 2", textSW: "🔢 1 jumlisha 1 ni sawa na 2", category: "Maths", duration: 6, askComment: false },
+{ text: "🔢 2 + 3 = 5", textSW: "🔢 2 jumlisha 3 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
+{ text: "🔢 3 + 4 = 7", textSW: "🔢 3 jumlisha 4 ni sawa na 7", category: "Maths", duration: 6, askComment: false },
+{ text: "🔢 5 + 5 = 10", textSW: "🔢 5 jumlisha 5 ni sawa na 10", category: "Maths", duration: 6, askComment: false },
+{ text: "🔢 10 + 2 = 12", textSW: "🔢 10 jumlisha 2 ni sawa na 12", category: "Maths", duration: 6, askComment: false },
+{ text: "➖ 5 - 2 = 3", textSW: "➖ 5 toa 2 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
+{ text: "➖ 10 - 5 = 5", textSW: "➖ 10 toa 5 ni sawa na 5", category: "Maths", duration: 6, askComment: false },
+{ text: "➖ 7 - 3 = 4", textSW: "➖ 7 toa 3 ni sawa na 4", category: "Maths", duration: 6, askComment: false },
+{ text: "✖️ 2 × 2 = 4", textSW: "✖️ 2 zidisha 2 ni sawa na 4", category: "Maths", duration: 6, askComment: false },
+{ text: "✖️ 3 × 3 = 9", textSW: "✖️ 3 zidisha 3 ni sawa na 9", category: "Maths", duration: 6, askComment: false },
+{ text: "✖️ 4 × 2 = 8", textSW: "✖️ 4 zidisha 2 ni sawa na 8", category: "Maths", duration: 6, askComment: false },
+{ text: "➗ 6 ÷ 2 = 3", textSW: "➗ 6 gawanya kwa 2 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
+{ text: "➗ 9 ÷ 3 = 3", textSW: "➗ 9 gawanya kwa 3 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
+{ text: "🔟 Counting 1 to 10", textSW: "🔟 Kuhesabu 1 hadi 10", category: "Maths", duration: 6, askComment: false },
+{ text: "🧮 2 + 2 + 2 = 6", textSW: "🧮 2 jumlisha 2 jumlisha 2 ni sawa na 6", category: "Maths", duration: 6, askComment: false },
+{ text: "🎲 10 - 7 = 3", textSW: "🎲 10 toa 7 ni sawa na 3", category: "Maths", duration: 6, askComment: false },
+{ text: "🎯 8 ÷ 4 = 2", textSW: "🎯 8 gawanya kwa 4 ni sawa na 2", category: "Maths", duration: 6, askComment: false },
+{ text: "🧠 5 × 2 = 10", textSW: "🧠 5 zidisha 2 ni sawa na 10", category: "Maths", duration: 6, askComment: false },
+{ text: "🔹 12 - 6 = 6", textSW: "🔹 12 toa 6 ni sawa na 6", category: "Maths", duration: 6, askComment: false },
+{ text: "🌟 7 + 8 = 15", textSW: "🌟 7 jumlisha 8 ni sawa na 15", category: "Maths", duration: 6, askComment: false },
+{ text: "📏 Shapes have sides! A triangle has 3!", textSW: "📏 Maumbo yana pande! Pembetatu ina pande 3!", category: "Maths", duration: 6, askComment: false },
+{ text: "🟢 Circle has no sides!", textSW: "🟢 Duara halina pande!", category: "Maths", duration: 6, askComment: false },
+{ text: "🟥 Square has 4 sides!", textSW: "🟥 Mraba una pande 4!", category: "Maths", duration: 6, askComment: false },
+{ text: "🔺 Triangle has 3 corners!", textSW: "🔺 Pembetatu ina pembe 3!", category: "Maths", duration: 6, askComment: false },
+{ text: "🟦 Rectangle has 4 corners!", textSW: "🟦 Mstatili una pembe 4!", category: "Maths", duration: 6, askComment: false },
+{ text: "📊 Numbers help us count and measure!", textSW: "📊 Nambari hutusaidia kuhesabu na kupima!", category: "Maths", duration: 7, askComment: false },
+  
+  
+  
   // 🌦 Weather
-  { text: "☀️ Sunny day", textSW: "☀️ Siku ya jua", category: "Weather", duration: 6, askComment: false },
-  { text: "🌧️ Rainy day", textSW: "🌧️ Siku ya mvua", category: "Weather", duration: 6, askComment: false },
-  { text: "☁️ Cloudy sky", textSW: "☁️ Anga lenye mawingu", category: "Weather", duration: 6, askComment: false },
-  { text: "🌬️ Windy day", textSW: "🌬️ Siku yenye upepo", category: "Weather", duration: 6, askComment: false },
-  { text: "🌈 Rainbow after rain", textSW: "🌈 Upinde wa mvua baada ya mvua", category: "Weather", duration: 6, askComment: false },
+{ text: "☀️ Sunny day", textSW: "☀️ Siku ya jua", category: "Weather", duration: 6, askComment: false },
+{ text: "🌧️ Rainy day", textSW: "🌧️ Siku ya mvua", category: "Weather", duration: 6, askComment: false },
+{ text: "☁️ Cloudy sky", textSW: "☁️ Anga lenye mawingu", category: "Weather", duration: 6, askComment: false },
+{ text: "🌬️ Windy day", textSW: "🌬️ Siku yenye upepo", category: "Weather", duration: 6, askComment: false },
+{ text: "🌈 Rainbow after rain", textSW: "🌈 Upinde wa mvua baada ya mvua", category: "Weather", duration: 6, askComment: false },
+{ text: "🌩️ Stormy weather", textSW: "🌩️ Hali ya hewa yenye radi", category: "Weather", duration: 6, askComment: false },
+{ text: "❄️ Snowy day", textSW: "❄️ Siku ya theluji", category: "Weather", duration: 6, askComment: false },
+{ text: "🌦️ Light rain with sunshine", textSW: "🌦️ Mvua nyepesi na jua", category: "Weather", duration: 6, askComment: false },
+{ text: "🌪️ Tornado in the sky", textSW: "🌪️ Kimbunga angani", category: "Weather", duration: 6, askComment: false },
+{ text: "🌤️ Morning sunshine", textSW: "🌤️ Jua la asubuhi", category: "Weather", duration: 6, askComment: false },
+{ text: "🌇 Sunset in the evening", textSW: "🌇 Machweo ya jioni", category: "Weather", duration: 6, askComment: false },
+{ text: "🌃 Starry night", textSW: "🌃 Usiku wenye nyota", category: "Weather", duration: 6, askComment: false },
+{ text: "🌙 The moon shines at night", textSW: "🌙 Mwezi unang'aa usiku", category: "Weather", duration: 6, askComment: false },
+{ text: "🌫️ Foggy morning", textSW: "🌫️ Asubuhi yenye ukungu", category: "Weather", duration: 6, askComment: false },
+{ text: "🔥 Hot weather", textSW: "🔥 Hali ya hewa ya joto", category: "Weather", duration: 6, askComment: false },
+{ text: "🥶 Cold weather", textSW: "🥶 Hali ya hewa ya baridi", category: "Weather", duration: 6, askComment: false },
+{ text: "💨 The wind is blowing", textSW: "💨 Upepo unavuma", category: "Weather", duration: 6, askComment: false },
+{ text: "🌻 Flowers bloom in sunshine", textSW: "🌻 Maua yanachanua wakati wa jua", category: "Weather", duration: 6, askComment: false },
+{ text: "⛈️ Thunder and lightning!", textSW: "⛈️ Radi na umeme!", category: "Weather", duration: 6, askComment: false },
+{ text: "🧥 Wear a coat, it’s cold!", textSW: "🧥 Vaa koti, kuna baridi!", category: "Weather", duration: 6, askComment: false },
+{ text: "🕶️ Wear sunglasses on sunny days", textSW: "🕶️ Vaa miwani ya jua siku za jua kali", category: "Weather", duration: 6, askComment: false },
+{ text: "☔ Carry an umbrella when it rains", textSW: "☔ Beba mwavuli wakati wa mvua", category: "Weather", duration: 6, askComment: false },
+{ text: "🏖️ Hot days are good for the beach", textSW: "🏖️ Siku za jua ni nzuri kwa ufukweni", category: "Weather", duration: 6, askComment: false },
+{ text: "🌍 Weather changes every day", textSW: "🌍 Hali ya hewa hubadilika kila siku", category: "Weather", duration: 7, askComment: false },
+  
+  
 
   // 👨‍👩‍👧 Good Manners
   { text: "🙏 Say thank you", textSW: "🙏 Sema asante", category: "Good Manners", duration: 6, askComment: false },
@@ -382,6 +511,20 @@ const KNOWLEDGE_ITEMS = [
   { text: "🤝 Share with friends", textSW: "🤝 Shiriki na marafiki", category: "Good Manners", duration: 6, askComment: false },
   { text: "🏡 Help your parents at home", textSW: "🏡 Saidia wazazi nyumbani", category: "Good Manners", duration: 6, askComment: false },
   { text: "💖 Be kind to everyone", textSW: "💖 Kuwa mwema kwa wote", category: "Good Manners", duration: 6, askComment: false },
+  
+  // 👨‍👩‍👧 Good Manners (Extra)
+{ text: "🗣️ Say sorry when you hurt someone", textSW: "🗣️ Sema samahani ukimkosea mtu", category: "Good Manners", duration: 6, askComment: false },
+{ text: "😃 Greet people politely", textSW: "😃 Salimia watu kwa heshima", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🙋 Listen when someone is talking", textSW: "🙋 Sikiliza mtu anapozungumza", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🧹 Keep your room clean", textSW: "🧹 Safisha chumba chako", category: "Good Manners", duration: 6, askComment: false },
+{ text: "📚 Take care of your books", textSW: "📚 Linda vitabu vyako", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🐶 Be kind to animals", textSW: "🐶 Kuwa mwema kwa wanyama", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🪑 Wait for your turn", textSW: "🪑 Subiri zamu yako", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🚶 Walk, don’t run indoors", textSW: "🚶 Tembea, usikimbie ndani", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🍽️ Say thank you after eating", textSW: "🍽️ Sema asante baada ya kula", category: "Good Manners", duration: 6, askComment: false },
+{ text: "🕊️ Use kind words", textSW: "🕊️ Tumia maneno ya upole", category: "Good Manners", duration: 6, askComment: false },
+
+  
 
   // 🎨 Colours & Shapes
   { text: "🔴 Colour: Red", textSW: "🔴 Rangi: Nyekundu", category: "Colours", duration: 6, askComment: false },
@@ -396,6 +539,20 @@ const KNOWLEDGE_ITEMS = [
   { text: "🔵 Shape: Oval", textSW: "🔵 Umbo: Mviringo", category: "Shapes", duration: 6, askComment: false },
   { text: "⭐ Shape: Star", textSW: "⭐ Umbo: Nyota", category: "Shapes", duration: 6, askComment: false },
   
+  // 🎨 Colours (Extra)
+{ text: "🟣 Colour: Purple", textSW: "🟣 Rangi: Zambarau", category: "Colours", duration: 6, askComment: false },
+{ text: "🟤 Colour: Brown", textSW: "🟤 Rangi: Hudhurungi", category: "Colours", duration: 6, askComment: false },
+{ text: "🧡 Colour: Orange", textSW: "🧡 Rangi: Chungwa", category: "Colours", duration: 6, askComment: false },
+{ text: "🩶 Colour: Grey", textSW: "🩶 Rangi: Kijivu", category: "Colours", duration: 6, askComment: false },
+{ text: "🌈 All colours make a rainbow!", textSW: "🌈 Rangi zote zinaunda upinde wa mvua!", category: "Colours", duration: 7, askComment: false },
+
+// 🟢 Shapes (Extra)
+{ text: "⬛ Shape: Rectangle", textSW: "⬛ Umbo: Mstatili", category: "Shapes", duration: 6, askComment: false },
+{ text: "🔻 Shape: Diamond", textSW: "🔻 Umbo: Almasi", category: "Shapes", duration: 6, askComment: false },
+{ text: "🔷 Shape: Rhombus", textSW: "🔷 Umbo: Mraba uliopinda", category: "Shapes", duration: 6, askComment: false },
+{ text: "🌀 Shape: Spiral", textSW: "🌀 Umbo: Mzunguko", category: "Shapes", duration: 6, askComment: false },
+{ text: "💗 Shape: Heart", textSW: "💗 Umbo: Moyo", category: "Shapes", duration: 6, askComment: false },
+  
   
   
   // 🎒 School Items
@@ -406,31 +563,114 @@ const KNOWLEDGE_ITEMS = [
   { text: "The teacher 👩‍🏫 helps us learn new things every day.", textSW: "Mwalimu 👩‍🏫 hutufundisha mambo mapya kila siku.", category: "School", duration: 9, askComment: true },
   { text: "🧮 Counting frame", textSW: "🧮 Fremu ya kuhesabu", category: "School Items", duration: 6, askComment: false },
 
-  // 🚗 Transport
-  { text: "🚗 Car", textSW: "🚗 Gari", category: "Transport", duration: 6, askComment: false },
-  { text: "🚌 Bus", textSW: "🚌 Basi", category: "Transport", duration: 6, askComment: false },
-  { text: "🚲 Bicycle", textSW: "🚲 Baiskeli", category: "Transport", duration: 6, askComment: false },
-  { text: "✈️ Airplane", textSW: "✈️ Ndege", category: "Transport", duration: 6, askComment: false },
-  { text: "⛵ Boat", textSW: "⛵ Mashua", category: "Transport", duration: 6, askComment: false },
-  { text: "🚓 Police car", textSW: "🚓 Gari la polisi", category: "Transport", duration: 6, askComment: false },
 
-  // 👗 Clothes
-  { text: "👕 Shirt", textSW: "👕 Shati", category: "Clothes", duration: 6, askComment: false },
-  { text: "👖 Trousers", textSW: "👖 Suruali", category: "Clothes", duration: 6, askComment: false },
-  { text: "👗 Dress", textSW: "👗 Gauni", category: "Clothes", duration: 6, askComment: false },
-  { text: "🧦 Socks", textSW: "🧦 Soksi", category: "Clothes", duration: 6, askComment: false },
-  { text: "👟 Shoes", textSW: "👟 Viatu", category: "Clothes", duration: 6, askComment: false },
-  { text: "🧥 Jacket", textSW: "🧥 Jaketi", category: "Clothes", duration: 6, askComment: false },
+// 🎒 School Items (Extended)
+{ text: "🖊️ This is my pen", textSW: "🖊️ Hii ni kalamu yangu", category: "School Items", duration: 7, askComment: false },
+{ text: "📚 These are my books", textSW: "📚 Hivi ni vitabu vyangu", category: "School Items", duration: 7, askComment: false },
+{ text: "✏️ I use a pencil to write", textSW: "✏️ Natumia penseli kuandika", category: "School Items", duration: 7, askComment: false },
+{ text: "📓 I write notes in my exercise book", textSW: "📓 Naandika nukuu kwenye daftari langu", category: "School Items", duration: 8, askComment: false },
+{ text: "📏 A ruler helps me draw straight lines", textSW: "📏 Rula hunisaidia kuchora mistari sawa", category: "School Items", duration: 8, askComment: false },
+{ text: "🧮 I count numbers using a counting frame", textSW: "🧮 Nahesabu nambari kwa kutumia fremu ya kuhesabu", category: "School Items", duration: 8, askComment: false },
+{ text: "🖍️ I color with crayons", textSW: "🖍️ Napaka rangi kwa kutumia krayoni", category: "School Items", duration: 7, askComment: false },
+{ text: "✂️ I cut paper with scissors", textSW: "✂️ Nakata karatasi kwa mkasi", category: "School Items", duration: 7, askComment: false },
+{ text: "🖋️ My teacher uses a marker to write on the board", textSW: "🖋️ Mwalimu wangu hutumia alama kuandika ubaoni", category: "School Items", duration: 9, askComment: true },
+{ text: "🪑 I sit on my chair during class", textSW: "🪑 Nakaa kwenye kiti changu darasani", category: "School Items", duration: 7, askComment: false },
+{ text: "📔 My notebook helps me remember lessons", textSW: "📔 Daftari langu linanisaidia kukumbuka masomo", category: "School Items", duration: 8, askComment: true },
+{ text: "🧑‍🏫 The teacher teaches us with love", textSW: "🧑‍🏫 Mwalimu hutufundisha kwa upendo", category: "School Items", duration: 8, askComment: true },
+{ text: "🎒 I carry my school items in my bag", textSW: "🎒 Hubeba vitu vyangu vya shule kwenye begi", category: "School Items", duration: 8, askComment: false },
 
- 
-   { text: "Monday – Let’s start the week strong 💪", textSW: "Jumatatu – Tuanze wiki kwa nguvu 💪", category: "Days", duration: 8, askComment: true },
-  { text: "Tuesday – Time to learn new things 📚", textSW: "Jumanne – Wakati wa kujifunza mambo mapya 📚", category: "Days", duration: 8, askComment: true },
-  { text: "Wednesday – It’s a fun day 😄", textSW: "Jumatano – Ni siku ya furaha 😄", category: "Days", duration: 8, askComment: false },
-  { text: "Thursday – Let’s help our friends 🤝", textSW: "Alhamisi – Tuwasaidie marafiki zetu 🤝", category: "Days", duration: 8, askComment: true },
-  { text: "Friday – The last school day 🏫", textSW: "Ijumaa – Siku ya mwisho ya shule 🏫", category: "Days", duration: 8, askComment: true },
-  { text: "Saturday – Play and rest ⚽😴", textSW: "Jumamosi – Cheza na pumzika ⚽😴", category: "Days", duration: 8, askComment: false },
-  { text: "Sunday – Go to church ⛪ and spend time with family 👨‍👩‍👧‍👦", textSW: "Jumapili – Nenda kanisani ⛪ na uwe na familia 👨‍👩‍👧‍👦", category: "Days", duration: 9, askComment: true },
+
+
   
+  
+  
+  
+  // 🚗 Transport (Expanded)
+{ text: "🚗 Car", textSW: "🚗 Gari", category: "Transport", duration: 6, askComment: false },
+{ text: "🚌 Bus", textSW: "🚌 Basi", category: "Transport", duration: 6, askComment: false },
+{ text: "🚲 Bicycle", textSW: "🚲 Baiskeli", category: "Transport", duration: 6, askComment: false },
+{ text: "🏍️ Motorbike", textSW: "🏍️ Pikipiki", category: "Transport", duration: 6, askComment: false },
+{ text: "🚕 Taxi", textSW: "🚕 Teksi", category: "Transport", duration: 6, askComment: false },
+{ text: "🚓 Police car", textSW: "🚓 Gari la polisi", category: "Transport", duration: 6, askComment: false },
+{ text: "🚑 Ambulance", textSW: "🚑 Gari la wagonjwa", category: "Transport", duration: 6, askComment: false },
+{ text: "🚒 Fire engine", textSW: "🚒 Gari la zimamoto", category: "Transport", duration: 6, askComment: false },
+{ text: "🚜 Tractor", textSW: "🚜 Trekta", category: "Transport", duration: 6, askComment: false },
+{ text: "🚚 Lorry", textSW: "🚚 Lori", category: "Transport", duration: 6, askComment: false },
+{ text: "🚂 Train", textSW: "🚂 Treni", category: "Transport", duration: 6, askComment: false },
+{ text: "✈️ Aeroplane", textSW: "✈️ Ndege", category: "Transport", duration: 6, askComment: false },
+{ text: "🚁 Helicopter", textSW: "🚁 Helikopta", category: "Transport", duration: 6, askComment: false },
+{ text: "⛵ Boat", textSW: "⛵ Mashua", category: "Transport", duration: 6, askComment: false },
+{ text: "🚤 Speedboat", textSW: "🚤 Boti ya kasi", category: "Transport", duration: 6, askComment: false },
+{ text: "🛳️ Ship", textSW: "🛳️ Meli", category: "Transport", duration: 6, askComment: false },
+{ text: "🚀 Rocket", textSW: "🚀 Roketi", category: "Transport", duration: 6, askComment: false },
+{ text: "🚧 A road helps vehicles move", textSW: "🚧 Barabara husaidia magari kusafiri", category: "Transport", duration: 8, askComment: true },
+{ text: "🅿️ Cars park in a parking area", textSW: "🅿️ Magari huegeshwa sehemu ya maegesho", category: "Transport", duration: 8, askComment: false },
+
+  
+  
+  // 👗 Clothes (Expanded)
+{ text: "👕 Shirt", textSW: "👕 Shati", category: "Clothes", duration: 6, askComment: false },
+{ text: "👖 Trousers", textSW: "👖 Suruali", category: "Clothes", duration: 6, askComment: false },
+{ text: "👗 Dress", textSW: "👗 Gauni", category: "Clothes", duration: 6, askComment: false },
+{ text: "🧦 Socks", textSW: "🧦 Soksi", category: "Clothes", duration: 6, askComment: false },
+{ text: "👟 Shoes", textSW: "👟 Viatu", category: "Clothes", duration: 6, askComment: false },
+{ text: "🧥 Jacket", textSW: "🧥 Jaketi", category: "Clothes", duration: 6, askComment: false },
+{ text: "👒 Hat", textSW: "👒 Kofia", category: "Clothes", duration: 6, askComment: false },
+{ text: "🧣 Scarf", textSW: "🧣 Skafu", category: "Clothes", duration: 6, askComment: false },
+{ text: "🧤 Gloves", textSW: "🧤 Glovu", category: "Clothes", duration: 6, askComment: false },
+{ text: "🩳 Shorts", textSW: "🩳 Kaptura", category: "Clothes", duration: 6, askComment: false },
+{ text: "👚 Blouse", textSW: "👚 Blauzi", category: "Clothes", duration: 6, askComment: false },
+{ text: "🩱 Swimsuit", textSW: "🩱 Mavazi ya kuogelea", category: "Clothes", duration: 6, askComment: false },
+{ text: "🧢 Cap", textSW: "🧢 Kofia ndogo", category: "Clothes", duration: 6, askComment: false },
+{ text: "👔 Tie", textSW: "👔 Tai", category: "Clothes", duration: 6, askComment: false },
+{ text: "👗 School uniform", textSW: "👗 Sare ya shule", category: "Clothes", duration: 7, askComment: true },
+{ text: "🧥 Raincoat", textSW: "🧥 Mvua koti", category: "Clothes", duration: 6, askComment: false },
+{ text: "🩴 Sandals", textSW: "🩴 Kandambili", category: "Clothes", duration: 6, askComment: false },
+{ text: "👘 Traditional dress", textSW: "👘 Vazi la kitamaduni", category: "Clothes", duration: 7, askComment: false },
+{ text: "🧺 We wash our clothes to keep them clean", textSW: "🧺 Tunaosha nguo zetu ili ziwe safi", category: "Clothes", duration: 8, askComment: true },
+  
+  
+  {
+    text: "Sunday – 1st day of the week 📅. Go to church ⛪ and spend time with family 👨‍👩‍👧‍👦",
+    textSW: "Jumapili – Siku ya 1 ya wiki 📅. Nenda kanisani ⛪ na uwe na familia 👨‍👩‍👧‍👦",
+    category: "Days", duration: 9, askComment: true
+},
+{
+    text: "Monday – 2nd day of the week 💪. Start strong, learn new things 📚 and have fun 😄",
+    textSW: "Jumatatu – Siku ya 2 ya wiki 💪. Anza kwa nguvu, jifunze mambo mapya 📚 na furahia 😄",
+    category: "Days", duration: 8, askComment: true
+},
+{
+    text: "Tuesday – 3rd day of the week. Keep going! Explore, read 📖, and play with friends 🤗",
+    textSW: "Jumanne – Siku ya 3 ya wiki. Endelea! Chunguza, soma 📖, na kucheza na marafiki 🤗",
+    category: "Days", duration: 8, askComment: true
+},
+{
+    text: "Wednesday – 4th day of the week 😄. Midweek fun, enjoy your day and smile 😊",
+    textSW: "Jumatano – Siku ya 4 ya wiki 😄. Kati ya wiki, furahia siku yako na ucheke 😊",
+    category: "Days", duration: 8, askComment: false
+},
+{
+    text: "Thursday – 5th day of the week 🤝. Be helpful, share and care for your friends",
+    textSW: "Alhamisi – Siku ya 5 ya wiki 🤝. Kuwa msaada, shiriki na uwaangalie marafiki zako",
+    category: "Days", duration: 8, askComment: true
+},
+{
+    text: "Friday – 6th day of the week 🏫. Last school day, finish tasks and get ready for weekend 🎉",
+    textSW: "Ijumaa – Siku ya 6 ya wiki 🏫. Siku ya mwisho ya shule, kamilisha kazi zako na jiandae kwa wikendi 🎉",
+    category: "Days", duration: 8, askComment: true
+},
+{
+    text: "Saturday – 7th day of the week ⚽😴. Weekend fun, play, rest, and enjoy time with family 👨‍👩‍👧‍👦",
+    textSW: "Jumamosi – Siku ya 7 ya wiki ⚽😴. Furaha ya wikendi, cheza, pumzika, na uwe na familia 👨‍👩‍👧‍👦",
+    category: "Days", duration: 8, askComment: false
+},
+
+
+// 🕒 Bonus: Routine reminders
+{ text: "Every morning 🌅, wake up early and smile!", textSW: "Kila asubuhi 🌅, amka mapema na tabasamu!", category: "Days", duration: 8, askComment: false },
+{ text: "Every evening 🌙, thank God for the day 🙏", textSW: "Kila jioni 🌙, mshukuru Mungu kwa siku 🙏", category: "Days", duration: 8, askComment: false },
+{ text: "What’s your favorite day of the week? 🤔", textSW: "Ni siku gani unapenda zaidi? 🤔", category: "Days", duration: 8, askComment: true },
   
   {
     text: "Family: This is a father 👨. He loves and cares for his family.",
@@ -464,6 +704,65 @@ const KNOWLEDGE_ITEMS = [
   },
   
   
+  {
+    text: "Family: This is a grandfather 👴. He gives advice and shares wisdom.",
+    textSW: "Familia: Huyu ni babu 👴. Anatoa ushauri na kushiriki hekima.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: This is a grandmother 👵. She bakes, hugs, and tells stories.",
+    textSW: "Familia: Huyu ni bibi 👵. Anapika, anakumbatia, na hutusimulia hadithi.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: This is an uncle 👨‍🦳. He plays games and helps when needed.",
+    textSW: "Familia: Huyu ni mjomba 👨‍🦳. Anacheza michezo na kusaidia pale inahitajika.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: This is an aunt 👩‍🦳. She teaches, cares, and shares love.",
+    textSW: "Familia: Huyu ni shangazi 👩‍🦳. Anafundisha, anajali, na kushiriki upendo.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: Cousins 👦👧 play together and laugh a lot.",
+    textSW: "Familia: Binamu 👦👧 wanacheza pamoja na kucheka sana.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: Pets 🐶🐱 are also part of our loving family.",
+    textSW: "Familia: Wanyama kipenzi 🐶🐱 pia ni sehemu ya familia yetu yenye upendo.",
+    category: "Family", duration: 8, askComment: true
+},
+{
+    text: "Family: We celebrate birthdays 🎂 and special days together.",
+    textSW: "Familia: Tunasherehekea siku za kuzaliwa 🎂 na siku maalum pamoja.",
+    category: "Family", duration: 9, askComment: true
+},
+{
+    text: "Family: We help each other with homework and learning 📚.",
+    textSW: "Familia: Tunasaidiana kufanya kazi za nyumbani na kujifunza 📚.",
+    category: "Family", duration: 9, askComment: true
+},
+{
+    text: "Family: We share meals 🍽️, talk, and enjoy each other's company.",
+    textSW: "Familia: Tunashiriki milo 🍽️, kuzungumza, na kufurahia kampuni ya kila mmoja.",
+    category: "Family", duration: 9, askComment: true
+},
+{
+    text: "Family: Family hugs 🤗 make everyone feel loved and safe.",
+    textSW: "Familia: Kukumbatiana 🤗 kunafanya kila mtu ahisi upendo na usalama.",
+    category: "Family", duration: 8, askComment: true
+},
+
+  
+  
+  
+  
+  
+  
+  
+  
   
   {
     text: "Feelings: I am happy 😀 when I play with my friends.",
@@ -494,7 +793,63 @@ const KNOWLEDGE_ITEMS = [
     text: "Feelings: It’s okay to feel sad or angry. Always talk to an adult 👩‍🏫.",
     textSW: "Hisia: Ni sawa kuhisi huzuni au hasira. Sema na mtu mzima 👩‍🏫.",
     category: "Feelings", duration: 9, askComment: true
+	
   },
+  
+  
+  
+  {
+    text: "Feelings: I feel excited 🤩 when I go on an adventure.",
+    textSW: "Hisia: Nina furaha kubwa 🤩 ninapokwenda kwenye adventure.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel nervous 😬 before my performance.",
+    textSW: "Hisia: Nina wasiwasi 😬 kabla ya performance yangu.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel calm 😌 when I listen to music.",
+    textSW: "Hisia: Nina utulivu 😌 ninaposikiliza muziki.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel surprised 😲 when I see something unexpected.",
+    textSW: "Hisia: Ninashtuka 😲 ninaponaona kitu kisichotarajiwa.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel jealous 😒 when someone gets more attention.",
+    textSW: "Hisia: Nina wivu 😒 mtu anapopata attention zaidi.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel thankful 🙏 when someone helps me.",
+    textSW: "Hisia: Nina shukrani 🙏 mtu anaponisadia.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel lonely 😔 when I am by myself for too long.",
+    textSW: "Hisia: Nina upweke 😔 ninapokuwa peke yangu kwa muda mrefu.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel brave 🦸 when I try something new.",
+    textSW: "Hisia: Nina ujasiri 🦸 ninapojaribu kitu kipya.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: I feel grateful 💖 for my family and friends.",
+    textSW: "Hisia: Nina shukrani 💖 kwa familia yangu na marafiki.",
+    category: "Feelings", duration: 8, askComment: true
+},
+{
+    text: "Feelings: It’s okay to feel many emotions. Always share how you feel 😊.",
+    textSW: "Hisia: Ni sawa kuhisi hisia nyingi. Sema kila wakati unavyohisi 😊.",
+    category: "Feelings", duration: 9, askComment: true
+},
+
+  
   
   
   
@@ -541,50 +896,285 @@ const KNOWLEDGE_ITEMS = [
   
   
   
-  { text: "January is the first month of the year 🎉", textSW: "Januari ni mwezi wa kwanza wa mwaka 🎉", category: "Months", duration: 8, askComment: true },
-  { text: "February has Valentine’s Day ❤️", textSW: "Februari ina Siku ya Wapendanao ❤️", category: "Months", duration: 8, askComment: true },
-  { text: "March brings flowers 🌸 and green grass 🌿", textSW: "Machi huleta maua 🌸 na nyasi za kijani 🌿", category: "Months", duration: 8, askComment: true },
-  { text: "April has lots of rain ☔ and rainbows 🌈", textSW: "Aprili kuna mvua nyingi ☔ na upinde wa mvua 🌈", category: "Months", duration: 8, askComment: false },
-  { text: "May is a month of planting 🌱", textSW: "Mei ni mwezi wa kupanda mimea 🌱", category: "Months", duration: 8, askComment: true },
-  { text: "June is cold ❄️ in Kenya", textSW: "Juni ni baridi ❄️ nchini Kenya", category: "Months", duration: 8, askComment: false },
-  { text: "July is sunny ☀️ and full of fun!", textSW: "Julai ni ya jua ☀️ na furaha tele!", category: "Months", duration: 8, askComment: true },
-  { text: "August is for school holidays 🏫🎒", textSW: "Agosti ni likizo ya shule 🏫🎒", category: "Months", duration: 8, askComment: true },
-  { text: "September starts a new school term 📚", textSW: "Septemba ni mwanzo wa muhula mpya wa shule 📚", category: "Months", duration: 8, askComment: false },
-  { text: "October is full of fun and games 🎠", textSW: "Oktoba ni mwezi wa michezo na furaha 🎠", category: "Months", duration: 8, askComment: true },
-  { text: "November has light rains 🌦️", textSW: "Novemba kuna mvua nyepesi 🌦️", category: "Months", duration: 8, askComment: false },
-  { text: "December is for Christmas 🎄 and family 👨‍👩‍👧‍👦", textSW: "Desemba ni Krismasi 🎄 na wakati wa familia 👨‍👩‍👧‍👦", category: "Months", duration: 8, askComment: true },
+  {
+    text: "Colors: Strawberries 🍓 are red, lemons 🍋 are yellow, and blueberries 🫐 are blue.",
+    textSW: "Rangi: Straberry 🍓 ni nyekundu, limau 🍋 ni za manjano, na blueberries 🫐 ni za buluu.",
+    category: "Colors", duration: 9, askComment: true
+},
+{
+    text: "Colors: The rainbow 🌈 has red, orange, yellow, green, blue, indigo, and violet.",
+    textSW: "Rangi: Upinde wa mvua 🌈 una nyekundu, chungwa, manjano, kijani, buluu, indigo, na zambarau.",
+    category: "Colors", duration: 10, askComment: true
+},
+{
+    text: "Fruits: Grapes 🍇 can be green, red, or purple.",
+    textSW: "Matunda: Zabibu 🍇 zinaweza kuwa za kijani, nyekundu, au zambarau.",
+    category: "Fruits", duration: 8, askComment: true
+},
+{
+    text: "Fruits: Watermelon 🍉 is green outside and red inside.",
+    textSW: "Matunda: Tikiti maji 🍉 ni ya kijani nje na nyekundu ndani.",
+    category: "Fruits", duration: 8, askComment: true
+},
+{
+    text: "Good Habits: Cover your mouth 🤭 when you cough or sneeze.",
+    textSW: "Tabia Njema: Funika mdomo 🤭 unapokoroma au kupiga chafya.",
+    category: "Hygiene", duration: 8, askComment: true
+},
+{
+    text: "Good Habits: Keep your room 🏠 clean and tidy every day.",
+    textSW: "Tabia Njema: Weka chumba chako 🏠 safi na nadhifu kila siku.",
+    category: "Hygiene", duration: 8, askComment: true
+},
+{
+    text: "Good Habits: Listen carefully 👂 when someone is speaking.",
+    textSW: "Tabia Njema: Sikiliza kwa makini 👂 mtu anapozungumza.",
+    category: "Manners", duration: 8, askComment: true
+},
+{
+    text: "Simple Maths: 5 - 2 = 3. If you have 5 candies 🍬 and eat 2, you have 3 left 🍬🍬🍬.",
+    textSW: "Hesabu Rahisi: 5 - 2 = 3. Ikiwa una pipi 5 🍬 na kula 2, unasalia na 3 🍬🍬🍬.",
+    category: "Maths", duration: 9, askComment: true
+},
+{
+    text: "Simple Maths: 3 x 2 = 6. Three friends 👦👧👦 each have 2 apples 🍎 = 6 apples 🍎🍎🍎🍎🍎🍎!",
+    textSW: "Hesabu Rahisi: 3 x 2 = 6. Marafiki 3 👦👧👦 kila mmoja ana tufaha 2 🍎 = Tufaha 6 🍎🍎🍎🍎🍎🍎!",
+    category: "Maths", duration: 9, askComment: true
+},
+{
+    text: "Shapes: A rectangle ▭ has four sides and opposite sides are equal.",
+    textSW: "Umbo: Mratibu ▭ una pande nne na pande zinazokabiliwa ni sawa.",
+    category: "Shapes", duration: 8, askComment: true
+},
+{
+    text: "Shapes: A star ⭐ has five points and is shiny.",
+    textSW: "Umbo: Nyota ⭐ ina pointi tano na inang'aa.",
+    category: "Shapes", duration: 8, askComment: true
+},
+{
+    text: "Safety: Hold an adult's hand 🤝 when crossing busy streets.",
+    textSW: "Usalama: Shikilia mkono wa mtu mzima 🤝 unavyovuka barabara zenye shughuli nyingi.",
+    category: "Safety", duration: 9, askComment: true
+},
+{
+    text: "Safety: Never touch 🔌 electrical outlets. Always ask an adult for help.",
+    textSW: "Usalama: Usiguse 🔌 soketi za umeme. Daima omba msaada wa mtu mzima.",
+    category: "Safety", duration: 9, askComment: true
+},
+
+  
+  {
+    text: "January is the first month of the year 🎉. Many people make new year resolutions ✨ and set goals for the year ahead.",
+    textSW: "Januari ni mwezi wa kwanza wa mwaka 🎉. Watu wengi hufanya azimio la mwaka mpya ✨ na kuweka malengo ya mwaka ujao.",
+    category: "Months", duration: 10, askComment: true
+},
+{
+    text: "February is the second month of the year ❤️. It has Valentine’s Day to celebrate love and friendship 💌.",
+    textSW: "Februari ni mwezi wa pili wa mwaka ❤️. Una Siku ya Wapendanao kusherehekea upendo na urafiki 💌.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "March is the third month of the year 🌸. Flowers bloom, grass turns green 🌿, and some places start spring 🌞.",
+    textSW: "Machi ni mwezi wa tatu wa mwaka 🌸. Maua huchanua, nyasi huwa za kijani 🌿, na baadhi ya sehemu huanza spring 🌞.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "April is the fourth month of the year ☔. It brings lots of rain and beautiful rainbows 🌈, helping plants grow 🌱.",
+    textSW: "Aprili ni mwezi wa nne wa mwaka ☔. Huleta mvua nyingi na upinde wa mvua mzuri 🌈, kusaidia mimea kukua 🌱.",
+    category: "Months", duration: 9, askComment: false
+},
+{
+    text: "May is the fifth month of the year 🌱. It's a great time for planting and watching nature grow 🌼.",
+    textSW: "Mei ni mwezi wa tano wa mwaka 🌱. Ni wakati mzuri wa kupanda mimea na kuona asili ikikua 🌼.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "June is the sixth month of the year ❄️. In Kenya it is colder, and people wear warm clothes 🧥.",
+    textSW: "Juni ni mwezi wa sita wa mwaka ❄️. Nchini Kenya huwa baridi, na watu wanavaa nguo za joto 🧥.",
+    category: "Months", duration: 8, askComment: false
+},
+{
+    text: "July is the seventh month of the year ☀️. Sunny days make it perfect for outdoor fun and games 🏃‍♂️.",
+    textSW: "Julai ni mwezi wa saba wa mwaka ☀️. Siku za jua ni bora kwa michezo na furaha nje 🏃‍♂️.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "August is the eighth month of the year 🏫🎒. It’s time for school holidays, relaxing and playing with friends 🛝.",
+    textSW: "Agosti ni mwezi wa nane wa mwaka 🏫🎒. Ni wakati wa likizo ya shule, kupumzika na kucheza na marafiki 🛝.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "September is the ninth month of the year 📚. A new school term begins, and students learn new things ✏️.",
+    textSW: "Septemba ni mwezi wa tisa wa mwaka 📚. Muhula mpya wa shule unaanza, na wanafunzi hujifunza mambo mapya ✏️.",
+    category: "Months", duration: 9, askComment: false
+},
+{
+    text: "October is the tenth month of the year 🎠. People enjoy fun, games, and sometimes harvest festivals 🌾.",
+    textSW: "Oktoba ni mwezi wa kumi wa mwaka 🎠. Watu hufurahia michezo na furaha, na wakati mwingine sherehe za mavuno 🌾.",
+    category: "Months", duration: 9, askComment: true
+},
+{
+    text: "November is the eleventh month of the year 🌦️. Light rains fall, making it a good time to plant trees 🌳.",
+    textSW: "Novemba ni mwezi wa kumi na moja wa mwaka 🌦️. Mvua nyepesi hunyesha, na kufanya ni wakati mzuri wa kupanda miti 🌳.",
+    category: "Months", duration: 9, askComment: false
+},
+{
+    text: "December is the twelfth month of the year 🎄. It’s for Christmas, family time 👨‍👩‍👧‍👦, and giving gifts 🎁.",
+    textSW: "Desemba ni mwezi wa kumi na mbili wa mwaka 🎄. Ni wakati wa Krismasi, familia 👨‍👩‍👧‍👦, na kutoa zawadi 🎁.",
+    category: "Months", duration: 9, askComment: true
+},
+
+
+
+
   
   
+  {
+    text: "This is my head 🧠. It helps me think and learn new things.",
+    textSW: "Huu ni kichwa changu 🧠. Kinanisaidia kufikiria na kujifunza mambo mapya.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my eyes 👀. I use them to see the world around me.",
+    textSW: "Hizi ni macho yangu 👀. Ninazitumia kuona dunia inayonizunguka.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "This is my nose 👃. I use it to smell flowers 🌸 and food 🍕.",
+    textSW: "Huu ni pua yangu 👃. Ninaitumia kunusa maua 🌸 na chakula 🍕.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "I use my mouth 👄 to talk 🗣️, eat 🍎, and smile 😁.",
+    textSW: "Natumia mdomo 👄 kuzungumza 🗣️, kula 🍎, na kucheka 😁.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my ears 👂. I use them to listen to music 🎵 and sounds around me.",
+    textSW: "Hizi ni masikio yangu 👂. Ninazitumia kusikiliza muziki 🎵 na sauti zinazonizunguka.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my hands 👋. I use them to clap 👏, write ✏️, and help others.",
+    textSW: "Hizi ni mikono yangu 👋. Ninazitumia kupiga makofi 👏, kuandika ✏️, na kusaidia wengine.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my legs 🦵. I use them to walk 🚶, run 🏃‍♂️, and play ⚽.",
+    textSW: "Hizi ni miguu yangu 🦵. Ninazitumia kutembea 🚶, kukimbia 🏃‍♂️, na kucheza ⚽.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my feet 🦶. They help me stand, run 🏃‍♀️, and jump 🤸.",
+    textSW: "Hizi ni miguu yangu 🦶. Zinasaidia kusimama, kukimbia 🏃‍♀️, na kuruka 🤸.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my shoulders 🤲. They help me carry things 👜 and hug 🤗.",
+    textSW: "Hizi ni mabega yangu 🤲. Yananisaidia kubeba vitu 👜 na kukumbatia 🤗.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my teeth 🦷. I use them to chew food 🍔 and smile 😁.",
+    textSW: "Hizi ni meno yangu 🦷. Ninavitumia kunywa chakula 🍔 na kucheka 😁.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my fingers ✋. I use them to grab things 🖐️ and draw ✏️.",
+    textSW: "Hizi ni vidole vyangu ✋. Ninavitumia kushika vitu 🖐️ na kuchora ✏️.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my elbows 🦴. They help me bend my arms 🤲 and lift things 🏋️.",
+    textSW: "Hizi ni kodole la mkono 🦴. Zinanisaidia kuinua mikono 🤲 na kubeba vitu 🏋️.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my knees 🦵. I use them to bend, sit 🪑, and run 🏃.",
+    textSW: "Hizi ni magoti yangu 🦵. Ninazitumia kukunja, kukaa 🪑, na kukimbia 🏃.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "This is my tongue 👅. I use it to taste food 🍫 and speak 🗣️.",
+    textSW: "Hii ni ulimi wangu 👅. Ninaitumia kuonja chakula 🍫 na kuzungumza 🗣️.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "This is my back 🫂. It helps me sit straight 🪑 and carry backpacks 🎒.",
+    textSW: "Hii ni mgongo wangu 🫂. Inanisaidia kukaa wima 🪑 na kubeba mabegi 🎒.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my arms 💪. I use them to hug 🤗, lift 🏋️, and play ⚽.",
+    textSW: "Hizi ni mikono yangu 💪. Ninazitumia kukumbatia 🤗, kuinua 🏋️, na kucheza ⚽.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my cheeks 😊. They help me smile 😁 and show expressions 🤗.",
+    textSW: "Hizi ni midomo yangu 😊. Zinasaidia kucheka 😁 na kuonyesha hisia 🤗.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "This is my heart ❤️. It beats to keep me alive and healthy 💓.",
+    textSW: "Huu ni moyo wangu ❤️. Unapiga ili kunifanya niwe hai na mwenye afya 💓.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my eyebrows 👁️‍🗨️. They help protect my eyes 👀 and show emotions 😮.",
+    textSW: "Hizi ni nyusi zangu 👁️‍🗨️. Zinasaidia kulinda macho yangu 👀 na kuonyesha hisia 😮.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+{
+    text: "These are my eyelashes 👁️. They protect my eyes 👀 from dust 🌬️ and sunlight ☀️.",
+    textSW: "Hizi ni kope zangu 👁️. Zinakulinda macho yangu 👀 kutokana na vumbi 🌬️ na jua ☀️.",
+    category: "Body Parts", duration: 8, askComment: true
+},
+
   
-  { text: "This is my head 🧠", textSW: "Huu ni kichwa changu 🧠", category: "Body Parts", duration: 7, askComment: true },
-  { text: "These are my eyes 👀", textSW: "Hizi ni macho yangu 👀", category: "Body Parts", duration: 7, askComment: false },
-  { text: "This is my nose 👃", textSW: "Huu ni pua yangu 👃", category: "Body Parts", duration: 7, askComment: true },
-  { text: "I use my mouth 👄 to talk and eat 🍎", textSW: "Natunia mdomo 👄 kuzungumza na kula 🍎", category: "Body Parts", duration: 8, askComment: true },
-  { text: "These are my hands 👋 to clap and help", textSW: "Hizi ni mikono yangu 👋 kwa kupiga makofi na kusaidia", category: "Body Parts", duration: 8, askComment: true },
-  { text: "These are my legs 🦵 to walk and run 🏃‍♂️", textSW: "Hizi ni miguu yangu 🦵 ya kutembea na kukimbia 🏃‍♂️", category: "Body Parts", duration: 8, askComment: true },
   
-  
-   { text: "Spring 🌸 – Flowers bloom and birds sing 🎵", textSW: "Majira ya kuchipua 🌸 – Maua yanachanua na ndege wanaimba 🎵", category: "Seasons", duration: 9, askComment: true },
-  { text: "Summer ☀️ – It’s hot, let’s go swimming 🏊‍♂️", textSW: "Majira ya joto ☀️ – Ni joto, twende kuogelea 🏊‍♂️", category: "Seasons", duration: 9, askComment: true },
-  { text: "Autumn 🍁 – Leaves fall from trees 🍂", textSW: "Majira ya kupukutika 🍁 – Majani huanguka kutoka miti 🍂", category: "Seasons", duration: 9, askComment: false },
-  { text: "Winter ❄️ – It’s cold, wear your sweater 🧥", textSW: "Majira ya baridi ❄️ – Ni baridi, vaa sweta yako 🧥", category: "Seasons", duration: 9, askComment: true },
+  {
+    text: "Spring 🌸 – Flowers bloom, birds sing 🎵, and the days get longer ☀️",
+    textSW: "Majira ya kuchipua 🌸 – Maua yanachanua, ndege wanaimba 🎵, na siku zinakuwa ndefu ☀️",
+    category: "Seasons", duration: 9, askComment: true
+},
+{
+    text: "Spring 🌱 – It's time to plant seeds 🌿 and watch nature grow 🌼",
+    textSW: "Majira ya kuchipua 🌱 – Ni wakati wa kupanda mbegu 🌿 na kuona asili ikikua 🌼",
+    category: "Seasons", duration: 9, askComment: true
+},
+{
+    text: "Summer ☀️ – It’s hot and sunny 😎, perfect for swimming 🏊‍♂️ and playing outdoors ⚽",
+    textSW: "Majira ya joto ☀️ – Ni joto na jua 😎, bora kwa kuogelea 🏊‍♂️ na kucheza nje ⚽",
+    category: "Seasons", duration: 9, askComment: true
+},
+{
+    text: "Summer 🍉 – Eat cold fruits 🍉, enjoy ice cream 🍦, and have fun with friends 🎉",
+    textSW: "Majira ya joto 🍉 – Kula matunda baridi 🍉, furahia ice cream 🍦, na furahia na marafiki 🎉",
+    category: "Seasons", duration: 9, askComment: true
+},
+{
+    text: "Autumn 🍁 – Leaves turn orange, red, and yellow 🍂, and fall from trees 🌳",
+    textSW: "Majira ya kupukutika 🍁 – Majani yanageuka ya rangi ya chungwa, nyekundu, na manjano 🍂, na kuanguka kutoka miti 🌳",
+    category: "Seasons", duration: 9, askComment: false
+},
+{
+    text: "Autumn 🌾 – It’s harvest time 🌽, gather crops and enjoy the cool breeze 🌬️",
+    textSW: "Majira ya kupukutika 🌾 – Ni wakati wa mavuno 🌽, okota mazao na furahia upepo baridi 🌬️",
+    category: "Seasons", duration: 9, askComment: false
+},
+{
+    text: "Winter ❄️ – It’s cold 🧊, wear warm clothes 🧥, and enjoy hot drinks ☕",
+    textSW: "Majira ya baridi ❄️ – Ni baridi 🧊, vaa nguo za joto 🧥, na furahia vinywaji moto ☕",
+    category: "Seasons", duration: 9, askComment: true
+},
+{
+    text: "Winter ⛄ – Sometimes it snows ❄️, build a snowman ⛄ and play outside 🏂",
+    textSW: "Majira ya baridi ⛄ – Wakati mwingine hunyesha theluji ❄️, tengeneza mtu wa theluji ⛄ na kucheza nje 🏂",
+    category: "Seasons", duration: 9, askComment: true
+}
+
   
   ];
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
