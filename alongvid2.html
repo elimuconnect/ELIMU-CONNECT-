@@ -1,12 +1,13 @@
-<!doctype html>
+doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Elimu Connect • 30-Minute Compilation (Merged)</title>
+  <title>Elimu Connect • 5-Minute Compilation (Merged)</title>
   
   
- <style>
+
+  <style>
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     margin: 0;
@@ -57,15 +58,15 @@
     background: #000;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     display: block;
+    width: 100%;   /* scale canvas visually */
+    height: 100%;  /* scale canvas visually */
   }
 
   .status {
@@ -98,7 +99,7 @@
     color: #9ae6b4;
   }
 
-  /* ✅ On phones: auto switch to 9:16 portrait ratio */
+  /* ✅ Mobile phones: switch to 9:16 portrait ratio */
   @media (max-width: 768px) {
     #stageWrap {
       width: 90vw;
@@ -110,12 +111,11 @@
 
   
   
-  
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>Elimu Connect • 30-Minute Compilation</h1>
+      <h1>Elimu Connect • 5-Minute Compilation</h1>
       <div class="small">30 Clips (60s each) • Total Duration: 30 Minutes</div>
     </header>
 
@@ -331,223 +331,9 @@ const BACKGROUNDS = [
   { name: 'Background 124', url: 'https://cdn.pixabay.com/video/2024/03/12/203934-922571602_tiny.mp4' },
   { name: 'Background 125', url: 'https://cdn.pixabay.com/video/2024/06/06/215534_tiny.mp4' },
   { name: 'Background 126', url: 'https://cdn.pixabay.com/video/2024/10/09/235497_tiny.mp4' },
-
-
-
-{ name: 'Background 127', url: 'https://cdn.pixabay.com/video/2022/12/12/142683-780599470_tiny.mp4' },
-{ name: 'Background 128', url: 'https://cdn.pixabay.com/video/2022/09/23/132295-753175509_tiny.mp4' },
-{ name: 'Background 129', url: 'https://cdn.pixabay.com/video/2022/09/23/132294-753175506_tiny.mp4' },
-{ name: 'Background 130', url: 'https://cdn.pixabay.com/video/2023/01/03/145153-786384364_tiny.mp4' },
-{ name: 'Background 131', url: 'https://cdn.pixabay.com/video/2022/12/21/143761-784138211_tiny.mp4' },
-{ name: 'Background 132', url: 'https://cdn.pixabay.com/video/2022/05/02/115730-705415385_tiny.mp4' },
-{ name: 'Background 133', url: 'https://cdn.pixabay.com/video/2023/10/02/183254-870457513_tiny.mp4' },
-{ name: 'Background 134', url: 'https://cdn.pixabay.com/video/2022/10/31/137247-766338227_tiny.mp4' },
-{ name: 'Background 135', url: 'https://cdn.pixabay.com/video/2020/02/28/32989-394514023_tiny.mp4' },
-{ name: 'Background 136', url: 'https://cdn.pixabay.com/video/2022/09/13/131155-750216590_tiny.mp4' },
-{ name: 'Background 137', url: 'https://cdn.pixabay.com/video/2023/05/30/165120-832090799_tiny.mp4' },
-{ name: 'Background 138', url: 'https://cdn.pixabay.com/video/2022/05/04/115980-706323936_tiny.mp4' },
-{ name: 'Background 139', url: 'https://cdn.pixabay.com/video/2023/01/09/145864-787701151_tiny.mp4' },
-{ name: 'Background 140', url: 'https://cdn.pixabay.com/video/2022/10/01/133144-755982928_tiny.mp4' },
-{ name: 'Background 141', url: 'https://cdn.pixabay.com/video/2024/03/12/203934-922571602_tiny.mp4' },
-{ name: 'Background 142', url: 'https://cdn.pixabay.com/video/2022/10/31/137246-766338223_tiny.mp4' },
-{ name: 'Background 143', url: 'https://cdn.pixabay.com/video/2023/04/12/158527-816999750_tiny.mp4' },
-{ name: 'Background 144', url: 'https://cdn.pixabay.com/video/2021/03/05/66956-523721318_tiny.mp4' },
-{ name: 'Background 145', url: 'https://cdn.pixabay.com/video/2023/03/17/155016-809859637_tiny.mp4' },
-{ name: 'Background 146', url: 'https://cdn.pixabay.com/video/2022/09/21/132081-752283582_tiny.mp4' },
-{ name: 'Background 147', url: 'https://cdn.pixabay.com/video/2022/11/03/137579-766938298_tiny.mp4' },
-{ name: 'Background 148', url: 'https://cdn.pixabay.com/video/2022/09/16/131504-750569066_tiny.mp4' },
-{ name: 'Background 149', url: 'https://cdn.pixabay.com/video/2022/05/09/116451-708008221_tiny.mp4' },
-
-
-{ name: 'Background 150', url: 'https://cdn.pixabay.com/video/2020/11/13/56299-479205703_tiny.mp4' },
-{ name: 'Background 151', url: 'https://cdn.pixabay.com/video/2023/03/06/153479-805374143_tiny.mp4' },
-{ name: 'Background 152', url: 'https://cdn.pixabay.com/video/2023/10/17/185408-875362659_tiny.mp4' },
-{ name: 'Background 153', url: 'https://cdn.pixabay.com/video/2022/09/15/131403-750559764_tiny.mp4' },
-{ name: 'Background 154', url: 'https://cdn.pixabay.com/video/2023/10/06/183716-872027012_tiny.mp4' },
-{ name: 'Background 155', url: 'https://cdn.pixabay.com/video/2019/06/14/24406-342401501_tiny.mp4' },
-{ name: 'Background 156', url: 'https://cdn.pixabay.com/video/2023/11/07/188255-882242986_tiny.mp4' },
-{ name: 'Background 157', url: 'https://cdn.pixabay.com/video/2025/10/14/309804_tiny.mp4' },
-{ name: 'Background 158', url: 'https://cdn.pixabay.com/video/2023/04/11/158388-816637364_tiny.mp4' },
-{ name: 'Background 159', url: 'https://cdn.pixabay.com/video/2024/05/21/212961_tiny.mp4' },
-{ name: 'Background 160', url: 'https://cdn.pixabay.com/video/2025/10/06/308237_tiny.mp4' },
-{ name: 'Background 161', url: 'https://cdn.pixabay.com/video/2022/10/17/135212-761273636_tiny.mp4' },
-{ name: 'Background 162', url: 'https://cdn.pixabay.com/video/2022/10/17/135202-761273627_tiny.mp4' },
-{ name: 'Background 163', url: 'https://cdn.pixabay.com/video/2020/11/13/56311-479205713_tiny.mp4' },
-{ name: 'Background 164', url: 'https://cdn.pixabay.com/video/2023/06/27/169029-840229967_tiny.mp4' },
-{ name: 'Background 165', url: 'https://cdn.pixabay.com/video/2020/11/10/56075-478688146_tiny.mp4' },
-{ name: 'Background 166', url: 'https://cdn.pixabay.com/video/2020/01/31/31802-388997514_tiny.mp4' },
-{ name: 'Background 167', url: 'https://cdn.pixabay.com/video/2023/02/14/150644-798877201_tiny.mp4' },
-{ name: 'Background 168', url: 'https://cdn.pixabay.com/video/2024/03/12/203931-922571581_tiny.mp4' },
-{ name: 'Background 169', url: 'https://cdn.pixabay.com/video/2025/05/21/280481_tiny.mp4' },
-{ name: 'Background 170', url: 'https://cdn.pixabay.com/video/2023/05/05/161764-824152819_tiny.mp4' },
-{ name: 'Background 171', url: 'https://cdn.pixabay.com/video/2020/02/27/32950-394513969_tiny.mp4' },
-{ name: 'Background 172', url: 'https://cdn.pixabay.com/video/2023/01/23/147640-791958949_tiny.mp4' },
-{ name: 'Background 173', url: 'https://cdn.pixabay.com/video/2019/10/10/27729-365891002_tiny.mp4' },
-{ name: 'Background 174', url: 'https://cdn.pixabay.com/video/2023/10/20/185809-876514131_tiny.mp4' },
-{ name: 'Background 175', url: 'https://cdn.pixabay.com/video/2021/07/08/80697-572838398_tiny.mp4' },
-{ name: 'Background 176', url: 'https://cdn.pixabay.com/video/2017/05/10/9067-217261108_tiny.mp4' },
-{ name: 'Background 177', url: 'https://cdn.pixabay.com/video/2019/10/28/28388-369533658_tiny.mp4' },
-{ name: 'Background 178', url: 'https://cdn.pixabay.com/video/2025/05/26/281839_tiny.mp4' },
-{ name: 'Background 179', url: 'https://cdn.pixabay.com/video/2024/03/28/205930_tiny.mp4' },
-{ name: 'Background 180', url: 'https://cdn.pixabay.com/video/2025/04/22/273595_tiny.mp4' },
-{ name: 'Background 181', url: 'https://cdn.pixabay.com/video/2021/01/04/61116-497754343_tiny.mp4' },
-{ name: 'Background 182', url: 'https://cdn.pixabay.com/video/2022/11/09/138341-769520916_tiny.mp4' },
-{ name: 'Background 183', url: 'https://cdn.pixabay.com/video/2025/05/26/281840_tiny.mp4' },
-{ name: 'Background 184', url: 'https://cdn.pixabay.com/video/2023/10/02/183253-870457508_tiny.mp4' },
-{ name: 'Background 185', url: 'https://cdn.pixabay.com/video/2021/02/04/64093-509542772_tiny.mp4' },
-{ name: 'Background 186', url: 'https://cdn.pixabay.com/video/2020/05/13/38957-420224573_tiny.mp4' },
-{ name: 'Background 187', url: 'https://cdn.pixabay.com/video/2022/04/20/114540-701775812_tiny.mp4' },
-
-
-
-
-{ name: 'Background 188', url: 'https://cdn.pixabay.com/video/2022/09/08/130588-747868234_tiny.mp4' },
-{ name: 'Background 189', url: 'https://cdn.pixabay.com/video/2020/02/04/31921-389236388_tiny.mp4' },
-{ name: 'Background 190', url: 'https://cdn.pixabay.com/video/2023/10/20/185807-876514114_tiny.mp4' },
-{ name: 'Background 191', url: 'https://cdn.pixabay.com/video/2024/09/16/231704_tiny.mp4' },
-{ name: 'Background 192', url: 'https://cdn.pixabay.com/video/2024/04/17/208368_tiny.mp4' },
-{ name: 'Background 193', url: 'https://cdn.pixabay.com/video/2024/11/25/243214_tiny.mp4' },
-{ name: 'Background 194', url: 'https://cdn.pixabay.com/video/2022/12/12/142684-780599471_tiny.mp4' },
-{ name: 'Background 195', url: 'https://cdn.pixabay.com/video/2023/03/15/154794-808552003_tiny.mp4' },
-{ name: 'Background 196', url: 'https://cdn.pixabay.com/video/2020/11/19/56848-481625618_tiny.mp4' },
-{ name: 'Background 197', url: 'https://cdn.pixabay.com/video/2019/06/14/24413-342401518_tiny.mp4' },
-{ name: 'Background 198', url: 'https://cdn.pixabay.com/video/2024/09/25/233180_tiny.mp4' },
-{ name: 'Background 199', url: 'https://cdn.pixabay.com/video/2023/01/31/148754-794599361_tiny.mp4' },
-{ name: 'Background 200', url: 'https://cdn.pixabay.com/video/2019/06/14/24412-342401515_tiny.mp4' },
-{ name: 'Background 201', url: 'https://cdn.pixabay.com/video/2022/05/12/116737-709204411_tiny.mp4' },
-{ name: 'Background 202', url: 'https://cdn.pixabay.com/video/2023/01/16/146757-789873515_tiny.mp4' },
-{ name: 'Background 203', url: 'https://cdn.pixabay.com/video/2024/06/25/218195_tiny.mp4' },
-{ name: 'Background 204', url: 'https://cdn.pixabay.com/video/2023/10/20/185801-876514088_tiny.mp4' },
-{ name: 'Background 205', url: 'https://cdn.pixabay.com/video/2022/01/17/104758-667892001_tiny.mp4' },
-{ name: 'Background 206', url: 'https://cdn.pixabay.com/video/2023/02/12/150343-798230385_tiny.mp4' },
-{ name: 'Background 207', url: 'https://cdn.pixabay.com/video/2023/03/07/153655-805688970_tiny.mp4' },
-{ name: 'Background 208', url: 'https://cdn.pixabay.com/video/2025/10/14/309864_tiny.mp4' },
-{ name: 'Background 209', url: 'https://cdn.pixabay.com/video/2022/03/01/109213-684053597_tiny.mp4' },
-{ name: 'Background 210', url: 'https://cdn.pixabay.com/video/2021/03/22/68715-535892735_tiny.mp4' },
-{ name: 'Background 211', url: 'https://cdn.pixabay.com/video/2022/09/13/131149-750216576_tiny.mp4' },
-{ name: 'Background 212', url: 'https://cdn.pixabay.com/video/2020/11/07/55000-490755555_tiny.mp4' },
-{ name: 'Background 213', url: 'https://cdn.pixabay.com/video/2020/11/07/55003-490755576_tiny.mp4' },
-{ name: 'Background 214', url: 'https://cdn.pixabay.com/video/2022/04/11/113555-698386334_tiny.mp4' },
-{ name: 'Background 215', url: 'https://cdn.pixabay.com/video/2025/04/08/270864_tiny.mp4' },
-{ name: 'Background 216', url: 'https://cdn.pixabay.com/video/2020/03/07/33329-396402462_tiny.mp4' },
-{ name: 'Background 217', url: 'https://cdn.pixabay.com/video/2023/05/24/164237-830460848_tiny.mp4' },
-{ name: 'Background 218', url: 'https://cdn.pixabay.com/video/2025/04/14/272021_tiny.mp4' },
-{ name: 'Background 219', url: 'https://cdn.pixabay.com/video/2021/09/12/88359-608445677_tiny.mp4' },
-{ name: 'Background 220', url: 'https://cdn.pixabay.com/video/2022/11/19/139638-773417911_tiny.mp4' },
-{ name: 'Background 221', url: 'https://cdn.pixabay.com/video/2021/08/22/85985-590746516_tiny.mp4' },
-{ name: 'Background 222', url: 'https://cdn.pixabay.com/video/2020/03/21/34039-399415264_tiny.mp4' },
-{ name: 'Background 223', url: 'https://cdn.pixabay.com/video/2021/04/13/71018-537986680_tiny.mp4' },
-{ name: 'Background 224', url: 'https://cdn.pixabay.com/video/2023/03/21/155626-810650583_tiny.mp4' },
-{ name: 'Background 225', url: 'https://cdn.pixabay.com/video/2025/06/11/285224_tiny.mp4' },
-{ name: 'Background 226', url: 'https://cdn.pixabay.com/video/2023/10/25/186501-878145183_tiny.mp4' },
-{ name: 'Background 227', url: 'https://cdn.pixabay.com/video/2020/01/16/31296-385265706_tiny.mp4' },
-{ name: 'Background 228', url: 'https://cdn.pixabay.com/video/2022/04/02/112671-695204745_tiny.mp4' },
-{ name: 'Background 229', url: 'https://cdn.pixabay.com/video/2021/05/28/75617-556482746_tiny.mp4' },
-{ name: 'Background 230', url: 'https://cdn.pixabay.com/video/2021/06/21/78484-566253537_tiny.mp4' },
-{ name: 'Background 231', url: 'https://cdn.pixabay.com/video/2024/03/09/203522-921629678_tiny.mp4' },
-{ name: 'Background 232', url: 'https://cdn.pixabay.com/video/2020/11/11/56162-478755498_tiny.mp4' },
-{ name: 'Background 233', url: 'https://cdn.pixabay.com/video/2021/08/11/84685-590762068_tiny.mp4' },
-
-
-
-{ name: 'Background 234', url: 'https://cdn.pixabay.com/video/2025/10/25/312010_tiny.mp4' },
-{ name: 'Background 235', url: 'https://cdn.pixabay.com/video/2025/09/21/305593_tiny.mp4' },
-{ name: 'Background 236', url: 'https://cdn.pixabay.com/video/2025/10/31/313052_tiny.mp4' },
-{ name: 'Background 237', url: 'https://cdn.pixabay.com/video/2024/09/14/231325_tiny.mp4' },
-{ name: 'Background 238', url: 'https://cdn.pixabay.com/video/2025/07/03/289368_tiny.mp4' },
-{ name: 'Background 239', url: 'https://cdn.pixabay.com/video/2022/04/11/113562-698386354_tiny.mp4' },
-{ name: 'Background 240', url: 'https://cdn.pixabay.com/video/2025/06/26/287862_tiny.mp4' },
-{ name: 'Background 241', url: 'https://cdn.pixabay.com/video/2024/11/02/239567_tiny.mp4' },
-{ name: 'Background 242', url: 'https://cdn.pixabay.com/video/2025/10/09/308981_tiny.mp4' },
-{ name: 'Background 243', url: 'https://cdn.pixabay.com/video/2025/10/09/308968_tiny.mp4' },
-{ name: 'Background 244', url: 'https://cdn.pixabay.com/video/2025/10/28/312430_tiny.mp4' },
-{ name: 'Background 245', url: 'https://cdn.pixabay.com/video/2025/03/18/265647_tiny.mp4' },
-{ name: 'Background 246', url: 'https://cdn.pixabay.com/video/2024/09/20/232259_tiny.mp4' },
-{ name: 'Background 247', url: 'https://cdn.pixabay.com/video/2025/08/26/299902_tiny.mp4' },
-{ name: 'Background 248', url: 'https://cdn.pixabay.com/video/2025/07/31/294490_tiny.mp4' },
-{ name: 'Background 249', url: 'https://cdn.pixabay.com/video/2024/08/08/225398_tiny.mp4' },
-{ name: 'Background 250', url: 'https://cdn.pixabay.com/video/2025/08/24/299377_tiny.mp4' },
-{ name: 'Background 251', url: 'https://cdn.pixabay.com/video/2025/11/04/313813_tiny.mp4' },
-{ name: 'Background 252', url: 'https://cdn.pixabay.com/video/2025/04/14/272008_tiny.mp4' },
-{ name: 'Background 253', url: 'https://cdn.pixabay.com/video/2024/12/09/245778_tiny.mp4' },
-{ name: 'Background 254', url: 'https://cdn.pixabay.com/video/2025/08/28/300430_tiny.mp4' },
-{ name: 'Background 255', url: 'https://cdn.pixabay.com/video/2025/06/14/285867_tiny.mp4' },
-{ name: 'Background 256', url: 'https://cdn.pixabay.com/video/2025/08/12/296911_tiny.mp4' },
-{ name: 'Background 257', url: 'https://cdn.pixabay.com/video/2025/06/05/283771_tiny.mp4' },
-{ name: 'Background 258', url: 'https://cdn.pixabay.com/video/2025/09/29/307043_tiny.mp4' },
-{ name: 'Background 259', url: 'https://cdn.pixabay.com/video/2025/06/11/285219_tiny.mp4' },
-{ name: 'Background 260', url: 'https://cdn.pixabay.com/video/2024/10/27/238550_tiny.mp4' },
-{ name: 'Background 261', url: 'https://cdn.pixabay.com/video/2025/10/31/313062_tiny.mp4' },
-{ name: 'Background 262', url: 'https://cdn.pixabay.com/video/2025/06/10/284934_tiny.mp4' },
-{ name: 'Background 263', url: 'https://cdn.pixabay.com/video/2025/08/20/298638_tiny.mp4' },
-
-
-{ name: 'Background 264', url: 'https://cdn.pixabay.com/video/2025/05/14/278967_tiny.mp4' },
-{ name: 'Background 265', url: 'https://cdn.pixabay.com/video/2025/06/28/288323_tiny.mp4' },
-{ name: 'Background 266', url: 'https://cdn.pixabay.com/video/2025/03/23/266820_tiny.mp4' },
-{ name: 'Background 267', url: 'https://cdn.pixabay.com/video/2025/04/17/272591_tiny.mp4' },
-{ name: 'Background 268', url: 'https://cdn.pixabay.com/video/2025/06/03/283438_tiny.mp4' },
-{ name: 'Background 269', url: 'https://cdn.pixabay.com/video/2025/04/06/270194_tiny.mp4' },
-{ name: 'Background 270', url: 'https://cdn.pixabay.com/video/2025/06/22/287212_tiny.mp4' },
-{ name: 'Background 271', url: 'https://cdn.pixabay.com/video/2025/03/15/264934_tiny.mp4' },
-{ name: 'Background 272', url: 'https://cdn.pixabay.com/video/2025/02/16/258696_tiny.mp4' },
-{ name: 'Background 273', url: 'https://cdn.pixabay.com/video/2024/09/11/230932_tiny.mp4' },
-{ name: 'Background 274', url: 'https://cdn.pixabay.com/video/2024/11/02/239569_tiny.mp4' },
-{ name: 'Background 275', url: 'https://cdn.pixabay.com/video/2025/03/11/263862_tiny.mp4' },
-{ name: 'Background 276', url: 'https://cdn.pixabay.com/video/2024/07/17/221672_tiny.mp4' },
-{ name: 'Background 277', url: 'https://cdn.pixabay.com/video/2025/02/27/261352_tiny.mp4' },
-{ name: 'Background 278', url: 'https://cdn.pixabay.com/video/2025/09/03/301365_tiny.mp4' },
-{ name: 'Background 279', url: 'https://cdn.pixabay.com/video/2025/03/18/265554_tiny.mp4' },
-{ name: 'Background 280', url: 'https://cdn.pixabay.com/video/2025/02/23/260399_tiny.mp4' },
-{ name: 'Background 281', url: 'https://cdn.pixabay.com/video/2025/04/09/271155_tiny.mp4' },
-{ name: 'Background 282', url: 'https://cdn.pixabay.com/video/2025/09/15/304228_tiny.mp4' },
-{ name: 'Background 283', url: 'https://cdn.pixabay.com/video/2025/09/30/307230_tiny.mp4' },
-{ name: 'Background 284', url: 'https://cdn.pixabay.com/video/2025/01/23/254251_tiny.mp4' },
-{ name: 'Background 285', url: 'https://cdn.pixabay.com/video/2025/09/26/306481_tiny.mp4' },
-{ name: 'Background 286', url: 'https://cdn.pixabay.com/video/2025/09/25/306429_tiny.mp4' },
-{ name: 'Background 287', url: 'https://cdn.pixabay.com/video/2025/03/12/264248_tiny.mp4' },
-{ name: 'Background 288', url: 'https://cdn.pixabay.com/video/2025/03/27/268033_tiny.mp4' },
-{ name: 'Background 289', url: 'https://cdn.pixabay.com/video/2025/05/11/278281_tiny.mp4' },
-{ name: 'Background 290', url: 'https://cdn.pixabay.com/video/2025/09/29/307129_tiny.mp4' },
-{ name: 'Background 291', url: 'https://cdn.pixabay.com/video/2025/09/29/306998_tiny.mp4' },
-{ name: 'Background 292', url: 'https://cdn.pixabay.com/video/2025/08/25/299576_tiny.mp4' },
-{ name: 'Background 293', url: 'https://cdn.pixabay.com/video/2024/06/13/216613_tiny.mp4' },
-{ name: 'Background 294', url: 'https://cdn.pixabay.com/video/2025/04/24/274052_tiny.mp4' },
-{ name: 'Background 295', url: 'https://cdn.pixabay.com/video/2025/09/08/302713_tiny.mp4' },
-
-
-
-{ name: 'Background 296', url: 'https://cdn.pixabay.com/video/2024/08/01/224231_tiny.mp4' },
-{ name: 'Background 297', url: 'https://cdn.pixabay.com/video/2024/09/24/232950_tiny.mp4' },
-{ name: 'Background 298', url: 'https://cdn.pixabay.com/video/2025/03/04/262469_tiny.mp4' },
-{ name: 'Background 299', url: 'https://cdn.pixabay.com/video/2025/04/04/269667_tiny.mp4' },
-{ name: 'Background 300', url: 'https://cdn.pixabay.com/video/2025/09/08/302588_tiny.mp4' },
-{ name: 'Background 301', url: 'https://cdn.pixabay.com/video/2025/03/15/265116_tiny.mp4' },
-{ name: 'Background 302', url: 'https://cdn.pixabay.com/video/2025/03/04/262344_tiny.mp4' },
-{ name: 'Background 303', url: 'https://cdn.pixabay.com/video/2025/03/14/264741_tiny.mp4' },
-{ name: 'Background 304', url: 'https://cdn.pixabay.com/video/2024/09/24/232949_tiny.mp4' },
-{ name: 'Background 305', url: 'https://cdn.pixabay.com/video/2025/10/09/308947_tiny.mp4' },
-{ name: 'Background 306', url: 'https://cdn.pixabay.com/video/2024/12/16/246887_tiny.mp4' },
-{ name: 'Background 307', url: 'https://cdn.pixabay.com/video/2024/12/07/245434_tiny.mp4' },
-{ name: 'Background 308', url: 'https://cdn.pixabay.com/video/2025/08/20/298654_tiny.mp4' },
-{ name: 'Background 309', url: 'https://cdn.pixabay.com/video/2025/04/04/269669_tiny.mp4' },
-{ name: 'Background 310', url: 'https://cdn.pixabay.com/video/2025/08/03/295245_tiny.mp4' },
-{ name: 'Background 311', url: 'https://cdn.pixabay.com/video/2025/08/17/297867_tiny.mp4' },
-{ name: 'Background 312', url: 'https://cdn.pixabay.com/video/2025/08/04/295332_tiny.mp4' },
-{ name: 'Background 313', url: 'https://cdn.pixabay.com/video/2025/05/11/278282_tiny.mp4' },
-{ name: 'Background 314', url: 'https://cdn.pixabay.com/video/2024/12/16/246885_tiny.mp4' },
-{ name: 'Background 315', url: 'https://cdn.pixabay.com/video/2025/04/04/269668_tiny.mp4' },
-{ name: 'Background 316', url: 'https://cdn.pixabay.com/video/2024/09/02/229355_tiny.mp4' },
-{ name: 'Background 317', url: 'https://cdn.pixabay.com/video/2025/04/05/269956_tiny.mp4' },
-{ name: 'Background 318', url: 'https://cdn.pixabay.com/video/2025/04/05/269953_tiny.mp4' },
-{ name: 'Background 319', url: 'https://cdn.pixabay.com/video/2025/03/04/262392_tiny.mp4' },
-{ name: 'Background 320', url: 'https://cdn.pixabay.com/video/2025/03/04/262426_tiny.mp4' },
-{ name: 'Background 321', url: 'https://cdn.pixabay.com/video/2025/03/15/265107_tiny.mp4' },
-{ name: 'Background 322', url: 'https://cdn.pixabay.com/video/2025/08/17/297879_tiny.mp4' },
-
-
-	
- { name: 'Background 127', url: 'https://cdn.pixabay.com/video/2022/12/12/142683-780599470_tiny.mp4' },
+  
+  
+  { name: 'Background 127', url: 'https://cdn.pixabay.com/video/2022/12/12/142683-780599470_tiny.mp4' },
 { name: 'Background 128', url: 'https://cdn.pixabay.com/video/2022/09/23/132295-753175509_tiny.mp4' },
 { name: 'Background 129', url: 'https://cdn.pixabay.com/video/2022/09/23/132294-753175506_tiny.mp4' },
 { name: 'Background 130', url: 'https://cdn.pixabay.com/video/2023/01/03/145153-786384364_tiny.mp4' },
@@ -805,19 +591,12 @@ const BACKGROUNDS = [
 
   
   
-	
+  
+  
+  
 ];
 
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
 const KNOWLEDGE_ITEMS = [
   
   
@@ -1503,6 +1282,7 @@ const KNOWLEDGE_ITEMS = [
 
 
   
+  
   {
     text: "This is my head 🧠. It helps me think and learn new things.",
     textSW: "Hiki ni kichwa changu 🧠. Kinanisaidia kufikiria na kujifunza mambo mapya.",
@@ -1648,10 +1428,22 @@ const KNOWLEDGE_ITEMS = [
 }
 
   
-  
-
-  
   ];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -2031,8 +1823,12 @@ function drawSwahiliBubble(){
 
 
 
+
+
+
+
 let logoX = 0;
-const logoText = '🎓 Online Tuition: @Sh500 P.M (Kenya) | Elimu Connect app / $4 P.M (Global) | SmartLearn: IGCSE IB CBSE ICSE on Play Store! 💻 Need a Website from Sh10,000? WhatsApp +254769255782!';
+const logoText = '🎓 Online Tuition: @Sh500 P.M (Kenya) | Elimu Connect app / $4 P.M (Global) | SmartLearn: IGCSE IB CBSE ICSE on Play Store! 💻 Need a Website from Sh10,000? WhatsApp +254769255782! Sell your plot faster |Find your dream home or land in minutes! at realplot connect  🏡 ';
 
 function drawSlidingLogo(time) {
   ctx.font = 'bold 30px "Patrick Hand", Arial';
@@ -2072,9 +1868,6 @@ function drawSlidingLogo(time) {
 
 
 
-
-
-  
 
 function drawTimerArc(progress){
   const cx = CANVAS_W - 100, cy = 100, r = 70;
@@ -2362,8 +2155,8 @@ async function startLongRecording() {
       const blob = new Blob(recordedChunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       downloadLink.href = url;
-      downloadLink.download = `Elimu_30_Minute_Compilation_${Date.now()}.webm`;
-      downloadLink.textContent = `✅ Download 30-Minute Video (${(blob.size/(1024*1024)).toFixed(2)} MB)`;
+      downloadLink.download = `Elimu_5_Minute_Compilation_${Date.now()}.webm`;
+      downloadLink.textContent = `✅ Download 5-Minute Video (${(blob.size/(1024*1024)).toFixed(2)} MB)`;
       downloadLink.classList.remove('hidden');
       recordBtn.disabled = false; genBtn.disabled = false;
       statusEl.textContent = 'Recording complete. Download link available.';
@@ -2403,7 +2196,7 @@ genBtn.addEventListener('click', async ()=>{
   await prepareScene();
   startAnimationLoop();
   clipStartTime = performance.now();
-  statusEl.textContent = `Previewing Clip ${currentClip}/${TOTAL_CLIPS}. Press "Start 30-Minute Record" to begin compilation.`;
+  statusEl.textContent = `Previewing Clip ${currentClip}/${TOTAL_CLIPS}. Press "Start 5-Minute Record" to begin compilation.`;
 });
 
 recordBtn.addEventListener('click', startLongRecording);
