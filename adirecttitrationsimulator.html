@@ -87,10 +87,18 @@
     <option value="H2SO4">H₂SO₄</option>
   </select>
 </label>
+<label>Base Conc (M): 
+  <input type="number" id="baseConc" value="0.100" step="0.001" min="0">
+</label>
 
-  <label>Base Conc (M): <input type="number" id="baseConc" value="0.1" step="0.01"></label>
-  <label>Base Vol (mL): <input type="number" id="baseVol" value="25" step="1"></label>
-  <label>Acid Conc (M): <input type="number" id="acidConc" value="0.1" step="0.01"></label>
+<label>Base Vol (mL): 
+  <input type="number" id="baseVol" value="25" step="1" min="0">
+</label>
+
+<label>Acid Conc (M): 
+  <input type="number" id="acidConc" value="0.100" step="0.001" min="0">
+</label>
+
   
   <label>Indicator: 
     <select id="indicator">
