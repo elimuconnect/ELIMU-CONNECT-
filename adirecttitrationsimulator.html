@@ -268,7 +268,7 @@ function drawApparatus(){
   ctx.ellipse(buretteX, buretteTop + buretteHeight, radiusX - 3, radiusY - 2, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // --- Burette Graduations ---
+ // --- Burette Graduations ---
 ctx.strokeStyle = '#000';
 ctx.fillStyle = '#000';
 ctx.font = `${10 * scale}px Arial`;
@@ -340,7 +340,7 @@ for (let i = 0; i <= totalTicks; i++) {
   // Labels
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000'; ctx.font=`${14*scale}px Arial`;
   ctx.beginPath(); ctx.moveTo(220*scale,60*scale); ctx.lineTo(300*scale,60*scale); ctx.stroke();
-  ctx.fillText(document.getElementById('acidType').value + ' Burette ', 305*scale,65*scale);
+  ctx.fillText(document.getElementById('acidType').value + ' Burette', 305*scale,65*scale);
 
   ctx.beginPath(); ctx.moveTo(200*scale,450*scale); ctx.lineTo(300*scale,460*scale); ctx.stroke();
   ctx.fillText('Conical Flask', 305*scale,465*scale);
