@@ -305,7 +305,7 @@ window.addEventListener('resize', resizeCanvas);
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = canvas.width / 760;
+  const scale = (canvas.width / 760) * 1.6; // 🔹 Increased global scale factor
   const centerX = canvas.width / 2;
 
   const buretteHeight = 300 * scale;
@@ -346,16 +346,16 @@ function draw(){
 
   // Burette ticks
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
-  ctx.font = `${10*scale}px Arial`;
+  ctx.font = `${13*scale}px Arial`; // 🔹 Slightly larger text
   for(let i=0;i<=50;i++){
     const y = buretteTop + (i*buretteHeight)/50;
-    const tickLen = (i%5===0)?10:5;
+    const tickLen = (i%5===0)?12:6;
     ctx.beginPath();
     ctx.moveTo(buretteX - radiusX - tickLen*scale, y);
     ctx.lineTo(buretteX - radiusX, y);
     ctx.stroke();
     if(i%5===0){
-      ctx.fillText(Math.round(i/50*50)+' cm³', buretteX - radiusX - 48*scale, y+3);
+      ctx.fillText(Math.round(i/50*50)+' cm³', buretteX - radiusX - 55*scale, y+4);
     }
   }
 
@@ -363,28 +363,28 @@ function draw(){
   ctx.fillRect(buretteX - 25*scale, buretteTop + buretteHeight - 10*scale, 50*scale/1.2, 10*scale/1.2);
 
   ctx.strokeStyle='#000'; ctx.fillStyle='#000'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(buretteX + 30*scale, buretteTop + buretteHeight - 10*scale); 
-  ctx.lineTo(buretteX + 2*scale, buretteTop + buretteHeight + 10*scale); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(buretteX + 2*scale, buretteTop + buretteHeight + 10*scale);
-  ctx.lineTo(buretteX - 2*scale, buretteTop + buretteHeight + 2*scale);
-  ctx.lineTo(buretteX + 6*scale, buretteTop + buretteHeight + 2*scale);
+  ctx.beginPath(); ctx.moveTo(buretteX + 35*scale, buretteTop + buretteHeight - 10*scale); 
+  ctx.lineTo(buretteX + 3*scale, buretteTop + buretteHeight + 10*scale); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(buretteX + 3*scale, buretteTop + buretteHeight + 10*scale);
+  ctx.lineTo(buretteX - 3*scale, buretteTop + buretteHeight + 2*scale);
+  ctx.lineTo(buretteX + 7*scale, buretteTop + buretteHeight + 2*scale);
   ctx.closePath(); ctx.fill();
 
-  ctx.font = `${14*scale}px Arial`; ctx.fillStyle='#000';
-  ctx.fillText('Tap to add drops', buretteX + 40*scale, buretteTop + buretteHeight - 20*scale);
-  ctx.font = `${12*scale}px Arial`;
-  ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 40*scale, buretteTop + buretteHeight);
+  ctx.font = `${16*scale}px Arial`; ctx.fillStyle='#000';
+  ctx.fillText('Tap to add drops', buretteX + 45*scale, buretteTop + buretteHeight - 20*scale);
+  ctx.font = `${14*scale}px Arial`;
+  ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 45*scale, buretteTop + buretteHeight);
 
   // Flask
-  const fw = 180*scale, fh = 200*scale;
+  const fw = 200*scale, fh = 230*scale; // 🔹 Bigger flask
   const fx = centerX - fw/2;
   const fy = buretteTop + buretteHeight - 10*scale;
   ctx.strokeStyle='#000'; ctx.lineWidth=2;
   ctx.beginPath();
-  ctx.moveTo(fx + 20*scale, fy + fh);
-  ctx.lineTo(fx + fw - 20*scale, fy + fh);
-  ctx.lineTo(fx + fw - 50*scale, fy + 40*scale);
-  ctx.lineTo(fx + 50*scale, fy + 40*scale);
+  ctx.moveTo(fx + 25*scale, fy + fh);
+  ctx.lineTo(fx + fw - 25*scale, fy + fh);
+  ctx.lineTo(fx + fw - 55*scale, fy + 50*scale);
+  ctx.lineTo(fx + 55*scale, fy + 50*scale);
   ctx.closePath(); ctx.stroke();
 
   const mode = modeSelect.value;
@@ -415,13 +415,14 @@ function draw(){
   for(let i=drops.length-1;i>=0;i--){
     const d=drops[i];
     ctx.fillStyle=titColorHex;
-    ctx.beginPath(); ctx.arc(d.x,d.y,4*scale,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(d.x,d.y,5.5*scale,0,Math.PI*2); ctx.fill(); // 🔹 Slightly larger drops
   }
 
-  ctx.fillStyle='#000'; ctx.font=`${14*scale}px Arial`;
+  ctx.fillStyle='#000'; ctx.font=`${16*scale}px Arial`;
   ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
-  ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+16*scale);
+  ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+20*scale);
 }
+
 
 /* Animate drops */
 function animateDrops(){
