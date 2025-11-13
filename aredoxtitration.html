@@ -297,7 +297,8 @@ function computeValues(){
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = canvas.getBoundingClientRect().width / 760;
+  const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
+
 
   const centerX = canvas.width / 2;
 
@@ -426,7 +427,8 @@ function draw(){
 
 /* Animate drops */
 function animateDrops(){
-  const scale = canvas.getBoundingClientRect().width / 760;
+ const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
+
 
   const centerX = canvas.width / 2;
   const fw = 180*scale, fh = 200*scale;
@@ -450,7 +452,8 @@ function animateDrops(){
 }
 
 function addDrop(){
- const scale = canvas.getBoundingClientRect().width / 760;
+ const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
+
 
   const centerX = canvas.width / 2;
   const buretteTop = 40 * scale;
@@ -464,25 +467,26 @@ function addDrop(){
   checkEndpoint();
 }
 
-
-
-
 function resizeCanvas(){
   const rect = canvas.parentElement.getBoundingClientRect(); // use card width
   const width = rect.width;
   const height = width * 0.65 + 200; // maintain aspect ratio
 
+  // Set CSS display size
   canvas.style.width = width + 'px';
   canvas.style.height = height + 'px';
 
-  canvas.width = width * window.devicePixelRatio;   // high-res rendering
-  canvas.height = height * window.devicePixelRatio;
+  // Set internal pixel size for high-DPI screens
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
 
   ctx.setTransform(1,0,0,1,0,0); // reset any previous scaling
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  ctx.scale(dpr, dpr);           // scale drawing to match CSS size
 
   draw();
 }
+
 
 window.addEventListener('resize', resizeCanvas);
 
