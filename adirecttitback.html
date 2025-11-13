@@ -309,26 +309,18 @@ function updateFlask(){
 }
 
 
-canvas.addEventListener('click', () => {
-  updateInputs();
-
-  // Calculate the required base volume for the reaction
-  const acidType = document.getElementById('acidType').value;
-  const nH = (acidType === "H2SO4") ? 2 : 1;
-  const requiredBaseVol = (acidConc * baseVol * nH) / baseConc; // in mL
-
-  if (acidVolumeAdded + dropVolume <= requiredBaseVol) {
-    acidVolumeAdded += dropVolume;
-    drops.push({ x: 200, y: 315 });
-  } else {
-    const remain = requiredBaseVol - acidVolumeAdded;
-    if (remain > 0 && remain < dropVolume) {
-      acidVolumeAdded += remain;
-      drops.push({ x: 200, y: 315 });
+canvas.addEventListener('click',()=>{
+  if(acidVolumeAdded+dropVolume<=baseVolFixed){
+    acidVolumeAdded+=dropVolume;
+    drops.push({x:200,y:315});
+  }else{
+    const remain=baseVolFixed-acidVolumeAdded;
+    if(remain>0&&remain<dropVolume){
+      acidVolumeAdded+=remain;
+      drops.push({x:200,y:315});
     }
   }
 });
-
 
 
  
