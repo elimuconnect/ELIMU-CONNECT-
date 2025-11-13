@@ -212,6 +212,10 @@ const autoAdd = document.getElementById('autoAdd');
 const proceedBtn = document.getElementById('proceedCalcBtn');
 
 const canvas = document.getElementById('simCanvas');
+const baseWidth = 760, baseHeight = 520;
+let scaleFactor = 1; // updated during resize
+
+ 
 const ctx = canvas.getContext('2d');
 
 /* ---------------------------
@@ -293,60 +297,54 @@ function computeValues(){
   return true;
 }
 
-/* ---------------------------
-   Canvas & animation
-   --------------------------- */
+
+
 function resizeCanvas() {
   const pixelRatio = window.devicePixelRatio || 1;
-  const baseWidth = 760;
-  const baseHeight = 520;
-  
-  // Keep aspect ratio constant
-  const availableWidth = Math.min(window.innerWidth - 40, baseWidth);
-  const scale = availableWidth / baseWidth;
-  const width = baseWidth * pixelRatio * scale;
-  const height = baseHeight * pixelRatio * scale;
+  const availableWidth = Math.min(window.innerWidth - 40, 760);
+  scaleFactor = availableWidth / 760; // store global scale
 
-  canvas.width = width;
-  canvas.height = height;
-  canvas.style.width = baseWidth * scale + "px";
-  canvas.style.height = baseHeight * scale + "px";
+  canvas.width = 760 * scaleFactor * pixelRatio;
+  canvas.height = 520 * scaleFactor * pixelRatio;
+  canvas.style.width = 760 * scaleFactor + "px";
+  canvas.style.height = 520 * scaleFactor + "px";
   
-  ctx.setTransform(pixelRatio * scale, 0, 0, pixelRatio * scale, 0, 0);
+  ctx.setTransform(pixelRatio * scaleFactor, 0, 0, pixelRatio * scaleFactor, 0, 0);
   draw();
 }
 
-
-window.addEventListener('resize', resizeCanvas);
-
-function draw(){
+function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = (canvas.width / 760) * 1.6; // 🔹 Increased global scale factor
-  const centerX = canvas.width / 2;
+  const scale = scaleFactor * 1.6; // 🔹 match your previous multiplier
+  const centerX = 760/2 * scaleFactor * 1.6;
 
+  // ---------- Burette ----------
   const buretteHeight = 300 * scale;
   const radiusX = 26 * scale;
   const radiusY = 10 * scale;
   const buretteTop = 40 * scale;
-
   const buretteX = centerX;
 
   ctx.lineWidth = 1.5;
   ctx.strokeStyle = '#000';
   ctx.fillStyle = '#f8ffffaa';
+
   ctx.beginPath();
   ctx.ellipse(buretteX, buretteTop, radiusX, radiusY, 0, 0, Math.PI*2);
   ctx.fill(); ctx.stroke();
+
   ctx.beginPath();
   ctx.moveTo(buretteX - radiusX, buretteTop);
   ctx.lineTo(buretteX - radiusX, buretteTop + buretteHeight);
   ctx.moveTo(buretteX + radiusX, buretteTop);
   ctx.lineTo(buretteX + radiusX, buretteTop + buretteHeight);
   ctx.stroke();
+
   ctx.beginPath();
   ctx.ellipse(buretteX, buretteTop + buretteHeight, radiusX, radiusY, 0, 0, Math.PI*2);
   ctx.stroke();
 
+  // ---------- Titrant color ----------
   const titrantKey = (modeSelect.value==='oxidant_buret')?oxidantSel.value:reductantSel.value;
   const titColorHex = (titrantKey==='KMnO4')?COLORS.KMnO4:
                       (titrantKey==='K2Cr2O7')?COLORS.K2Cr2O7:
@@ -360,9 +358,9 @@ function draw(){
   ctx.fillRect(buretteX - radiusX + 3, buretteTop + 5*scale, 2*(radiusX-3), buretteHeight - 8*scale);
   ctx.globalAlpha = 1;
 
-  // Burette ticks
+  // ---------- Burette ticks ----------
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
-  ctx.font = `${13*scale}px Arial`; // 🔹 Slightly larger text
+  ctx.font = `${13*scale}px Arial`;
   for(let i=0;i<=50;i++){
     const y = buretteTop + (i*buretteHeight)/50;
     const tickLen = (i%5===0)?12:6;
@@ -375,9 +373,9 @@ function draw(){
     }
   }
 
+  // ---------- Tap ----------
   ctx.fillStyle = '#888';
   ctx.fillRect(buretteX - 25*scale, buretteTop + buretteHeight - 10*scale, 50*scale/1.2, 10*scale/1.2);
-
   ctx.strokeStyle='#000'; ctx.fillStyle='#000'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.moveTo(buretteX + 35*scale, buretteTop + buretteHeight - 10*scale); 
   ctx.lineTo(buretteX + 3*scale, buretteTop + buretteHeight + 10*scale); ctx.stroke();
@@ -391,18 +389,20 @@ function draw(){
   ctx.font = `${14*scale}px Arial`;
   ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 45*scale, buretteTop + buretteHeight);
 
-  // Flask
-  const fw = 200*scale, fh = 230*scale; // 🔹 Bigger flask
+  // ---------- Flask ----------
+  const fw = 200*scale, fh = 230*scale;
   const fx = centerX - fw/2;
   const fy = buretteTop + buretteHeight - 10*scale;
+
   ctx.strokeStyle='#000'; ctx.lineWidth=2;
   ctx.beginPath();
   ctx.moveTo(fx + 25*scale, fy + fh);
   ctx.lineTo(fx + fw - 25*scale, fy + fh);
-  ctx.lineTo(fx + fw - 55*scale, fy + 50*scale);
+  ctx.lineTo(fx + fw - 55*scale, fy + 50*scale + fy - fy); // top adjusted
   ctx.lineTo(fx + 55*scale, fy + 50*scale);
   ctx.closePath(); ctx.stroke();
 
+  // ---------- Flask liquid ----------
   const mode = modeSelect.value;
   const analyteKey = (mode==='oxidant_buret')?reductantSel.value:oxidantSel.value;
   let startColor = '#ffffff', endColor='#ffffff';
@@ -427,11 +427,11 @@ function draw(){
   ctx.beginPath(); ctx.ellipse(fx + fw/2, topY, fw/2 - 20*scale, 12*scale, 0, 0, Math.PI*2); ctx.fill();
   ctx.fillRect(fx + 20*scale, topY, fw - 40*scale, fy + fh - topY); ctx.globalAlpha=1;
 
-  // Drops
+  // ---------- Drops ----------
   for(let i=drops.length-1;i>=0;i--){
     const d=drops[i];
     ctx.fillStyle=titColorHex;
-    ctx.beginPath(); ctx.arc(d.x,d.y,5.5*scale,0,Math.PI*2); ctx.fill(); // 🔹 Slightly larger drops
+    ctx.beginPath(); ctx.arc(d.x, d.y, 5.5*scale, 0, Math.PI*2); ctx.fill();
   }
 
   ctx.fillStyle='#000'; ctx.font=`${16*scale}px Arial`;
@@ -439,51 +439,36 @@ function draw(){
   ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+20*scale);
 }
 
+// ---------- Animate drops ----------
 function animateDrops() {
-  const scale = (canvas.width / 760) * 1.6; // match draw() scale
-  const centerX = canvas.width / 2;
-
+  const scale = scaleFactor * 1.6;
+  const centerX = 760/2 * scaleFactor * 1.6;
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
-
-  // Flask geometry (same as in draw)
-  const fw = 200 * scale;
-  const fh = 230 * scale;
-  const fx = centerX - fw / 2;
+  const fw = 200 * scale, fh = 230 * scale;
+  const fx = centerX - fw/2;
   const fy = buretteTop + buretteHeight - 10 * scale;
-  const flaskTop = fy + 50 * scale; // top of flask neck opening
+  const flaskTop = fy + 50 * scale;
 
   for (let i = drops.length - 1; i >= 0; i--) {
     const d = drops[i];
+    d.vy += 0.6; // gravity
+    d.y += d.vy;
 
-    // make drops curve gently toward flask center
-
-
-// make drops fall straight down vertically
-d.vy += 0.6; // gravity
-d.y += d.vy;
-
-   
-   
-
-    // remove drop when it reaches the flask opening
-    if (d.y > flaskTop) {
-      drops.splice(i, 1);
-    }
+    if (d.y > flaskTop) drops.splice(i, 1);
   }
 
   draw();
   requestAnimationFrame(animateDrops);
 }
 
-
+// ---------- Add drop ----------
 function addDrop() {
-  const scale = (canvas.width / 760) * 1.6;
-  const centerX = canvas.width / 2;
+  const scale = scaleFactor * 1.6;
+  const centerX = 760/2 * scaleFactor * 1.6;
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
 
-  // Drop start aligned to tap tip
   const tapX = centerX + 35 * scale;
   const tapY = buretteTop + buretteHeight + 10 * scale;
 
@@ -494,11 +479,14 @@ function addDrop() {
   addedVol += dropVolume;
   addedVolOut.textContent = addedVol.toFixed(2);
 
-  // start animation loop if not already running
   if (drops.length === 1) requestAnimationFrame(animateDrops);
-
   checkEndpoint();
 }
+
+// ---------- Window resize ----------
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
 
 
  
