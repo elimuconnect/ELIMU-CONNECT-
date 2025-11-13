@@ -375,6 +375,39 @@ for (let i = 0; i <= totalTicks; i++) {
   ctx.fillText('Conical Flask', 305*scale,465*scale);
 }
 
+
+
+
+
+
+
+
+// Show Proceed button when endpoint (pH ~ 7) reached
+function checkEndpointAndShowButton() {
+  const pH = calculatePH();
+  if (pH >= 6.8 && pH <= 7.2) {
+    const btn = document.getElementById("proceedCalcBtn");
+    if (btn.style.display === "none") {
+      btn.style.display = "inline-block";
+      btn.style.opacity = 0;
+      btn.style.transition = "opacity 0.6s, transform 0.4s";
+      requestAnimationFrame(() => {
+        btn.style.opacity = 1;
+        btn.style.transform = "translate(-50%, 5px)";
+      });
+      // Make arrow move slightly on hover
+      btn.onmouseenter = () => btn.querySelector("span").style.transform = "translateX(6px)";
+      btn.onmouseleave = () => btn.querySelector("span").style.transform = "translateX(0)";
+    }
+  }
+}
+
+
+
+
+
+
+  
 // Animate drops
 function animateDrops(){
   for(let i=drops.length-1;i>=0;i--){
@@ -387,29 +420,31 @@ function animateDrops(){
 }
 
 
-function updateFlask() {
+
+
+// Update display
+function updateFlask(){
   updateInputs();
-  const pH = calculatePH();
-  document.getElementById('pH').textContent = pH.toFixed(2);
+  document.getElementById('pH').textContent = calculatePH().toFixed(2);
   drawApparatus();
-
-  // ✅ Show the Proceed button when endpoint is reached (pH between 6.8 and 7.2)
-  if (pH >= 6.8 && pH <= 7.2) {
-    const btn = document.getElementById('proceedCalcBtn');
-    if (btn.style.display === "none") {
-      btn.style.display = "inline-block";
-      btn.style.opacity = 0;
-      btn.style.transition = "opacity 0.6s";
-      requestAnimationFrame(() => btn.style.opacity = 1);
-
-      // Add hover animation for the arrow
-      btn.onmouseenter = () => btn.querySelector("span").style.transform = "translateX(6px)";
-      btn.onmouseleave = () => btn.querySelector("span").style.transform = "translateX(0)";
-    }
-  }
+  checkEndpointAndShowButton(); // 👈 new line
 }
 
-
+// Click on canvas to add drops (manual titration)
+canvas.addEventListener('click', ()=>{
+  // only allow adding while there is acid left in burette
+  if(acidVolumeAdded + dropVolume <= acidVol){
+    acidVolumeAdded += dropVolume;
+    drops.push({x:200, y:315});
+  } else {
+    // if last partial drop possible, allow exact amount to reach acidVol
+    const remaining = acidVol - acidVolumeAdded;
+    if(remaining > 0 && remaining < dropVolume){
+      acidVolumeAdded += remaining;
+      drops.push({x:200, y:315});
+    }
+  }
+});
   
 
 // Event listeners
