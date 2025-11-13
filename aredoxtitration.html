@@ -55,10 +55,10 @@
 <body>
 <h1>Redox Titration Simulator</h1>
 <p class="small">Default: oxidant in burette (acidified where required). Click canvas (tap) to add drops (0.5 mL)</p>
-
-<a id="proceedCalcBtn" class="proceed" href="#" aria-hidden="true">
+<a id="proceedCalcBtn" class="proceed" href="https://elimuconnect.github.io/ELIMU-CONNECT-/titrations" aria-hidden="true">
   Proceed to Calculations <span style="display:inline-block; transition:transform 0.3s;">➜</span>
 </a>
+
 
 <div class="card controls-card">
   <div class="controls">
@@ -425,20 +425,32 @@ function animateDrops(){
   requestAnimationFrame(animateDrops);
 }
 
-/* Add drop */
 function addDrop(){
   const scale = canvas.width / 760;
   const centerX = canvas.width / 2;
-  const buretteTop = 40*scale;
-  const buretteHeight = 300*scale;
-  const startX = centerX + (Math.random()-0.5)*6;
-  const startY = buretteTop + buretteHeight - 10*scale - 6;
-  drops.push({ x: startX, y: startY, vx:0, vy:0 });
+  const buretteTop = 40 * scale;
+  const buretteHeight = 300 * scale;
+  const startX = centerX + (Math.random() - 0.5) * 6;
+  const startY = buretteTop + buretteHeight - 10 * scale - 6;
+  drops.push({ x: startX, y: startY, vx: 0, vy: 0 });
   addedVol += dropVolume;
   addedVolOut.textContent = addedVol.toFixed(2);
   draw();
+  checkEndpoint(); // 👈 Add this line
 }
 
+
+function checkEndpoint() {
+  if (titrantVolNeeded && addedVol >= titrantVolNeeded) {
+    proceedCalcBtn.style.display = 'inline-block'; // <-- show the button
+    proceedCalcBtn.style.opacity = "1";
+    proceedCalcBtn.style.pointerEvents = "auto";
+    proceedCalcBtn.setAttribute("aria-hidden", "false");
+  }
+}
+
+
+ 
 /* Event wiring */
 addDropBtn.addEventListener('click', addDrop);
 canvas.addEventListener('click', ()=>{ addDrop(); });
