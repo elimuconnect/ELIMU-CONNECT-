@@ -114,9 +114,13 @@
   <button id="startReactionBtn">Start Reaction (Beaker)</button>
  
  
- 
-<a href="https://elimuconnect.github.io/ELIMU-CONNECT-/adirecttitrationsimulator.html" id="proceedBtn" style="display:inline-block; padding:10px 20px; background:#0078D7; color:#fff; border:none; border-radius:6px; text-decoration:none; cursor:pointer;">
-  Proceed to Titration
+ <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/adirecttitrationsimulator.html"
+   id="proceedBtn"
+   style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
+          background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
+          text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+          font-family:Segoe UI, sans-serif; letter-spacing:0.5px;">
+  Proceed to Titration <span style="display:inline-block; transition:transform 0.3s;">➜</span>
 </a>
 
   <button id="resetBtn">Reset</button>
@@ -397,12 +401,29 @@ function startReaction(){
   reactionAnimReq=requestAnimationFrame(anim);
 }
 
-function finalizeReaction(){
+
+
+
+
+
+
+function finalizeReaction() {
   computeReactionValues();
-  phase="reacted";
-  phaseLabel.textContent="Reaction complete —copy New acid concentration then click ,proceed to titration.";
+  phase = "reacted";
+  phaseLabel.textContent = "Reaction complete — copy New acid concentration then click ,proceed to titration.";
   updateInfoUI();
+
+  const btn = document.getElementById("proceedBtn");
+  btn.style.display = "inline-block";
+  btn.style.opacity = 0;
+  btn.style.transition = "opacity 0.6s";
+  requestAnimationFrame(() => btn.style.opacity = 1);
+
+  // Add hover animation
+  btn.onmouseenter = () => btn.querySelector("span").style.transform = "translateX(6px)";
+  btn.onmouseleave = () => btn.querySelector("span").style.transform = "translateX(0)";
 }
+
 
 /* ---------- Reset ---------- */
 function resetAll(){
