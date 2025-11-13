@@ -1,122 +1,95 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Redox Titration Simulator</title>
 <style>
-  *{box-sizing:border-box;margin:0}
-  body{font-family:Segoe UI,system-ui,Arial;display:flex;flex-direction:column;align-items:center;padding:18px;background:#f7fbff;color:#042}
-  h1{margin-bottom:6px}
-  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
-  label{background:#fff;padding:8px 10px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
-  input[type=number]{width:100px;padding:6px;border-radius:6px;border:1px solid #cce}
-  select{padding:6px;border-radius:6px;border:1px solid #cce}
-
+* { box-sizing:border-box;margin:0;padding:0; }
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  display:flex; flex-direction:column; align-items:center; padding:18px;
+  background:#f7fbff; color:#042;
+}
+h1 { margin-bottom:6px; }
+.controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px; }
+label { background:#fff; padding:8px 10px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+input[type=number], select { padding:6px; border-radius:6px; border:1px solid #cce; width:100px; }
 canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 760 / 520; /* ✅ maintains perfect proportion */
-  max-width: 760px;
-  border-radius: 8px;
-  border: 2px solid #bfe;
-  box-shadow: 0 6px 18px rgba(10,40,60,0.06);
-  background: #fff;
-  margin: 12px auto; /* ✅ centers horizontally inside card */
-}
-
-
-  .info{width:100%;max-width:760px;margin-top:10px;background:#fff;padding:10px;border-radius:8px;border:1px solid #e6f2ff}
-  .row{display:flex;gap:12px;flex-wrap:wrap}
-  .btn{background:#0078d7;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;border:none;cursor:pointer}
-  .small{font-size:0.9rem;color:#045}
-  output{font-weight:700}
-  .legend{display:flex;gap:8px;align-items:center;margin-top:8px}
-  .swatch{width:20px;height:14px;border-radius:3px;border:1px solid #999}
-  @media(max-width:520px){.controls{flex-direction:column;align-items:stretch}label{width:100%}}
-  /* reuse pulse glow feel for proceed button shown later */
-  @keyframes pulseGlow {
-    0% { box-shadow: 0 0 8px #0078D7; }
-    50% { box-shadow: 0 0 18px #00aaff; }
-    100% { box-shadow: 0 0 8px #0078D7; }
-  }
-  a.proceed {
-    display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
-    background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
-    text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
-    font-family:Segoe UI, sans-serif; letter-spacing:0.5px;
-    animation:pulseGlow 1.5s infinite; cursor:pointer; z-index:999;
-  }
-  
-  
-  .card {
-  background:#fff;
-  padding:14px 16px;
-  border-radius:10px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  display:block;
   width:100%;
+  height:auto;
   max-width:760px;
-  margin:10px 0;
+  aspect-ratio: 760 / 520;
+  border-radius:8px;
+  border:2px solid #bfe;
+  box-shadow:0 6px 18px rgba(10,40,60,0.06);
+  background:#fff;
+  margin:12px auto;
 }
-.controls-card .controls label, .info-card .info .row div{
-  margin-bottom:6px;
+.card { background:#fff; padding:14px 16px; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.08); width:100%; max-width:760px; margin:10px 0; }
+.controls-card .controls label { margin-bottom:6px; }
+.canvas-card { display:flex; justify-content:center; align-items:center; overflow:hidden; }
+.info { width:100%; max-width:760px; margin-top:10px; background:#fff; padding:10px; border-radius:8px; border:1px solid #e6f2ff; }
+.row { display:flex; gap:12px; flex-wrap:wrap; }
+.btn { background:#0078d7; color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; }
+.small { font-size:0.9rem; color:#045; }
+output { font-weight:700; }
+.legend { display:flex; gap:8px; align-items:center; margin-top:8px; }
+.swatch { width:20px; height:14px; border-radius:3px; border:1px solid #999; }
+@media(max-width:520px){ .controls{flex-direction:column;align-items:stretch} label{width:100%} }
+@keyframes pulseGlow {
+  0% { box-shadow:0 0 8px #0078D7; }
+  50% { box-shadow:0 0 18px #00aaff; }
+  100% { box-shadow:0 0 8px #0078D7; }
 }
-  .canvas-card {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+a.proceed {
+  display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
+  background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
+  text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  font-family:Segoe UI, sans-serif; animation:pulseGlow 1.5s infinite; z-index:999;
 }
-
-  
 </style>
 </head>
 <body>
-<h1>Redox Titration Simulator</h1>
-<p class="small">Default: oxidant in burette (acidified where required). Click canvas (tap) to add drops (0.5 mL)</p>
-<a id="proceedCalcBtn" class="proceed" href="https://elimuconnect.github.io/ELIMU-CONNECT-/titrations" aria-hidden="true">
-  Proceed to Calculations <span style="display:inline-block; transition:transform 0.3s;">➜</span>
-</a>
 
+<h1>Redox Titration Simulator</h1>
+<p class="small">Default: oxidant in burette (acidified where required). Click canvas to add drops (0.5 mL)</p>
+<a id="proceedCalcBtn" class="proceed" href="https://elimuconnect.github.io/ELIMU-CONNECT-/titrations">Proceed to Calculations ➜</a>
 
 <div class="card controls-card">
   <div class="controls">
     <label>Mode:
       <select id="modeSelect">
-        <option value="oxidant_buret">Oxidant in burette (typical)</option>
+        <option value="oxidant_buret">Oxidant in burette</option>
         <option value="reductant_buret">Reductant in burette</option>
       </select>
     </label>
-
     <label>Oxidant:
       <select id="oxidantSelect">
-        <option value="KMnO4">KMnO₄ (permanganate)</option>
-        <option value="K2Cr2O7">K₂Cr₂O₇ (dichromate)</option>
-        <option value="I2">I₂ (iodine)</option>
-        <option value="Ce4">Ce⁴⁺ (cerium(IV))</option>
+        <option value="KMnO4">KMnO₄</option>
+        <option value="K2Cr2O7">K₂Cr₂O₇</option>
+        <option value="I2">I₂</option>
+        <option value="Ce4">Ce⁴⁺</option>
       </select>
     </label>
-
     <label>Reductant:
       <select id="reductantSelect">
-        <option value="Fe2">Fe²⁺ (ferrous)</option>
-        <option value="S2O3">S₂O₃²⁻ (thiosulfate)</option>
-        <option value="Oxalate">C₂O₄²⁻ (oxalate)</option>
+        <option value="Fe2">Fe²⁺</option>
+        <option value="S2O3">S₂O₃²⁻</option>
+        <option value="Oxalate">C₂O₄²⁻</option>
       </select>
     </label>
-
     <label>Analyte Vol (mL): <input id="analyteVol" type="number" value="25" step="1"></label>
     <label>Analyte Conc (M): <input id="analyteConc" type="number" value="0.100" step="0.001"></label>
     <label>Titrant Conc (M): <input id="titrantConc" type="number" value="0.100" step="0.001"></label>
-
-    <label>Acid (if needed):
+    <label>Acid:
       <select id="acidSelect">
-        <option value="H2SO4">H₂SO₄ (acidified)</option>
+        <option value="H2SO4">H₂SO₄</option>
         <option value="HCl">HCl</option>
-        <option value="none">None / neutral</option>
+        <option value="none">None</option>
       </select>
     </label>
-
     <button id="calcBtn" class="btn">Calculate</button>
     <button id="resetBtn" class="btn" style="background:#6c757d">Reset</button>
   </div>
@@ -126,423 +99,226 @@ canvas {
   <canvas id="simCanvas" width="760" height="520"></canvas>
 </div>
 
-
-
 <div class="card info-card">
   <div class="info">
     <div class="row">
-      <div class="small">Reaction (auto-chosen): <span id="reactionText">—</span></div>
+      <div class="small">Reaction: <span id="reactionText">—</span></div>
     </div>
-
     <div class="row" style="margin-top:8px;gap:18px">
       <div class="small">Analyte moles: <output id="analyteMoles">—</output></div>
       <div class="small">Titrant moles needed: <output id="titrantMoles">—</output></div>
-      <div class="small">Titrant volume required (mL): <output id="titrantVol">—</output></div>
-    </div>
-
-    <div style="margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <button id="addDropBtn" class="btn">Add drop (0.5 mL)</button>
-      <input id="autoAdd" type="checkbox"> <label class="small" for="autoAdd">Auto titrate (1 drop / 200ms)</label>
       <div class="small">Added: <output id="addedVol">0.00</output> mL</div>
     </div>
-
+    <div style="margin-top:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button id="addDropBtn" class="btn">Add drop (0.5 mL)</button>
+      <input id="autoAdd" type="checkbox"> <label class="small" for="autoAdd">Auto titrate</label>
+    </div>
     <div class="legend">
       <div style="display:flex;gap:6px;align-items:center"><div class="swatch" id="swatchAnalyte"></div><div class="small">Analyte</div></div>
       <div style="display:flex;gap:6px;align-items:center"><div class="swatch" id="swatchTitrant"></div><div class="small">Titrant</div></div>
-      <div style="display:flex;gap:6px;align-items:center"><div class="swatch" id="swatchEndpoint"></div><div class="small">Endpoint colour</div></div>
+      <div style="display:flex;gap:6px;align-items:center"><div class="swatch" id="swatchEndpoint"></div><div class="small">Endpoint</div></div>
     </div>
   </div>
 </div>
+
 <script>
-/* ---------------------------
-   Data: colors & stoichiometry
-   --------------------------- */
+// ---------- Data ----------
 const COLORS = {
-  KMnO4: '#7b1fa2',         
-  KMnO4_end: '#ffd7e5',     
-  K2Cr2O7: '#ff8c00',       
-  K2Cr2O7_end: '#2e8b57',   
-  I2: '#5c3a21',             
-  I2_end: '#ffffff',         
-  Ce4: '#ffd700',            
-  Ce4_end: '#ffffff',        
-  Fe2: '#98fb98',            
-  Fe3: '#a0522d',            
-  S2O3: '#ffffff',           
-  Oxalate: '#ffffff',        
-  starch_blue: '#00008b'     
+  KMnO4:'#7b1fa2', KMnO4_end:'#ffd7e5',
+  K2Cr2O7:'#ff8c00', K2Cr2O7_end:'#2e8b57',
+  I2:'#5c3a21', starch_blue:'#00008b',
+  Ce4:'#ffd700', Ce4_end:'#ffffff',
+  Fe2:'#98fb98', Fe3:'#a0522d',
+  S2O3:'#ffffff', Oxalate:'#ffffff'
 };
 
 const STOICH = {
-  KMnO4: { Fe2: 5, Oxalate: 5 },
-  K2Cr2O7: { Fe2: 6 },
-  I2: { S2O3: 2 },
-  Ce4: { Fe2: 1 }
+  KMnO4:{ Fe2:5, Oxalate:5 },
+  K2Cr2O7:{ Fe2:6 },
+  I2:{ S2O3:2 },
+  Ce4:{ Fe2:1 }
 };
 
 const REACTIONS = {
-  KMnO4: 'MnO₄⁻ + 5 Fe²⁺ + 8 H⁺ → Mn²⁺ + 5 Fe³⁺ + 4 H₂O (acidified)',
-  K2Cr2O7: 'Cr₂O₇²⁻ + 6 Fe²⁺ + 14 H⁺ → 2 Cr³⁺ + 6 Fe³⁺ + 7 H₂O (acidified)',
-  I2: 'I₂ + 2 S₂O3²⁻ → 2 I⁻ + S₄O6²⁻ (starch detects free I₂)',
-  Ce4: 'Ce⁴⁺ + Fe²⁺ → Ce³⁺ + Fe³⁺ (1:1)'
+  KMnO4:'MnO₄⁻ + 5 Fe²⁺ + 8 H⁺ → Mn²⁺ + 5 Fe³⁺ + 4 H₂O',
+  K2Cr2O7:'Cr₂O₇²⁻ + 6 Fe²⁺ + 14 H⁺ → 2 Cr³⁺ + 6 Fe³⁺ + 7 H₂O',
+  I2:'I₂ + 2 S₂O3²⁻ → 2 I⁻ + S₄O6²⁻',
+  Ce4:'Ce⁴⁺ + Fe²⁺ → Ce³⁺ + Fe³⁺'
 };
 
-/* ---------------------------
-   UI references
-   --------------------------- */
-const modeSelect = document.getElementById('modeSelect');
-const oxidantSel = document.getElementById('oxidantSelect');
-const reductantSel = document.getElementById('reductantSelect');
-const analyteVolEl = document.getElementById('analyteVol');
-const analyteConcEl = document.getElementById('analyteConc');
-const titrantConcEl = document.getElementById('titrantConc');
-const acidSel = document.getElementById('acidSelect');
-const reactionText = document.getElementById('reactionText');
-const analyteMolesOut = document.getElementById('analyteMoles');
-const titrantMolesOut = document.getElementById('titrantMoles');
-const titrantVolOut = document.getElementById('titrantVol');
-const addedVolOut = document.getElementById('addedVol');
-const swatchAnalyte = document.getElementById('swatchAnalyte');
-const swatchTitrant = document.getElementById('swatchTitrant');
-const swatchEndpoint = document.getElementById('swatchEndpoint');
-const addDropBtn = document.getElementById('addDropBtn');
-const calcBtn = document.getElementById('calcBtn');
-const resetBtn = document.getElementById('resetBtn');
-const autoAdd = document.getElementById('autoAdd');
-const proceedBtn = document.getElementById('proceedCalcBtn');
+// ---------- UI ----------
+const modeSelect=document.getElementById('modeSelect'),
+      oxidantSel=document.getElementById('oxidantSelect'),
+      reductantSel=document.getElementById('reductantSelect'),
+      analyteVolEl=document.getElementById('analyteVol'),
+      analyteConcEl=document.getElementById('analyteConc'),
+      titrantConcEl=document.getElementById('titrantConc'),
+      acidSel=document.getElementById('acidSelect'),
+      reactionText=document.getElementById('reactionText'),
+      analyteMolesOut=document.getElementById('analyteMoles'),
+      titrantMolesOut=document.getElementById('titrantMoles'),
+      addedVolOut=document.getElementById('addedVol'),
+      swatchAnalyte=document.getElementById('swatchAnalyte'),
+      swatchTitrant=document.getElementById('swatchTitrant'),
+      swatchEndpoint=document.getElementById('swatchEndpoint'),
+      addDropBtn=document.getElementById('addDropBtn'),
+      calcBtn=document.getElementById('calcBtn'),
+      resetBtn=document.getElementById('resetBtn'),
+      autoAdd=document.getElementById('autoAdd'),
+      proceedBtn=document.getElementById('proceedCalcBtn'),
+      canvas=document.getElementById('simCanvas');
 
-const canvas = document.getElementById('simCanvas');
-const baseWidth = 760, baseHeight = 520;
-let scaleFactor = 1; // updated during resize
+const ctx=canvas.getContext('2d');
 
- 
-const ctx = canvas.getContext('2d');
+let analyteMoles=0, titrantMolesNeeded=0, addedVol=0, titrantVolNeeded=0, dropVolume=0.5, drops=[], autoInterval=null, scaleFactor=1;
 
-/* ---------------------------
-   State variables
-   --------------------------- */
-let analyteMoles = 0;
-let titrantMolesNeeded = 0;
-let titrantVolNeeded = 0;
-let addedVol = 0;
-let dropVolume = 0.5;
-let drops = [];
-let autoInterval = null;
+// ---------- Helpers ----------
+function toSF4(x){ return isFinite(x)?Number(Number(x).toPrecision(4)): '—'; }
 
-function toSF4(x){
-  if(!isFinite(x)) return '—';
-  return Number(Number(x).toPrecision(4)).toString();
-}
-
-/* ---------------------------
-   Computation
-   --------------------------- */
+// ---------- Compute ----------
 function computeValues(){
-  const oxidant = oxidantSel.value;
-  const reductant = reductantSel.value;
-  const analyteVol = parseFloat(analyteVolEl.value) || 0;
-  const analyteConc = parseFloat(analyteConcEl.value) || 0;
-  const titrantConc = parseFloat(titrantConcEl.value) || 0;
   const mode = modeSelect.value;
-
-  const titrantKey = (mode === 'oxidant_buret') ? oxidant : reductant;
-  const analyteKey = (mode === 'oxidant_buret') ? reductant : oxidant;
-
+  const titrantKey = (mode==='oxidant_buret')? oxidantSel.value : reductantSel.value;
+  const analyteKey = (mode==='oxidant_buret')? reductantSel.value : oxidantSel.value;
   const pair = STOICH[titrantKey];
-  if(!pair || typeof pair[analyteKey] === 'undefined'){
-    reactionText.textContent = 'Pair not supported in built-in stoichiometry.';
-    analyteMolesOut.textContent = '—';
-    titrantMolesOut.textContent = '—';
-    titrantVolOut.textContent = '—';
+  if(!pair || !pair[analyteKey]) {
+    reactionText.textContent='Pair not supported';
+    analyteMolesOut.textContent=titrantMolesOut.textContent='—';
     return false;
   }
-
-  const factor = pair[analyteKey];
-  analyteMoles = analyteConc * analyteVol / 1000;
-  titrantMolesNeeded = analyteMoles / factor;
-  titrantVolNeeded = (titrantMolesNeeded / titrantConc) * 1000;
+  analyteMoles = (parseFloat(analyteConcEl.value)||0) * (parseFloat(analyteVolEl.value)||0)/1000;
+  titrantMolesNeeded = analyteMoles / pair[analyteKey];
+  titrantVolNeeded = titrantMolesNeeded / (parseFloat(titrantConcEl.value)||1) *1000;
 
   analyteMolesOut.textContent = toSF4(analyteMoles);
   titrantMolesOut.textContent = toSF4(titrantMolesNeeded);
-  titrantVolOut.textContent = '—'; // hide required volume
+  reactionText.textContent = REACTIONS[titrantKey]||'Reaction';
 
-  reactionText.textContent = REACTIONS[titrantKey] || 'Reaction';
+  swatchAnalyte.style.background = COLORS[analyteKey]||'#fff';
+  swatchTitrant.style.background = COLORS[titrantKey]||'#ddd';
+  swatchEndpoint.style.background = (titrantKey==='KMnO4')? COLORS.KMnO4_end:
+                                   (titrantKey==='K2Cr2O7')? COLORS.K2Cr2O7_end:
+                                   (titrantKey==='I2')? COLORS.starch_blue:
+                                   (titrantKey==='Ce4')? COLORS.Ce4_end:'#fff';
 
-  let analyteColor = '#fff', titColor = '#ddd', epColor = '#fff';
-  if(analyteKey === 'Fe2') analyteColor = COLORS.Fe2;
-  if(analyteKey === 'S2O3') analyteColor = COLORS.S2O3;
-  if(analyteKey === 'Oxalate') analyteColor = COLORS.Oxalate;
-
-  if(titrantKey === 'KMnO4') titColor = COLORS.KMnO4;
-  if(titrantKey === 'K2Cr2O7') titColor = COLORS.K2Cr2O7;
-  if(titrantKey === 'I2') titColor = COLORS.I2;
-  if(titrantKey === 'Ce4') titColor = COLORS.Ce4;
-
-  if(titrantKey === 'KMnO4') epColor = COLORS.KMnO4_end;
-  if(titrantKey === 'K2Cr2O7') epColor = COLORS.K2Cr2O7_end;
-  if(titrantKey === 'I2') epColor = COLORS.starch_blue;
-  if(titrantKey === 'Ce4') epColor = COLORS.Ce4_end;
-
-  swatchAnalyte.style.background = analyteColor;
-  swatchTitrant.style.background = titColor;
-  swatchEndpoint.style.background = epColor;
-
-  addedVol = 0;
-  addedVolOut.textContent = addedVol.toFixed(2);
-  drops = [];
-  proceedBtn.style.display = 'none';
-  proceedBtn.setAttribute('aria-hidden','true');
-
-  draw();
-  return true;
-}
-
-
-
-function resizeCanvas() {
-  const pixelRatio = window.devicePixelRatio || 1;
-  const availableWidth = Math.min(window.innerWidth - 40, 760);
-  scaleFactor = availableWidth / 760; // store global scale
-
-  canvas.width = 760 * scaleFactor * pixelRatio;
-  canvas.height = 520 * scaleFactor * pixelRatio;
-  canvas.style.width = 760 * scaleFactor + "px";
-  canvas.style.height = 520 * scaleFactor + "px";
-  
-  ctx.setTransform(pixelRatio * scaleFactor, 0, 0, pixelRatio * scaleFactor, 0, 0);
+  addedVol=0; addedVolOut.textContent='0.00'; drops=[];
+  proceedBtn.style.display='none';
   draw();
 }
 
-function draw() {
+// ---------- Canvas Resize ----------
+function resizeCanvas(){
+  const pixelRatio = window.devicePixelRatio||1;
+  const availableWidth = Math.min(window.innerWidth-40,760);
+  scaleFactor = availableWidth/760;
+  canvas.width = 760*scaleFactor*pixelRatio;
+  canvas.height = 520*scaleFactor*pixelRatio;
+  canvas.style.width = 760*scaleFactor+'px';
+  canvas.style.height = 520*scaleFactor+'px';
+  ctx.setTransform(pixelRatio*scaleFactor,0,0,pixelRatio*scaleFactor,0,0);
+  draw();
+}
+
+// ---------- Draw ----------
+function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = scaleFactor * 1.6; // 🔹 match your previous multiplier
-  const centerX = 760/2 * scaleFactor * 1.6;
+  const scale = scaleFactor;
+  const centerX = 380; // 760/2
 
-  // ---------- Burette ----------
-  const buretteHeight = 300 * scale;
-  const radiusX = 26 * scale;
-  const radiusY = 10 * scale;
-  const buretteTop = 40 * scale;
-  const buretteX = centerX;
-
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = '#000';
-  ctx.fillStyle = '#f8ffffaa';
-
+  // Burette
+  const buretteTop=40*scale, buretteHeight=300*scale, radiusX=26*scale, radiusY=10*scale;
+  ctx.lineWidth=1.5; ctx.strokeStyle='#000'; ctx.fillStyle='#f8ffffaa';
+  ctx.beginPath(); ctx.ellipse(centerX,buretteTop,radiusX,radiusY,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
   ctx.beginPath();
-  ctx.ellipse(buretteX, buretteTop, radiusX, radiusY, 0, 0, Math.PI*2);
-  ctx.fill(); ctx.stroke();
+  ctx.moveTo(centerX-radiusX,buretteTop); ctx.lineTo(centerX-radiusX,buretteTop+buretteHeight);
+  ctx.moveTo(centerX+radiusX,buretteTop); ctx.lineTo(centerX+radiusX,buretteTop+buretteHeight); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(centerX,buretteTop+buretteHeight,radiusX,radiusY,0,0,Math.PI*2); ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(buretteX - radiusX, buretteTop);
-  ctx.lineTo(buretteX - radiusX, buretteTop + buretteHeight);
-  ctx.moveTo(buretteX + radiusX, buretteTop);
-  ctx.lineTo(buretteX + radiusX, buretteTop + buretteHeight);
-  ctx.stroke();
+  // Burette liquid
+  const mode = modeSelect.value;
+  const titrantKey = (mode==='oxidant_buret')? oxidantSel.value : reductantSel.value;
+  ctx.fillStyle=COLORS[titrantKey]||'#cfc'; ctx.globalAlpha=0.18;
+  ctx.fillRect(centerX-radiusX+3,buretteTop+5*scale,2*(radiusX-3),buretteHeight-8*scale);
+  ctx.globalAlpha=1;
 
-  ctx.beginPath();
-  ctx.ellipse(buretteX, buretteTop + buretteHeight, radiusX, radiusY, 0, 0, Math.PI*2);
-  ctx.stroke();
-
-  // ---------- Titrant color ----------
-  const titrantKey = (modeSelect.value==='oxidant_buret')?oxidantSel.value:reductantSel.value;
-  const titColorHex = (titrantKey==='KMnO4')?COLORS.KMnO4:
-                      (titrantKey==='K2Cr2O7')?COLORS.K2Cr2O7:
-                      (titrantKey==='I2')?COLORS.I2:
-                      (titrantKey==='Ce4')?COLORS.Ce4:'#cfc';
-  ctx.fillStyle = titColorHex;
-  ctx.globalAlpha = 0.18;
-  ctx.beginPath();
-  ctx.ellipse(buretteX, buretteTop + 5*scale, radiusX-3, radiusY-2, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillRect(buretteX - radiusX + 3, buretteTop + 5*scale, 2*(radiusX-3), buretteHeight - 8*scale);
-  ctx.globalAlpha = 1;
-
-  // ---------- Burette ticks ----------
-  ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
-  ctx.font = `${13*scale}px Arial`;
+  // Burette ticks
+  ctx.strokeStyle='#000'; ctx.fillStyle='#000'; ctx.font=`${13*scale}px Arial`;
   for(let i=0;i<=50;i++){
-    const y = buretteTop + (i*buretteHeight)/50;
-    const tickLen = (i%5===0)?12:6;
-    ctx.beginPath();
-    ctx.moveTo(buretteX - radiusX - tickLen*scale, y);
-    ctx.lineTo(buretteX - radiusX, y);
-    ctx.stroke();
-    if(i%5===0){
-      ctx.fillText(Math.round(i/50*50)+' cm³', buretteX - radiusX - 55*scale, y+4);
-    }
+    const y=buretteTop+i*buretteHeight/50, tickLen=(i%5===0)?12:6;
+    ctx.beginPath(); ctx.moveTo(centerX-radiusX-tickLen*scale,y); ctx.lineTo(centerX-radiusX,y); ctx.stroke();
+    if(i%5===0) ctx.fillText(Math.round(i/50*50)+' cm³',centerX-radiusX-55*scale,y+4);
   }
 
-  // ---------- Tap ----------
-  ctx.fillStyle = '#888';
-  ctx.fillRect(buretteX - 25*scale, buretteTop + buretteHeight - 10*scale, 50*scale/1.2, 10*scale/1.2);
-  ctx.strokeStyle='#000'; ctx.fillStyle='#000'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.moveTo(buretteX + 35*scale, buretteTop + buretteHeight - 10*scale); 
-  ctx.lineTo(buretteX + 3*scale, buretteTop + buretteHeight + 10*scale); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(buretteX + 3*scale, buretteTop + buretteHeight + 10*scale);
-  ctx.lineTo(buretteX - 3*scale, buretteTop + buretteHeight + 2*scale);
-  ctx.lineTo(buretteX + 7*scale, buretteTop + buretteHeight + 2*scale);
-  ctx.closePath(); ctx.fill();
+  // Tap
+  ctx.fillStyle='#888'; ctx.fillRect(centerX-25*scale,buretteTop+buretteHeight-10*scale,50*scale/1.2,10*scale/1.2);
+  ctx.strokeStyle='#000'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(centerX+35*scale,buretteTop+buretteHeight-10*scale);
+  ctx.lineTo(centerX+3*scale,buretteTop+buretteHeight+10*scale); ctx.stroke();
 
-  ctx.font = `${16*scale}px Arial`; ctx.fillStyle='#000';
-  ctx.fillText('Tap to add drops', buretteX + 45*scale, buretteTop + buretteHeight - 20*scale);
-  ctx.font = `${14*scale}px Arial`;
-  ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 45*scale, buretteTop + buretteHeight);
-
-  // ---------- Flask ----------
-  const fw = 200*scale, fh = 230*scale;
-  const fx = centerX - fw/2;
-  const fy = buretteTop + buretteHeight - 10*scale;
-
+  // Flask
+  const fw=200*scale, fh=230*scale, fx=centerX-fw/2, fy=buretteTop+buretteHeight-10*scale;
   ctx.strokeStyle='#000'; ctx.lineWidth=2;
   ctx.beginPath();
-  ctx.moveTo(fx + 25*scale, fy + fh);
-  ctx.lineTo(fx + fw - 25*scale, fy + fh);
-  ctx.lineTo(fx + fw - 55*scale, fy + 50*scale + fy - fy); // top adjusted
-  ctx.lineTo(fx + 55*scale, fy + 50*scale);
-  ctx.closePath(); ctx.stroke();
+  ctx.moveTo(fx+25*scale,fy+fh); ctx.lineTo(fx+fw-25*scale,fy+fh);
+  ctx.lineTo(fx+fw-55*scale,fy+50*scale); ctx.lineTo(fx+55*scale,fy+50*scale); ctx.closePath(); ctx.stroke();
 
-  // ---------- Flask liquid ----------
-  const mode = modeSelect.value;
-  const analyteKey = (mode==='oxidant_buret')?reductantSel.value:oxidantSel.value;
-  let startColor = '#ffffff', endColor='#ffffff';
-  if(analyteKey==='Fe2') startColor=COLORS.Fe2;
-  if(analyteKey==='S2O3') startColor=COLORS.S2O3;
-  if(analyteKey==='Oxalate') startColor=COLORS.Oxalate;
-  if(titrantKey==='KMnO4') endColor=COLORS.KMnO4_end;
-  else if(titrantKey==='K2Cr2O7') endColor=COLORS.K2Cr2O7_end;
-  else if(titrantKey==='I2') endColor=COLORS.starch_blue;
-  else if(titrantKey==='Ce4') endColor=COLORS.Ce4_end;
+  // Flask liquid
+  const analyteKey = (mode==='oxidant_buret')? reductantSel.value : oxidantSel.value;
+  const startColor = COLORS[analyteKey]||'#fff';
+  const endColor = swatchEndpoint.style.backgroundColor;
+  const frac = Math.min(1,addedVol/(titrantVolNeeded||Infinity));
+  function hexToRgb(h){ const c=h.replace('#',''); return [parseInt(c.substr(02,2),16),parseInt(c.substr(2,2),16),parseInt(c.substr(4,2),16)]; }
+  function interp(a,b,f){ return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; }
+  const flaskColor=interp(hexToRgb(startColor),hexToRgb(endColor),frac);
+  const liquidHeight=Math.min(1,(parseFloat(analyteVolEl.value)||25)/250)*fh;
+  ctx.fillStyle=flaskColor; ctx.globalAlpha=0.8;
+  ctx.beginPath();
+  ctx.moveTo(fx+55*scale,fy+fh-liquidHeight);
+  ctx.lineTo(fx+fw-55*scale,fy+fh-liquidHeight);
+  ctx.lineTo(fx+fw-55*scale,fy+fh);
+  ctx.lineTo(fx+55*scale,fy+fh); ctx.closePath(); ctx.fill();
+  ctx.globalAlpha=1;
 
-  const frac = Math.max(0, Math.min(1, addedVol / (titrantVolNeeded || Infinity)));
-  function hexToRgb(h){ const c=h.replace('#',''); return [parseInt(c.substring(0,2),16),parseInt(c.substring(2,4),16),parseInt(c.substring(4,6),16)]; }
-  function interpCol(a,b,f){ return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; }
-  const flaskColor = interpCol(hexToRgb(startColor), hexToRgb(endColor), frac);
+  // Drops
+  ctx.fillStyle=titrantKey? COLORS[titrantKey]:'#00f';
+  drops.forEach(d=>ctx.beginPath(),ctx.arc(d.x,d.y,4*scale,0,Math.PI*2),ctx.fill());
+}
 
-  const analyteVol = parseFloat(analyteVolEl.value)||0;
-  const liquidHeight = Math.min(1, analyteVol/100);
-  const topY = fy + fh - (fh - 40*scale)*liquidHeight;
-
-  ctx.fillStyle = flaskColor; ctx.globalAlpha=0.95;
-  ctx.beginPath(); ctx.ellipse(fx + fw/2, topY, fw/2 - 20*scale, 12*scale, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillRect(fx + 20*scale, topY, fw - 40*scale, fy + fh - topY); ctx.globalAlpha=1;
-
-  // ---------- Drops ----------
-  for(let i=drops.length-1;i>=0;i--){
-    const d=drops[i];
-    ctx.fillStyle=titColorHex;
-    ctx.beginPath(); ctx.arc(d.x, d.y, 5.5*scale, 0, Math.PI*2); ctx.fill();
-  }
-
-  ctx.fillStyle='#000'; ctx.font=`${16*scale}px Arial`;
-  ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
-  ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+20*scale);
+// ---------- Add drop ----------
+function addDrop(){
+  const scale=scaleFactor;
+  const centerX=380; const buretteTop=40*scale; const buretteHeight=300*scale;
+  drops.push({ x:centerX, y:buretteTop+buretteHeight+10*scale, vx:0, vy:0 });
+  addedVol+=dropVolume; addedVolOut.textContent=addedVol.toFixed(2);
+  if(addedVol>=titrantVolNeeded) proceedBtn.style.display='block';
 }
 
 // ---------- Animate drops ----------
-function animateDrops() {
-  const scale = scaleFactor * 1.6;
-  const centerX = 760/2 * scaleFactor * 1.6;
-  const buretteTop = 40 * scale;
-  const buretteHeight = 300 * scale;
-  const fw = 200 * scale, fh = 230 * scale;
-  const fx = centerX - fw/2;
-  const fy = buretteTop + buretteHeight - 10 * scale;
-  const flaskTop = fy + 50 * scale;
-
-  for (let i = drops.length - 1; i >= 0; i--) {
-    const d = drops[i];
-    d.vy += 0.6; // gravity
-    d.y += d.vy;
-
-    if (d.y > flaskTop) drops.splice(i, 1);
+function animateDrops(){
+  const scale=scaleFactor;
+  const fw=200*scale, fh=230*scale, fx=380-fw/2, fy=40*scale+300*scale-10*scale;
+  for(let i=drops.length-1;i>=0;i--){
+    let d=drops[i]; d.vy+=0.6; d.y+=d.vy; d.x+=d.vx;
+    if(d.y>=fy) drops.splice(i,1);
   }
-
   draw();
   requestAnimationFrame(animateDrops);
 }
 
-// ---------- Add drop ----------
-function addDrop() {
-  const scale = scaleFactor * 1.6;
-  const centerX = 760/2 * scaleFactor * 1.6;
-  const buretteTop = 40 * scale;
-  const buretteHeight = 300 * scale;
-
-  const tapX = centerX + 35 * scale;
-  const tapY = buretteTop + buretteHeight + 10 * scale;
-
-  const startX = tapX + (Math.random() - 0.5) * 4;
-  const startY = tapY + 1;
-
-  drops.push({ x: startX, y: startY, vx: 0, vy: 0 });
-  addedVol += dropVolume;
-  addedVolOut.textContent = addedVol.toFixed(2);
-
-  if (drops.length === 1) requestAnimationFrame(animateDrops);
-  checkEndpoint();
-}
-
-// ---------- Window resize ----------
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-
-
- 
-function checkEndpoint() {
-  if (titrantVolNeeded && addedVol >= titrantVolNeeded) {
-    proceedCalcBtn.style.display = 'inline-block'; // <-- show the button
-    proceedCalcBtn.style.opacity = "1";
-    proceedCalcBtn.style.pointerEvents = "auto";
-    proceedCalcBtn.setAttribute("aria-hidden", "false");
-  }
-}
-
-
- 
-/* Event wiring */
-addDropBtn.addEventListener('click', addDrop);
-canvas.addEventListener('click', ()=>{ addDrop(); });
-
-[oxidantSel,reductantSel,modeSelect,analyteVolEl,analyteConcEl,titrantConcEl,acidSel].forEach(el=>{
-  el.addEventListener('input', ()=>{ computeValues(); });
-  el.addEventListener('change', ()=>{ computeValues(); });
-});
-
-calcBtn.addEventListener('click', ()=>{ computeValues(); });
-resetBtn.addEventListener('click', ()=>{
-  analyteVolEl.value = 25;
-  analyteConcEl.value = 0.100;
-  titrantConcEl.value = 0.100;
-  oxidantSel.value = 'KMnO4';
-  reductantSel.value = 'Fe2';
-  modeSelect.value = 'oxidant_buret';
-  acidSel.value = 'H2SO4';
-  addedVol = 0; addedVolOut.textContent = addedVol.toFixed(2);
-  drops = [];
-  proceedBtn.style.display = 'none';
-  computeValues();
-  draw();
-});
-
-autoAdd.addEventListener('change', ()=>{
-  if(autoAdd.checked){
-    autoInterval = setInterval(addDrop, 300);
-  }else{
-    clearInterval(autoInterval);
-    autoInterval = null;
-  }
-});
-
-/* ---------------------------
-   Init
-   --------------------------- */
-window.onload = ()=>{
-  resizeCanvas();
-  computeValues();
-  animateDrops();
+// ---------- Events ----------
+addDropBtn.onclick=()=>addDrop();
+calcBtn.onclick=()=>computeValues();
+resetBtn.onclick=()=>computeValues();
+window.onresize=()=>resizeCanvas();
+autoAdd.onchange=function(){
+  if(this.checked) autoInterval=setInterval(()=>addDrop(),300);
+  else clearInterval(autoInterval);
 };
+canvas.onclick=()=>addDrop();
+
+// ---------- Init ----------
+computeValues(); resizeCanvas(); animateDrops();
+
 </script>
 
 </body>
