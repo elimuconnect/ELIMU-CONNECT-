@@ -232,22 +232,30 @@ function computeReactionValues() {
   return { molesSolid, molesAcidInitial, molesAcidConsumed, molesAcidRemaining };
 }
 
+
+
+
+
+
 function updateInfoUI() {
   const { molesSolid, molesAcidInitial, molesAcidConsumed, molesAcidRemaining } = computeReactionValues();
 
+  // display common info
   molesSolidEl.textContent = molesSolid.toFixed(5);
   molesAcidInitEl.textContent = molesAcidInitial.toFixed(5);
 
   if (phase === "reacted") {
+    // show consumed and remaining
     molesAcidConsumedEl.textContent = molesAcidConsumed.toFixed(5);
     molesAcidRemainEl.textContent = molesAcidRemaining.toFixed(5);
 
-    // New molarity based on actual acid volume used
-    const acidVolL = acidVol / 1000; // convert cm³ to L
+    // ✅ Use the actual acid volume entered by the user
+    const acidVolL = acidVol / 1000; // convert from mL → L
     const newMolarity = molesAcidRemaining / acidVolL;
-    document.getElementById("newMol").textContent = newMolarity.toFixed(3);
 
+    document.getElementById("newMol").textContent = newMolarity.toFixed(3);
   } else {
+    // during or before reaction
     molesAcidConsumedEl.textContent = "—";
     molesAcidRemainEl.textContent = "—";
     document.getElementById("newMol").textContent = "—";
@@ -255,35 +263,6 @@ function updateInfoUI() {
 }
 
 
-
-
-
-
-
-
-
-
-function updateInfoUI() {
-  const { molesSolid, molesAcidInitial, molesAcidConsumed, molesAcidRemaining } = computeReactionValues();
-
-  molesSolidEl.textContent = molesSolid.toFixed(5);
-  molesAcidInitEl.textContent = molesAcidInitial.toFixed(5);
-
-  if (phase === "reacted") {
-    molesAcidConsumedEl.textContent = molesAcidConsumed.toFixed(5);
-    molesAcidRemainEl.textContent = molesAcidRemaining.toFixed(5);
-
-    // New molarity based on remaining moles in constant 100 cm³
-    const constantVolumeL = 0.1; // 100 cm³ in liters
-    const newMolarity = molesAcidRemaining / constantVolumeL;
-    document.getElementById("newMol").textContent = newMolarity.toFixed(3);
-
-  } else {
-    molesAcidConsumedEl.textContent = "—";
-    molesAcidRemainEl.textContent = "—";
-    document.getElementById("newMol").textContent = "—";
-  }
-}
 
 
 /* ---------- Canvas Drawing ---------- */
