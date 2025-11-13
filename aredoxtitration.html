@@ -146,6 +146,16 @@
   </div>
 </div>
 <script>
+
+
+let buretteVol = 50; // assume full burette = 50 mL
+
+
+let displayHeight = 0; // visual height of liquid in flask
+const maxFlaskHeight = 160; // max pixels liquid can rise in flask
+const visualStep = 2; // how many pixels liquid rises per drop
+
+
 /* ---------------------------
    Data: colors & stoichiometry
    --------------------------- */
@@ -226,6 +236,8 @@ function toSF4(x){
    Computation
    --------------------------- */
 function computeValues(){
+buretteVol = 50; // or set dynamically based on titrantVolNeeded
+
   const oxidant = oxidantSel.value;
   const reductant = reductantSel.value;
   const analyteVol = parseFloat(analyteVolEl.value) || 0;
@@ -324,13 +336,18 @@ function draw(){
                       (titrantKey==='K2Cr2O7')?COLORS.K2Cr2O7:
                       (titrantKey==='I2')?COLORS.I2:
                       (titrantKey==='Ce4')?COLORS.Ce4:'#cfc';
-  ctx.fillStyle = titColorHex;
-  ctx.globalAlpha = 0.18;
-  ctx.beginPath();
-  ctx.ellipse(buretteX, buretteTop + 5*scale, radiusX-3*scale, radiusY-2*scale, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillRect(buretteX - radiusX + 3*scale, buretteTop + 5*scale, 2*(radiusX-3*scale), buretteHeight - 8*scale);
-  ctx.globalAlpha = 1;
+ 
+
+
+ const liquidFrac = buretteVol / 50; // fraction remaining
+const liquidHeight = buretteHeight * liquidFrac;
+ctx.fillStyle = titColorHex;
+ctx.globalAlpha = 0.18;
+ctx.beginPath();
+ctx.ellipse(buretteX, buretteTop + 5*scale, radiusX-3*scale, radiusY-2*scale, 0, 0, Math.PI*2);
+ctx.fill();
+ctx.fillRect(buretteX - radiusX + 3*scale, buretteTop + buretteHeight - liquidHeight, 2*(radiusX-3*scale), liquidHeight);
+ctx.globalAlpha = 1;
 
   // --- Burette ticks & labels ---
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
@@ -368,52 +385,71 @@ function draw(){
   ctx.font = `${12*scale}px Arial`;
   ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 40*scale, buretteTop + buretteHeight);
 
-  // --- Flask ---
-  const fw = 180*scale, fh = 200*scale;
-  const fx = centerX - fw/2;
-  const fy = buretteTop + buretteHeight - 10*scale;
-  ctx.strokeStyle='#000'; ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(fx + 20*scale, fy + fh);
-  ctx.lineTo(fx + fw - 20*scale, fy + fh);
-  ctx.lineTo(fx + fw - 50*scale, fy + 40*scale);
-  ctx.lineTo(fx + 50*scale, fy + 40*scale);
-  ctx.closePath(); ctx.stroke();
+// --- Flask ---
+const fw = 180 * scale, fh = 200 * scale;
+const fx = centerX - fw / 2;
+const fy = buretteTop + buretteHeight - 10 * scale;
 
-  const mode = modeSelect.value;
-  const analyteKey = (mode==='oxidant_buret')?reductantSel.value:oxidantSel.value;
-  let startColor = '#ffffff', endColor = '#ffffff';
-  if(analyteKey==='Fe2') startColor=COLORS.Fe2;
-  if(analyteKey==='S2O3') startColor=COLORS.S2O3;
-  if(analyteKey==='Oxalate') startColor=COLORS.Oxalate;
-  if(titrantKey==='KMnO4') endColor=COLORS.KMnO4_end;
-  else if(titrantKey==='K2Cr2O7') endColor=COLORS.K2Cr2O7_end;
-  else if(titrantKey==='I2') endColor=COLORS.starch_blue;
-  else if(titrantKey==='Ce4') endColor=COLORS.Ce4_end;
+// Flask outline (same as before)
+ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(fx + 20 * scale, fy + fh);
+ctx.lineTo(fx + fw - 20 * scale, fy + fh);
+ctx.lineTo(fx + fw - 50 * scale, fy + 40 * scale);
+ctx.lineTo(fx + 50 * scale, fy + 40 * scale);
+ctx.closePath(); ctx.stroke();
 
-  const frac = Math.max(0, Math.min(1, addedVol / (titrantVolNeeded || Infinity)));
-  function hexToRgb(h){ const c=h.replace('#',''); return [parseInt(c.substring(0,2),16),parseInt(c.substring(2,4),16),parseInt(c.substring(4,6),16)]; }
-  function interpCol(a,b,f){ return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; }
-  const flaskColor = interpCol(hexToRgb(startColor), hexToRgb(endColor), frac);
+// Colors for flask liquid
+const mode = modeSelect.value;
+const analyteKey = (mode === 'oxidant_buret') ? reductantSel.value : oxidantSel.value;
+let startColor = '#ffffff', endColor = '#ffffff';
+if (analyteKey === 'Fe2') startColor = COLORS.Fe2;
+if (analyteKey === 'S2O3') startColor = COLORS.S2O3;
+if (analyteKey === 'Oxalate') startColor = COLORS.Oxalate;
+if (titrantKey === 'KMnO4') endColor = COLORS.KMnO4_end;
+else if (titrantKey === 'K2Cr2O7') endColor = COLORS.K2Cr2O7_end;
+else if (titrantKey === 'I2') endColor = COLORS.starch_blue;
+else if (titrantKey === 'Ce4') endColor = COLORS.Ce4_end;
 
-  const analyteVol = parseFloat(analyteVolEl.value)||0;
-  const liquidHeight = Math.min(1, analyteVol/100);
-  const topY = fy + fh - (fh - 40*scale)*liquidHeight;
+// Convert color hex to RGB
+function hexToRgb(h){ 
+  const c = h.replace('#',''); 
+  return [parseInt(c.substring(0,2),16), parseInt(c.substring(2,4),16), parseInt(c.substring(4,6),16)]; 
+}
+function interpCol(a,b,f){ 
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; 
+}
+const frac = Math.min(1, addedVol / (titrantVolNeeded || 50));
+const flaskColor = interpCol(hexToRgb(startColor), hexToRgb(endColor), frac);
 
-  ctx.fillStyle = flaskColor; ctx.globalAlpha=0.95;
-  ctx.beginPath(); ctx.ellipse(fx + fw/2, topY, fw/2 - 20*scale, 12*scale, 0, 0, Math.PI*2); ctx.fill();
-  ctx.fillRect(fx + 20*scale, topY, fw - 40*scale, fy + fh - topY); ctx.globalAlpha=1;
+// Calculate liquid height based on **displayHeight**
+displayHeight = Math.min(displayHeight, maxFlaskHeight);
+const topY = fy + fh - displayHeight;
 
-  // --- Drops ---
-  for(let i=drops.length-1;i>=0;i--){
-    const d=drops[i];
-    ctx.fillStyle=titColorHex;
-    ctx.beginPath(); ctx.arc(d.x,d.y,4*scale,0,Math.PI*2); ctx.fill();
-  }
+// Shrink top ellipse radius as flask fills (optional)
+const maxRadiusX = fw / 2 - 20 * scale;
 
-  ctx.fillStyle='#000'; ctx.font=`${14*scale}px Arial`;
-  ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
-  ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+16*scale);
+// Draw liquid
+ctx.fillStyle = flaskColor; ctx.globalAlpha = 0.95;
+ctx.beginPath();
+ctx.ellipse(fx + fw/2, topY, radiusX, radiusY, 0, 0, Math.PI*2);
+ctx.fill();
+ctx.fillRect(fx + fw/2 - radiusX, topY, radiusX*2, fy + fh - topY);
+ctx.globalAlpha = 1;
+
+
+// --- Drops ---
+for(let i = drops.length-1; i >= 0; i--){
+  const d = drops[i];
+  ctx.fillStyle = titColorHex;
+  ctx.beginPath(); ctx.arc(d.x, d.y, 4*scale, 0, Math.PI*2); ctx.fill();
+}
+
+// Labels
+ctx.fillStyle = '#000'; 
+ctx.font = `${14*scale}px Arial`;
+ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
+ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+16*scale);
 }
 
 /* Animate drops */
@@ -442,21 +478,32 @@ function animateDrops(){
   requestAnimationFrame(animateDrops);
 }
 
+
+
 function addDrop(){
- const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
-
-
+  const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
   const centerX = canvas.width / 2;
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
+
+  // Create drop
   const startX = centerX + (Math.random() - 0.5) * 6*scale;
   const startY = buretteTop + buretteHeight - 10 * scale - 6*scale;
   drops.push({ x: startX, y: startY, vx: 0, vy: 0 });
+
+  // **Update actual volumes for calculations**
   addedVol += dropVolume;
   addedVolOut.textContent = addedVol.toFixed(2);
+  buretteVol = Math.max(0, 50 - addedVol);
+
+  // **Increase visual height slightly**
+  displayHeight = Math.min(displayHeight + visualStep, maxFlaskHeight);
+
   draw();
   checkEndpoint();
 }
+
+
 
 function resizeCanvas(){
   const rect = canvas.parentElement.getBoundingClientRect(); // use card width
