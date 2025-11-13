@@ -12,21 +12,20 @@
   label{background:#fff;padding:8px 10px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
   input[type=number]{width:100px;padding:6px;border-radius:6px;border:1px solid #cce}
   select{padding:6px;border-radius:6px;border:1px solid #cce}
-  canvas{
-  width:100%;
-  height:auto;
-  max-width:760px;
-  border-radius:8px;
-  border:2px solid #bfe;
-  box-shadow:0 6px 18px rgba(10,40,60,0.06);
-  background:#fff;
-  margin-top:8px;
-  touch-action:manipulation;
-}
+
 canvas {
   display: block;
-  margin: 0 auto; /* ✅ centers horizontally inside the card */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 760 / 520; /* ✅ maintains perfect proportion */
+  max-width: 760px;
+  border-radius: 8px;
+  border: 2px solid #bfe;
+  box-shadow: 0 6px 18px rgba(10,40,60,0.06);
+  background: #fff;
+  margin: 12px auto; /* ✅ centers horizontally inside card */
 }
+
 
   .info{width:100%;max-width:760px;margin-top:10px;background:#fff;padding:10px;border-radius:8px;border:1px solid #e6f2ff}
   .row{display:flex;gap:12px;flex-wrap:wrap}
@@ -63,7 +62,12 @@ canvas {
 .controls-card .controls label, .info-card .info .row div{
   margin-bottom:6px;
 }
-  
+  .canvas-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
   
 </style>
 </head>
@@ -118,7 +122,10 @@ canvas {
   </div>
 </div>
 
-<canvas id="simCanvas" width="760" height="520"></canvas>
+<div class="card canvas-card">
+  <canvas id="simCanvas" width="760" height="520"></canvas>
+</div>
+
 
 
 <div class="card info-card">
@@ -289,22 +296,26 @@ function computeValues(){
 /* ---------------------------
    Canvas & animation
    --------------------------- */
-function resizeCanvas(){
-  const rect = canvas.getBoundingClientRect();
+function resizeCanvas() {
   const pixelRatio = window.devicePixelRatio || 1;
-  let width = rect.width * pixelRatio;
-  let height = Math.round(width * 0.9); // taller canvas on mobile
-
-  // Ensure minimum readable size
-  if (window.innerWidth < 600) height += 280;
+  const baseWidth = 760;
+  const baseHeight = 520;
+  
+  // Keep aspect ratio constant
+  const availableWidth = Math.min(window.innerWidth - 40, baseWidth);
+  const scale = availableWidth / baseWidth;
+  const width = baseWidth * pixelRatio * scale;
+  const height = baseHeight * pixelRatio * scale;
 
   canvas.width = width;
   canvas.height = height;
-  canvas.style.height = height / pixelRatio + "px";
-
-  ctx.scale(pixelRatio, pixelRatio);
+  canvas.style.width = baseWidth * scale + "px";
+  canvas.style.height = baseHeight * scale + "px";
+  
+  ctx.setTransform(pixelRatio * scale, 0, 0, pixelRatio * scale, 0, 0);
   draw();
 }
+
 
 window.addEventListener('resize', resizeCanvas);
 
