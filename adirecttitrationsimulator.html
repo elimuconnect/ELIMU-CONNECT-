@@ -78,6 +78,14 @@
 </head>
 <body>
 <h1>Titration Simulator</h1>
+<a href="https://elimuconnect.github.io/ELIMU-CONNECT-/titrations"
+   id="proceedCalcBtn"
+   style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
+          background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
+          text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+          font-family:Segoe UI, sans-serif; letter-spacing:0.5px;">
+  Proceed to Calculations <span style="display:inline-block; transition:transform 0.3s;">➜</span>
+</a>
 
 <div class="controls">
 
@@ -357,28 +365,31 @@ function animateDrops(){
   requestAnimationFrame(animateDrops);
 }
 
-// Update display
-function updateFlask(){
-  updateInputs();
-  document.getElementById('pH').textContent = calculatePH().toFixed(2);
-  drawApparatus();
-}
 
-// Click on canvas to add drops (manual titration)
-canvas.addEventListener('click', ()=>{
-  // only allow adding while there is acid left in burette
-  if(acidVolumeAdded + dropVolume <= acidVol){
-    acidVolumeAdded += dropVolume;
-    drops.push({x:200, y:315});
-  } else {
-    // if last partial drop possible, allow exact amount to reach acidVol
-    const remaining = acidVol - acidVolumeAdded;
-    if(remaining > 0 && remaining < dropVolume){
-      acidVolumeAdded += remaining;
-      drops.push({x:200, y:315});
+function updateFlask() {
+  updateInputs();
+  const pH = calculatePH();
+  document.getElementById('pH').textContent = pH.toFixed(2);
+  drawApparatus();
+
+  // ✅ Show the Proceed button when endpoint is reached (pH between 6.8 and 7.2)
+  if (pH >= 6.8 && pH <= 7.2) {
+    const btn = document.getElementById('proceedCalcBtn');
+    if (btn.style.display === "none") {
+      btn.style.display = "inline-block";
+      btn.style.opacity = 0;
+      btn.style.transition = "opacity 0.6s";
+      requestAnimationFrame(() => btn.style.opacity = 1);
+
+      // Add hover animation for the arrow
+      btn.onmouseenter = () => btn.querySelector("span").style.transform = "translateX(6px)";
+      btn.onmouseleave = () => btn.querySelector("span").style.transform = "translateX(0)";
     }
   }
-});
+}
+
+
+  
 
 // Event listeners
 document.getElementById('acidType').addEventListener('change', updateFlask);
