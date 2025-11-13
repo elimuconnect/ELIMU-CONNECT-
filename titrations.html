@@ -90,6 +90,29 @@
   <div id="backResult"></div>
 </div>
 
+
+
+<div class="section">
+  <h3>Redox Titration Calculator (Find missing concentration)</h3>
+  <label>Volume of oxidant (cm³):</label>
+  <input type="number" id="redoxVolOx" step="any"><br>
+  <label>Concentration of oxidant (mol/dm³, leave empty if unknown):</label>
+  <input type="number" id="redoxConcOx" step="any"><br>
+  <label>Volume of reductant (cm³):</label>
+  <input type="number" id="redoxVolRed" step="any"><br>
+  <label>Concentration of reductant (mol/dm³, leave empty if unknown):</label>
+  <input type="number" id="redoxConcRed" step="any"><br>
+  <label>Mole Ratio Oxidant:Reductant = </label>
+  <input type="number" id="redoxRatioOx" value="1" style="width: 50px;"> :
+  <input type="number" id="redoxRatioRed" value="1" style="width: 50px;"><br>
+  <button onclick="calculateRedox()">Calculate Redox Titration</button>
+  <div id="redoxResult"></div>
+</div>
+
+
+
+
+
 <script>
  function format(num) {
   if (Math.abs(num) < 1 && num !== 0) {
@@ -171,8 +194,63 @@
   document.getElementById("backResult").innerHTML = steps.join('');
 }
 
+
+
+
+
+function calculateRedox() {
+  const vOx = parseFloat(document.getElementById('redoxVolOx').value) / 1000;
+  const cOx = parseFloat(document.getElementById('redoxConcOx').value);
+  const vRed = parseFloat(document.getElementById('redoxVolRed').value) / 1000;
+  const cRed = parseFloat(document.getElementById('redoxConcRed').value);
+  const rOx = parseFloat(document.getElementById('redoxRatioOx').value);
+  const rRed = parseFloat(document.getElementById('redoxRatioRed').value);
+
+  const steps = [];
+
+  // Determine which concentration is missing
+  let missing = null;
+  if (!cOx && cRed) missing = 'oxidant';
+  else if (!cRed && cOx) missing = 'reductant';
+  else if (!cOx && !cRed) {
+    document.getElementById('redoxResult').innerHTML = "<div class='step'>Error: Enter at least one concentration!</div>";
+    return;
+  }
+
+  steps.push(`<div class='step formula'>Step 1: Use mole ratio Oxidant:Reductant = ${rOx}:${rRed}</div>`);
+
+  if (missing === 'oxidant') {
+    // Moles of reductant
+    const molesRed = vRed * cRed;
+    steps.push(`<div class='step'>Moles of reductant = ${format(vRed)} × ${format(cRed)} = ${format(molesRed)} mol</div>`);
+    // Moles of oxidant
+    const molesOx = molesRed * (rOx / rRed);
+    steps.push(`<div class='step formula'>Moles of oxidant = moles of reductant × (${rOx}/${rRed})</div>`);
+    steps.push(`<div class='step'>Moles of oxidant = ${format(molesRed)} × (${rOx}/${rRed}) = ${format(molesOx)} mol</div>`);
+    // Concentration of oxidant
+    const concOx = molesOx / vOx;
+    steps.push(`<div class='step formula'>Concentration of oxidant = moles / volume</div>`);
+    steps.push(`<div class='step'>${format(molesOx)} ÷ ${format(vOx)} = ${format(concOx)} mol/dm³</div>`);
+  } else {
+    // Moles of oxidant
+    const molesOx = vOx * cOx;
+    steps.push(`<div class='step'>Moles of oxidant = ${format(vOx)} × ${format(cOx)} = ${format(molesOx)} mol</div>`);
+    // Moles of reductant
+    const molesRed = molesOx * (rRed / rOx);
+    steps.push(`<div class='step formula'>Moles of reductant = moles of oxidant × (${rRed}/${rOx})</div>`);
+    steps.push(`<div class='step'>Moles of reductant = ${format(molesOx)} × (${rRed}/${rOx}) = ${format(molesRed)} mol</div>`);
+    // Concentration of reductant
+    const concRed = molesRed / vRed;
+    steps.push(`<div class='step formula'>Concentration of reductant = moles / volume</div>`);
+    steps.push(`<div class='step'>${format(molesRed)} ÷ ${format(vRed)} = ${format(concRed)} mol/dm³</div>`);
+  }
+
+  document.getElementById('redoxResult').innerHTML = steps.join('');
+}
+
+
+
 </script>
 
 </body>
 </html>
-
