@@ -74,6 +74,25 @@
     h1 { font-size: 1.5rem; }
     p { font-size: 1rem; }
   }
+
+
+
+
+
+
+
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 8px #0078D7; }
+  50% { box-shadow: 0 0 18px #00aaff; }
+  100% { box-shadow: 0 0 8px #0078D7; }
+}
+
+
+
+
+
+  
 </style>
 </head>
 <body>
@@ -83,9 +102,9 @@
    style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
           background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
           text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
-          font-family:Segoe UI, sans-serif; letter-spacing:0.5px;">
+          font-family:Segoe UI, sans-serif; letter-spacing:0.5px;
+          animation:pulseGlow 1.5s infinite; cursor:pointer;">
   Proceed to Calculations <span style="display:inline-block; transition:transform 0.3s;">➜</span>
-</a>
 
 <div class="controls">
 
