@@ -61,6 +61,19 @@
 }
   
   
+  
+  
+  
+  
+ @media(max-width:520px){
+  canvas { border:1px solid #bfe; }
+  .small, label, .btn { font-size:1rem; }
+}
+ 
+  
+  
+  
+  
 </style>
 </head>
 <body>
@@ -114,7 +127,7 @@
   </div>
 </div>
 
-<canvas id="simCanvas" width="760" height="420"></canvas>
+<canvas id="simCanvas" width="760" height="500"></canvas>
 
 <div class="card info-card">
   <div class="info">
@@ -280,12 +293,12 @@ function computeValues(){
   draw();
   return true;
 }
-// ---------- Scaling ----------
-function getScale() { return canvas.width / 760; } // uniform scaling
+
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const scale = canvas.width / 760;
+  const scale = canvas.getBoundingClientRect().width / 760;
+
   const centerX = canvas.width / 2;
 
   // --- Burette ---
@@ -413,7 +426,8 @@ function draw(){
 
 /* Animate drops */
 function animateDrops(){
-  const scale = canvas.width / 760;
+  const scale = canvas.getBoundingClientRect().width / 760;
+
   const centerX = canvas.width / 2;
   const fw = 180*scale, fh = 200*scale;
   const fx = centerX - fw/2;
@@ -436,7 +450,8 @@ function animateDrops(){
 }
 
 function addDrop(){
-  const scale = canvas.width / 760;
+ const scale = canvas.getBoundingClientRect().width / 760;
+
   const centerX = canvas.width / 2;
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
@@ -452,14 +467,23 @@ function addDrop(){
 
 
 
-
-// ---------- Resize ----------
 function resizeCanvas(){
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.width*0.55 + 200;
+  const rect = canvas.parentElement.getBoundingClientRect(); // use card width
+  const width = rect.width;
+  const height = width * 0.65 + 200; // maintain aspect ratio
+
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  canvas.width = width * window.devicePixelRatio;   // high-res rendering
+  canvas.height = height * window.devicePixelRatio;
+
+  ctx.setTransform(1,0,0,1,0,0); // reset any previous scaling
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
   draw();
 }
+
 window.addEventListener('resize', resizeCanvas);
 
 // ---------- Init ----------
