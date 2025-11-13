@@ -23,6 +23,10 @@
   margin-top:8px;
   touch-action:manipulation;
 }
+canvas {
+  display: block;
+  margin: 0 auto; /* ✅ centers horizontally inside the card */
+}
 
   .info{width:100%;max-width:760px;margin-top:10px;background:#fff;padding:10px;border-radius:8px;border:1px solid #e6f2ff}
   .row{display:flex;gap:12px;flex-wrap:wrap}
@@ -442,13 +446,14 @@ function animateDrops() {
     const d = drops[i];
 
     // make drops curve gently toward flask center
-    const targetX = fx + fw / 2;
-    const dx = targetX - d.x;
-    d.vx += dx * 0.02;
-    d.vx *= 0.96;
-    d.vy += 0.5; // gravity
-    d.x += d.vx;
-    d.y += d.vy;
+
+
+// make drops fall straight down vertically
+d.vy += 0.6; // gravity
+d.y += d.vy;
+
+   
+   
 
     // remove drop when it reaches the flask opening
     if (d.y > flaskTop) {
