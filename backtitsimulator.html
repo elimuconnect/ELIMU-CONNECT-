@@ -234,34 +234,26 @@ function computeReactionValues() {
 
 
 
-
-
-
 function updateInfoUI() {
   const { molesSolid, molesAcidInitial, molesAcidConsumed, molesAcidRemaining } = computeReactionValues();
 
-  // display common info
-  molesSolidEl.textContent = molesSolid.toFixed(5);
-  molesAcidInitEl.textContent = molesAcidInitial.toFixed(5);
+  // Display with 4 significant figures
+  molesSolidEl.textContent = Number(molesSolid).toPrecision(4);
+  molesAcidInitEl.textContent = Number(molesAcidInitial).toPrecision(4);
 
   if (phase === "reacted") {
-    // show consumed and remaining
-    molesAcidConsumedEl.textContent = molesAcidConsumed.toFixed(5);
-    molesAcidRemainEl.textContent = molesAcidRemaining.toFixed(5);
+    molesAcidConsumedEl.textContent = Number(molesAcidConsumed).toPrecision(4);
+    molesAcidRemainEl.textContent = Number(molesAcidRemaining).toPrecision(4);
 
-    // ✅ Use the actual acid volume entered by the user
-    const acidVolL = acidVol / 1000; // convert from mL → L
+    const acidVolL = acidVol / 1000; // mL → L
     const newMolarity = molesAcidRemaining / acidVolL;
-
-    document.getElementById("newMol").textContent = newMolarity.toFixed(3);
+    document.getElementById("newMol").textContent = Number(newMolarity).toPrecision(4);
   } else {
-    // during or before reaction
     molesAcidConsumedEl.textContent = "—";
     molesAcidRemainEl.textContent = "—";
     document.getElementById("newMol").textContent = "—";
   }
 }
-
 
 
 
