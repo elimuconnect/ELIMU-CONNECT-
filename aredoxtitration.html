@@ -305,13 +305,9 @@ function resizeCanvas(){
 window.addEventListener('resize', resizeCanvas);
 
 function draw(){
-  
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-const scale = (canvas.width / 760) * 1.6;
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2; // vertical center reference
-ctx.save();
-ctx.translate(0, (canvas.height - (300 * scale + 230 * scale)) / 2.2); // shift the whole drawing down/up to center vertically
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const scale = (canvas.width / 760) * 1.6; // 🔹 Increased global scale factor
+  const centerX = canvas.width / 2;
 
   const buretteHeight = 300 * scale;
   const radiusX = 26 * scale;
@@ -426,9 +422,8 @@ ctx.translate(0, (canvas.height - (300 * scale + 230 * scale)) / 2.2); // shift 
   ctx.fillStyle='#000'; ctx.font=`${16*scale}px Arial`;
   ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
   ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+20*scale);
-
-ctx.restore();
 }
+
 function animateDrops() {
   const scale = (canvas.width / 760) * 1.6; // match draw() scale
   const centerX = canvas.width / 2;
