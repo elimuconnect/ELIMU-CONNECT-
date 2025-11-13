@@ -449,21 +449,32 @@ function animateDrops(){
   requestAnimationFrame(animateDrops);
 }
 
-function addDrop(){
-  const scale = canvas.width / 760;
+
+function addDrop() {
+  const scale = (canvas.width / 760) * 1.6;
   const centerX = canvas.width / 2;
+
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
-  const startX = centerX + (Math.random() - 0.5) * 6;
-  const startY = buretteTop + buretteHeight - 10 * scale - 6;
+
+  // 🔹 Align drop start with tap tip (same as draw() coordinates)
+  const tapX = centerX + 35 * scale;  // matches ctx.moveTo(buretteX + 35*scale, ...)
+  const tapY = buretteTop + buretteHeight + 10 * scale; // matches bottom of tap line
+
+  // add slight horizontal jitter for realism
+  const startX = tapX + (Math.random() - 0.5) * 3;
+  const startY = tapY + 2;
+
   drops.push({ x: startX, y: startY, vx: 0, vy: 0 });
   addedVol += dropVolume;
   addedVolOut.textContent = addedVol.toFixed(2);
   draw();
-  checkEndpoint(); // 👈 Add this line
+  checkEndpoint();
 }
 
 
+
+ 
 function checkEndpoint() {
   if (titrantVolNeeded && addedVol >= titrantVolNeeded) {
     proceedCalcBtn.style.display = 'inline-block'; // <-- show the button
