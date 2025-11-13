@@ -114,7 +114,8 @@
   </div>
 </div>
 
-<canvas id="simCanvas" width="760" height="420"></canvas>
+<canvas id="simCanvas" width="760" height="520"></canvas>
+
 
 <div class="card info-card">
   <div class="info">
@@ -288,7 +289,7 @@ function resizeCanvas(){
   const rect = canvas.getBoundingClientRect();
   const pixelRatio = window.devicePixelRatio || 1;
   let width = rect.width * pixelRatio;
-  let height = Math.round(width * 0.7); // taller canvas on mobile
+  let height = Math.round(width * 0.9); // taller canvas on mobile
 
   // Ensure minimum readable size
   if (window.innerWidth < 600) height += 280;
