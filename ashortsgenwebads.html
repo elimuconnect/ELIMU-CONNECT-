@@ -1069,21 +1069,36 @@ function drawScene(t) {
   // --- Swahili bubble ---
   drawSwahiliBubble();
 
-  // --- Subtitle / bubble text (center) ---
-  const subtitleText = (scene.subtitle.item && scene.subtitle.item.text) || '';
-  ctx.font = '"Patrick Hand", Arial, cursive';
-  ctx.fillStyle = 'yellow';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const wrapped = splitText(ctx, subtitleText, CANVAS_W - 60);
-  const lineH = 60;
-  const totalH = wrapped.length * lineH;
-  let startY = CANVAS_H * 0.5 - totalH / 2 + 30;
-  for (let i = 0; i < wrapped.length; i++) ctx.fillText(wrapped[i], CANVAS_W / 2, startY + i * lineH);
+ // --- Subtitle / bubble text (center) ---
+const subtitleText = (scene.subtitle.item && scene.subtitle.item.text) || '';
+ctx.font = '"Patrick Hand", Arial, cursive';
+ctx.fillStyle = 'yellow';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
 
-  // --- Sliding logo ---
-  drawSlidingLogo(t);
+// Wrap text
+const wrapped = splitText(ctx, subtitleText, CANVAS_W - 60);
+const lineH = 60;
+const totalH = wrapped.length * lineH;
+let startY = CANVAS_H * 0.5 - totalH / 2 + 30;
+
+// Draw black background rectangle
+const paddingX = 40; // horizontal padding
+const paddingY = 20; // vertical padding per line
+const rectWidth = CANVAS_W - 60; 
+const rectHeight = totalH + paddingY * 2;
+ctx.fillStyle = 'rgba(0,0,0,0.7)'; // semi-transparent black
+ctx.fillRect(CANVAS_W/2 - rectWidth/2, startY - paddingY, rectWidth, rectHeight);
+
+// Draw text over black rectangle
+ctx.fillStyle = 'yellow';
+for (let i = 0; i < wrapped.length; i++) {
+  ctx.fillText(wrapped[i], CANVAS_W / 2, startY + i * lineH);
 }
+
+// --- Sliding logo ---
+drawSlidingLogo(t);
+
 
 
 
