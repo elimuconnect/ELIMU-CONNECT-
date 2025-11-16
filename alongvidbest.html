@@ -2187,22 +2187,55 @@ if (!scene.lastAnimChange || t - scene.lastAnimChange > 5000) {
     if(e.y<-120||e.y>CANVAS_H+120||e.x<-80||e.x>CANVAS_W+80){ e.y=Math.random()*CANVAS_H; e.x=Math.random()*CANVAS_W; e.vy=-0.3-Math.random()*0.9; e.vx=(Math.random()*2-1)*0.6; }
     ctx.save(); ctx.translate(e.x,e.y); ctx.rotate(e.rot); ctx.font=`${e.size}px "Patrick Hand", Arial`; ctx.fillText(e.ch,0,0); ctx.restore();
   }
-  // top text
-  ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.font='bold 60px "Patrick Hand", Arial'; ctx.textAlign='center'; ctx.textBaseline='top';
-  ctx.fillText("Fun,Facts,Memes,Laughs", CANVAS_W/2,40);
-  // swahili bubble (from B)
-  drawSwahiliBubble();
-  // subtitle center
-  if(scene.subtitle && scene.subtitle.text){
-    const text = scene.subtitle.text;
-    ctx.font='64px "Patrick Hand", Arial'; ctx.fillStyle='yellow'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const lines = splitText(ctx,text,CANVAS_W-60); const lh=60; const totalH=lines.length*lh; let startY=CANVAS_H*0.5-totalH/2+30;
-    for(let i=0;i<lines.length;i++) ctx.fillText(lines[i],CANVAS_W/2,startY+i*lh);
-  }
-  // logo
-  drawSlidingLogo(t);
-  // if recording preview: draw timer arc
-  if(currentClip>0) drawTimerArc(timerProgress);
+  // --- Top text ---
+ctx.fillStyle='rgba(255,255,255,0.9)';
+ctx.font='bold 60px "Patrick Hand", Arial';
+ctx.textAlign='center';
+ctx.textBaseline='top';
+ctx.fillText("Fun, Facts, Memes, Laughs", CANVAS_W/2, 40);
+
+// --- Swahili bubble ---
+drawSwahiliBubble();
+
+// --- Subtitle / bubble text (center) ---
+const subtitleText = (scene.subtitle && scene.subtitle.text) ? scene.subtitle.text : '';
+
+ctx.font='64px "Patrick Hand", Arial';
+ctx.textAlign='center';
+ctx.textBaseline='middle';
+
+// Wrap text
+const lines = splitText(ctx, subtitleText, CANVAS_W - 80);
+const lineH = 64;
+const totalH = lines.length * lineH;
+let startY = CANVAS_H * 0.5 - totalH / 2 + 30;
+
+// Draw black background for the subtitle
+const paddingX = 40;
+const paddingY = 30;
+const rectWidth = CANVAS_W - 80;
+const rectHeight = totalH + paddingY * 2;
+
+ctx.fillStyle = 'rgba(0,0,0,0.75)';
+ctx.fillRect(
+  CANVAS_W/2 - rectWidth/2,
+  startY - paddingY,
+  rectWidth,
+  rectHeight
+);
+
+// Draw subtitle text on top
+ctx.fillStyle = 'yellow';
+for (let i = 0; i < lines.length; i++) {
+  ctx.fillText(lines[i], CANVAS_W / 2, startY + i * lineH);
+}
+
+// --- Sliding logo ---
+drawSlidingLogo(t);
+
+// --- Timer arc if needed ---
+if(currentClip > 0) drawTimerArc(timerProgress);
+
 }
 
 /* ---------- animation loop controls ---------- */
