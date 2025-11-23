@@ -249,8 +249,12 @@ let animRunning = false;
 let lastItemTime = 0;
 const ITEM_INTERVAL = 5000; // show new knowledge item every 5 seconds
 let currentItem = null;
-
 const BACKGROUNDS = [
+
+
+ 
+
+
   { name: 'Background 1', url: 'https://cdn.pixabay.com/video/2019/12/06/29879-377759955_tiny.mp4' },
 
   { name: 'Background 2', url: 'https://cdn.pixabay.com/video/2017/08/20/11473-230853026_tiny.mp4' },
@@ -264,6 +268,8 @@ const BACKGROUNDS = [
   { name: 'Background 6', url: 'https://www.pexels.com/download/video/7680121/' },
 
   { name: 'Background 7', url: 'https://www.pexels.com/download/video/5585988/' },
+  
+  { name: 'Background 7', url: 'https://res.cloudinary.com/dwvt4e9o2/video/upload/v1763914883/WhatsApp_Video_2025-11-23_at_6.39.27_PM_qncpxt.mp4' },
 
   { name: 'Background 8', url: 'https://www.pexels.com/download/video/5925291/' },
 
@@ -364,40 +370,17 @@ const KNOWLEDGE_ITEMS = [
 // animals + birds + butterflies
 const ANIMALS = {
   dogs: [
-    'https://cdn.pixabay.com/photo/2025/06/20/10/47/dog-9670619_640.jpg',
-     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
-    'https://cdn.pixabay.com/photo/2018/03/18/18/06/australian-shepherd-3237735_640.jpg',
-     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
-    'https://cdn.pixabay.com/photo/2017/09/25/13/12/dog-2785074_640.jpg',
-    'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
- 'https://cdn.pixabay.com/photo/2018/04/30/19/16/animal-3363688_640.jpg',
-    'https://cdn.pixabay.com/photo/2014/11/21/15/25/chameleon-540655_1280.jpg',
-    'https://cdn.pixabay.com/photo/2017/05/31/18/38/sea-2361247_640.jpg',
-     'https://cdn.pixabay.com/photo/2019/12/26/02/45/fish-with-lotus-4719551_640.png',
-    'https://cdn.pixabay.com/photo/2013/07/12/18/20/santa-claus-153309_640.png',
-    'https://cdn.pixabay.com/photo/2024/01/24/22/22/knight-8530654_640.jpg',
-   
-    'https://cdn.pixabay.com/photo/2016/05/02/12/58/tiger-1367197_640.jpg',
-    'https://cdn.pixabay.com/photo/2022/03/16/01/52/animal-7071426_640.jpg',
-    'https://cdn.pixabay.com/photo/2021/06/20/15/40/buffalo-6351352_640.jpg',
+    'https://webs-star.github.io/WisdomAppsWebs/background.png',
+     'https://cdn.pixabay.com/photo/2015/09/04/23/28/wordpress-923188_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/06/24/15/45/code-820275_640.jpg',
+    
     
   ],
   cats: [
-    'https://cdn.pixabay.com/photo/2022/03/27/11/23/cat-7094808_640.jpg',
-     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
-    'https://cdn.pixabay.com/photo/2017/11/09/21/41/cat-2934720_640.jpg',
-     'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
-    'https://cdn.pixabay.com/photo/2015/11/15/20/21/cat-1044750_640.jpg',
-   'https://cdn.pixabay.com/photo/2017/04/04/14/23/peafowl-2201428_640.jpg',
-    'https://cdn.pixabay.com/photo/2023/10/23/08/17/asian-giant-hornet-8335577_640.jpg',
-    'https://cdn.pixabay.com/photo/2020/04/10/07/42/wasp-5024465_640.jpg',
-    'https://cdn.pixabay.com/photo/2013/07/12/16/29/hornet-151003_640.png',
-      'https://cdn.pixabay.com/photo/2022/09/28/17/36/puffer-fish-7485602_640.jpg',
-    'https://cdn.pixabay.com/photo/2015/04/07/21/12/lionfish-711799_640.jpg',
-    'https://cdn.pixabay.com/photo/2017/05/31/00/24/aquarium-2358739_640.jpg',
-     'https://cdn.pixabay.com/photo/2023/06/29/16/10/zebra-8096659_640.png',
-    'https://cdn.pixabay.com/photo/2020/05/04/09/09/giraffe-5128394_1280.jpg',
-    'https://cdn.pixabay.com/photo/2016/04/22/21/07/monkey-1346590_640.jpg'
+    'https://cdn.pixabay.com/photo/2017/03/30/13/33/html-2188441_640.png',
+     'https://cdn.pixabay.com/photo/2016/11/23/14/45/coding-1853305_640.jpg',
+    'https://cdn.pixabay.com/photo/2019/04/25/14/43/workplace-4155023_640.jpg',
+    
   ],
   birds: [
     'https://cdn.pixabay.com/photo/2023/07/24/22/07/european-herring-gull-8147941_640.jpg',
@@ -410,31 +393,31 @@ const ANIMALS = {
     'https://cdn.pixabay.com/photo/2023/05/30/15/12/blue-butterfuly-8028888_640.jpg',
     'https://cdn.pixabay.com/photo/2018/06/24/18/46/butterfly-3495224_640.jpg',
     'https://cdn.pixabay.com/photo/2014/08/28/22/41/speckled-wood-430203_640.jpg',
-    'https://cdn.pixabay.com/photo/2024/12/27/10/28/butterfly-clipart-9293644_640.png',
-    'https://cdn.pixabay.com/photo/2023/01/17/18/26/moth-7725205_640.jpg'
+   
   ],
 
 exotic: [
-    'https://cdn.pixabay.com/photo/2022/08/25/20/44/bird-7411270_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/06/28/09/36/email-824310_640.jpg',
   ],
   fish: [
-    'https://cdn.pixabay.com/photo/2016/11/18/17/47/fish-1834823_640.jpg',
+    'https://cdn.pixabay.com/photo/2020/05/18/16/17/social-media-5187243_640.png',
     
   ],
   cartoons: [
-    'https://cdn.pixabay.com/photo/2020/06/23/18/10/cartoon-5331106_640.png',
+    'https://cdn.pixabay.com/photo/2017/02/28/06/50/whatsapp-2105015_640.jpg',
     
   ],
   insects: [
-    'https://cdn.pixabay.com/photo/2017/03/27/13/16/bee-2178341_640.jpg',
+    'https://pixabay.com/illustrations/app-online-film-ai-generated-8764508/',
    
   ],
   reptiles: [
-    'https://cdn.pixabay.com/photo/2016/11/23/14/45/lizard-1850046_640.jpg',
+    'https://cdn.pixabay.com/photo/2015/02/02/15/28/bar-621033_640.jpg',
 
   ],
    
 };
+
 /* ---------- PIXABAY TRACKS (your chosen 4)
    We use direct mp3 download CDN links (these should stream from Pixabay).
    If any fail, download them and host them locally and update the URLs.
