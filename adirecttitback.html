@@ -109,28 +109,36 @@
 <canvas id="labCanvas" width="400" height="500"></canvas>
 <p>Current pH: <span id="pH">1.00</span></p>
 
+
+
+
 <script>
 const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/backtitsimulator";
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-const ACCESS_DURATION = 24*60*60*1000; // 24h in ms
 
+// Number of free loads allowed from any other source
+const MAX_FREE_LOADS = 2;
+
+// Track free loads
 let freeLoadCount = parseInt(localStorage.getItem('freeLoadCount')) || 0;
-let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
-let accessFromMain = localStorage.getItem('accessFromMain') === '1';
-const now = Date.now();
 
-// Check if paid access is still valid
-if(lastPaid && now - lastPaid < ACCESS_DURATION){
-    console.log("Paid access active for 24h.");
+// Check if this is main link access
+const isMainLink = window.location.href === MAIN_LINK;
+
+// Check if we came from main link redirect
+const fromMainLink = document.referrer === MAIN_LINK;
+
+if(isMainLink || fromMainLink){
+    // Reset free load count when opened via main link
+    localStorage.setItem('freeLoadCount', MAX_FREE_LOADS);
 } else {
-    // Free loads logic (applies only to pages 2 & 3)
-    if(freeLoadCount < 2 || accessFromMain){
+    if(freeLoadCount < MAX_FREE_LOADS){
+        // Allow free load
         freeLoadCount++;
         localStorage.setItem('freeLoadCount', freeLoadCount);
-        localStorage.setItem('accessFromMain', '1'); // mark that user opened from main
-        alert(`You have ${2-freeLoadCount} free loads remaining across this simulator.`);
+        alert(`You have ${MAX_FREE_LOADS - freeLoadCount} free loads remaining for this tool.`);
     } else {
-        // Block if not allowed
+        // Block access
         document.body.innerHTML = `
             <div style="text-align:center; padding:50px; font-family:sans-serif;">
                 <h2>Access Restricted</h2>
@@ -146,7 +154,7 @@ if(lastPaid && now - lastPaid < ACCESS_DURATION){
 
 
 
-
+ 
 
 
  
