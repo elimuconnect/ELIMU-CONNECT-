@@ -69,6 +69,41 @@
 </head>
 <body>
 
+
+
+  <div class="container">
+    <h1>Mole Concept Tool</h1>
+
+    <select id="conceptSelect" onchange="displayConceptInfo()">
+      <option value="">Select a Concept</option>
+      <option value="molesFromMass">Moles from Mass</option>
+      <option value="particlesFromMoles">Particles from Moles</option>
+      <option value="volumeFromMoles">Volume from Moles (at STP)</option>
+      <option value="molesFromParticles">Moles from Particles</option>
+      <option value="massFromMoles">Mass from Moles</option>
+      <option value="molarMass">Molar Mass</option>
+      <option value="volumeFromMass">Volume from Mass (for Gases)</option>
+      <option value="m1v1m2v2">Dilution Formula (M1V1 = M2V2)</option>
+      <option value="empiricalFormula">Empirical Formula</option>
+      <option value="molecularFormula">Molecular Formula</option>
+      <option value="concentration">Concentration</option>
+    </select>
+
+    <div class="output" id="conceptOutput">
+      <!-- Content will be dynamically displayed here -->
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
   <!-- MASS - MOLES - MOLAR MASS CALCULATOR -->
   <h2>Mass - Moles - Molar Mass Calculator</h2>
 
@@ -371,7 +406,100 @@
   
   
   
-  
+   function displayConceptInfo() {
+      const concept = document.getElementById('conceptSelect').value;
+      const outputDiv = document.getElementById('conceptOutput');
+
+      if (concept === "") {
+        outputDiv.innerHTML = "";  // Clear output if no selection is made
+        return;
+      }
+
+      let formula, example, explanation;
+
+      switch (concept) {
+        case "molesFromMass":
+          formula = "Moles = Mass / Molar Mass";
+          example = "Example: If you have 10 grams of water (H₂O), and the molar mass of water is 18 g/mol, the number of moles is:\nMoles = 10 g / 18 g/mol = 0.556 mol.";
+          explanation = "To calculate the number of moles from mass, divide the mass of the substance by its molar mass (g/mol). This gives you the number of moles.";
+          break;
+
+        case "particlesFromMoles":
+          formula = "Number of Particles = Moles × Avogadro's Number (6.022 × 10²³)";
+          example = "Example: If you have 0.5 moles of oxygen molecules (O₂), the number of molecules is:\nNumber of Particles = 0.5 mol × 6.022 × 10²³ molecules/mol = 3.011 × 10²³ molecules.";
+          explanation = "To calculate the number of particles from moles, multiply the number of moles by Avogadro's number (6.022 × 10²³). This gives you the number of atoms, molecules, or ions.";
+          break;
+
+        case "volumeFromMoles":
+          formula = "Volume (at STP) = Moles × Molar Volume (22.4 L/mol)";
+          example = "Example: If you have 2 moles of a gas at STP, the volume will be:\nVolume = 2 mol × 22.4 L/mol = 44.8 L.";
+          explanation = "To calculate the volume of a gas at Standard Temperature and Pressure (STP), multiply the number of moles by the molar volume (22.4 L/mol for gases at STP).";
+          break;
+
+        case "molesFromParticles":
+          formula = "Moles = Number of Particles / Avogadro's Number (6.022 × 10²³)";
+          example = "Example: If you have 3.011 × 10²³ molecules of oxygen (O₂), the number of moles is:\nMoles = 3.011 × 10²³ molecules / 6.022 × 10²³ molecules/mol = 0.5 mol.";
+          explanation = "To calculate the number of moles from particles, divide the number of particles by Avogadro's number (6.022 × 10²³). This gives you the number of moles.";
+          break;
+
+        case "massFromMoles":
+          formula = "Mass = Moles × Molar Mass";
+          example = "Example: If you have 0.5 moles of water (H₂O), and the molar mass of water is 18 g/mol, the mass is:\nMass = 0.5 mol × 18 g/mol = 9 g.";
+          explanation = "To calculate the mass of a substance from moles, multiply the number of moles by its molar mass (g/mol). This gives you the mass in grams.";
+          break;
+
+        case "molarMass":
+          formula = "Molar Mass = Mass / Moles";
+          example = "Example: If you have 18 grams of water (H₂O) and 1 mole, the molar mass is:\nMolar Mass = 18 g / 1 mol = 18 g/mol.";
+          explanation = "To calculate the molar mass, divide the mass of the substance by the number of moles.";
+          break;
+
+        case "volumeFromMass":
+          formula = "Volume = (Mass / Molar Mass) × Molar Volume (22.4 L/mol)";
+          example = "Example: If you have 10 grams of CO₂, the molar mass of CO₂ is 44 g/mol, the volume at STP is:\nVolume = (10 g / 44 g/mol) × 22.4 L/mol = 5.09 L.";
+          explanation = "To calculate the volume of a gas from mass, first find the number of moles by dividing mass by molar mass, then multiply by the molar volume (22.4 L/mol for gases at STP).";
+          break;
+
+        case "m1v1m2v2":
+          formula = "M1V1 = M2V2";
+          example = "Example: If you have 1M NaCl solution and need to dilute it to 0.5M using 100 mL, use the formula:\n(1M)(100mL) = (0.5M)(V2)\nV2 = 200 mL.";
+          explanation = "The dilution formula M1V1 = M2V2 helps you find the final volume (V2) when you dilute a solution. M1 and V1 are the initial concentration and volume, and M2 is the final concentration.";
+          break;
+
+        case "empiricalFormula":
+          formula = "Empirical Formula = Simplified ratio of elements";
+          example = "Example: For a compound with 40g of Carbon and 6.7g of Hydrogen, the empirical formula is CH₂.";
+          explanation = "The empirical formula is the simplest whole-number ratio of atoms of each element in a compound. Find the moles of each element, divide by the smallest mole value, and round to the nearest whole number.";
+          break;
+
+        case "molecularFormula":
+          formula = "Molecular Formula = (Empirical Formula)n";
+          example = "Example: If the empirical formula is CH₂ and the molar mass of the compound is 58 g/mol, the molecular formula is C₄H₈ (n = 4).";
+          explanation = "The molecular formula is the true formula of a compound. If you know the empirical formula and the molar mass of the compound, you can find the molecular formula by determining n (the ratio).";
+          break;
+
+        case "concentration":
+          formula = "Concentration (Molarity) = (Moles of solute / Volume of solution)x1000";
+          example = "Example: If you dissolve 2 moles of NaCl in 200cm3 of water, the concentration is:\nConcentration = (2 mol / 200cm3)x1000 = 10 M.";
+          explanation = "Concentration (Molarity) represents the amount of solute in a given volume of solution. To calculate it, divide the number of moles of solute by the volume of the solution ,then multiply the result by 1000.";
+          break;
+
+        default:
+          outputDiv.innerHTML = "";
+          return;
+      }
+
+      outputDiv.innerHTML = `
+        <h3>Formula</h3>
+        <p class="formula">${formula}</p>
+        
+        <h3>Example</h3>
+        <p class="example">${example}</p>
+
+        <h3>Explanation</h3>
+        <p>${explanation}</p>
+      `;
+    }
   
   
 </script>
