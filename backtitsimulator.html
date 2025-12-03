@@ -222,15 +222,19 @@ window.addEventListener('DOMContentLoaded', ()=>{
     let freeEnd = parseInt(localStorage.getItem('firstAccessEnd') || 0);
 
     function startCountdown(){
-        countdownEl.style.display = "block";
-        function updateCountdown(){
-            const now = Date.now();
-            let remainingMs;
+    countdownEl.style.display = "block";
+    function updateCountdown(){
+        const now = Date.now();
+        let remainingMs;
 
-            if(lastPaid && now - lastPaid < ACCESS_DURATION){
-                remainingMs = ACCESS_DURATION - (now - lastPaid);
-                countdownEl.textContent = `Paid access: ${formatTime(remainingMs)}`;
-            } else if(freeEnd && now < freeEnd){
+        if(lastPaid && now - lastPaid < ACCESS_DURATION){
+            // Paid access active
+            remainingMs = ACCESS_DURATION - (now - lastPaid);
+            countdownEl.textContent = `Paid access: ${formatTime(remainingMs)}`;
+        } else {
+            // Free trial or expired
+            const freeEnd = parseInt(localStorage.getItem('firstAccessEnd') || 0);
+            if(freeEnd && now < freeEnd){
                 remainingMs = freeEnd - now;
                 countdownEl.textContent = `Free trial: ${formatTime(remainingMs)}`;
             } else {
@@ -242,9 +246,10 @@ window.addEventListener('DOMContentLoaded', ()=>{
                 );
             }
         }
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
     }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
 
     if(!lastPaid && !freeEnd){
         // First-time free access: show modal first
