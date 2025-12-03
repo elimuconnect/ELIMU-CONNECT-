@@ -136,7 +136,6 @@
 
 
 
-
 <!-- Payment Access Modal -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -168,15 +167,11 @@
     Loading access info...
 </div>
 
-
-
-
-
-
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/u7q214ftyd";
 const FIRST_ACCESS_MINUTES = 10; // free trial
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
+const STORAGE_PREFIX = "directTitration_"; // unique for this site
 
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -194,9 +189,9 @@ function formatTime(ms){
 }
 
 // Access tracking
-let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
-let paidReference = localStorage.getItem('paidReference') || "";
-let freeEnd = parseInt(localStorage.getItem('firstAccessEnd')) || 0;
+let lastPaid = parseInt(localStorage.getItem(STORAGE_PREFIX + 'lastPaidTime')) || 0;
+let paidReference = localStorage.getItem(STORAGE_PREFIX + 'paidReference') || "";
+let freeEnd = parseInt(localStorage.getItem(STORAGE_PREFIX + 'firstAccessEnd')) || 0;
 
 const now = Date.now();
 const reference = getQueryParam('reference');
@@ -205,14 +200,14 @@ const reference = getQueryParam('reference');
 if(reference && reference !== paidReference){
     lastPaid = now;
     paidReference = reference;
-    localStorage.setItem('lastPaidTime', lastPaid);
-    localStorage.setItem('paidReference', paidReference);
+    localStorage.setItem(STORAGE_PREFIX + 'lastPaidTime', lastPaid);
+    localStorage.setItem(STORAGE_PREFIX + 'paidReference', paidReference);
 }
 
 // Only set free trial if not already set
 if(!freeEnd){
     freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
-    localStorage.setItem('firstAccessEnd', freeEnd);
+    localStorage.setItem(STORAGE_PREFIX + 'firstAccessEnd', freeEnd);
 }
 
 // Countdown element
@@ -256,8 +251,7 @@ function startCountdown(){
 
 // Start countdown
 startCountdown();
- 
-
+</script>
 
 
 
