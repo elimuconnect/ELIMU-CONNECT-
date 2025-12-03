@@ -40,6 +40,20 @@
       font-weight: bold;
       color: #2c3e50;
     }
+
+
+
+
+ .section { max-width:760px; padding:16px; border:1px solid #ddd; border-radius:8px; font-family:system-ui,Segoe UI,Roboto,Arial; }
+  label{display:block; margin-top:8px; font-weight:600;}
+  input[type=number]{width:160px; padding:6px; margin-top:4px;}
+  .small{width:80px;}
+  button{margin-top:12px; padding:8px 12px; border-radius:6px; cursor:pointer;}
+  .result{margin-top:12px; background:#fafafa; border-radius:6px; padding:12px; font-size:14px;}
+  .step{margin:8px 0; padding:8px; background:#fff; border-left:4px solid #0b61b6; border-radius:4px;}
+  .formula{font-family:monospace; color:#222;}
+  .error{color:#a00; font-weight:700;}
+    
   </style>
 </head>
 <body>
@@ -69,36 +83,47 @@
 
 
 
-  <div class="section">
-  <h3>Back Titration (Auto-Solve for Any Unknown)</h3>
 
-  <label>Mass of substance (g):</label>
-  <input type="number" id="auto_mass" step="any"><br>
 
-  <label>Volume of acid added initially (cm³):</label>
-  <input type="number" id="auto_volAcid" step="any"><br>
+<div class="section">
+  <h3>Back Titration — Auto solver (show steps)</h3>
 
-  <label>Concentration of acid (mol/dm³):</label>
-  <input type="number" id="auto_concAcid" step="any"><br>
+  <label>Mass of substance (g)</label>
+  <input type="number" id="mass" step="any" placeholder="e.g. 0.250">
 
-  <label>Volume of base used (cm³):</label>
-  <input type="number" id="auto_volBase" step="any"><br>
+  <label>Relative Formula Mass / RFM (g·mol⁻¹) — (leave blank to solve for it)</label>
+  <input type="number" id="rfm" step="any" placeholder="e.g. 58.44">
 
-  <label>Concentration of base (mol/dm³):</label>
-  <input type="number" id="auto_concBase" step="any"><br>
+  <label>Volume of acid added initially (cm³)</label>
+  <input type="number" id="volAcid" step="any" placeholder="e.g. 25.0">
 
-  <label>Mole Ratio (Acid : Base)</label><br>
-  <input type="number" id="auto_ratioAcidBase_A" value="1" style="width:50px"> :
-  <input type="number" id="auto_ratioAcidBase_B" value="1" style="width:50px"><br>
+  <label>Concentration of acid (mol·dm⁻³)</label>
+  <input type="number" id="concAcid" step="any" placeholder="e.g. 0.100">
 
-  <label>Moles Acid : Substance</label>
-  <input type="number" id="auto_ratioAcidSub_A" value="1" style="width:50px"> :
-  <input type="number" id="auto_ratioAcidSub_B" value="1" style="width:50px"><br>
+  <label>Volume of base used in titration (cm³)</label>
+  <input type="number" id="volBase" step="any" placeholder="e.g. 15.0">
 
-  <button onclick="autoBackTitration()">Auto Solve</button>
-  <div id="auto_back_result"></div>
+  <label>Concentration of base (mol·dm⁻³)</label>
+  <input type="number" id="concBase" step="any" placeholder="e.g. 0.100">
+
+  <label>Mole ratio (Acid : Base)</label>
+  <input type="number" id="ratioAbA" class="small" value="1" min="1"> :
+  <input type="number" id="ratioAbB" class="small" value="1" min="1">
+
+  <label>Moles (Acid : Substance)</label>
+  <input type="number" id="ratioAsA" class="small" value="1" min="1"> :
+  <input type="number" id="ratioAsB" class="small" value="1" min="1">
+
+  <div>
+    <button onclick="solveBackTitration()">Solve (calculate the ONE missing value)</button>
+    <button onclick="fillExample()">Fill example values</button>
+    <button onclick="clearAll()">Clear</button>
+  </div>
+
+  <div id="result" class="result" aria-live="polite"></div>
 </div>
 
+  
 
 
 
@@ -206,94 +231,335 @@ if(isMainLink || fromMainLink){
 
 
 
-  function autoBackTitration() {
 
-  const mass = get("auto_mass");
-  const vA = get("auto_volAcid");
-  const cA = get("auto_concAcid");
-  const vB = get("auto_volBase");
-  const cB = get("auto_concBase");
 
-  const R_ab_A = get("auto_ratioAcidBase_A");
-  const R_ab_B = get("auto_ratioAcidBase_B");
-  const R_as_A = get("auto_ratioAcidSub_A");
-  const R_as_B = get("auto_ratioAcidSub_B");
 
-  const fields = { mass, vA, cA, vB, cB };
-  const missing = Object.keys(fields).filter(k => fields[k] === null);
 
-  if (missing.length > 1) {
-    return show("Please leave ONLY ONE value blank.");
+/*
+  Equations used:
+
+  moles_acid_initial = (volAcid_cm3 / 1000) * concAcid
+  moles_base_used    = (volBase_cm3  / 1000) * concBase
+  acid_equivalent    = moles_base_used * (ratioAbA / ratioAbB)
+  moles_acid_reacted = moles_acid_initial - acid_equivalent
+  moles_substance    = moles_acid_reacted * (ratioAsB / ratioAsA)
+  mass (g)           = moles_substance * RFM
+  RFM (g·mol⁻¹)      = mass / moles_substance
+
+  The solver only solves when exactly ONE of the key numeric fields is blank.
+  If prerequisites are missing for a specific unknown, user is shown a clear explanation.
+*/
+
+function getVal(id){ const v = document.getElementById(id).value.trim(); return v==="" ? null : parseFloat(v); }
+function fmt(x, dp=6){ if (x===null || x===undefined || isNaN(x)) return '—'; return Number(x.toPrecision(8)).toString(); }
+function appendStep(html){ resSteps.push(`<div class="step">${html}</div>`); }
+
+function solveBackTitration(){
+  const mass = getVal('mass');              // g
+  const rfm  = getVal('rfm');               // g/mol
+  const volA = getVal('volAcid');           // cm3
+  const cA   = getVal('concAcid');         // mol/dm3
+  const volB = getVal('volBase');           // cm3
+  const cB   = getVal('concBase');         // mol/dm3
+
+  const ratioAbA = getVal('ratioAbA') || 1;
+  const ratioAbB = getVal('ratioAbB') || 1;
+  const ratioAsA = getVal('ratioAsA') || 1;
+  const ratioAsB = getVal('ratioAsB') || 1;
+
+  const inputs = { mass, rfm, volA, cA, volB, cB };
+  // Count blanks among the *main* unknowns (exclude ratios)
+  const blanks = Object.keys(inputs).filter(k => inputs[k] === null);
+
+  const out = document.getElementById('result');
+  resSteps = [];
+
+  if (blanks.length === 0) {
+    // Nothing missing: compute full calculation and show steps including computed RFM & mass check
+    try {
+      computeAll({mass, rfm, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB}, true);
+    } catch(e) {
+      out.innerHTML = `<div class="error">Error: ${e.message}</div>`;
+    }
+    out.innerHTML = resSteps.join('') ;
+    return;
   }
-  if (missing.length === 0) {
-    // all values present → normal calculation
-    const result = calculateAll(mass, vA, cA, vB, cB, R_ab_A, R_ab_B, R_as_A, R_as_B);
-    return show(result);
+
+  if (blanks.length > 1) {
+    out.innerHTML = `<div class="error">Please leave ONLY ONE of these blank: Mass, RFM, Volume acid, Conc acid, Volume base, Conc base. I found ${blanks.length} missing.</div>`;
+    return;
   }
 
-  const unknown = missing[0];
+  const unknown = blanks[0]; // single missing field
+  try {
+    // We'll branch for each unknown and check prerequisites
+    switch(unknown){
+      case 'mass':
+        // need rfm & all other data to compute moles_substance
+        if (rfm===null) throw new Error('To calculate mass you MUST provide RFM (molar mass).');
+        computeMass({rfm, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        break;
 
-  // ---------- FORMULAS ----------
-  const molesAcidInitial = (vA / 1000) * cA;
-  const molesBase = (vB / 1000) * cB;
-  const acidEquivalent = molesBase * (R_ab_A / R_ab_B);
+      case 'rfm':
+        // need mass and all titration data
+        if (mass===null) throw new Error('To calculate RFM you MUST provide the sample mass.');
+        computeRFM({mass, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        break;
+
+      case 'volAcid':
+      case 'concAcid':
+        // To solve for volA or cA we need:
+        // - base data (volB & cB) to compute acid equivalent OR both base and mass+rfm to get moles.
+        // Easiest reliable path: require either base data present AND (mass+rfm OR one of them that gives moles_substance)
+        if ((volB===null) || (cB===null)) throw new Error('To solve acid volume or concentration you MUST provide BOTH base volume and base concentration (so I can compute how much acid was neutralised by the base).');
+        // Also need either mass & rfm (so we can compute moles_substance) OR the other acid field present to rearrange algebraically.
+        if (unknown === 'volAcid') {
+          if (cA===null) throw new Error('To solve for acid volume I need the acid concentration (concAcid).');
+          // compute from mass & rfm OR from provided moles_substance if mass+rfm present
+          if (mass===null || rfm===null) {
+            throw new Error('To reliably compute acid volume from titration you must provide the sample mass and RFM (so I know how many moles of substance reacted).');
+          }
+          computeVolA_from_massRFM({mass, rfm, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        } else {
+          // unknown === 'concAcid'
+          if (volA===null) throw new Error('To solve for acid concentration I need the acid volume (volAcid).');
+          if (mass===null || rfm===null) {
+            throw new Error('To reliably compute acid concentration from titration you must provide the sample mass and RFM.');
+          }
+          computeConcA_from_massRFM({mass, rfm, volA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        }
+        break;
+
+      case 'volBase':
+      case 'concBase':
+        // To solve for base volume or concentration we need acid data (volA & cA).
+        if ((volA===null) || (cA===null)) throw new Error('To solve for base volume or concentration you MUST provide BOTH acid volume and acid concentration (so I can compute the total acid present).');
+        // Solve base unknown using mass & rfm to get moles reacted, OR algebraic rearrangement if mass+rfm present
+        if (unknown === 'volBase') {
+          if (cB===null) throw new Error('To solve for base volume I need the base concentration (concBase).');
+          if (mass===null || rfm===null) {
+            throw new Error('To reliably compute base volume you must provide the sample mass and RFM.');
+          }
+          computeVolB_from_massRFM({mass, rfm, volA, cA, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        } else {
+          // unknown === 'concBase'
+          if (volB===null) throw new Error('To solve for base concentration I need the base volume (volBase).');
+          if (mass===null || rfm===null) {
+            throw new Error('To reliably compute base concentration you must provide the sample mass and RFM.');
+          }
+          computeConcB_from_massRFM({mass, rfm, volA, cA, volB, ratioAbA, ratioAbB, ratioAsA, ratioAsB});
+        }
+        break;
+
+      default:
+        throw new Error('Unknown field to solve: ' + unknown);
+    }
+
+    document.getElementById('result').innerHTML = resSteps.join('');
+  } catch(err){
+    document.getElementById('result').innerHTML = `<div class="error">Cannot solve: ${err.message}</div>`;
+  }
+}
+
+/* ---------- calculation helpers that also push step-by-step strings ---------- */
+
+let resSteps = [];
+
+function computeAll(vars, showBoth=false){
+  // requires all present (mass & rfm optionally). Show full steps and values.
+  const { mass, rfm, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<div class="formula">Given:</div>
+    mass = ${mass} g; RFM = ${rfm===null? '—': rfm + ' g·mol⁻¹'}; volA = ${volA} cm³; cA = ${cA} mol·dm⁻³; volB = ${volB} cm³; cB = ${cB} mol·dm⁻³; ratios Acid:Base = ${ratioAbA}:${ratioAbB}; Acid:Substance = ${ratioAsA}:${ratioAsB}`);
+  // moles acid initial
+  const molesAcidInitial = (volA/1000) * cA;
+  appendStep(`<div class="formula">moles_acid_initial = (volA / 1000) × concAcid = (${volA}/1000) × ${cA} = ${fmt(molesAcidInitial)} mol</div>`);
+  // moles base used
+  const molesBaseUsed = (volB/1000) * cB;
+  appendStep(`<div class="formula">moles_base_used = (volB / 1000) × concBase = (${volB}/1000) × ${cB} = ${fmt(molesBaseUsed)} mol</div>`);
+  // acid equivalent
+  const acidEquivalent = molesBaseUsed * (ratioAbA / ratioAbB);
+  appendStep(`<div class="formula">acid_equivalent = moles_base_used × (ratioAcid/ratioBase) = ${fmt(molesBaseUsed)} × (${ratioAbA}/${ratioAbB}) = ${fmt(acidEquivalent)} mol (acid equivalent neutralised by base)</div>`);
+  // acid reacted with substance
   const molesAcidReacted = molesAcidInitial - acidEquivalent;
-  const molesSubstance = molesAcidReacted * (R_as_B / R_as_A);
-
-  // AUTO COMPUTE UNKNOWN
-  let solved;
-
-  switch (unknown) {
-
-    case "mass":
-      solved = molesSubstance * 1; // molar mass not needed here
-      solved = `Missing MASS = moles × molar mass<br>Cannot compute because molar mass is also unknown.`;
-      break;
-
-    case "vA":
-      const neededAcid = molesAcidReacted + acidEquivalent;
-      solved = neededAcid / cA * 1000;
-      break;
-
-    case "cA":
-      solved = (molesAcidReacted + acidEquivalent) / (vA / 1000);
-      break;
-
-    case "vB":
-      const neededBase = (molesAcidInitial - molesAcidReacted) / (R_ab_A / R_ab_B);
-      solved = neededBase / cB * 1000;
-      break;
-
-    case "cB":
-      const neededBaseMoles = (molesAcidInitial - molesAcidReacted) / (R_ab_A / R_ab_B);
-      solved = neededBaseMoles / (vB / 1000);
-      break;
+  appendStep(`<div class="formula">moles_acid_reacted = moles_acid_initial − acid_equivalent = ${fmt(molesAcidInitial)} − ${fmt(acidEquivalent)} = ${fmt(molesAcidReacted)} mol</div>`);
+  // moles substance
+  const molesSubstance = molesAcidReacted * (ratioAsB / ratioAsA);
+  appendStep(`<div class="formula">moles_substance = moles_acid_reacted × (substanceRatio/acidRatio) = ${fmt(molesAcidReacted)} × (${ratioAsB}/${ratioAsA}) = ${fmt(molesSubstance)} mol</div>`);
+  // mass or rfm
+  if (rfm !== null) {
+    const calcMass = molesSubstance * rfm;
+    appendStep(`<div class="formula">mass (calc) = moles_substance × RFM = ${fmt(molesSubstance)} × ${fmt(rfm)} = ${fmt(calcMass)} g</div>`);
   }
+  if (mass !== null) {
+    const calcRFM = mass / molesSubstance;
+    appendStep(`<div class="formula">RFM (calc) = mass ÷ moles_substance = ${fmt(mass)} ÷ ${fmt(molesSubstance)} = ${fmt(calcRFM)} g·mol⁻¹</div>`);
+  }
+}
 
-  show(`<b>Unknown solved (${unknown}):</b> ${solved}`);
+function computeMass(vars){
+  const { rfm, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>mass</em> using provided RFM and titration data.`);
+  // Need volA, cA, volB, cB present
+  if ([volA,cA,volB,cB].some(v => v===null)) throw new Error('To compute mass I need volA, concA, volB and concB.');
+  // compute as in computeAll
+  computeAll({ mass: null, rfm, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB });
+}
+
+function computeRFM(vars){
+  const { mass, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>RFM</em> using provided mass and titration data.`);
+  if ([volA,cA,volB,cB].some(v => v===null)) throw new Error('To compute RFM I need volA, concA, volB and concB.');
+  computeAll({ mass, rfm: null, volA, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB });
+}
+
+function computeVolA_from_massRFM(vars){
+  // volA = required_moles_acid_initial / concAcid *1000
+  const { mass, rfm, cA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>Volume of acid (volA)</em> from sample mass & RFM.`);
+  if (cA===null) throw new Error('acid concentration (cA) must be provided.');
+
+  // compute moles_substance from mass & rfm
+  const molesSubstance = mass / rfm;
+  appendStep(`<div class="formula">moles_substance = mass ÷ RFM = ${fmt(mass)} ÷ ${fmt(rfm)} = ${fmt(molesSubstance)} mol</div>`);
+
+  // moles_acid_reacted = moles_substance × (acidRatio / substanceRatio)
+  const molesAcidReacted = molesSubstance * (ratioAsA===0 ? 0 : (ratioAsA && ratioAsB ? ( (ratioAsA)/(ratioAsB) ) : (ratioAsA/ratioAsB))); 
+  // Wait: earlier we used moles_substance = moles_acid_reacted * (substanceRatio / acidRatio)
+  // so moles_acid_reacted = moles_substance * (acidRatio / substanceRatio)
+  // ensure correct:
+  const molesAcidReactedCorrect = molesSubstance * (ratioAsA / ratioAsB) ;
+  appendStep(`<div class="formula">moles_acid_reacted = moles_substance × (acidRatio/substanceRatio) = ${fmt(molesSubstance)} × (${ratioAsA}/${ratioAsB}) = ${fmt(molesAcidReactedCorrect)} mol</div>`);
+
+  // compute acid_equivalent from base data
+  if (volB===null || cB===null) throw new Error('Both base volume and concentration are required to compute the acid equivalent neutralised by base.');
+  const molesBaseUsed = (volB/1000) * cB;
+  appendStep(`<div class="formula">moles_base_used = (volBase/1000) × concBase = (${volB}/1000) × ${cB} = ${fmt(molesBaseUsed)} mol</div>`);
+  const acidEquivalent = molesBaseUsed * (ratioAbA / ratioAbB);
+  appendStep(`<div class="formula">acid_equivalent = moles_base_used × (ratioAcid/ratioBase) = ${fmt(molesBaseUsed)} × (${ratioAbA}/${ratioAbB}) = ${fmt(acidEquivalent)} mol</div>`);
+
+  // moles_acid_initial = moles_acid_reacted + acid_equivalent
+  const molesAcidInitial = molesAcidReactedCorrect + acidEquivalent;
+  appendStep(`<div class="formula">moles_acid_initial = moles_acid_reacted + acid_equivalent = ${fmt(molesAcidReactedCorrect)} + ${fmt(acidEquivalent)} = ${fmt(molesAcidInitial)} mol</div>`);
+
+  // volA = molesAcidInitial / cA * 1000 (cm3)
+  if (cA === 0) throw new Error('acid concentration cannot be zero.');
+  const volAcalc = (molesAcidInitial / cA) * 1000;
+  appendStep(`<div class="formula">volA = (moles_acid_initial ÷ concAcid) × 1000 = (${fmt(molesAcidInitial)} ÷ ${fmt(cA)}) × 1000 = ${fmt(volAcalc)} cm³</div>`);
+}
+
+function computeConcA_from_massRFM(vars){
+  const { mass, rfm, volA, volB, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>Concentration of acid (cA)</em> from sample mass & RFM.`);
+  if (volA===null) throw new Error('acid volume (volA) is required.');
+
+  const molesSubstance = mass / rfm;
+  appendStep(`<div class="formula">moles_substance = mass ÷ RFM = ${fmt(mass)} ÷ ${fmt(rfm)} = ${fmt(molesSubstance)} mol</div>`);
+
+  const molesAcidReacted = molesSubstance * (ratioAsA / ratioAsB);
+  appendStep(`<div class="formula">moles_acid_reacted = moles_substance × (acidRatio/substanceRatio) = ${fmt(molesSubstance)} × (${ratioAsA}/${ratioAsB}) = ${fmt(molesAcidReacted)} mol</div>`);
+
+  if (volB===null || cB===null) throw new Error('Both base volume and concentration are required to compute the acid equivalent neutralised by base.');
+  const molesBaseUsed = (volB/1000) * cB;
+  appendStep(`<div class="formula">moles_base_used = (volBase/1000) × concBase = (${volB}/1000) × ${cB} = ${fmt(molesBaseUsed)} mol</div>`);
+  const acidEquivalent = molesBaseUsed * (ratioAbA / ratioAbB);
+  appendStep(`<div class="formula">acid_equivalent = ${fmt(acidEquivalent)} mol</div>`);
+
+  const molesAcidInitial = molesAcidReacted + acidEquivalent;
+  appendStep(`<div class="formula">moles_acid_initial = moles_acid_reacted + acid_equivalent = ${fmt(molesAcidReacted)} + ${fmt(acidEquivalent)} = ${fmt(molesAcidInitial)} mol</div>`);
+
+  if (volA === 0) throw new Error('acid volume cannot be zero.');
+  const cAcalc = molesAcidInitial / (volA/1000);
+  appendStep(`<div class="formula">concAcid = moles_acid_initial ÷ (volA/1000) = ${fmt(molesAcidInitial)} ÷ (${fmt(volA)}/1000) = ${fmt(cAcalc)} mol·dm⁻³</div>`);
+}
+
+function computeVolB_from_massRFM(vars){
+  const { mass, rfm, volA, cA, cB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>Volume of base (volB)</em> from sample mass & RFM.`);
+  if (volA===null || cA===null) throw new Error('acid volume and concentration (volA and cA) are required.');
+
+  const molesAcidInitial = (volA/1000)*cA;
+  appendStep(`<div class="formula">moles_acid_initial = (volA/1000) × concAcid = (${volA}/1000) × ${cA} = ${fmt(molesAcidInitial)} mol</div>`);
+
+  const molesSubstance = mass / rfm;
+  appendStep(`<div class="formula">moles_substance = mass ÷ RFM = ${fmt(mass)} ÷ ${fmt(rfm)} = ${fmt(molesSubstance)} mol</div>`);
+
+  // moles_acid_reacted = moles_substance × (acidRatio/substanceRatio)
+  const molesAcidReacted = molesSubstance * (ratioAsA / ratioAsB);
+  appendStep(`<div class="formula">moles_acid_reacted = moles_substance × (acidRatio/substanceRatio) = ${fmt(molesSubstance)} × (${ratioAsA}/${ratioAsB}) = ${fmt(molesAcidReacted)} mol</div>`);
+
+  // acid_equivalent = moles_acid_initial - moles_acid_reacted
+  const acidEquivalent = molesAcidInitial - molesAcidReacted;
+  appendStep(`<div class="formula">acid_equivalent = moles_acid_initial − moles_acid_reacted = ${fmt(molesAcidInitial)} − ${fmt(molesAcidReacted)} = ${fmt(acidEquivalent)} mol</div>`);
+
+  if (cB === null || cB === 0) throw new Error('base concentration (cB) must be provided and non-zero to compute base volume.');
+  // moles_base_used = acid_equivalent × (ratioBase/ratioAcid)
+  const molesBaseUsed = acidEquivalent * (ratioAbB / ratioAbA);
+  appendStep(`<div class="formula">moles_base_used = acid_equivalent × (ratioBase/ratioAcid) = ${fmt(acidEquivalent)} × (${ratioAbB}/${ratioAbA}) = ${fmt(molesBaseUsed)} mol</div>`);
+  const volBcalc = (molesBaseUsed / cB) * 1000;
+  appendStep(`<div class="formula">volBase = (moles_base_used ÷ concBase) × 1000 = (${fmt(molesBaseUsed)} ÷ ${fmt(cB)}) × 1000 = ${fmt(volBcalc)} cm³</div>`);
+}
+
+function computeConcB_from_massRFM(vars){
+  const { mass, rfm, volA, cA, volB, ratioAbA, ratioAbB, ratioAsA, ratioAsB } = vars;
+  resSteps = [];
+  appendStep(`<strong>Goal:</strong> compute <em>Concentration of base (cB)</em> from sample mass & RFM.`);
+  if (volA===null || cA===null) throw new Error('acid volume and concentration (volA and cA) are required.');
+  if (volB===null) throw new Error('base volume (volB) is required.');
+
+  const molesAcidInitial = (volA/1000)*cA;
+  appendStep(`<div class="formula">moles_acid_initial = (${volA}/1000) × ${cA} = ${fmt(molesAcidInitial)} mol</div>`);
+
+  const molesSubstance = mass / rfm;
+  appendStep(`<div class="formula">moles_substance = mass ÷ RFM = ${fmt(mass)} ÷ ${fmt(rfm)} = ${fmt(molesSubstance)} mol</div>`);
+
+  const molesAcidReacted = molesSubstance * (ratioAsA / ratioAsB);
+  appendStep(`<div class="formula">moles_acid_reacted = moles_substance × (acidRatio/substanceRatio) = ${fmt(molesSubstance)} × (${ratioAsA}/${ratioAsB}) = ${fmt(molesAcidReacted)} mol</div>`);
+
+  const acidEquivalent = molesAcidInitial - molesAcidReacted;
+  appendStep(`<div class="formula">acid_equivalent = moles_acid_initial − moles_acid_reacted = ${fmt(molesAcidInitial)} − ${fmt(molesAcidReacted)} = ${fmt(acidEquivalent)} mol</div>`);
+
+  const molesBaseNeeded = acidEquivalent * (ratioAbB / ratioAbA);
+  appendStep(`<div class="formula">moles_base_needed = acid_equivalent × (ratioBase/ratioAcid) = ${fmt(acidEquivalent)} × (${ratioAbB}/${ratioAbA}) = ${fmt(molesBaseNeeded)} mol</div>`);
+
+  if (volB === 0) throw new Error('base volume cannot be zero.');
+  const cBcalc = molesBaseNeeded / (volB/1000);
+  appendStep(`<div class="formula">concBase = moles_base_needed ÷ (volBase/1000) = ${fmt(molesBaseNeeded)} ÷ (${fmt(volB)}/1000) = ${fmt(cBcalc)} mol·dm⁻³</div>`);
+}
+
+/* ---------- small utilities ---------- */
+function clearAll(){
+  ['mass','rfm','volAcid','concAcid','volBase','concBase'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('result').innerHTML = '';
+}
+function fillExample(){
+  // Example that will solve RFM when left blank
+  document.getElementById('mass').value = '0.250';
+  document.getElementById('rfm').value = '';
+  document.getElementById('volAcid').value = '25.0';
+  document.getElementById('concAcid').value = '0.100';
+  document.getElementById('volBase').value = '15.0';
+  document.getElementById('concBase').value = '0.100';
+  document.getElementById('ratioAbA').value = '1';
+  document.getElementById('ratioAbB').value = '1';
+  document.getElementById('ratioAsA').value = '1';
+  document.getElementById('ratioAsB').value = '1';
+  document.getElementById('result').innerHTML = '<div>Example values filled. Leave one field blank and press Solve.</div>';
 }
 
 
-/*** Helpers ***/
-function get(id) {
-  const value = document.getElementById(id).value;
-  return value === "" ? null : parseFloat(value);
-}
 
-function show(msg) {
-  document.getElementById("auto_back_result").innerHTML = msg;
-}
 
-function calculateAll(mass, vA, cA, vB, cB, RA, RB, RS_A, RS_B) {
-  return `
-    All values present — calculation done.<br>
-    <b>Molar mass:</b> ${mass / (((vA/1000)*cA - (vB/1000)*cB*(RA/RB))*(RS_B/RS_A))}
-  `;
-}
+  
 
 
 
-
+  
 
 function calculateRedox() {
   const vOx = parseFloat(document.getElementById('redoxVolOx').value) / 1000;
@@ -351,6 +617,7 @@ function calculateRedox() {
 
 </body>
 </html>
+
 
 
 
