@@ -212,32 +212,64 @@
     Loading access info...
 </div>
 
-<script>
- const countdownEl = document.getElementById('accessCountdown');
 
+
+
+
+
+<script>
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 const FIRST_ACCESS_MINUTES = 10; // free trial
-const ACCESS_DURATION = 24*60*60*1000; // 24 hours for paid
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
 
 // Helper: get URL query parameters
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
 }
-// Load stored times
+
+// Format remaining time
+function formatTime(ms){
+    if(ms <= 0) return "00:00";
+    let totalSec = Math.floor(ms/1000);
+    let h = Math.floor(totalSec / 3600);
+    let m = Math.floor((totalSec % 3600) / 60);
+    let s = totalSec % 60;
+    if(h > 0) return `${h}h ${m}m ${s}s`;
+    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+
+// Access tracking
 let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
 let freeEnd = parseInt(localStorage.getItem('firstAccessEnd')) || 0;
 const now = Date.now();
 const reference = getQueryParam('reference');
 
-// Only store paid timestamp if not already stored
-if(reference && !localStorage.getItem('paidReference')) {
+if(reference){
+    // Paid: store timestamp
     lastPaid = now;
     localStorage.setItem('lastPaidTime', lastPaid);
     localStorage.setItem('paidReference', reference);
 }
 
-// Countdown display
+// Countdown element
+const countdownEl = document.getElementById('accessCountdown');
+
+// Show modal function
+function showAccessModal(message, btnText="OK", callback=null){
+    const modal = document.getElementById('accessModal');
+    const msgEl = document.getElementById('accessMessage');
+    const btn = document.getElementById('accessBtn');
+    msgEl.innerHTML = message;
+    btn.textContent = btnText;
+    modal.style.display = "flex";
+    btn.onclick = ()=> {
+        modal.style.display = "none";
+        if(callback) callback();
+    };
+}
+
+// Countdown logic
 function startCountdown(){
     countdownEl.style.display = "block";
     function updateCountdown(){
@@ -284,6 +316,10 @@ if(lastPaid && now - lastPaid < ACCESS_DURATION){
 
 
 
+
+
+
+ 
 
  
 // Define acids and their H+ per molecule
