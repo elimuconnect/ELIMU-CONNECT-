@@ -222,46 +222,20 @@ function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
 }
-
+// Load stored times
 let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
 let freeEnd = parseInt(localStorage.getItem('firstAccessEnd')) || 0;
 const now = Date.now();
 const reference = getQueryParam('reference');
 
-if(reference){
-    // Paid: store timestamp
+// Only store paid timestamp if not already stored
+if(reference && !localStorage.getItem('paidReference')) {
     lastPaid = now;
     localStorage.setItem('lastPaidTime', lastPaid);
     localStorage.setItem('paidReference', reference);
 }
 
-// Show modal function
-function showAccessModal(message, btnText="OK", callback=null){
-    const modal = document.getElementById('accessModal');
-    const msgEl = document.getElementById('accessMessage');
-    const btn = document.getElementById('accessBtn');
-    msgEl.innerHTML = message;
-    btn.textContent = btnText;
-    modal.style.display = "flex";
-    btn.onclick = ()=> {
-        modal.style.display = "none";
-        if(callback) callback();
-    };
-}
-
-// Format remaining time
-function formatTime(ms){
-    if(ms<=0) return "00:00";
-    let totalSec = Math.floor(ms/1000);
-    let h = Math.floor(totalSec/3600);
-    let m = Math.floor((totalSec%3600)/60);
-    let s = totalSec%60;
-    if(h>0) return `${h}h ${m}m`;
-    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-}
-
 // Countdown display
-const countdownEl = document.getElementById('accessCountdown');
 function startCountdown(){
     countdownEl.style.display = "block";
     function updateCountdown(){
@@ -300,10 +274,7 @@ if(lastPaid && now - lastPaid < ACCESS_DURATION){
 } else {
     // Free trial already started
     startCountdown();
- }
-
-
-
+}
 
 
 
