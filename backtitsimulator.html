@@ -182,75 +182,75 @@
 ">
     Loading access info...
 </div>
-
 <script>
-// --- Config ---
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-const FIRST_ACCESS_MINUTES = 10; // free trial
-const ACCESS_DURATION = 24*60*60*1000; // 24 hours after payment
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours
+const FREE_LOADS_MAX = 2;
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/backtitsimulator";
 
-let lastPaid = localStorage.getItem('lastPaidTime');
-lastPaid = lastPaid ? parseInt(lastPaid) : 0;
-
-function showAccessModal(message, btnText="OK", callback=null){
-    const modal = document.getElementById('accessModal');
-    const msgEl = document.getElementById('accessMessage');
-    const btn = document.getElementById('accessBtn');
-    msgEl.innerHTML = message;
-    btn.textContent = btnText;
-    modal.style.display = "flex";
-    btn.onclick = ()=>{
-        modal.style.display = "none";
-        if(callback) callback();
-    };
+// Helper: get URL query parameters
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
 }
 
-function formatTime(ms){
-    if(ms<=0) return "00:00";
-    let totalSec = Math.floor(ms/1000);
-    let h = Math.floor(totalSec/3600);
-    let m = Math.floor((totalSec%3600)/60);
-    let s = totalSec%60;
-    if(h>0) return `${h}h ${m}m`;
-    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+// Track free loads
+let freeLoadCount = parseInt(localStorage.getItem('freeLoadCount')) || 0;
+
+// Check if user has paid via reference
+const reference = getQueryParam('reference');
+let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
+const now = Date.now();
+
+if(reference){
+    // Payment successful, store timestamp
+    lastPaid = now;
+    localStorage.setItem('lastPaidTime', lastPaid);
+    localStorage.setItem('paidReference', reference);
 }
 
-const countdownEl = document.getElementById('accessCountdown');
-
-window.addEventListener('DOMContentLoaded', ()=>{
-    const now = Date.now();
-    let freeEnd = parseInt(localStorage.getItem('firstAccessEnd') || 0);
-
-    function startCountdown(){
-    countdownEl.style.display = "block";
-    function updateCountdown(){
-        const now = Date.now();
-        let remainingMs;
-
-        if(lastPaid && now - lastPaid < ACCESS_DURATION){
-            // Paid access active
-            remainingMs = ACCESS_DURATION - (now - lastPaid);
-            countdownEl.textContent = `Paid access: ${formatTime(remainingMs)}`;
+// Check if paid access is valid
+if(lastPaid && now - lastPaid < ACCESS_DURATION){
+    console.log("Paid access active for 24h.");
+} else {
+    // Free load logic (for pages 2 & 3)
+    if(window.location.href !== MAIN_LINK){
+        if(freeLoadCount < FREE_LOADS_MAX){
+            freeLoadCount++;
+            localStorage.setItem('freeLoadCount', freeLoadCount);
+            alert(`You have ${FREE_LOADS_MAX - freeLoadCount} free loads remaining.`);
         } else {
-            // Free trial or expired
-            const freeEnd = parseInt(localStorage.getItem('firstAccessEnd') || 0);
-            if(freeEnd && now < freeEnd){
-                remainingMs = freeEnd - now;
-                countdownEl.textContent = `Free trial: ${formatTime(remainingMs)}`;
-            } else {
-                countdownEl.textContent = `Access expired. Pay to continue.`;
-                showAccessModal(
-                    "Your access has expired. Please pay KSh 10 to continue using the Smart Elimu Connect tool.",
-                    "Pay Now",
-                    ()=>{ window.location.href = PAYMENT_LINK; }
-                );
-            }
+            // Block access if not from main link
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:50px; font-family:sans-serif;">
+                    <h2>Access Restricted</h2>
+                    <p>You have used your free loads. Please open the simulator from the main link:</p>
+                    <a href="${MAIN_LINK}" style="font-size:1.2rem; color:#0078D7;">Open Main Simulator</a>
+                    <p>Or pay KSh 10 to get 24-hour access:</p>
+                    <a href="${PAYMENT_LINK}" style="font-size:1.2rem; color:#fff; background:#0078D7; padding:10px 20px; border-radius:6px; display:inline-block;">Pay Now</a>
+                </div>
+            `;
+            throw new Error("Access blocked until main link or payment.");
         }
     }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
 }
 
+// Optional: show countdown for paid access
+const countdownEl = document.getElementById('accessCountdown');
+if(countdownEl && lastPaid){
+    countdownEl.style.display = "block";
+    setInterval(()=>{
+        const remaining = ACCESS_DURATION - (Date.now() - lastPaid);
+        if(remaining>0){
+            const h = Math.floor(remaining/3600000);
+            const m = Math.floor((remaining%3600000)/60000);
+            const s = Math.floor((remaining%60000)/1000);
+            countdownEl.textContent = `Paid access: ${h}h ${m}m ${s}s`;
+        } else {
+            countdownEl.textContent = `Paid access expired.`;
+        }
+    },1000);
+}
     if(!lastPaid && !freeEnd){
         // First-time free access: show modal first
         freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
