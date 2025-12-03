@@ -110,6 +110,46 @@
 <p>Current pH: <span id="pH">1.00</span></p>
 
 <script>
+
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/backtitsimulator";
+const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
+const ACCESS_DURATION = 24*60*60*1000; // 24h in ms
+
+let freeLoadCount = parseInt(localStorage.getItem('freeLoadCount')) || 0;
+let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
+const now = Date.now();
+
+// Check if paid access is still valid
+if(lastPaid && now - lastPaid < ACCESS_DURATION){
+    console.log("Paid access active for 24h.");
+} else {
+    // Free loads logic (applies only to pages 2 & 3)
+    if(freeLoadCount < 2){
+        freeLoadCount++;
+        localStorage.setItem('freeLoadCount', freeLoadCount);
+        alert(`You have ${2-freeLoadCount} free loads remaining across this simulator.`);
+    } else {
+        // Block if not coming from main link
+        if(document.referrer !== MAIN_LINK){
+            document.body.innerHTML = `
+                <div style="text-align:center; padding:50px; font-family:sans-serif;">
+                    <h2>Access Restricted</h2>
+                    <p>You have used your free loads. To continue, please open the simulator from the main link:</p>
+                    <a href="${MAIN_LINK}" style="font-size:1.2rem; color:#0078D7;">Open Main Simulator</a>
+                    <p>Or pay KSh 10 to get 24-hour access:</p>
+                    <a href="${PAYMENT_LINK}" style="font-size:1.2rem; color:#fff; background:#0078D7; padding:10px 20px; border-radius:6px; display:inline-block;">Pay Now</a>
+                </div>
+            `;
+            throw new Error("Access blocked until main link or payment.");
+        }
+    }
+}
+
+
+
+
+
+ 
 const canvas = document.getElementById('labCanvas');
 const ctx = canvas.getContext('2d');
 function resizeCanvas() {
