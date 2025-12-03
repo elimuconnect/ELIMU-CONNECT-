@@ -65,30 +65,40 @@
   <div id="directResult"></div>
 </div>
 
-<div class="section">
-  <h3>Back Titration(calculating the molar mass of the solid/liquid)</h3>
-  <label>Mass of substance (g):</label>
-  <input type="number" id="massSubstance" step="any"><br>
-  <label>Volume of acid added initially (cm³):</label>
-  <input type="number" id="acidVolume" step="any"><br>
-  <label>Concentration of acid (mol/dm³):</label>
-  <input type="number" id="acidConcentration" step="any"><br>
-  <label>Volume of base used in titration (cm³):</label>
-  <input type="number" id="baseVolume" step="any"><br>
-  <label>Concentration of base (mol/dm³):</label>
-  <input type="number" id="baseConcentration" step="any"><br>
-  
-  <label>Mole Ratio (Acid : Base)</label><br>
-<input type="number" id="backRatioAcid" value="1" min="1" style="width: 50px;"> :
-<input type="number" id="backRatioBase" value="1" min="1" style="width: 50px;"><br>
-  
-  <label>Moles of Acid : Moles of Substance = </label>
-  <input type="number" id="acidRatio" value="1" style="width: 50px;"> :
-  <input type="number" id="substanceRatio" value="1" style="width: 50px;"><br>
 
-  <button onclick="calculateBack()">Calculate Back Titration</button>
-  <div id="backResult"></div>
+
+
+
+  <div class="section">
+  <h3>Back Titration (Auto-Solve for Any Unknown)</h3>
+
+  <label>Mass of substance (g):</label>
+  <input type="number" id="auto_mass" step="any"><br>
+
+  <label>Volume of acid added initially (cm³):</label>
+  <input type="number" id="auto_volAcid" step="any"><br>
+
+  <label>Concentration of acid (mol/dm³):</label>
+  <input type="number" id="auto_concAcid" step="any"><br>
+
+  <label>Volume of base used (cm³):</label>
+  <input type="number" id="auto_volBase" step="any"><br>
+
+  <label>Concentration of base (mol/dm³):</label>
+  <input type="number" id="auto_concBase" step="any"><br>
+
+  <label>Mole Ratio (Acid : Base)</label><br>
+  <input type="number" id="auto_ratioAcidBase_A" value="1" style="width:50px"> :
+  <input type="number" id="auto_ratioAcidBase_B" value="1" style="width:50px"><br>
+
+  <label>Moles Acid : Substance</label>
+  <input type="number" id="auto_ratioAcidSub_A" value="1" style="width:50px"> :
+  <input type="number" id="auto_ratioAcidSub_B" value="1" style="width:50px"><br>
+
+  <button onclick="autoBackTitration()">Auto Solve</button>
+  <div id="auto_back_result"></div>
 </div>
+
 
 
 
@@ -191,52 +201,94 @@ if(isMainLink || fromMainLink){
     document.getElementById('directResult').innerHTML = steps.join('');
   }
 
-  function calculateBack() {
-  const mass = parseFloat(document.getElementById('massSubstance').value);
-  const volAcid = parseFloat(document.getElementById('acidVolume').value) / 1000;
-  const concAcid = parseFloat(document.getElementById('acidConcentration').value);
-  const volBase = parseFloat(document.getElementById('baseVolume').value) / 1000;
-  const concBase = parseFloat(document.getElementById('baseConcentration').value);
-  const acidRatio = parseFloat(document.getElementById("acidRatio").value);
-  const substanceRatio = parseFloat(document.getElementById("substanceRatio").value);
 
-  // New: Acid : Base ratio
-  const backRatioAcid = parseFloat(document.getElementById("backRatioAcid").value);
-  const backRatioBase = parseFloat(document.getElementById("backRatioBase").value);
 
-  const steps = [];
 
-  // Step 1: Moles of acid added
-  const molesAcidInitial = volAcid * concAcid;
-  steps.push(`<div class='step formula'>Step 1: Moles of acid added = volume × concentration</div>`);
-  steps.push(`<div class='step'>${format(volAcid)} × ${concAcid} = ${format(molesAcidInitial)} mol</div>`);
 
-  // Step 2: Moles of base added
-  const molesBaseUsed = volBase * concBase;
-  steps.push(`<div class='step formula'>Step 2: Moles of base added = volume × concentration</div>`);
-  steps.push(`<div class='step'>${format(volBase)} × ${concBase} = ${format(molesBaseUsed)} mol</div>`);
 
-  // Step 3: Convert moles of base to acid equivalent using acid:base ratio
-  const molesAcidEquivalent = molesBaseUsed * (backRatioAcid / backRatioBase);
-  steps.push(`<div class='step formula'>Step 3: Convert moles of base to acid equivalent using ratio ${backRatioAcid}:${backRatioBase}</div>`);
-  steps.push(`<div class='step'>Acid equivalent = ${format(molesBaseUsed)} × (${backRatioAcid}/${backRatioBase}) = ${format(molesAcidEquivalent)} mol</div>`);
+  function autoBackTitration() {
 
-  // Step 4: Moles of acid that reacted with the substance
-  const molesAcidReacted = molesAcidInitial - molesAcidEquivalent;
-  steps.push(`<div class='step formula'>Step 4: Acid reacted with substance = total acid - acid that reacted with base</div>`);
-  steps.push(`<div class='step'>${format(molesAcidInitial)} - ${format(molesAcidEquivalent)} = ${format(molesAcidReacted)} mol</div>`);
+  const mass = get("auto_mass");
+  const vA = get("auto_volAcid");
+  const cA = get("auto_concAcid");
+  const vB = get("auto_volBase");
+  const cB = get("auto_concBase");
 
-  // Step 5: Use acid:substance ratio to get moles of substance
-  const molesSubstance = molesAcidReacted * (substanceRatio / acidRatio);
-  steps.push(`<div class='step formula'>Step 5: Use ratio Acid:Substance = ${acidRatio}:${substanceRatio}</div>`);
-  steps.push(`<div class='step'>Moles of substance = ${format(molesAcidReacted)} × (${substanceRatio}/${acidRatio}) = ${format(molesSubstance)} mol</div>`);
+  const R_ab_A = get("auto_ratioAcidBase_A");
+  const R_ab_B = get("auto_ratioAcidBase_B");
+  const R_as_A = get("auto_ratioAcidSub_A");
+  const R_as_B = get("auto_ratioAcidSub_B");
 
-  // Step 6: Molar mass = mass / moles
-  const molarMass = mass / molesSubstance;
-  steps.push(`<div class='step formula'>Step 6: Molar mass = mass ÷ moles</div>`);
-  steps.push(`<div class='step'>${mass} ÷ ${format(molesSubstance)} = ${format(molarMass)} g/mol</div>`);
+  const fields = { mass, vA, cA, vB, cB };
+  const missing = Object.keys(fields).filter(k => fields[k] === null);
 
-  document.getElementById("backResult").innerHTML = steps.join('');
+  if (missing.length > 1) {
+    return show("Please leave ONLY ONE value blank.");
+  }
+  if (missing.length === 0) {
+    // all values present → normal calculation
+    const result = calculateAll(mass, vA, cA, vB, cB, R_ab_A, R_ab_B, R_as_A, R_as_B);
+    return show(result);
+  }
+
+  const unknown = missing[0];
+
+  // ---------- FORMULAS ----------
+  const molesAcidInitial = (vA / 1000) * cA;
+  const molesBase = (vB / 1000) * cB;
+  const acidEquivalent = molesBase * (R_ab_A / R_ab_B);
+  const molesAcidReacted = molesAcidInitial - acidEquivalent;
+  const molesSubstance = molesAcidReacted * (R_as_B / R_as_A);
+
+  // AUTO COMPUTE UNKNOWN
+  let solved;
+
+  switch (unknown) {
+
+    case "mass":
+      solved = molesSubstance * 1; // molar mass not needed here
+      solved = `Missing MASS = moles × molar mass<br>Cannot compute because molar mass is also unknown.`;
+      break;
+
+    case "vA":
+      const neededAcid = molesAcidReacted + acidEquivalent;
+      solved = neededAcid / cA * 1000;
+      break;
+
+    case "cA":
+      solved = (molesAcidReacted + acidEquivalent) / (vA / 1000);
+      break;
+
+    case "vB":
+      const neededBase = (molesAcidInitial - molesAcidReacted) / (R_ab_A / R_ab_B);
+      solved = neededBase / cB * 1000;
+      break;
+
+    case "cB":
+      const neededBaseMoles = (molesAcidInitial - molesAcidReacted) / (R_ab_A / R_ab_B);
+      solved = neededBaseMoles / (vB / 1000);
+      break;
+  }
+
+  show(`<b>Unknown solved (${unknown}):</b> ${solved}`);
+}
+
+
+/*** Helpers ***/
+function get(id) {
+  const value = document.getElementById(id).value;
+  return value === "" ? null : parseFloat(value);
+}
+
+function show(msg) {
+  document.getElementById("auto_back_result").innerHTML = msg;
+}
+
+function calculateAll(mass, vA, cA, vB, cB, RA, RB, RS_A, RS_B) {
+  return `
+    All values present — calculation done.<br>
+    <b>Molar mass:</b> ${mass / (((vA/1000)*cA - (vB/1000)*cB*(RA/RB))*(RS_B/RS_A))}
+  `;
 }
 
 
@@ -299,6 +351,7 @@ function calculateRedox() {
 
 </body>
 </html>
+
 
 
 
