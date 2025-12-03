@@ -122,11 +122,16 @@ const MAX_FREE_LOADS = 2;
 // Track free loads
 let freeLoadCount = parseInt(localStorage.getItem('freeLoadCount')) || 0;
 
-// Check if this is main link access
-const isMainLink = window.location.href === MAIN_LINK;
+// Helper: get base URL without query string
+function getBaseURL(url){
+    return url.split('?')[0];
+}
 
-// Check if we came from main link redirect
-const fromMainLink = document.referrer === MAIN_LINK;
+// Check if this is main link access (ignore query parameters)
+const isMainLink = getBaseURL(window.location.href) === MAIN_LINK;
+
+// Check if we came from main link redirect (ignore query)
+const fromMainLink = getBaseURL(document.referrer) === MAIN_LINK;
 
 if(isMainLink || fromMainLink){
     // Reset free load count when opened via main link
