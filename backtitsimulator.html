@@ -222,13 +222,11 @@ const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 const FIRST_ACCESS_MINUTES = 10; // free trial
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
 
-// Helper: get URL query parameters
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
 }
 
-// Format remaining time
 function formatTime(ms){
     if(ms <= 0) return "00:00";
     let totalSec = Math.floor(ms/1000);
@@ -241,21 +239,29 @@ function formatTime(ms){
 
 // Access tracking
 let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
+let paidReference = localStorage.getItem('paidReference') || "";
 let freeEnd = parseInt(localStorage.getItem('firstAccessEnd')) || 0;
+
 const now = Date.now();
 const reference = getQueryParam('reference');
 
-if(reference){
-    // Paid: store timestamp
+// Only store new payment if reference is new
+if(reference && reference !== paidReference){
     lastPaid = now;
+    paidReference = reference;
     localStorage.setItem('lastPaidTime', lastPaid);
-    localStorage.setItem('paidReference', reference);
+    localStorage.setItem('paidReference', paidReference);
+}
+
+// Only set free trial if not already set
+if(!freeEnd){
+    freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
+    localStorage.setItem('firstAccessEnd', freeEnd);
 }
 
 // Countdown element
 const countdownEl = document.getElementById('accessCountdown');
 
-// Show modal function
 function showAccessModal(message, btnText="OK", callback=null){
     const modal = document.getElementById('accessModal');
     const msgEl = document.getElementById('accessMessage');
@@ -269,7 +275,6 @@ function showAccessModal(message, btnText="OK", callback=null){
     };
 }
 
-// Countdown logic
 function startCountdown(){
     countdownEl.style.display = "block";
     function updateCountdown(){
@@ -293,23 +298,8 @@ function startCountdown(){
     setInterval(updateCountdown, 1000);
 }
 
-// Main logic
-if(lastPaid && now - lastPaid < ACCESS_DURATION){
-    startCountdown(); // Paid access active
-} else if(!freeEnd){
-    // First-time free trial
-    freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
-    localStorage.setItem('firstAccessEnd', freeEnd);
-    showAccessModal(
-        `Welcome! You have free access for ${FIRST_ACCESS_MINUTES} minutes. Enjoy using the tool!`,
-        "Start Tool",
-        ()=>{ startCountdown(); }
-    );
-} else {
-    // Free trial already started
-    startCountdown();
-}
-
+// Start countdown
+startCountdown();
 
 
 
