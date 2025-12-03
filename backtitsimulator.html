@@ -144,6 +144,43 @@
 
 
 
+
+
+
+ <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/adirecttitback"
+   id="proceedBtn"
+   style="display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
+          background:#0078D7; color:#fff; padding:10px 20px; border-radius:6px;
+          text-decoration:none; font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,0.2);
+          font-family:Segoe UI, sans-serif; letter-spacing:0.5px;">
+  Proceed to Titration <span style="display:inline-block; transition:transform 0.3s;">➜</span>
+</a>
+
+  <button id="resetBtn">Reset</button>
+</div>
+
+<div id="info" class="small">
+  <p><strong>Phase:</strong> <span id="phaseLabel">Ready — start reaction</span></p>
+  <p><strong>Solid moles:</strong> <span id="molesSolid">—</span> mol &nbsp; | &nbsp;
+     <strong>Acid initial moles:</strong> <span id="molesAcidInit">—</span> mol &nbsp; | &nbsp;
+     <strong>Acid consumed:</strong> <span id="molesAcidConsumed">—</span> mol</p>
+  <p><strong>Remaining acid (moles):</strong> <span id="molesAcidRemain">—</span> mol</p>
+  <p><strong>New molarity of the acid:</strong> <span id="newMol">—</span></p>
+  
+
+
+  
+</div>
+
+<div id="canvasWrap"><canvas id="labCanvas" width="650" height="500"></canvas></div>
+<p class="small">Smart Elimu Connect practicals</p>
+
+
+
+
+
+
+ 
 <!-- Payment Access Modal -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -264,6 +301,8 @@ if(lastPaid && now - lastPaid < ACCESS_DURATION){
     // Free trial already started
     startCountdown();
  }
+
+
 
 
 
