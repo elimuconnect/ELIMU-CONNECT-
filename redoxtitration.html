@@ -136,6 +136,7 @@
 
 
 
+
 <!-- Payment Access Modal -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -168,10 +169,10 @@
 </div>
 
 <script>
-const PAYMENT_LINK = "https://paystack.shop/pay/u7q214ftyd";
+const PAYMENT_LINK = "https://paystack.shop/pay/u7q214ftyd"; // same payment link
 const FIRST_ACCESS_MINUTES = 10; // free trial
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
-const STORAGE_PREFIX = "directTitration_"; // unique for this site
+const STORAGE_PREFIX = "redoxTitration_"; // unique prefix for Redox site
 
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -251,12 +252,6 @@ function startCountdown(){
 
 // Start countdown
 startCountdown();
-</script>
-
-
-
-
-
 
 
 
