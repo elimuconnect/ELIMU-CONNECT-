@@ -84,7 +84,17 @@
 }
 
 
-  
+  /* PHONE ONLY — enlarge canvas */
+@media (max-width: 520px) {
+  canvas {
+    width: 100% !important;
+    max-width: 620px !important;  /* bigger than before */
+    height: auto !important;
+    transform: scale(1.12);       /* ↑ enlarge visually */
+    transform-origin: top center;
+  }
+}
+
 </style>
 </head>
 <body>
