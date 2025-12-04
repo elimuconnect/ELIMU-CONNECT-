@@ -16,25 +16,16 @@
   
  
  
-
-/* Base canvas style */
-canvas {
+ 
+ canvas {
   width: 100%;
-  max-width: 760px;   /* desktop max width */
-  height: auto;
+  max-width: 760px;   /* match your drawing width */
+  display: block;
   margin: 0 auto;
   border-radius: 8px;
   border: 2px solid #bfe;
   box-shadow: 0 6px 18px rgba(10,40,60,0.06);
   background: #fff;
-}
-
-/* Phones / small screens */
-@media (max-width: 600px) {
-  canvas {
-    max-width: 90%;      /* nearly full screen width */
-    height: auto;
-  }
 }
 
 
@@ -72,6 +63,11 @@ canvas {
   
   
   
+ @media(max-width:520px){
+  canvas { border:1px solid #bfe; }
+  .small, label, .btn { font-size:1rem; }
+}
+ 
   
   
   /* Limit canvas max size on PC */
@@ -82,28 +78,16 @@ canvas {
   }
 }
 
-  /* Make canvas larger on phones */
-@media(max-width:520px){
+  
+  @media(max-width:520px){
   canvas {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 500px !important; /* big and readable */
-    border: 2px solid #bfe;
+    display: block;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 }
 
-
-  /* PHONE ONLY — enlarge canvas */
-@media (max-width: 520px) {
-  canvas {
-    width: 100% !important;
-    max-width: 620px !important;  /* bigger than before */
-    height: auto !important;
-    transform: scale(1.12);       /* ↑ enlarge visually */
-    transform-origin: top center;
-  }
-}
-
+  
 </style>
 </head>
 <body>
@@ -341,19 +325,14 @@ buretteVol = 50; // or set dynamically based on titrantVolNeeded
 }
 
 
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+ const scale = Math.min(canvas.width / 760, 1);  // never exceed normal size
 
-function draw() {
-  // clear the entire internal buffer
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Work in CSS pixel coordinates (because ctx is scaled by dpr in resizeCanvas)
-  const dpr = window.devicePixelRatio || 1;
-  const cssWidth = canvas.width / dpr;
-  const cssHeight = canvas.height / dpr;
 
-  const baseWidth = 1200;               // design baseline
-  const scale = cssWidth / baseWidth;  // how much to scale drawing in CSS px
-  const centerX = cssWidth / 2;
+
+  const centerX = canvas.width / 2;
 
   // --- Burette ---
   const buretteHeight = 300 * scale;
@@ -362,7 +341,6 @@ function draw() {
   const buretteTop = 40 * scale;
   const buretteX = centerX;
 
-  // draw using CSS-coordinates (ctx is scaled to CSS already)
   ctx.lineWidth = 1.5;
   ctx.strokeStyle = '#000';
   ctx.fillStyle = '#f8ffffaa';
@@ -387,16 +365,18 @@ function draw() {
                       (titrantKey==='K2Cr2O7')?COLORS.K2Cr2O7:
                       (titrantKey==='I2')?COLORS.I2:
                       (titrantKey==='Ce4')?COLORS.Ce4:'#cfc';
+ 
 
-  const liquidFrac = buretteVol / 50; // fraction remaining
-  const liquidHeight = buretteHeight * liquidFrac;
-  ctx.fillStyle = titColorHex;
-  ctx.globalAlpha = 0.18;
-  ctx.beginPath();
-  ctx.ellipse(buretteX, buretteTop + 5*scale, radiusX-3*scale, radiusY-2*scale, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillRect(buretteX - radiusX + 3*scale, buretteTop + buretteHeight - liquidHeight, 2*(radiusX-3*scale), liquidHeight);
-  ctx.globalAlpha = 1;
+
+ const liquidFrac = buretteVol / 50; // fraction remaining
+const liquidHeight = buretteHeight * liquidFrac;
+ctx.fillStyle = titColorHex;
+ctx.globalAlpha = 0.18;
+ctx.beginPath();
+ctx.ellipse(buretteX, buretteTop + 5*scale, radiusX-3*scale, radiusY-2*scale, 0, 0, Math.PI*2);
+ctx.fill();
+ctx.fillRect(buretteX - radiusX + 3*scale, buretteTop + buretteHeight - liquidHeight, 2*(radiusX-3*scale), liquidHeight);
+ctx.globalAlpha = 1;
 
   // --- Burette ticks & labels ---
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
@@ -413,17 +393,17 @@ function draw() {
     }
   }
 
-  // Tap and labels
+  // --- Tap handle ---
   ctx.fillStyle = '#888';
   ctx.fillRect(buretteX - 25*scale, buretteTop + buretteHeight - 10*scale, 50*scale/1.2, 10*scale/1.2);
 
   ctx.strokeStyle='#000'; ctx.fillStyle='#000'; ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(buretteX + 30*scale, buretteTop + buretteHeight - 10*scale);
-  ctx.lineTo(buretteX + 2*scale, buretteTop + buretteHeight + 10*scale);
+  ctx.beginPath(); 
+  ctx.moveTo(buretteX + 30*scale, buretteTop + buretteHeight - 10*scale); 
+  ctx.lineTo(buretteX + 2*scale, buretteTop + buretteHeight + 10*scale); 
   ctx.stroke();
 
-  ctx.beginPath();
+  ctx.beginPath(); 
   ctx.moveTo(buretteX + 2*scale, buretteTop + buretteHeight + 10*scale);
   ctx.lineTo(buretteX - 2*scale, buretteTop + buretteHeight + 2*scale);
   ctx.lineTo(buretteX + 6*scale, buretteTop + buretteHeight + 2*scale);
@@ -434,70 +414,79 @@ function draw() {
   ctx.font = `${12*scale}px Arial`;
   ctx.fillText('Volume added: ' + addedVol.toFixed(1)+' mL', buretteX + 40*scale, buretteTop + buretteHeight);
 
-  // --- Flask ---
-  const fw = 180 * scale, fh = 200 * scale;
-  const fx = centerX - fw / 2;
-  const fy = buretteTop + buretteHeight - 10 * scale;
+// --- Flask ---
+const fw = 180 * scale, fh = 200 * scale;
+const fx = centerX - fw / 2;
+const fy = buretteTop + buretteHeight - 10 * scale;
 
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(fx + 20 * scale, fy + fh);
-  ctx.lineTo(fx + fw - 20 * scale, fy + fh);
-  ctx.lineTo(fx + fw - 50 * scale, fy + 40 * scale);
-  ctx.lineTo(fx + 50 * scale, fy + 40 * scale);
-  ctx.closePath(); ctx.stroke();
+// Flask outline (same as before)
+ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(fx + 20 * scale, fy + fh);
+ctx.lineTo(fx + fw - 20 * scale, fy + fh);
+ctx.lineTo(fx + fw - 50 * scale, fy + 40 * scale);
+ctx.lineTo(fx + 50 * scale, fy + 40 * scale);
+ctx.closePath(); ctx.stroke();
 
-  // flask color
-  const mode = modeSelect.value;
-  const analyteKey = (mode === 'oxidant_buret') ? reductantSel.value : oxidantSel.value;
-  let startColor = '#ffffff', endColor = '#ffffff';
-  if (analyteKey === 'Fe2') startColor = COLORS.Fe2;
-  if (analyteKey === 'S2O3') startColor = COLORS.S2O3;
-  if (analyteKey === 'Oxalate') startColor = COLORS.Oxalate;
-  if (titrantKey === 'KMnO4') endColor = COLORS.KMnO4_end;
-  else if (titrantKey === 'K2Cr2O7') endColor = COLORS.K2Cr2O7_end;
-  else if (titrantKey === 'I2') endColor = COLORS.starch_blue;
-  else if (titrantKey === 'Ce4') endColor = COLORS.Ce4_end;
+// Colors for flask liquid
+const mode = modeSelect.value;
+const analyteKey = (mode === 'oxidant_buret') ? reductantSel.value : oxidantSel.value;
+let startColor = '#ffffff', endColor = '#ffffff';
+if (analyteKey === 'Fe2') startColor = COLORS.Fe2;
+if (analyteKey === 'S2O3') startColor = COLORS.S2O3;
+if (analyteKey === 'Oxalate') startColor = COLORS.Oxalate;
+if (titrantKey === 'KMnO4') endColor = COLORS.KMnO4_end;
+else if (titrantKey === 'K2Cr2O7') endColor = COLORS.K2Cr2O7_end;
+else if (titrantKey === 'I2') endColor = COLORS.starch_blue;
+else if (titrantKey === 'Ce4') endColor = COLORS.Ce4_end;
 
-  function hexToRgb(h){ const c = h.replace('#',''); return [parseInt(c.substring(0,2),16), parseInt(c.substring(2,4),16), parseInt(c.substring(4,6),16)]; }
-  function interpCol(a,b,f){ return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; }
-  const frac = Math.min(1, addedVol / (titrantVolNeeded || 50));
-  const flaskColor = interpCol(hexToRgb(startColor), hexToRgb(endColor), frac);
+// Convert color hex to RGB
+function hexToRgb(h){ 
+  const c = h.replace('#',''); 
+  return [parseInt(c.substring(0,2),16), parseInt(c.substring(2,4),16), parseInt(c.substring(4,6),16)]; 
+}
+function interpCol(a,b,f){ 
+  return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`; 
+}
+const frac = Math.min(1, addedVol / (titrantVolNeeded || 50));
+const flaskColor = interpCol(hexToRgb(startColor), hexToRgb(endColor), frac);
 
-  displayHeight = Math.min(displayHeight, maxFlaskHeight);
-  const topY = fy + fh - displayHeight;
+// Calculate liquid height based on **displayHeight**
+displayHeight = Math.min(displayHeight, maxFlaskHeight);
+const topY = fy + fh - displayHeight;
 
-  ctx.fillStyle = flaskColor; ctx.globalAlpha = 0.95;
-  ctx.beginPath();
-  ctx.ellipse(fx + fw/2, topY, radiusX, radiusY, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillRect(fx + fw/2 - radiusX, topY, radiusX*2, fy + fh - topY);
-  ctx.globalAlpha = 1;
+// Shrink top ellipse radius as flask fills (optional)
+const maxRadiusX = fw / 2 - 20 * scale;
 
-  // --- Drops ---
-  for(let i = drops.length-1; i >= 0; i--){
-    const d = drops[i];
-    ctx.fillStyle = titColorHex;
-    ctx.beginPath(); ctx.arc(d.x, d.y, 4*scale, 0, Math.PI*2); ctx.fill();
-  }
+// Draw liquid
+ctx.fillStyle = flaskColor; ctx.globalAlpha = 0.95;
+ctx.beginPath();
+ctx.ellipse(fx + fw/2, topY, radiusX, radiusY, 0, 0, Math.PI*2);
+ctx.fill();
+ctx.fillRect(fx + fw/2 - radiusX, topY, radiusX*2, fy + fh - topY);
+ctx.globalAlpha = 1;
 
-  // labels
-  ctx.fillStyle = '#000';
-  ctx.font = `${14*scale}px Arial`;
-  ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
-  ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+16*scale);
+
+// --- Drops ---
+for(let i = drops.length-1; i >= 0; i--){
+  const d = drops[i];
+  ctx.fillStyle = titColorHex;
+  ctx.beginPath(); ctx.arc(d.x, d.y, 4*scale, 0, Math.PI*2); ctx.fill();
 }
 
+// Labels
+ctx.fillStyle = '#000'; 
+ctx.font = `${14*scale}px Arial`;
+ctx.fillText((mode==='oxidant_buret'?oxidantSel.value:reductantSel.value)+' Burette', buretteX-2*scale, buretteTop-10*scale);
+ctx.fillText((mode==='oxidant_buret'?reductantSel.value:oxidantSel.value)+' Flask', fx+50*scale, fy+fh+16*scale);
+}
 
-
-
+/* Animate drops */
 function animateDrops(){
-  const dpr = window.devicePixelRatio || 1;
-  const cssWidth = canvas.width / dpr;
-  const baseWidth = 1200;
-  const scale = cssWidth / baseWidth;
-  const centerX = cssWidth / 2;
+ const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
 
+
+  const centerX = canvas.width / 2;
   const fw = 180*scale, fh = 200*scale;
   const fx = centerX - fw/2;
   const fy = 40*scale + 300*scale - 10*scale;
@@ -520,21 +509,15 @@ function animateDrops(){
 
 
 
-
-
 function addDrop(){
-  const dpr = window.devicePixelRatio || 1;
-  const cssWidth = canvas.width / dpr;
-  const baseWidth = 1200;
-  const scale = cssWidth / baseWidth;
-  const centerX = cssWidth / 2;
-
+  const scale = Math.max(canvas.getBoundingClientRect().width / 760, 0.8);
+  const centerX = canvas.width / 2;
   const buretteTop = 40 * scale;
   const buretteHeight = 300 * scale;
 
-  // Create drop in CSS-coordinate space (ctx scaled to CSS pixels)
-  const startX = centerX + (Math.random() - 0.5) * 6 * scale;
-  const startY = buretteTop + buretteHeight - 10 * scale - 6 * scale;
+  // Create drop
+  const startX = centerX + (Math.random() - 0.5) * 6*scale;
+  const startY = buretteTop + buretteHeight - 10 * scale - 6*scale;
   drops.push({ x: startX, y: startY, vx: 0, vy: 0 });
 
   // **Update actual volumes for calculations**
@@ -551,35 +534,25 @@ function addDrop(){
 
 
 
-
-
-
-
 function resizeCanvas(){
   const rect = canvas.parentElement.getBoundingClientRect(); // use card width
-  const cssWidth = Math.max(200, rect.width); // avoid zero
-const cssHeight = Math.max(400, Math.round(cssWidth * 0.65 + 200));
-
+  const width = rect.width;
+  const height = width * 0.65 + 200; // maintain aspect ratio
 
   // Set CSS display size
-  canvas.style.width = cssWidth + 'px';
-  canvas.style.height = cssHeight + 'px';
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
 
   // Set internal pixel size for high-DPI screens
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = Math.round(cssWidth * dpr);
-  canvas.height = Math.round(cssHeight * dpr);
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
 
-  // Reset transforms and set scaling so drawing units == CSS pixels
-  ctx.setTransform(1,0,0,1,0,0);
-  ctx.scale(dpr, dpr);
+  ctx.setTransform(1,0,0,1,0,0); // reset any previous scaling
+  ctx.scale(dpr, dpr);           // scale drawing to match CSS size
 
-  // redraw
   draw();
 }
-
-
-
 
 
 window.addEventListener('resize', resizeCanvas);
