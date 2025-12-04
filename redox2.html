@@ -384,7 +384,7 @@ function draw() {
 
   // --- Burette ticks & labels ---
   ctx.strokeStyle = '#000'; ctx.fillStyle = '#000';
-  ctx.font = `${10*scale}px Arial`;
+  ctx.font = `${15*scale}px Arial`;
   for(let i=0;i<=50;i++){
     const y = buretteTop + (i*buretteHeight)/50;
     const tickLen = (i%5===0)?10*scale:5*scale;
