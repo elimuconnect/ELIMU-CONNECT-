@@ -63,11 +63,6 @@
   
   
   
- @media(max-width:520px){
-  canvas { border:1px solid #bfe; }
-  .small, label, .btn { font-size:1rem; }
-}
- 
   
   
   /* Limit canvas max size on PC */
@@ -78,14 +73,16 @@
   }
 }
 
-  
-  @media(max-width:520px){
+  /* Make canvas larger on phones */
+@media(max-width:520px){
   canvas {
-    display: block;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 500px !important; /* big and readable */
+    border: 2px solid #bfe;
   }
 }
+
 
   
 </style>
