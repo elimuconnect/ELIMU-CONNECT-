@@ -16,16 +16,25 @@
   
  
  
- 
- canvas {
+
+/* Base canvas style */
+canvas {
   width: 100%;
-  max-width: 760px;   /* match your drawing width */
-  display: block;
+  max-width: 760px;   /* desktop max width */
+  height: auto;
   margin: 0 auto;
   border-radius: 8px;
   border: 2px solid #bfe;
   box-shadow: 0 6px 18px rgba(10,40,60,0.06);
   background: #fff;
+}
+
+/* Phones / small screens */
+@media (max-width: 600px) {
+  canvas {
+    max-width: 90%;      /* nearly full screen width */
+    height: auto;
+  }
 }
 
 
@@ -549,7 +558,8 @@ function addDrop(){
 function resizeCanvas(){
   const rect = canvas.parentElement.getBoundingClientRect(); // use card width
   const cssWidth = Math.max(200, rect.width); // avoid zero
-  const cssHeight = Math.round(cssWidth * 0.65 + 200); // maintain aspect ratio
+const cssHeight = Math.max(400, Math.round(cssWidth * 0.65 + 200));
+
 
   // Set CSS display size
   canvas.style.width = cssWidth + 'px';
