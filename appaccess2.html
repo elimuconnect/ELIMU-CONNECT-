@@ -66,7 +66,7 @@ const PAID_DURATION = 3 * 60 * 1000;
 // new: free comeback time after 24 hours/paid ends
 const RETURN_FREE_MINUTES = 2;
 
-const KEY_PREFIX = "elimu_student6_";
+const KEY_PREFIX = "elimu_student7_";
 
 // DOM
 const mainBtn = document.getElementById("studentBtn");
@@ -131,50 +131,55 @@ if(!freeEnd && !lastPaid){
 function startCountdown(){
     countdownEl.style.display="block";
 
-    setInterval(()=>{
-        const now = Date.now();
 
-        // 1️⃣ PAID MODE ACTIVE
-        if(lastPaid && now - lastPaid < PAID_DURATION){
-            const remain = PAID_DURATION - (now - lastPaid);
-            countdownEl.textContent = `Paid access remaining: ${formatTime(remain)}`;
-            mainBtn.disabled = false;
-            return;
-        }
+setInterval(()=>{
+    const now = Date.now();
 
-        // 2️⃣ FIRST FREE TRIAL ACTIVE
-        if(freeEnd && now < freeEnd){
-            const remain = freeEnd - now;
-            countdownEl.textContent = `Free trial remaining: ${formatTime(remain)}`;
-            mainBtn.disabled = false;
-            return;
-        }
+    // --- RETURN FREE SHOULD BE CHECKED FIRST ---
+    if(returnFreeEnd && now < returnFreeEnd){
+        const remain = returnFreeEnd - now;
+        countdownEl.textContent = `Free return access: ${formatTime(remain)}`;
+        mainBtn.disabled = false;
+        return;
+    }
 
-        // 3️⃣ PAID EXPIRED → GIVE RETURN FREE TIME (IF NOT USED)
-        if(returnFreeEnd === 0 && lastPaid && now - lastPaid >= PAID_DURATION){
-            returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
-            localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
-        }
+    // --- PAID ACTIVE ---
+    if(lastPaid && now - lastPaid < PAID_DURATION){
+        const remain = PAID_DURATION - (now - lastPaid);
+        countdownEl.textContent = `Paid access remaining: ${formatTime(remain)}`;
+        mainBtn.disabled = false;
+        return;
+    }
 
-        // 4️⃣ RETURN FREE MODE ACTIVE
-        if(returnFreeEnd && now < returnFreeEnd){
-            const remain = returnFreeEnd - now;
-            countdownEl.textContent = `Free return access: ${formatTime(remain)}`;
-            mainBtn.disabled = false;
-            return;
-        }
+    // --- FIRST FREE TRIAL ---
+    if(freeEnd && now < freeEnd){
+        const remain = freeEnd - now;
+        countdownEl.textContent = `Free trial remaining: ${formatTime(remain)}`;
+        mainBtn.disabled = false;
+        return;
+    }
 
-        // 5️⃣ EVERYTHING EXPIRED → BLOCK
-        countdownEl.style.display="none";
-        mainBtn.disabled = true;
+    // --- PAID EXPIRED → CREATE RETURN FREE (only once) ---
+    if(lastPaid && now - lastPaid >= PAID_DURATION && !returnFreeEnd){
+        returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
+        localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
+        return;
+    }
 
-        showModal(
-            "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
-            "Pay Now",
-            ()=> window.location.href = PAYMENT_LINK
-        );
-    }, 500);
-}
+    // --- ZERO ACCESS → BLOCK ---
+    countdownEl.style.display = "none";
+    mainBtn.disabled = true;
+
+    showModal(
+        "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
+        "Pay Now",
+        ()=> window.location.href = PAYMENT_LINK
+    );
+
+}, 500);
+
+
+  
 
 startCountdown();
 
