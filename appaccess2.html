@@ -79,13 +79,22 @@ const modalBtn = document.getElementById('accessBtn');
 function getQueryParam(param){
     return new URLSearchParams(window.location.search).get(param);
 }
+
+
+
 function formatTime(ms){
-    if(ms <= 0) return "00:00";
+    if(ms <= 0) return "00:00:00";
+
     const totalSec = Math.floor(ms / 1000);
-    const m = Math.floor(totalSec / 60);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
     const s = totalSec % 60;
-    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
+
+
+
 function showModal(msg, btnText="OK", callback=null){
     modalMsg.innerHTML = msg;
     modalBtn.textContent = btnText;
