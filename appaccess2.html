@@ -56,103 +56,152 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx";
-const FIRST_ACCESS_MINUTES = 30; // free trial 
-const PAID_DURATION = 24*60*60*1000; // 24h paid access
-const KEY_PREFIX = "elimu_student5_";
 
+// free trial (first time ever)
+const FIRST_ACCESS_MINUTES = 2;
+
+// paid duration test (2 minutes) – in real use this will be 24 hours
+const PAID_DURATION = 3 * 60 * 1000;
+
+// new: free comeback time after 24 hours/paid ends
+const RETURN_FREE_MINUTES = 2;
+
+const KEY_PREFIX = "elimu_student6_";
+
+// DOM
 const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById('accessCountdown');
 const modal = document.getElementById('accessModal');
 const modalMsg = document.getElementById('accessMessage');
 const modalBtn = document.getElementById('accessBtn');
 
+// Helpers
 function getQueryParam(param){
     return new URLSearchParams(window.location.search).get(param);
 }
 function formatTime(ms){
     if(ms<=0) return "00:00";
-    let totalSec = Math.floor(ms/1000);
-    let m = Math.floor(totalSec/60);
-    let s = totalSec%60;
+    const totalSec = Math.floor(ms/1000);
+    const m = Math.floor(totalSec/60);
+    const s = totalSec % 60;
     return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
-function showModal(message, btnText="OK", callback=null){
-    modalMsg.innerHTML = message;
+function showModal(msg, btnText="OK", callback=null){
+    modalMsg.innerHTML = msg;
     modalBtn.textContent = btnText;
     modal.style.display="flex";
-    modalBtn.onclick = ()=> {
+    modalBtn.onclick = ()=>{
         modal.style.display="none";
         if(callback) callback();
     };
 }
 
-// Load access info from localStorage
+// Load localStorage
 let lastPaid = parseInt(localStorage.getItem(KEY_PREFIX+'lastPaidTime')) || 0;
 let paidReference = localStorage.getItem(KEY_PREFIX+'paidReference') || "";
 let freeEnd = parseInt(localStorage.getItem(KEY_PREFIX+'firstAccessEnd')) || 0;
+let returnFreeEnd = parseInt(localStorage.getItem(KEY_PREFIX+'returnFreeEnd')) || 0;
 
 const now = Date.now();
 const reference = getQueryParam('reference');
 
-// Save new payment
+// --- PAYMENT RECORD ---
 if(reference && reference !== paidReference){
     lastPaid = now;
     paidReference = reference;
+
     localStorage.setItem(KEY_PREFIX+'lastPaidTime', lastPaid);
-    localStorage.setItem(KEY_PREFIX+'paidReference', paidReference);
-    localStorage.removeItem(KEY_PREFIX+'firstAccessEnd'); // remove free trial
+    localStorage.setItem(KEY_PREFIX+'paidReference', reference);
+
+    // Clear ALL free timers so paid begins clean
+    localStorage.removeItem(KEY_PREFIX+'firstAccessEnd');
+    localStorage.removeItem(KEY_PREFIX+'returnFreeEnd');
+    
     freeEnd = 0;
+    returnFreeEnd = 0;
 }
 
-// Set free trial if not yet started
+// --- INITIAL FREE TRIAL ---
 if(!freeEnd && !lastPaid){
-    freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
+    freeEnd = now + FIRST_ACCESS_MINUTES * 60 * 1000;
     localStorage.setItem(KEY_PREFIX+'firstAccessEnd', freeEnd);
 }
 
-// Countdown function
+// --- COUNTDOWN ---
 function startCountdown(){
     countdownEl.style.display="block";
-    const interval = setInterval(()=>{
+
+    setInterval(()=>{
         const now = Date.now();
 
-        if(lastPaid && now - lastPaid < ACCESS_DURATION){
-            const remaining = ACCESS_DURATION - (now - lastPaid);
-            countdownEl.textContent = `Paid access remaining: ${formatTime(remaining)}`;
+        // 1️⃣ PAID MODE ACTIVE
+        if(lastPaid && now - lastPaid < PAID_DURATION){
+            const remain = PAID_DURATION - (now - lastPaid);
+            countdownEl.textContent = `Paid access remaining: ${formatTime(remain)}`;
             mainBtn.disabled = false;
-        } else if(freeEnd && now < freeEnd){
-            const remaining = freeEnd - now;
-            countdownEl.textContent = `Free trial remaining: ${formatTime(remaining)}`;
-            mainBtn.disabled = false;
-        } else {
-            countdownEl.style.display="none";
-            mainBtn.disabled = true; // prevent free restart
-            showModal(
-                "⛔ Free trial expired. Pay KSh 20/$0.15 to continue.",
-                "Pay Now",
-                ()=>{ window.location.href = PAYMENT_LINK; }
-            );
+            return;
         }
+
+        // 2️⃣ FIRST FREE TRIAL ACTIVE
+        if(freeEnd && now < freeEnd){
+            const remain = freeEnd - now;
+            countdownEl.textContent = `Free trial remaining: ${formatTime(remain)}`;
+            mainBtn.disabled = false;
+            return;
+        }
+
+        // 3️⃣ PAID EXPIRED → GIVE RETURN FREE TIME (IF NOT USED)
+        if(returnFreeEnd === 0 && lastPaid && now - lastPaid >= PAID_DURATION){
+            returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
+            localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
+        }
+
+        // 4️⃣ RETURN FREE MODE ACTIVE
+        if(returnFreeEnd && now < returnFreeEnd){
+            const remain = returnFreeEnd - now;
+            countdownEl.textContent = `Free return access: ${formatTime(remain)}`;
+            mainBtn.disabled = false;
+            return;
+        }
+
+        // 5️⃣ EVERYTHING EXPIRED → BLOCK
+        countdownEl.style.display="none";
+        mainBtn.disabled = true;
+
+        showModal(
+            "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
+            "Pay Now",
+            ()=> window.location.href = PAYMENT_LINK
+        );
     }, 500);
 }
 
 startCountdown();
 
-// Student button click handler
+// --- BUTTON HANDLER ---
 mainBtn.onclick = ()=>{
     const now = Date.now();
-    if(lastPaid && now - lastPaid < ACCESS_DURATION){
-        window.location.href = "go:bot1"; // paid section
-    } else if(freeEnd && now < freeEnd){
-        window.location.href = "go:bot1"; // free section
-    } else {
-        mainBtn.disabled = true;
-        showModal(
-            "⛔ Free trial expired. Pay KSh 20/$0.15 to continue.",
-            "Pay Now",
-            ()=>{ window.location.href = PAYMENT_LINK; }
-        );
+
+    if(lastPaid && now - lastPaid < PAID_DURATION){
+        window.location.href = "go:bot1";
+        return;
     }
+
+    if(freeEnd && now < freeEnd){
+        window.location.href = "go:bot1";
+        return;
+    }
+
+    if(returnFreeEnd && now < returnFreeEnd){
+        window.location.href = "go:bot1";
+        return;
+    }
+
+    showModal(
+        "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
+        "Pay Now",
+        ()=> window.location.href = PAYMENT_LINK
+    );
 };
 </script>
 
