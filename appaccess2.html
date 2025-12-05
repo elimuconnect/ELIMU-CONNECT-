@@ -1,150 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ELIMU CONNECT APP - Access</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Elimu Connect - Access</title>
 <style>
 body {
   font-family: Arial, sans-serif;
+  display:flex; justify-content:center; align-items:center; height:100vh;
   background: linear-gradient(to right, #4CAF50, #81C784);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }
-
 .login-container {
-  background-color: white;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
+  background:white; padding:30px; border-radius:12px; text-align:center; width:300px;
 }
-
-h3 {
-  margin-top: 25px;
-  color: #2E7D32;
-  font-size: 1.2em;
-  border-bottom: 2px solid #81C784;
-  padding-bottom: 5px;
-  text-align: left;
+button {
+  padding:12px 20px; margin:8px 0; font-size:16px; border:none; border-radius:8px;
+  background:#4CAF50; color:white; cursor:pointer;
 }
-
-.role-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+button:disabled { opacity:0.5; cursor:not-allowed; }
+#accessCountdown {
+  position: fixed; top: 20px; left: 50%; transform:translateX(-50%);
+  background:#0078D7; color:white; padding:10px 20px; border-radius:8px; display:none;
 }
-
-.role-buttons button {
-  padding: 12px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.role-buttons button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-}
-
-.messages {
-  margin-top: 15px;
-  text-align: left;
-  max-height: 150px;
-  overflow-y: auto;
-  border-top: 1px solid #eee;
-  padding-top: 8px;
-}
-
-.chat-message {
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-}
-
-.bot-message {
-  background-color: #f0f0f0;
-}
-
-/* ---------------- Payment Modal & Countdown ---------------- */
 #accessModal {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;
-  z-index:9999; display:none;
+  position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);
+  display:flex; justify-content:center; align-items:center; display:none; z-index:9999;
 }
 #accessModal div {
-  background:#fff; padding:25px 30px; border-radius:12px; max-width:400px;
-  text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
-  box-shadow:0 6px 20px rgba(0,0,0,0.2);
+  background:white; padding:25px; border-radius:12px; max-width:350px; text-align:center;
 }
-#accessModal p {
-  font-size:1rem; margin-bottom:20px;
-}
-#accessModal button {
-  background:#0078D7; color:#fff; border:none; padding:10px 18px;
-  border-radius:8px; font-weight:600; cursor:pointer;
-  transition:0.2s;
-}
-
-#accessCountdown {
-  position: fixed; top: 100px; left: 10px; 
-  background: #0078D7; color: #fff; padding: 12px 16px; 
-  border-radius: 8px; font-family: 'Segoe UI', sans-serif; 
-  font-weight:600; box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
-  z-index:999; text-align:center; display:none;
-}
+#accessModal button { background:#0078D7; color:white; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <div class="login-container">
   <h3>🎓 Student</h3>
-  <div class="role-buttons">
-    <button onclick="startAccess()">Enter (Free / Paid)</button>
-  </div>
-  <div id="student-messages" class="messages"></div>
-
-  <h3>👨‍👩‍👧 Parent</h3>
-  <div class="role-buttons">
-    <button onclick="window.location.href='go:parent'">Parent Dashboard (Free)</button>
-  </div>
+  <button id="studentBtn">Enter (Free / Paid)</button>
 </div>
 
-<!-- Payment Modal & Countdown -->
+<div id="accessCountdown">Loading access info...</div>
+
 <div id="accessModal">
   <div>
     <p id="accessMessage"></p>
     <button id="accessBtn">OK</button>
   </div>
 </div>
-<div id="accessCountdown">Loading access info...</div>
-
 
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-const FIRST_ACCESS_MINUTES = 1; // free trial
-const ACCESS_DURATION = 2*60*1000; // 2 min for testing
+const FIRST_ACCESS_MINUTES = 1; // free trial (for testing)
+const ACCESS_DURATION = 2*60*1000; // paid duration (2 minutes)
 const KEY_PREFIX = "elimu_student2_";
 
-const mainBtn = document.getElementById("startReactionBtn");
+const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById('accessCountdown');
+const modal = document.getElementById('accessModal');
+const modalMsg = document.getElementById('accessMessage');
+const modalBtn = document.getElementById('accessBtn');
 
 function getQueryParam(param){
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
+    return new URLSearchParams(window.location.search).get(param);
 }
-
 function formatTime(ms){
     if(ms<=0) return "00:00";
     let totalSec = Math.floor(ms/1000);
@@ -152,64 +70,57 @@ function formatTime(ms){
     let s = totalSec%60;
     return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
-
-// Modal function
 function showModal(message, btnText="OK", callback=null){
-    const modal = document.getElementById('accessModal');
-    const msgEl = document.getElementById('accessMessage');
-    const btn = document.getElementById('accessBtn');
-    msgEl.innerHTML = message;
-    btn.textContent = btnText;
+    modalMsg.innerHTML = message;
+    modalBtn.textContent = btnText;
     modal.style.display="flex";
-    btn.onclick = ()=>{
+    modalBtn.onclick = ()=> {
         modal.style.display="none";
         if(callback) callback();
     };
 }
 
-// Initialize access
-let lastPaid = parseInt(localStorage.getItem(KEY_PREFIX+'lastPaidTime'))||0;
-let paidReference = localStorage.getItem(KEY_PREFIX+'paidReference')||"";
-let freeEnd = parseInt(localStorage.getItem(KEY_PREFIX+'firstAccessEnd'))||0;
+// Load access info from localStorage
+let lastPaid = parseInt(localStorage.getItem(KEY_PREFIX+'lastPaidTime')) || 0;
+let paidReference = localStorage.getItem(KEY_PREFIX+'paidReference') || "";
+let freeEnd = parseInt(localStorage.getItem(KEY_PREFIX+'firstAccessEnd')) || 0;
 
 const now = Date.now();
 const reference = getQueryParam('reference');
 
 // Save new payment
-if(reference && reference!==paidReference){
+if(reference && reference !== paidReference){
     lastPaid = now;
     paidReference = reference;
     localStorage.setItem(KEY_PREFIX+'lastPaidTime', lastPaid);
     localStorage.setItem(KEY_PREFIX+'paidReference', paidReference);
-    localStorage.removeItem(KEY_PREFIX+'firstAccessEnd'); // remove free end
+    localStorage.removeItem(KEY_PREFIX+'firstAccessEnd'); // remove free trial
+    freeEnd = 0;
 }
 
-// Set free trial if not yet
+// Set free trial if not yet started
 if(!freeEnd && !lastPaid){
     freeEnd = now + FIRST_ACCESS_MINUTES*60*1000;
     localStorage.setItem(KEY_PREFIX+'firstAccessEnd', freeEnd);
 }
 
-// Start countdown
+// Countdown function
 function startCountdown(){
     countdownEl.style.display="block";
     const interval = setInterval(()=>{
         const now = Date.now();
 
         if(lastPaid && now - lastPaid < ACCESS_DURATION){
-            // Paid access
-            const remaining = ACCESS_DURATION - (now-lastPaid);
+            const remaining = ACCESS_DURATION - (now - lastPaid);
             countdownEl.textContent = `Paid access remaining: ${formatTime(remaining)}`;
-            mainBtn.disabled=false;
+            mainBtn.disabled = false;
         } else if(freeEnd && now < freeEnd){
-            // Free trial
             const remaining = freeEnd - now;
             countdownEl.textContent = `Free trial remaining: ${formatTime(remaining)}`;
-            mainBtn.disabled=false;
+            mainBtn.disabled = false;
         } else {
-            // Expired
             countdownEl.style.display="none";
-            mainBtn.disabled=true; // prevent free restart
+            mainBtn.disabled = true; // prevent free restart
             showModal(
                 "⛔ Free trial expired. Pay KSh 10/$0.08 to continue.",
                 "Pay Now",
@@ -221,21 +132,23 @@ function startCountdown(){
 
 startCountdown();
 
-// Main button click
+// Button click handler
 mainBtn.onclick = ()=>{
     const now = Date.now();
     if(lastPaid && now - lastPaid < ACCESS_DURATION){
-        window.location.href="go:bot1"; // paid section
+        window.location.href = "go:bot1"; // paid section
     } else if(freeEnd && now < freeEnd){
-        window.location.href="go:bot1"; // free section
+        window.location.href = "go:bot1"; // free section
     } else {
-        // disabled, modal already shows
-        mainBtn.disabled=true;
+        mainBtn.disabled = true;
+        showModal(
+            "⛔ Free trial expired. Pay KSh 10/$0.08 to continue.",
+            "Pay Now",
+            ()=>{ window.location.href = PAYMENT_LINK; }
+        );
     }
 };
 </script>
 
-
-  
-</bodt>
+</body>
 </html>
