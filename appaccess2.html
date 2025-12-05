@@ -57,18 +57,18 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx";
 
-// free trial (first time ever)
+// Free trial (first time ever)
 const FIRST_ACCESS_MINUTES = 2;
 
-// paid duration test (2 minutes) – in real use this will be 24 hours
+// Paid duration (2 minutes for testing, normally 24 hours)
 const PAID_DURATION = 3 * 60 * 1000;
 
-// new: free comeback time after 24 hours/paid ends
+// Return free after paid ends
 const RETURN_FREE_MINUTES = 2;
 
-const KEY_PREFIX = "elimu_student8_";
+const KEY_PREFIX = "elimu_student9_";
 
-// DOM
+// DOM Elements
 const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById('accessCountdown');
 const modal = document.getElementById('accessModal');
@@ -113,10 +113,10 @@ if(reference && reference !== paidReference){
     localStorage.setItem(KEY_PREFIX+'lastPaidTime', lastPaid);
     localStorage.setItem(KEY_PREFIX+'paidReference', reference);
 
-    // Clear ALL free timers so paid begins clean
+    // Clear free timers
     localStorage.removeItem(KEY_PREFIX+'firstAccessEnd');
     localStorage.removeItem(KEY_PREFIX+'returnFreeEnd');
-    
+
     freeEnd = 0;
     returnFreeEnd = 0;
 }
@@ -127,50 +127,46 @@ if(!freeEnd && !lastPaid){
     localStorage.setItem(KEY_PREFIX+'firstAccessEnd', freeEnd);
 }
 
-
-
-  // --- COUNTDOWN ---
+// --- COUNTDOWN ---
 function startCountdown(){
-    countdownEl.style.display="block";
+    countdownEl.style.display = "block";
 
     setInterval(()=>{
         const now = Date.now();
 
-        // --- RETURN FREE SHOULD BE CHECKED FIRST ---
+        // --- 1️⃣ Return Free Access (highest priority after paid ends) ---
         if(returnFreeEnd && now < returnFreeEnd){
-            const remain = returnFreeEnd - now;
-            countdownEl.textContent = `Free return access: ${formatTime(remain)}`;
+            countdownEl.textContent = `Free return access: ${formatTime(returnFreeEnd - now)}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- PAID ACTIVE ---
+        // --- 2️⃣ Paid Access ---
         if(lastPaid && now - lastPaid < PAID_DURATION){
-            const remain = PAID_DURATION - (now - lastPaid);
-            countdownEl.textContent = `Paid access remaining: ${formatTime(remain)}`;
+            countdownEl.textContent = `Paid access remaining: ${formatTime(PAID_DURATION - (now - lastPaid))}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- FIRST FREE TRIAL ---
+        // --- 3️⃣ Initial Free Trial ---
         if(freeEnd && now < freeEnd){
-            const remain = freeEnd - now;
-            countdownEl.textContent = `Free trial remaining: ${formatTime(remain)}`;
+            countdownEl.textContent = `Free trial remaining: ${formatTime(freeEnd - now)}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- PAID EXPIRED → CREATE RETURN FREE (only once) ---
+        // --- 4️⃣ Paid expired → Create Return Free (only once) ---
         if(lastPaid && now - lastPaid >= PAID_DURATION && !returnFreeEnd){
             returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
             localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
+            countdownEl.textContent = `Free return access: ${formatTime(returnFreeEnd - now)}`;
+            mainBtn.disabled = false;
             return;
         }
 
-        // --- ZERO ACCESS → BLOCK ---
+        // --- 5️⃣ Everything expired → BLOCK ---
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
-
         showModal(
             "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
             "Pay Now",
@@ -180,11 +176,7 @@ function startCountdown(){
     }, 500);
 }
 
-// ⭐ NOW CALL IT OUTSIDE
 startCountdown();
-
-
-
 
 // --- BUTTON HANDLER ---
 mainBtn.onclick = ()=>{
@@ -194,12 +186,10 @@ mainBtn.onclick = ()=>{
         window.location.href = "go:bot1";
         return;
     }
-
     if(freeEnd && now < freeEnd){
         window.location.href = "go:bot1";
         return;
     }
-
     if(returnFreeEnd && now < returnFreeEnd){
         window.location.href = "go:bot1";
         return;
