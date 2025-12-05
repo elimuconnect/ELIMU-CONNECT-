@@ -128,7 +128,7 @@ function startCountdown(){
             countdownEl.style.display="none";
             mainBtn.disabled = true; // prevent free restart
             showModal(
-                "⛔ Free trial expired. Pay KSh 10/$0.08 to continue.",
+                "⛔ Free trial expired. Pay KSh 20/$0.15 to continue.",
                 "Pay Now",
                 ()=>{ window.location.href = PAYMENT_LINK; }
             );
@@ -148,7 +148,7 @@ mainBtn.onclick = ()=>{
     } else {
         mainBtn.disabled = true;
         showModal(
-            "⛔ Free trial expired. Pay KSh 20 / $0.15 to continue.",
+            "⛔ Free trial expired. Pay KSh 20/$0.15 to continue.",
             "Pay Now",
             ()=>{ window.location.href = PAYMENT_LINK; }
         );
