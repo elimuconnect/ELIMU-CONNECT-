@@ -9,9 +9,10 @@ body {
   font-family: Arial, sans-serif;
   display:flex; justify-content:center; align-items:center; height:100vh;
   background: linear-gradient(to right, #4CAF50, #81C784);
+  flex-direction: column;
 }
 .login-container {
-  background:white; padding:30px; border-radius:12px; text-align:center; width:300px;
+  background:white; padding:30px; border-radius:12px; text-align:center; width:300px; margin-bottom:20px;
 }
 button {
   padding:12px 20px; margin:8px 0; font-size:16px; border:none; border-radius:8px;
@@ -39,14 +40,12 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
   <button id="studentBtn">Enter (Free / Paid)</button>
 </div>
 
-<div id="accessCountdown">Loading access info...</div>
-
-
+<div class="login-container">
   <h3>👨‍👩‍👧 Parent</h3>
-  <div class="role-buttons">
-    <button onclick="window.location.href='go:parent'">Parent Dashboard (Free)</button>
-  </div>
+  <button onclick="window.location.href='go:parent'">Parent Dashboard (Free)</button>
 </div>
+
+<div id="accessCountdown">Loading access info...</div>
 
 <div id="accessModal">
   <div>
@@ -57,7 +56,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx";
-const FIRST_ACCESS_MINUTES = 1; // free trial (for testing)
+const FIRST_ACCESS_MINUTES = 1; // free trial (testing)
 const ACCESS_DURATION = 2*60*1000; // paid duration (2 minutes)
 const KEY_PREFIX = "elimu_student3_";
 
@@ -139,7 +138,7 @@ function startCountdown(){
 
 startCountdown();
 
-// Button click handler
+// Student button click handler
 mainBtn.onclick = ()=>{
     const now = Date.now();
     if(lastPaid && now - lastPaid < ACCESS_DURATION){
@@ -149,7 +148,7 @@ mainBtn.onclick = ()=>{
     } else {
         mainBtn.disabled = true;
         showModal(
-            "⛔ Free trial expired. Pay KSh 10/$0.08 to continue.",
+            "⛔ Free trial expired. Pay KSh 20 / $0.15 to continue.",
             "Pay Now",
             ()=>{ window.location.href = PAYMENT_LINK; }
         );
