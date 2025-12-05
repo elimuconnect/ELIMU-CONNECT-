@@ -129,7 +129,6 @@ h3 {
   </div>
 </div>
 <div id="accessCountdown">Loading access info...</div>
-
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 const FREE_MINUTES = 1;
@@ -137,12 +136,12 @@ const PAID_DURATION = 2*60*1000; // 2 min for testing
 const KEY_PREFIX = "elimu_access_";
 
 const countdownEl = document.getElementById('accessCountdown');
+const mainBtn = document.getElementById('accessBtnMain');
 
 function getQueryParam(param) {
     return new URLSearchParams(window.location.search).get(param);
 }
 
-// Show modal
 function showModal(message, callback=null){
     const modal = document.getElementById('accessModal');
     const msgEl = document.getElementById('accessMessage');
@@ -155,7 +154,6 @@ function showModal(message, callback=null){
     }
 }
 
-// Format ms to mm:ss
 function formatTime(ms){
     if(ms<=0) return "00:00";
     let s=Math.floor(ms/1000), m=Math.floor(s/60), sec=s%60;
@@ -175,7 +173,7 @@ function startAccess(){
         localStorage.setItem(KEY_PREFIX+"paidEnd", now+PAID_DURATION);
         localStorage.setItem(KEY_PREFIX+"paidRef", reference);
         localStorage.removeItem(KEY_PREFIX+"freeEnd");
-        openSection(true); // paid
+        openSection(true);
         return;
     }
 
@@ -185,13 +183,28 @@ function startAccess(){
         return;
     }
 
-    // Free trial not started or expired
-    if(!freeEnd || now > freeEnd){
+    // Free trial not started
+    if(!freeEnd){
         freeEnd = now + FREE_MINUTES*60*1000;
         localStorage.setItem(KEY_PREFIX+"freeEnd", freeEnd);
+        openSection(false);
+        return;
     }
 
-    openSection(false); // free
+    // Free trial expired
+    if(now >= freeEnd){
+        // Hide the page completely
+        mainBtn.style.display = "none";
+        countdownEl.style.display = "none";
+        showModal(
+            "Free trial expired. Please pay to continue.",
+            ()=>{ window.location.href = PAYMENT_LINK; }
+        );
+        return;
+    }
+
+    // Free trial still active
+    openSection(false);
 }
 
 // Open section (free or paid)
@@ -209,6 +222,7 @@ function openSection(isPaid){
             } else {
                 clearInterval(interval);
                 countdownEl.style.display = "none";
+                mainBtn.style.display = "none"; // hide access button when expired
                 showModal("Paid access expired. Renew now.", ()=>{ window.location.href = PAYMENT_LINK; });
             }
         } else {
@@ -219,15 +233,17 @@ function openSection(isPaid){
             } else {
                 clearInterval(interval);
                 countdownEl.style.display = "none";
+                mainBtn.style.display = "none"; // hide access button when expired
                 showModal("Free trial expired. Please pay to continue.", ()=>{ window.location.href = PAYMENT_LINK; });
             }
         }
     }, 500);
 
-    // Redirect to same section
-    window.location.href = "go:bot1";
+    // Redirect to section only if access valid
+    if(isPaid || (Number(localStorage.getItem(KEY_PREFIX+"freeEnd")) > Date.now())){
+        window.location.href = "go:bot1";
+    }
 }
 </script>
-
 </bodt>
 </html>
