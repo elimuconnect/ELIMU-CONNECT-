@@ -57,18 +57,18 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx";
 
-// Free trial (first time ever)
+// Free trial (first time)
 const FIRST_ACCESS_MINUTES = 2;
 
-// Paid duration (2 minutes for testing, normally 24 hours)
+// Paid duration (2 min test, normally 24h)
 const PAID_DURATION = 3 * 60 * 1000;
 
-// Return free after paid ends
+// Return free duration after paid ends
 const RETURN_FREE_MINUTES = 2;
 
-const KEY_PREFIX = "elimu_student9_";
+const KEY_PREFIX = "elimu_student11_";
 
-// DOM Elements
+// DOM
 const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById('accessCountdown');
 const modal = document.getElementById('accessModal');
@@ -80,9 +80,9 @@ function getQueryParam(param){
     return new URLSearchParams(window.location.search).get(param);
 }
 function formatTime(ms){
-    if(ms<=0) return "00:00";
-    const totalSec = Math.floor(ms/1000);
-    const m = Math.floor(totalSec/60);
+    if(ms <= 0) return "00:00";
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
     return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
@@ -109,14 +109,12 @@ const reference = getQueryParam('reference');
 if(reference && reference !== paidReference){
     lastPaid = now;
     paidReference = reference;
-
     localStorage.setItem(KEY_PREFIX+'lastPaidTime', lastPaid);
     localStorage.setItem(KEY_PREFIX+'paidReference', reference);
 
     // Clear free timers
     localStorage.removeItem(KEY_PREFIX+'firstAccessEnd');
     localStorage.removeItem(KEY_PREFIX+'returnFreeEnd');
-
     freeEnd = 0;
     returnFreeEnd = 0;
 }
@@ -134,37 +132,34 @@ function startCountdown(){
     setInterval(()=>{
         const now = Date.now();
 
-        // --- 1️⃣ Return Free Access (highest priority after paid ends) ---
+        // --- 1️⃣ PAID EXPIRED → CREATE RETURN FREE ---
+        if(lastPaid && now - lastPaid >= PAID_DURATION && !returnFreeEnd){
+            returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
+            localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
+        }
+
+        // --- 2️⃣ RETURN FREE ACCESS ---
         if(returnFreeEnd && now < returnFreeEnd){
             countdownEl.textContent = `Free return access: ${formatTime(returnFreeEnd - now)}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- 2️⃣ Paid Access ---
+        // --- 3️⃣ PAID ACTIVE ---
         if(lastPaid && now - lastPaid < PAID_DURATION){
             countdownEl.textContent = `Paid access remaining: ${formatTime(PAID_DURATION - (now - lastPaid))}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- 3️⃣ Initial Free Trial ---
+        // --- 4️⃣ INITIAL FREE TRIAL ---
         if(freeEnd && now < freeEnd){
             countdownEl.textContent = `Free trial remaining: ${formatTime(freeEnd - now)}`;
             mainBtn.disabled = false;
             return;
         }
 
-        // --- 4️⃣ Paid expired → Create Return Free (only once) ---
-        if(lastPaid && now - lastPaid >= PAID_DURATION && !returnFreeEnd){
-            returnFreeEnd = now + RETURN_FREE_MINUTES * 60 * 1000;
-            localStorage.setItem(KEY_PREFIX+'returnFreeEnd', returnFreeEnd);
-            countdownEl.textContent = `Free return access: ${formatTime(returnFreeEnd - now)}`;
-            mainBtn.disabled = false;
-            return;
-        }
-
-        // --- 5️⃣ Everything expired → BLOCK ---
+        // --- 5️⃣ EVERYTHING EXPIRED ---
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
         showModal(
@@ -186,11 +181,11 @@ mainBtn.onclick = ()=>{
         window.location.href = "go:bot1";
         return;
     }
-    if(freeEnd && now < freeEnd){
+    if(returnFreeEnd && now < returnFreeEnd){
         window.location.href = "go:bot1";
         return;
     }
-    if(returnFreeEnd && now < returnFreeEnd){
+    if(freeEnd && now < freeEnd){
         window.location.href = "go:bot1";
         return;
     }
