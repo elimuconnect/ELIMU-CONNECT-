@@ -115,6 +115,20 @@ body {
 
 <h3>📍 Elimu Connect – Live Location Sharing</h3>
 
+<div id="paidCountdown" style="
+  font-weight: bold;
+  color: #1b5e20;
+  background: #e8f5e9;
+  border: 1px solid #1b5e20;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+">
+  ⏳ Subscription loading...
+</div>
+
+
+	
 <input id="name" type="text" placeholder="Your Name" />
 <input id="subject" type="text" placeholder="Subject" />
 <input id="phone" type="text" placeholder="Phone Number" />
@@ -151,6 +165,72 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
+
+  // ✅ If user just came from Paystack, activate 30-day access
+  if (ref) {
+    const now = Date.now();
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    const expiresAt = now + thirtyDays;
+
+    localStorage.setItem("paidExpiresAt", expiresAt);
+    localStorage.setItem("paidRef", ref);
+
+    // Clean URL (remove ref so it can't be reused)
+    history.replaceState({}, document.title, location.pathname);
+  }
+})();
+
+
+
+
+(function enforcePaidAccess() {
+  const expiresAt = parseInt(localStorage.getItem("paidExpiresAt") || "0", 10);
+
+  if (!expiresAt) {
+    alert("🔒 Paid access required.");
+    window.location.href = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
+    return;
+  }
+
+  function updateCountdown() {
+    const now = Date.now();
+    const remaining = expiresAt - now;
+
+    if (remaining <= 0) {
+      localStorage.removeItem("paidExpiresAt");
+      localStorage.removeItem("paidRef");
+
+      alert("⛔ Your 1-month access has expired.");
+      window.location.href = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
+      return;
+    }
+
+    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+    const mins = Math.floor((remaining / (1000 * 60)) % 60);
+    const secs = Math.floor((remaining / 1000) % 60);
+
+    const box = document.getElementById("paidCountdown");
+    if (box) {
+      box.innerHTML = `
+        ✅ Paid Access Active — Expires in:
+        <b>${days}d ${hours}h ${mins}m ${secs}s</b>
+      `;
+    }
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+
+
+
+
+
+	
   // --- Firebase config (kept as provided) ---
   const firebaseConfig = {
     apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
