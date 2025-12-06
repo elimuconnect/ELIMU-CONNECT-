@@ -62,7 +62,7 @@ const DAILY_FREE_MIN = 1;
 const PAID_DURATION = 2 * 60 * 1000;  // 24 hours
 const DAILY_INTERVAL = 3 * 60 * 1000; // Renew every 24h
 
-const KEY = "elimu_student12_";
+const KEY = "elimu_student14_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -133,14 +133,19 @@ if(!firstTrialEnd){
 }
 
 /* ------------------ DAILY FREE RENEW ------------------ */
-if(!lastDailyFreeUsed || now() - lastDailyFreeUsed >= DAILY_INTERVAL){
-    dailyFreeStart = now();
-    dailyFreeEnd = now() + DAILY_FREE_MIN * 60 * 1000;
+/* ------------------ DAILY FREE RENEW (ONLY AFTER FIRST TRIAL ENDS!) ------------------ */
+if(firstTrialEnd && now() > firstTrialEnd){  
+    // First trial is over → now we can activate daily free
+    if(!lastDailyFreeUsed || now() - lastDailyFreeUsed >= DAILY_INTERVAL){
+        dailyFreeStart = now();
+        dailyFreeEnd = now() + DAILY_FREE_MIN * 60 * 1000;
 
-    localStorage.setItem(KEY+"dailyFreeStart", dailyFreeStart);
-    localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
-    localStorage.setItem(KEY+"lastDailyFreeUsed", now());
+        localStorage.setItem(KEY+"dailyFreeStart", dailyFreeStart);
+        localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
+        localStorage.setItem(KEY+"lastDailyFreeUsed", now());
+    }
 }
+
 
 /* ---------------- COUNTDOWN ENGINE ---------------- */
 function engine(){
