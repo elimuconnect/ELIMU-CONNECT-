@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Elimu Connect – Free Live Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+      background: #f9f9f9;
+    }
+
+    #map {
+      height: 60vh;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      width: 90%;
+      margin: 5px auto;
+      display: block;
+      border-radius: 8px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .inline {
+      display: flex;
+      justify-content: space-between;
+      width: 90%;
+      margin: auto;
+    }
+
+    .inline select {
+      width: 48%;
+    }
+
+    /* Premium Paid Upgrade Button */
+    .paid-btn {
+      display: inline-block;
+      padding: 14px 28px;
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(45deg, #ff6a00, #ff8e53);
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .paid-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: skewX(-25deg);
+      transition: all 0.7s ease;
+    }
+
+    .paid-btn:hover::before {
+      left: 125%;
+    }
+
+    .paid-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .paid-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .leaflet-routing-container {
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<h3>📍 Elimu Connect – Free Live Location</h3>
+
+<!-- Upgrade Button -->
+<a href="https://paystack.shop/pay/2i-azr3wzx" class="paid-btn">
+  🔓 Upgrade to Paid Tier
+</a>
+
+<input id="name" type="text" placeholder="Your Name" />
+<input id="subject" type="text" placeholder="Subject" />
+<input id="phone" type="text" placeholder="Phone Number" />
+<select id="role">
+  <option value="Student">Student</option>
+  <option value="Teacher">Teacher</option>
+</select>
+
+<button id="shareBtn">📤 Share / Update My Location</button>
+
+<div class="inline">
+  <select id="filter" onchange="loadMarkers()">
+    <option value="All">All Roles</option>
+    <option value="Student">Only Students</option>
+    <option value="Teacher">Only Teachers</option>
+  </select>
+
+  <select id="userSelect" onchange="zoomToUser(this.value)">
+    <option value="">-- Select Nearby User --</option>
+  </select>
+</div>
+
+<input type="range" id="radius" min="20" max="30" value="30" oninput="updateRadiusLabel(); loadMarkers()" />
+<div id="radiusValue">Showing within: 30 km</div>
+
+<div id="map"></div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
+    authDomain: "tutor-students-mapping.firebaseapp.com",
+    databaseURL: "https://tutor-students-mapping-default-rtdb.firebaseio.com",
+    projectId: "tutor-students-mapping",
+    storageBucket: "tutor-students-mapping.appspot.com",
+    messagingSenderId: "631567514082",
+    appId: "1:631567514082:web:a0d782917914ffe403a1bb"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let map, userLat, userLng, markers = [], routingControl = null;
+  const myPhone = localStorage.getItem("myPhone") || "";
+
+  function initMap() {
+    if (!navigator.geolocation) {
+      alert("❌ Geolocation not supported by your browser.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (!map) {
+        map = L.map('map').setView([userLat, userLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+      } else { map.setView([userLat, userLng], 13); }
+
+      if (window.selfMarker) map.removeLayer(window.selfMarker);
+      window.selfMarker = L.marker([userLat, userLng]).addTo(map).bindPopup("📍 You are here");
+
+      loadMarkers();
+    }, err => {
+      console.error(err);
+      alert("❌ Location access denied. Allow location to use the live map.");
+    }, { enableHighAccuracy: true, maximumAge: 10000 });
+  }
+
+  function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+  }
+
+  function updateRadiusLabel() {
+    const km = document.getElementById("radius").value;
+    document.getElementById("radiusValue").innerText = `Showing within: ${km} km`;
+  }
+
+  function loadMarkers() {
+    if (!map || !userLat || !userLng) return;
+
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    const filter = document.getElementById("filter").value;
+    const maxDistance = parseFloat(document.getElementById("radius").value);
+    const dropdown = document.getElementById("userSelect");
+    dropdown.innerHTML = `<option value="">-- Select Nearby User --</option>`;
+
+    db.ref("locations").once("value", snapshot => {
+      snapshot.forEach(child => {
+        const d = child.val();
+        if (!d || typeof d.lat === 'undefined' || typeof d.lng === 'undefined') return;
+        if (filter !== "All" && d.role !== filter) return;
+
+        const dist = getDistance(userLat, userLng, d.lat, d.lng);
+        if (dist < 20 || dist > maxDistance) return; // Free tier: 20–30km
+
+        const marker = L.marker([d.lat, d.lng]).addTo(map);
+        marker.bindPopup(`<b>${d.name}</b><br/>${d.role}<br/>${dist.toFixed(1)} km away<br/><a href="tel:${d.phone}">📲 Call</a>`);
+        markers.push(marker);
+
+        const opt = document.createElement("option");
+        opt.value = `${d.lat},${d.lng}`;
+        opt.textContent = `${d.name} (${d.role}) – ${dist.toFixed(1)} km`;
+        dropdown.appendChild(opt);
+      });
+    });
+  }
+
+  function zoomToUser(value) {
+    if (!value) return;
+    const [lat, lng] = value.split(",");
+    map.setView([parseFloat(lat), parseFloat(lng)], 15);
+  }
+
+  function shareLocation() {
+    const name = document.getElementById("name").value.trim();
+    const subject = document.getElementById("subject").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const role = document.getElementById("role").value;
+
+    if (!name || !subject || !phone) return alert("Please fill all fields.");
+    if (!userLat || !userLng) return alert("Location not available.");
+
+    localStorage.setItem("myPhone", phone);
+    const userId = phone.replace(/[^0-9]/g, "");
+    db.ref("locations/" + userId).set({ name, subject, phone, role, lat: userLat, lng: userLng })
+      .then(() => { alert("✅ Location shared!"); loadMarkers(); })
+      .catch(err => { console.error(err); alert("Error sharing location."); });
+  }
+
+  document.getElementById("shareBtn").addEventListener("click", shareLocation);
+  document.getElementById("radius").addEventListener("change", loadMarkers);
+
+  updateRadiusLabel();
+  initMap();
+</script>
+
+</body>
+</html>
