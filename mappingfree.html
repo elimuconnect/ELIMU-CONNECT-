@@ -161,12 +161,41 @@ h1 {
   .inline { flex-direction: column; }
   .inline select { width: 100%; }
 }
+
+
+
+
+#whatsappBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#whatsappBtn img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#whatsappBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+  
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>🌍 Elimu Connect – Discover Students & Tutors Near You (Free Map)</h1>
+  <h1>🌍 Elimu Connect – Discover Students Near You (Free Map)</h1>
 
   <!-- Tier Cards -->
   <div class="tiers">
@@ -178,7 +207,7 @@ h1 {
         <li>❌ No close-range users</li>
         <li>❌ Slower discovery</li>
       </ul>
-      <p><strong>Students: 100% Free</strong></p>
+      <p><strong>Students and Tutors: 100% Free</strong></p>
     </div>
 
     <div class="card paid">
@@ -190,6 +219,7 @@ h1 {
         <li>✅ Instant nearby discovery</li>
         <li>✅ More leads & higher visibility</li>
       </ul>
+       <p><strong>Students 100% Free, Tutors Subscribe Affordably</strong></p>
       <a href="https://paystack.shop/pay/m33h7ciape" class="paid-btn">Upgrade for KES 150/month</a>
     </div>
   </div>
@@ -203,7 +233,18 @@ h1 {
       <option value="Student">Student</option>
       <option value="Teacher">Teacher</option>
     </select>
-    <button id="shareBtn">📤 Share / Update My Location</button>
+
+
+ <button id="shareBtn">📤 Share / Update My Location</button>
+
+
+ <button id="updateBtn" style="margin-top:10px; background:#1976d2; color:#fff; padding:8px 12px; border:none; border-radius:6px;">
+  ✏️ Update My Location
+</button>
+
+<button id="deleteBtn" style="margin-top:10px; background:#d32f2f; color:#fff; padding:8px 12px; border:none; border-radius:6px;">
+  🗑️ Delete My Location
+</button>
 
     <div class="inline">
       <select id="filter">
@@ -224,6 +265,16 @@ h1 {
   <!-- Map -->
   <div id="map"></div>
 </div>
+
+
+
+
+
+<!-- WhatsApp / Customer Care Floating Button -->
+<a href="https://wa.me/254769255782" target="_blank" id="whatsappBtn" title="Chat with Customer Care">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+</a>
+  
 
 <!-- Scripts -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -416,7 +467,75 @@ window.addEventListener("load", () => {
 });
 
 
+// --- Update current user location ---
+function updateMyLocation() {
+  const name = document.getElementById("name").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const role = document.getElementById("role").value;
 
+  if (!name || !subject || !phone) {
+    return alert("🚫 All fields are required to update your location.");
+  }
+
+  const deviceId = localStorage.getItem("deviceId");
+  if (!deviceId) return alert("Device ID not found. Please share your location first.");
+
+  const userId = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+
+    db.ref("locations/" + userId).update({
+      name, subject, role, lat: userLat, lng: userLng
+    }).then(() => {
+      alert("✅ Location updated successfully!");
+      if (window.selfMarker) map.removeLayer(window.selfMarker);
+      window.selfMarker = L.marker([userLat, userLng])
+        .addTo(map)
+        .bindPopup("✅ Your location is updated").openPopup();
+      loadMarkers();
+    }).catch(err => {
+      console.error(err);
+      alert("❌ Failed to update location.");
+    });
+
+  }, () => {
+    alert("❌ Please allow location access to update your location.");
+  });
+}
+
+// --- Delete current user location ---
+function deleteMyLocation() {
+  const phone = document.getElementById("phone").value.trim();
+  const deviceId = localStorage.getItem("deviceId");
+  if (!phone || !deviceId) return alert("Phone or Device ID not found.");
+
+  const userId = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
+  if (!confirm("❌ Are you sure you want to delete your shared location?")) return;
+
+  db.ref("locations/" + userId).remove()
+    .then(() => {
+      alert("✅ Location deleted.");
+      hasShared = false;
+      localStorage.setItem("hasSharedLocation", "false");
+      if (window.selfMarker) map.removeLayer(window.selfMarker);
+      initMap(); // reset marker popup
+      loadMarkers();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("❌ Failed to delete location.");
+    });
+}
+
+
+document.getElementById("updateBtn").addEventListener("click", updateMyLocation);
+document.getElementById("deleteBtn").addEventListener("click", deleteMyLocation);
+
+  
 
 </script>
 
