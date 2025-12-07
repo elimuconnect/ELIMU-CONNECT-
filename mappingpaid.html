@@ -77,29 +77,30 @@
       background-color: #2196F3;
     }
 
-    .notice {
-  color: #b71c1c;
-  font-weight: 600;
-  padding: 10px;
-  background: #ffe6e6;
-  border: 1px solid #b71c1c;
-  border-radius: 6px;
-  position: fixed;   /* keep it visible at all times */
-  top: 0;            /* stick to top */
+  .notice {
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
+  width: 100%;
   z-index: 9999;
   text-align: left;
   max-height: 120px;
   overflow-y: auto;
-  display: none;     /* hidden by default */
+  padding: 10px;
+  background: #ffe6e6;
+  border: 1px solid #b71c1c;
+  border-radius: 6px;
+  font-weight: 600;
   box-sizing: border-box;
+  display: none;       /* JS will set display */
+  flex-direction: column;
+  flex-wrap: wrap;
 }
 body {
-  padding-top: 140px; /* leave space for banner and header */
+  padding-top: 140px;  /* leave space for banner and header */
 }
-
-	
+ 
 	
 	
 	.leaflet-routing-container {
@@ -407,25 +408,30 @@ startCountdown();
       
 	  
 	  // ✅ Show NON-BLOCKING safety banner only (NO alert)
+// --- Safety banner for users <=1km ---
 const noticeDiv = document.getElementById("safetyNotice");
 
 if (safetyArr.length > 0) {
-  noticeDiv.style.display = "block";
-  noticeDiv.innerHTML = `
-    ⚠️ <b>Safety Notice:</b>
-    Exact mapping is hidden for users within <b>1 km</b>.
-    Nearby user(s):
-    ${safetyArr.map(u => 
-      `<span style="display:block;margin-top:4px;">
-        • <b>${escapeHtml(u.name)}</b> (${escapeHtml(u.role)}) – 
-        <a href="tel:${u.phone}" style="color:#0d47a1;font-weight:bold;">${u.phone}</a>
-      </span>`
-    ).join("")}
-  `;
-} else {
-  noticeDiv.style.display = "none";
-  noticeDiv.innerHTML = "";
+    // Build banner content
+    let html = `<strong>⚠️ Safety Notice:</strong> Exact mapping is hidden for users within <b>1 km</b>.<br/>Nearby user(s):`;
+    safetyArr.forEach(u => {
+        html += `
+        <div style="margin-top:4px;">
+          • <b>${escapeHtml(u.name)}</b> (${escapeHtml(u.role)}) – 
+          <a href="tel:${encodeURIComponent(u.phone)}" style="color:#0d47a1;font-weight:bold;">${escapeHtml(u.phone)}</a>
+        </div>`;
+    });
 
+    noticeDiv.innerHTML = html;
+
+    // Make it visible
+    noticeDiv.style.display = "flex";          // Chrome-friendly
+    noticeDiv.style.flexDirection = "column";  // column layout
+    noticeDiv.style.visibility = "visible";
+} else {
+    noticeDiv.style.display = "none";
+    noticeDiv.style.visibility = "hidden";
+    noticeDiv.innerHTML = "";
 }
 
     });
