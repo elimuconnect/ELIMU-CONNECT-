@@ -77,31 +77,34 @@
       background-color: #2196F3;
     }
 
-  .notice {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+
+.notice {
   width: 100%;
-  z-index: 9999;
-  text-align: left;
-  max-height: 120px;
-  overflow-y: auto;
   padding: 10px;
   background: #ffe6e6;
   border: 1px solid #b71c1c;
   border-radius: 6px;
   font-weight: 600;
   box-sizing: border-box;
-  display: none;       /* JS will set display */
+  display: none;          /* hidden by default, JS shows it */
   flex-direction: column;
+  gap: 6px;               /* space between user items */
+}
+
+.notice .userItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   flex-wrap: wrap;
+  gap: 6px;
 }
+
+/* remove any body padding-top */
 body {
-  padding-top: 140px;  /* leave space for banner and header */
+  padding-top: 0;
 }
- 
-	
+
+
 	
 	.leaflet-routing-container {
   max-height: 200px;
@@ -114,6 +117,11 @@ body {
   </style>
 </head>
 <body>
+
+<div id="safetyNotice" class="notice"></div>
+
+
+
 
 <h3>📍 Elimu Connect – Live Location Sharing</h3>
 
@@ -145,6 +153,8 @@ body {
 <div id="map"></div>
 
 <div id="safetyNotice" class="notice" style="display:none;"></div>
+
+
 
 
 
@@ -409,18 +419,16 @@ if (dist <= 1) {
         }
       });
 
-      
-	 // ✅ Show NON-BLOCKING safety banner only (NO alert)
-// --- Safety banner for users <=1km ---
-// --- Safety banner for users <=1km ---
-const noticeDiv = document.getElementById("safetyNotice");
+    
+	
+	const noticeDiv = document.getElementById("safetyNotice");
 
 if (safetyArr.length > 0) {
     let html = `<strong>⚠️ Safety Notice:</strong> Exact mapping is hidden for users within <b>1 km</b>.<br/>Nearby user(s):`;
 
     safetyArr.forEach(u => {
         html += `
-        <div style="margin-top:4px;">
+        <div class="userItem">
           • <b>${escapeHtml(u.name)}</b> 
             (${escapeHtml(u.role)} – ${escapeHtml(u.subject || '')})  
           <a href="tel:${encodeURIComponent(u.phone)}" 
@@ -431,15 +439,14 @@ if (safetyArr.length > 0) {
     });
 
     noticeDiv.innerHTML = html;
-    noticeDiv.style.display = "flex";
-    noticeDiv.style.flexDirection = "column";
-    noticeDiv.style.visibility = "visible";
-
+    noticeDiv.style.display = "flex";          // make it visible
 } else {
-    noticeDiv.style.display = "none";
-    noticeDiv.style.visibility = "hidden";
+    noticeDiv.style.display = "none";          // hide if no nearby users
     noticeDiv.innerHTML = "";
 }
+
+	
+
 
 
     });
@@ -553,55 +560,55 @@ startAutoRefresh();
 
 
 
-// --- Add dummy user exactly 24 km away ---
-function addDummyUser() {
-  const dummyId = "dummyuser1"; // unique ID
+// --- Base coordinates: YOUR real location ---
+const baseLat = -3.9699084;
+const baseLng = 39.7352199;
+
+// --- Function to add dummy at exact distance ---
+function addDummy(id, distanceKm) {
   const R = 6371; // Earth radius in km
 
-  // Your real location
-  const userLat = -1.2841;
-  const userLng = 36.8155;
-
-  // Fixed distance
-  const distanceKm = 24;
-
-  // Random bearing in radians
+  // Random direction (bearing)
   const bearing = Math.random() * 2 * Math.PI;
 
-  // Convert latitude/longitude to radians
-  const lat1 = userLat * Math.PI / 180;
-  const lng1 = userLng * Math.PI / 180;
+  // Convert to radians
+  const lat1 = baseLat * Math.PI / 180;
+  const lng1 = baseLng * Math.PI / 180;
 
-  // Calculate destination coordinates
+  // Forward haversine destination formula
   const lat2 = Math.asin(
     Math.sin(lat1) * Math.cos(distanceKm / R) +
     Math.cos(lat1) * Math.sin(distanceKm / R) * Math.cos(bearing)
   );
+
   const lng2 = lng1 + Math.atan2(
     Math.sin(bearing) * Math.sin(distanceKm / R) * Math.cos(lat1),
     Math.cos(distanceKm / R) - Math.sin(lat1) * Math.sin(lat2)
   );
 
   const dummyData = {
-    name: "A",
-    subject: "JJ,VN",
-    phone: "HCB",
+    name: "Dummy " + distanceKm + "km",
+    subject: "Test",
+    phone: "000",
     role: "Student",
-    lat: lat2 * 180 / Math.PI, // convert back to degrees
+    lat: lat2 * 180 / Math.PI,
     lng: lng2 * 180 / Math.PI,
     timestamp: Date.now()
   };
 
-  db.ref("locations/" + dummyId).set(dummyData)
-    .then(() => {
-      console.log("✅ Dummy user added at ~24 km!");
-      loadMarkers(); // refresh map
-    })
-    .catch(err => console.error("Error adding dummy user:", err));
+  db.ref("locations/" + id).set(dummyData)
+    .then(() => console.log(`✅ Dummy ${id} added at ${distanceKm} km`))
+    .catch(err => console.error(err));
 }
 
-// --- Run the dummy user addition ---
-addDummyUser();
+// --- Create all the dummy users ---
+addDummy("dummy15", 15);
+addDummy("dummy24", 24);
+addDummy("dummy25", 25);
+addDummy("dummy35", 35);
+addDummy("dummy40", 40);
+
+
 
 
 
@@ -726,8 +733,6 @@ function deleteMyLocation() {
   });
 </script>
 
-
-
-
 </body>
+
 </html>
