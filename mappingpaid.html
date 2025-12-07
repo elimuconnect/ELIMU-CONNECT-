@@ -165,12 +165,12 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-(function () {
+(function handlePaymentRef() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get("ref");
 
-  // ✅ If user just came from Paystack, activate 30-day access
-  if (ref) {
+  // ✅ Only store ref and expiry if it's a new payment
+  if (ref && !localStorage.getItem("paidRef")) {
     const now = Date.now();
     const thirtyDays = 30 * 24 * 60 * 60 * 1000;
     const expiresAt = now + thirtyDays;
@@ -178,18 +178,18 @@ body {
     localStorage.setItem("paidExpiresAt", expiresAt);
     localStorage.setItem("paidRef", ref);
 
-    // Clean URL (remove ref so it can't be reused)
+    // Clean URL so it can't be reused
     history.replaceState({}, document.title, location.pathname);
   }
 })();
 
 
 
-
 (function enforcePaidAccess() {
+  const paidRef = localStorage.getItem("paidRef");
   const expiresAt = parseInt(localStorage.getItem("paidExpiresAt") || "0", 10);
 
-  if (!expiresAt) {
+  if (!paidRef || !expiresAt) {
     alert("🔒 Paid access required.");
     window.location.href = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
     return;
@@ -225,7 +225,6 @@ body {
   updateCountdown();
   setInterval(updateCountdown, 1000);
 })();
-
 
 
 
