@@ -271,8 +271,6 @@ startCountdown();
 
 
 
-
-
   // --- Firebase config (kept as provided) ---
   const firebaseConfig = {
     apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
@@ -487,66 +485,162 @@ function zoomToUser(value) {
 
 
 
+ // --- Auto-refresh every 20 seconds ---
+  let refreshInterval = null;
+  
+  
 
-
-
-  // --- Share location to Firebase ---
-  function shareLocation() {
+// --- Share location to Firebase ---
+function shareLocation() {
     const name = document.getElementById("name").value.trim();
     const subject = document.getElementById("subject").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const role = document.getElementById("role").value;
 
     if (!name || !subject || !phone) {
-      return alert("Please fill all fields.");
+        return alert("Please fill all fields.");
     }
     if (!userLat || !userLng) {
-      return alert("Location not available. Allow location access and try again.");
+        return alert("Location not available. Allow location access and try again.");
     }
 
     localStorage.setItem("myPhone", phone);
-    // normalize phone for id
-    const userId = phone.replace(/[^0-9]/g, "");
-    db.ref("locations/" + userId).set({ name, subject, phone, role, lat: userLat, lng: userLng })
-      .then(() => {
+
+    // --- Generate a unique device ID per browser/device ---
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+        deviceId = "dev_" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("deviceId", deviceId);
+    }
+
+    // --- Combine phone + deviceId as Firebase key ---
+    const userId = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
+    // --- Push location data ---
+    db.ref("locations/" + userId).set({
+        name,
+        subject,
+        phone,
+        role,
+        lat: userLat,
+        lng: userLng,
+        timestamp: Date.now()
+    })
+    .then(() => {
         alert("✅ Location shared!");
-        // update myPhone global if not set before
         loadMarkers();
-      })
-      .catch(err => {
+    })
+    .catch(err => {
         console.error(err);
         alert("Error sharing location.");
-      });
-  }
-
-  // --- Edit / delete owner controls ---
-  function editMyLocation(phone) {
-    const key = phone.replace(/[^0-9]/g, "");
-    db.ref("locations/" + key).once("value", snapshot => {
-      const data = snapshot.val();
-      if (!data) return alert("No data found.");
-      document.getElementById("name").value = data.name || "";
-      document.getElementById("subject").value = data.subject || "";
-      document.getElementById("phone").value = data.phone || "";
-      document.getElementById("role").value = data.role || "Student";
-      // center map on user's location
-      if (data.lat && data.lng) map.setView([data.lat, data.lng], 15);
     });
-  }
+}
 
-  function deleteMyLocation(phone) {
+// --- Initialize map and auto-refresh ---
+initMap();
+startAutoRefresh();
+
+
+
+
+// --- Add dummy user exactly 24 km away ---
+function addDummyUser() {
+  const dummyId = "dummyuser1"; // unique ID
+  const R = 6371; // Earth radius in km
+
+  // Your real location
+  const userLat = -1.2841;
+  const userLng = 36.8155;
+
+  // Fixed distance
+  const distanceKm = 24;
+
+  // Random bearing in radians
+  const bearing = Math.random() * 2 * Math.PI;
+
+  // Convert latitude/longitude to radians
+  const lat1 = userLat * Math.PI / 180;
+  const lng1 = userLng * Math.PI / 180;
+
+  // Calculate destination coordinates
+  const lat2 = Math.asin(
+    Math.sin(lat1) * Math.cos(distanceKm / R) +
+    Math.cos(lat1) * Math.sin(distanceKm / R) * Math.cos(bearing)
+  );
+  const lng2 = lng1 + Math.atan2(
+    Math.sin(bearing) * Math.sin(distanceKm / R) * Math.cos(lat1),
+    Math.cos(distanceKm / R) - Math.sin(lat1) * Math.sin(lat2)
+  );
+
+  const dummyData = {
+    name: "A",
+    subject: "JJ,VN",
+    phone: "HCB",
+    role: "Student",
+    lat: lat2 * 180 / Math.PI, // convert back to degrees
+    lng: lng2 * 180 / Math.PI,
+    timestamp: Date.now()
+  };
+
+  db.ref("locations/" + dummyId).set(dummyData)
+    .then(() => {
+      console.log("✅ Dummy user added at ~24 km!");
+      loadMarkers(); // refresh map
+    })
+    .catch(err => console.error("Error adding dummy user:", err));
+}
+
+// --- Run the dummy user addition ---
+addDummyUser();
+
+
+
+
+  // --- Edit location for current device only ---
+function editMyLocation() {
+    const deviceId = localStorage.getItem("deviceId");
+    const phone = document.getElementById("phone").value.trim();
+    if (!phone || !deviceId) return alert("Phone or Device ID not found.");
+
+    const key = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
+    db.ref("locations/" + key).once("value", snapshot => {
+        const data = snapshot.val();
+        if (!data) return alert("No data found for your device.");
+
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("subject").value = data.subject || "";
+        document.getElementById("role").value = data.role || "Student";
+
+        if (data.lat && data.lng) map.setView([data.lat, data.lng], 15);
+    });
+}
+
+// --- Delete location for current device only ---
+function deleteMyLocation() {
+    const deviceId = localStorage.getItem("deviceId");
+    const phone = document.getElementById("phone").value.trim();
+    if (!phone || !deviceId) return alert("Phone or Device ID not found.");
+
+    const key = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
     if (!confirm("Delete your shared location?")) return;
-    const key = phone.replace(/[^0-9]/g, "");
+
     db.ref("locations/" + key).remove()
-      .then(() => {
+    .then(() => {
         alert("❌ Location deleted.");
         loadMarkers();
-      })
-      .catch(err => {
+    })
+    .catch(err => {
         console.error(err);
         alert("Error deleting location.");
-      });
-  }
+    });
+}
+
+  
+  
+  
+  
 
   // --- Escape HTML for safety in popups ---
   function escapeHtml(str) {
@@ -559,8 +653,7 @@ function zoomToUser(value) {
       .replace(/>/g, "&gt;");
   }
 
-  // --- Auto-refresh every 20 seconds ---
-  let refreshInterval = null;
+  
   
   
   
@@ -622,6 +715,8 @@ function zoomToUser(value) {
     if (!document.hidden) loadMarkers();
   });
 </script>
+
+
 
 </body>
 </html>
