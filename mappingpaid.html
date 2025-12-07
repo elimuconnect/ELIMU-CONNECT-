@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -115,20 +116,6 @@ body {
 
 <h3>📍 Elimu Connect – Live Location Sharing</h3>
 
-<div id="paidCountdown" style="
-  font-weight: bold;
-  color: #1b5e20;
-  background: #e8f5e9;
-  border: 1px solid #1b5e20;
-  padding: 8px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-">
-  ⏳ Subscription loading...
-</div>
-
-
-	
 <input id="name" type="text" placeholder="Your Name" />
 <input id="subject" type="text" placeholder="Subject" />
 <input id="phone" type="text" placeholder="Phone Number" />
@@ -158,78 +145,133 @@ body {
 
 <div id="safetyNotice" class="notice" style="display:none;"></div>
 
+
+
+<!-- Payment Access Modal -->
+<div id="accessModal" style="
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;
+    z-index:9999; display:none;
+">
+  <div style="
+      background:#fff; padding:25px 30px; border-radius:12px; max-width:400px;
+      text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
+      box-shadow:0 6px 20px rgba(0,0,0,0.2);
+  ">
+    <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
+    <button id="accessBtn" style="
+        background:#0078D7; color:#fff; border:none; padding:10px 18px;
+        border-radius:8px; font-weight:600; cursor:pointer;
+        transition:0.2s;
+    ">OK</button>
+  </div>
+</div>
+
+<!-- Countdown Display -->
+<div id="accessCountdown" style="
+    position: fixed; top: 100px; left: 10px; 
+    background: #0078D7; color: #fff; padding: 12px 16px; 
+    border-radius: 8px; font-family: 'Segoe UI', sans-serif; 
+    font-weight:600; box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    z-index:999; text-align:center; display:none;
+">
+    Loading access info...
+</div>
+
+
+
 <!-- Scripts -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
+
+
+
+
+
 <script>
-(function handlePaymentRef() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get("ref");
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
+const STORAGE_PREFIX = "mapping_"; // unique for this site
+const FREE_PAGE = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
 
-  // ✅ Only store ref and expiry if it's a new payment
-  if (ref && !localStorage.getItem("paidRef")) {
-    const now = Date.now();
-    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
-    const expiresAt = now + thirtyDays;
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
 
-    localStorage.setItem("paidExpiresAt", expiresAt);
-    localStorage.setItem("paidRef", ref);
+function formatTime(ms){
+    if(ms <= 0) return "00:00";
+    let totalSec = Math.floor(ms/1000);
+    let h = Math.floor(totalSec / 3600);
+    let m = Math.floor((totalSec % 3600) / 60);
+    let s = totalSec % 60;
+    if(h > 0) return `${h}h ${m}m ${s}s`;
+    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
 
-    // Clean URL so it can't be reused
-    history.replaceState({}, document.title, location.pathname);
-  }
-})();
+// Access tracking
+let lastPaid = parseInt(localStorage.getItem(STORAGE_PREFIX + 'lastPaidTime')) || 0;
+let paidReference = localStorage.getItem(STORAGE_PREFIX + 'paidReference') || "";
 
+const now = Date.now();
+const reference = getQueryParam('reference');
 
+// Only store new payment if reference is new
+if(reference && reference !== paidReference){
+    lastPaid = now;
+    paidReference = reference;
+    localStorage.setItem(STORAGE_PREFIX + 'lastPaidTime', lastPaid);
+    localStorage.setItem(STORAGE_PREFIX + 'paidReference', paidReference);
+}
 
-(function enforcePaidAccess() {
-  const paidRef = localStorage.getItem("paidRef");
-  const expiresAt = parseInt(localStorage.getItem("paidExpiresAt") || "0", 10);
+// Countdown element
+const countdownEl = document.getElementById('accessCountdown');
 
-  if (!paidRef || !expiresAt) {
-    alert("🔒 Paid access required.");
-    window.location.href = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
-    return;
-  }
+function showAccessModal(message, btnText="OK", callback=null){
+    const modal = document.getElementById('accessModal');
+    const msgEl = document.getElementById('accessMessage');
+    const btn = document.getElementById('accessBtn');
+    msgEl.innerHTML = message;
+    btn.textContent = btnText;
+    modal.style.display = "flex";
+    btn.onclick = ()=> {
+        modal.style.display = "none";
+        if(callback) callback();
+    };
+}
 
-  function updateCountdown() {
-    const now = Date.now();
-    const remaining = expiresAt - now;
-
-    if (remaining <= 0) {
-      localStorage.removeItem("paidExpiresAt");
-      localStorage.removeItem("paidRef");
-
-      alert("⛔ Your 1-month access has expired.");
-      window.location.href = "https://elimuconnect.github.io/ELIMU-CONNECT-/mappingfree";
-      return;
+function startCountdown(){
+    countdownEl.style.display = "block";
+    function updateCountdown(){
+        const now = Date.now();
+        if(lastPaid && now - lastPaid < ACCESS_DURATION){
+            const remaining = ACCESS_DURATION - (now - lastPaid);
+            countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
+        } else {
+            countdownEl.textContent = `Access expired.`;
+            showAccessModal(
+                "⛔ Your subscription has ended. You will be redirected to free mode and can pay again to regain full access.",
+                "OK",
+                ()=>{ window.location.href = FREE_PAGE; }
+            );
+        }
     }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
 
-    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((remaining / (1000 * 60 * 60)) % 24);
-    const mins = Math.floor((remaining / (1000 * 60)) % 60);
-    const secs = Math.floor((remaining / 1000) % 60);
-
-    const box = document.getElementById("paidCountdown");
-    if (box) {
-      box.innerHTML = `
-        ✅ Paid Access Active — Expires in:
-        <b>${days}d ${hours}h ${mins}m ${secs}s</b>
-      `;
-    }
-  }
-
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-})();
+// Start countdown
+startCountdown();
 
 
 
 
-	
+
+
+
+
   // --- Firebase config (kept as provided) ---
   const firebaseConfig = {
     apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
