@@ -269,8 +269,6 @@ startCountdown();
 
 
 
-
-
   // --- Firebase config (kept as provided) ---
   const firebaseConfig = {
     apiKey: "AIzaSyDFOMjP0XgFCgs-iUg0HYD9DCGjsUOGofE",
@@ -361,11 +359,19 @@ startCountdown();
 
         const dist = getDistance(userLat, userLng, d.lat, d.lng);
 
+       
         // HIDE exact mapping for users within 1 km, but collect them for notice
-        if (dist <= 1) {
-          safetyArr.push({ name: d.name, role: d.role, phone: d.phone, dist });
-          return; // do not show on map or dropdown
-        }
+if (dist <= 1) {
+  safetyArr.push({
+    name: d.name,
+    role: d.role,
+    phone: d.phone,
+    subject: d.subject || "",
+    dist
+  });
+  return;
+}
+
 
         // Show users >1 km and within selected radius
         if (dist > 1 && dist <= maxDistance) {
@@ -404,33 +410,37 @@ startCountdown();
       });
 
       
-	  
-	  // ✅ Show NON-BLOCKING safety banner only (NO alert)
+	 // ✅ Show NON-BLOCKING safety banner only (NO alert)
+// --- Safety banner for users <=1km ---
 // --- Safety banner for users <=1km ---
 const noticeDiv = document.getElementById("safetyNotice");
 
 if (safetyArr.length > 0) {
-    // Build banner content
     let html = `<strong>⚠️ Safety Notice:</strong> Exact mapping is hidden for users within <b>1 km</b>.<br/>Nearby user(s):`;
+
     safetyArr.forEach(u => {
         html += `
         <div style="margin-top:4px;">
-          • <b>${escapeHtml(u.name)}</b> (${escapeHtml(u.role)}) – 
-          <a href="tel:${encodeURIComponent(u.phone)}" style="color:#0d47a1;font-weight:bold;">${escapeHtml(u.phone)}</a>
+          • <b>${escapeHtml(u.name)}</b> 
+            (${escapeHtml(u.role)} – ${escapeHtml(u.subject || '')})  
+          <a href="tel:${encodeURIComponent(u.phone)}" 
+             style="display:inline-block;padding:4px 6px;border-radius:6px;background:#1976d2;color:#fff;text-decoration:none;">
+             📲 Call
+          </a>
         </div>`;
     });
 
     noticeDiv.innerHTML = html;
-
-    // Make it visible
-    noticeDiv.style.display = "flex";          // Chrome-friendly
-    noticeDiv.style.flexDirection = "column";  // column layout
+    noticeDiv.style.display = "flex";
+    noticeDiv.style.flexDirection = "column";
     noticeDiv.style.visibility = "visible";
+
 } else {
     noticeDiv.style.display = "none";
     noticeDiv.style.visibility = "hidden";
     noticeDiv.innerHTML = "";
 }
+
 
     });
   }
@@ -715,6 +725,7 @@ function deleteMyLocation() {
     if (!document.hidden) loadMarkers();
   });
 </script>
+
 
 
 
