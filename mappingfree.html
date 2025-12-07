@@ -368,7 +368,16 @@ function shareLocation() {
     localStorage.setItem("hasSharedLocation", "true");
     hasShared = true;
 
-    const userId = phone.replace(/[^0-9]/g, "");
+    // ---- NEW PART: make each device unique ----
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      deviceId = "dev_" + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem("deviceId", deviceId);
+    }
+
+    // Unique node for each device → prevents overwriting
+    const userId = phone.replace(/[^0-9]/g, "") + "_" + deviceId;
+
     db.ref("locations/" + userId).set({
       name, subject, phone, role, lat: userLat, lng: userLng
     }).then(() => {
@@ -390,6 +399,7 @@ function shareLocation() {
   });
 }
 
+
 // Event listeners
 document.getElementById("shareBtn").addEventListener("click", shareLocation);
 document.getElementById("radius").addEventListener("input", () => {
@@ -404,6 +414,10 @@ window.addEventListener("load", () => {
   updateRadiusLabel();
   initMap();
 });
+
+
+
+
 </script>
 
 
