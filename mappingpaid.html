@@ -651,63 +651,6 @@ function shareLocation() {
     });
 }
 
-// --- Initialize map and auto-refresh ---
-initMap();
-startAutoRefresh();
-
-
-
-
-// --- Base coordinates: YOUR real location ---
-const baseLat = -3.9699084;
-const baseLng = 39.7352199;
-
-// --- Function to add dummy at exact distance ---
-function addDummy(id, distanceKm) {
-  const R = 6371; // Earth radius in km
-
-  // Random direction (bearing)
-  const bearing = Math.random() * 2 * Math.PI;
-
-  // Convert to radians
-  const lat1 = baseLat * Math.PI / 180;
-  const lng1 = baseLng * Math.PI / 180;
-
-  // Forward haversine destination formula
-  const lat2 = Math.asin(
-    Math.sin(lat1) * Math.cos(distanceKm / R) +
-    Math.cos(lat1) * Math.sin(distanceKm / R) * Math.cos(bearing)
-  );
-
-  const lng2 = lng1 + Math.atan2(
-    Math.sin(bearing) * Math.sin(distanceKm / R) * Math.cos(lat1),
-    Math.cos(distanceKm / R) - Math.sin(lat1) * Math.sin(lat2)
-  );
-
-  const dummyData = {
-    name: "Dummy " + distanceKm + "km",
-    subject: "Test",
-    phone: "000",
-    role: "Student",
-    lat: lat2 * 180 / Math.PI,
-    lng: lng2 * 180 / Math.PI,
-    timestamp: Date.now()
-  };
-
-  db.ref("locations/" + id).set(dummyData)
-    .then(() => console.log(`✅ Dummy ${id} added at ${distanceKm} km`))
-    .catch(err => console.error(err));
-}
-
-// --- Create all the dummy users ---
-addDummy("dummy15", 15);
-addDummy("dummy24", 24);
-addDummy("dummy25", 25);
-addDummy("dummy35", 35);
-addDummy("dummy40", 40);
-
-
-
 
 
 
