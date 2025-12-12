@@ -3609,11 +3609,14 @@ async function startRecordingAuto() {
   // 🎵 ensure background track
   if (!currentBgSource) await playRandomBackgroundTrack().catch(() => {});
 
-  let dur = parseInt(durationSel.value, 10) || 30;
-  if (dur > 60) {
-    alert("TikTok allows max 60s — trimming to 60s.");
-    dur = 60;
-  }
+// ✅ Fixed allowed durations: 15s, 20s, 30s
+let dur = parseInt(durationSel.value, 10);
+
+// force allowed values only
+if (![15, 20, 30].includes(dur)) {
+  dur = 30; // default
+}
+
 
   statusEl.textContent = `Recording ${dur}s — preparing streams...`;
   await new Promise(r => setTimeout(r, 350));
