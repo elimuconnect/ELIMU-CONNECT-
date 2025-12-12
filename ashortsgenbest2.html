@@ -4007,56 +4007,6 @@ function stopAnimation() {
 }
 
 
-function drawCommentEffect(time, item) { 
-  if (!ctx || !item) return;
-
-  ctx.save();
-
-  // 💬 Floating animation (same style)
-  const baseY = CANVAS_H / 2 + 200; // position BELOW main text
-  const floatY = baseY - Math.sin(time / 400) * 12;
-
-  // Bubble background (rounded)
-  const bubbleWidth = 520;
-  const bubbleHeight = 150; // slightly taller for two lines
-  const bubbleX = (CANVAS_W / 2) - (bubbleWidth / 2);
-  const bubbleY = floatY - bubbleHeight / 2;
-
-  // 🔆 Gradient bubble background
-  const gradient = ctx.createLinearGradient(bubbleX, bubbleY, bubbleX, bubbleY + bubbleHeight);
-  gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
-  gradient.addColorStop(1, 'rgba(255, 220, 150, 0.9)');
-
-  // Draw bubble background
-  ctx.beginPath();
-  ctx.roundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, 30);
-  ctx.fillStyle = gradient;
-  ctx.shadowColor = 'rgba(255, 200, 50, 0.9)';
-  ctx.shadowBlur = 25;
-  ctx.fill();
-
-  // Border
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = 'rgba(255, 100, 0, 0.8)';
-  ctx.stroke();
-
-  // 💬 Comment line
-  ctx.font = 'bold 42px "Patrick Hand", Comic Sans MS, Arial';
-  ctx.fillStyle = '#ff5722';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = 'rgba(0,0,0,0.2)';
-  ctx.shadowBlur = 0;
-  ctx.fillText('💬 Comment your answer!', CANVAS_W / 2, floatY - 25);
-
-  // 📢 Subscribe line (below)
-  ctx.font = 'bold 38px "Patrick Hand", Comic Sans MS, Arial';
-  ctx.fillStyle = '#1976d2';
-  ctx.fillText('📢 Please Subscribe!', CANVAS_W / 2, floatY + 35);
-
-  ctx.restore();
-}
-
 
 
 function showKnowledgeItem(item) {
