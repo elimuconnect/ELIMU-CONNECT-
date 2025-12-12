@@ -198,11 +198,16 @@
 
     <div class="controls">
       <label>Duration:
-        <select id="duration">
+
+        <select id="durationSel">
+  <option value="10">10s</option>
   <option value="15">15s</option>
   <option value="20">20s</option>
-  <option value="30" selected>30s</option>
+  <option value="30">30s</option>
+  <option value="45">45s</option>
+  <option value="60">60s</option>
 </select>
+
 
       </label>
 
@@ -3614,13 +3619,13 @@ async function startRecordingAuto() {
   // 🎵 ensure background track
   if (!currentBgSource) await playRandomBackgroundTrack().catch(() => {});
 
-// ✅ Fixed allowed durations: 15s, 20s, 30s
 let dur = parseInt(durationSel.value, 10);
 
-// force allowed values only
-if (![15, 20, 30].includes(dur)) {
+// ✅ allow only 10, 15, 20, 30, 45, 60 seconds
+if (![10, 15, 20, 30, 45, 60].includes(dur)) {
   dur = 30; // default
 }
+
 
 
   statusEl.textContent = `Recording ${dur}s — preparing streams...`;
