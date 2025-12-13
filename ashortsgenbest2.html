@@ -3486,6 +3486,8 @@ async function prepareScene() {
 
 
 
+
+
 async function playPreHook() {
   return new Promise(resolve => {
     const start = performance.now();
@@ -3522,18 +3524,20 @@ async function playPreHook() {
       ctx.scale(scale, scale);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.font = 'bold 110px Arial';
-      ctx.fillStyle = `rgba(255,215,0,${alpha})`; // fade with alpha
+
+      // 🔹 Word font reduced by 30%
+      ctx.font = 'bold 77px Arial'; // 110px → 77px
+      ctx.fillStyle = `rgba(255,215,0,${alpha})`; 
       ctx.fillText(word, 0, wordY);
       ctx.restore();
 
-      // Emoji bouncing
+      // Emoji bouncing (unchanged)
       const emojiY = 10 + Math.sin(t / 200) * 20;
       ctx.font = '80px Arial';
       ctx.fillStyle = `rgba(255,255,255,${alpha})`;
       ctx.fillText(emoji, 0, emojiY);
 
-      // Phrase sliding from bottom
+      // Phrase sliding from bottom (unchanged)
       const phraseY = 120 + 60 * Math.exp(-t / 600);
       ctx.font = 'bold 42px Arial';
       ctx.fillStyle = `rgba(255,255,255,${alpha})`;
@@ -3551,10 +3555,6 @@ async function playPreHook() {
     requestAnimationFrame(draw);
   });
 }
-
-
-
-
 
 
 
