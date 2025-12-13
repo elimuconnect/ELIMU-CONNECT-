@@ -19,7 +19,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     text-align: center;
-    width: 300px;
+    width: 320px;
   }
   input, button {
     margin: 10px 0;
@@ -65,12 +65,9 @@
   <p id="status"></p>
 </div>
 
-<!-- FFmpeg global version -->
-<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
+<!-- Merge Video Library -->
+<script src="https://unpkg.com/merge-video"></script>
 <script>
-const { createFFmpeg, fetchFile } = FFmpeg;
-const ffmpeg = createFFmpeg({ log: true });
-
 const videoInput = document.getElementById('videoInput');
 const audioInput = document.getElementById('audioInput');
 const mergeBtn = document.getElementById('mergeBtn');
@@ -79,7 +76,7 @@ const status = document.getElementById('status');
 const videoDrop = document.getElementById('videoDrop');
 const audioDrop = document.getElementById('audioDrop');
 
-// Drag & drop
+// Drag & drop & click
 [videoDrop, audioDrop].forEach((dropArea, idx) => {
   const input = idx === 0 ? videoInput : audioInput;
   dropArea.addEventListener('click', () => input.click());
@@ -100,35 +97,30 @@ mergeBtn.addEventListener('click', async () => {
         return;
     }
 
-    status.textContent = 'Loading FFmpeg (may take a few seconds)...';
-    if (!ffmpeg.isLoaded()) await ffmpeg.load();
+    status.textContent = 'Merging video and audio...';
 
-    status.textContent = 'Processing video...';
+    try {
+        const videoFile = videoInput.files[0];
+        const audioFile = audioInput.files[0];
 
-    const videoFile = videoInput.files[0];
-    const audioFile = audioInput.files[0];
+        // Use MergeVideo library
+        const mergedBlob = await mergeVideo([videoFile, audioFile], { 
+            format: 'mp4', 
+            fps: 30, 
+            audio: true 
+        });
 
-    ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
-    ffmpeg.FS('writeFile', 'audio.mp3', await fetchFile(audioFile));
+        const url = URL.createObjectURL(mergedBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'merged_video.mp4';
+        a.click();
 
-    await ffmpeg.run(
-        '-i', 'video.mp4',
-        '-i', 'audio.mp3',
-        '-c:v', 'copy',
-        '-c:a', 'aac',
-        '-shortest',
-        'output.mp4'
-    );
-
-    const data = ffmpeg.FS('readFile', 'output.mp4');
-    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'merged_video.mp4';
-    a.click();
-
-    status.textContent = 'Done! Download should start automatically.';
+        status.textContent = 'Done! Download should start automatically.';
+    } catch (err) {
+        console.error(err);
+        status.textContent = 'Error merging files.';
+    }
 });
 </script>
 
