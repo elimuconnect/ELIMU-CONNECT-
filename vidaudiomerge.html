@@ -65,12 +65,17 @@
   <p id="status"></p>
 </div>
 
+
 <!-- Browser-safe ffmpeg.wasm -->
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.1/dist/ffmpeg.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/ffmpeg.min.js"></script>
 <script>
-const { createFFmpeg, fetchFile } = FFmpeg;
-// Use corePath pointing to normal JS version (no SharedArrayBuffer needed)
-const ffmpeg = createFFmpeg({ log: true, corePath: "https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js" });
+// NOTE: The import syntax changed slightly in newer versions.
+const { FFmpeg } = FFmpeg;
+
+// Initialize FFmpeg
+const ffmpeg = new FFmpeg();
 
 const videoInput = document.getElementById('videoInput');
 const audioInput = document.getElementById('audioInput');
@@ -82,59 +87,66 @@ const audioDrop = document.getElementById('audioDrop');
 
 // Drag & drop + click
 [videoDrop, audioDrop].forEach((dropArea, idx) => {
-  const input = idx === 0 ? videoInput : audioInput;
-  dropArea.addEventListener('click', () => input.click());
-  dropArea.addEventListener('dragover', e => e.preventDefault());
-  dropArea.addEventListener('drop', e => {
-    e.preventDefault();
-    if(e.dataTransfer.files.length > 0) input.files = e.dataTransfer.files;
-    dropArea.textContent = input.files[0].name;
-  });
-  input.addEventListener('change', () => {
-    dropArea.textContent = input.files[0].name;
-  });
+  const input = idx === 0 ? videoInput : audioInput;
+  dropArea.addEventListener('click', () => input.click());
+  dropArea.addEventListener('dragover', e => e.preventDefault());
+  dropArea.addEventListener('drop', e => {
+    e.preventDefault();
+    if(e.dataTransfer.files.length > 0) input.files = e.dataTransfer.files;
+    dropArea.textContent = input.files[0].name;
+  });
+  input.addEventListener('change', () => {
+    dropArea.textContent = input.files[0].name;
+  });
 });
 
 mergeBtn.addEventListener('click', async () => {
-    if (!videoInput.files[0] || !audioInput.files[0]) {
-        alert('Please select both video and audio files.');
-        return;
-    }
+    if (!videoInput.files[0] || !audioInput.files[0]) {
+        alert('Please select both video and audio files.');
+        return;
+    }
 
-    status.textContent = 'Loading FFmpeg (may take a few seconds)...';
-    if (!ffmpeg.isLoaded()) await ffmpeg.load();
+    status.textContent = 'Loading FFmpeg (may take a few seconds)...';
+    
+    // Use the load method from the new object
+    if (!ffmpeg.loaded) await ffmpeg.load({
+        coreURL: "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/ffmpeg-core.js",
+    });
 
-    status.textContent = 'Processing video...';
+    status.textContent = 'Processing video...';
 
-    const videoFile = videoInput.files[0];
-    const audioFile = audioInput.files[0];
+    const videoFile = videoInput.files[0];
+    const audioFile = audioInput.files[0];
 
-    // Write files to ffmpeg FS
-    ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
-    ffmpeg.FS('writeFile', 'audio.mp3', await fetchFile(audioFile));
+    // Write files to ffmpeg FS (fetchFile is no longer globally available in this version)
+    // Instead, we read the files into an ArrayBuffer and pass them.
+    const videoData = new Uint8Array(await videoFile.arrayBuffer());
+    const audioData = new Uint8Array(await audioFile.arrayBuffer());
 
-    // Merge command
-    await ffmpeg.run(
-        '-i', 'video.mp4',
-        '-i', 'audio.mp3',
-        '-c:v', 'copy',
-        '-c:a', 'aac',
-        '-shortest',
-        'output.mp4'
-    );
+    ffmpeg.writeFile('video.mp4', videoData);
+    ffmpeg.writeFile('audio.mp3', audioData);
 
-    // Read result
-    const data = ffmpeg.FS('readFile', 'output.mp4');
-    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+    // Merge command
+    await ffmpeg.exec([
+        '-i', 'video.mp4',
+        '-i', 'audio.mp3',
+        '-c:v', 'copy',
+        '-c:a', 'aac',
+        '-shortest',
+        'output.mp4'
+    ]);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'merged_video.mp4';
-    a.click();
+    // Read result
+    const data = await ffmpeg.readFile('output.mp4');
+    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
 
-    status.textContent = 'Done! Download should start automatically.';
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'merged_video.mp4';
+    a.click();
+
+    status.textContent = 'Done! Download should start automatically.';
 });
 </script>
-
 </body>
 </html>
