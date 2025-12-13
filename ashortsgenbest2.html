@@ -264,6 +264,165 @@ const ITEM_INTERVAL = 5000; // show new knowledge item every 5 seconds
 let currentItem = null;
 
 
+const RETENTION_WORDS = [
+  "WAIT",
+  "STOP",
+  "DON’T SCROLL",
+  "LOOK",
+  "THINK FAST",
+  "HURRY",
+  "FOCUS",
+  "READY?",
+  "WATCH THIS",
+  "CHALLENGE",
+  "EASY?",
+  "TRICKY",
+  "NO CHEATING",
+  "SMART ONLY",
+  "BE HONEST",
+  "LAST CHANCE",
+  "ARE YOU SURE?",
+  "TRY THIS",
+  "QUICK TEST",
+  "BRAIN CHECK",
+  "CAN YOU SEE?",
+  "DON’T MISS",
+  "SECRET",
+  "OMG!",
+  "WAIT FOR IT",
+  "INSANE",
+  "UNBELIEVABLE",
+  "YOU WON’T BELIEVE",
+  "FAST!",
+  "STOP RIGHT THERE",
+  "HOLD UP",
+  "ONLY FOR GENIUS",
+  "WARNING",
+  "GUESS WHAT?",
+  "MUST SEE",
+  "PROVE IT",
+  "DID YOU KNOW?",
+  "QUICK THINK",
+  "WATCH CLOSELY",
+  "HOW FAST?",
+  "SLOW DOWN",
+  "PAY ATTENTION",
+  "CHALLENGE ALERT",
+  "TEST YOUR BRAIN",
+  "CAN YOU HANDLE THIS?",
+  "EYE OPENING",
+  "YOU THINK YOU KNOW?",
+  "DON’T LOOK AWAY",
+  "TRUST ME",
+  "FAST MINDS ONLY",
+  "READ THIS",
+  "MIND BLOWING",
+  "CHECK THIS OUT",
+  "LAST SECOND",
+  "ARE YOU READY?",
+  "CAN YOU SEE IT?",
+  "TRY HARDER",
+  "THIS OR THAT?",
+  "ALMOST THERE",
+  "TIME’S UP",
+  "FOCUS NOW",
+  "HOLD ON",
+  "WHAT’S NEXT?",
+  "GUESS QUICK",
+  "WATCH AND LEARN",
+  "DON’T BLINK",
+  "SEE IF YOU CAN",
+  "TRY AGAIN",
+  "FAST EYE",
+  "SPEED TEST",
+  "MIND GAME",
+  "CAN YOU SPOT IT?",
+  "THINK QUICK",
+  "DON’T MISS OUT",
+  "SECRET INSIDE",
+  "EYE TEST",
+  "HINT",
+  "WHAT HAPPENS NEXT?",
+  "QUICK EYES",
+  "ARE YOU ALERT?",
+  "NOTICE THIS",
+  "MUST TRY",
+  "KEEP LOOKING",
+  "ALERT!",
+  "LAST TRY",
+  "CHECK YOURSELF"
+];
+const RETENTION_PHRASES = [
+  "7 seconds ⏱️",
+  "99% fail 😳",
+  "Don’t blink 👀",
+  "Comment fast 👇",
+  "Smart people only 🧠",
+ 
+ "Harder than it looks 🤯", 
+  "Brain tricks you 🌀",      
+ 
+ 
+  "Wait till the end 😮",
+  "No skipping 🚫",
+  "Answer fast 💨",
+  "Kids vs adults 😅",
+  "Be honest 🤔",
+  "No guessing 🙅",
+  "Focus 🎯",
+  "Watch closely 👁️",
+  "Think fast ⚡",
+  "Beat the timer? ⏳",
+  "Geniuses only ✅",
+  "Spot the difference 👓",
+  "Eyes can lie 👀",
+  "Quick! Gone soon ⌛",
+  "Pay attention 👂",
+  "Notice details 🔍",
+  "Brain challenge 🧩",
+  "Can you solve it? 🤔",
+  "Don’t scroll 🚷",
+  "Tricky 😏",
+  "Time’s short ⏲️",
+  "Focus or fail ❌",
+  "Look closely 👁️‍🗨️",
+  "Guess carefully 🤨",
+  "Most miss this 🙈",
+  "Solve it? 🕵️",
+  "Eyes wide 👁️",
+  "Think outside 📦",
+  "Your turn ✋",
+  "Brain test 🧠",
+  "Spot it 👀",
+  "No cheating 🚫",
+  "Ready? 🎬",
+  "Check answer 📝",
+  "Brave continue 🦁",
+  "Catch it? 🎯",
+  "Timer won’t wait ⏳",
+  "Memory matters 🧠",
+  "Watch till end ⏱️",
+  "Disappears fast ⚡",
+  "Spot before gone 👀",
+  "Try luck 🍀",
+  "Tricky one 😵",
+  "Keep up? 🏃",
+  "Eyes on prize 🏆",
+  "Brain vs clock ⏰"
+];
+
+
+
+const RETENTION_EMOJIS = [
+  "😳","🤯","⏱️","🔥","⚡","👀","🧠","🎯","🚀",
+  "❗","❓","🛑","👇","💥","✨","😅","😮","😬",
+  "🙀","😱","💨","⚠️","🎉","💡","👆","🌀","🤔",
+  "🤪","😏","🤩","👓","🕵️","🫣","🫢","🥵","🥶",
+  "😎","🎬","🏆","🫡","💫","📢","🥳","📌","🔍",
+  "🧩","🚨","🖐️","🖤","🤝","💭","💪","🏃","👑"
+];
+
+
 
 // updated to free catchy backgrounds (Pixabay/Unsplash style)
 const BACKGROUNDS = [
@@ -3324,6 +3483,88 @@ async function prepareScene() {
 }
 
 
+
+
+
+async function playPreHook() {
+  return new Promise(resolve => {
+    const start = performance.now();
+    const duration = 3000; // 3 seconds
+    const fadeDuration = 500; // last 0.5s fade out
+
+    const word = RETENTION_WORDS[Math.floor(Math.random() * RETENTION_WORDS.length)];
+    const phrase = RETENTION_PHRASES[Math.floor(Math.random() * RETENTION_PHRASES.length)];
+    const emoji = RETENTION_EMOJIS[Math.floor(Math.random() * RETENTION_EMOJIS.length)];
+
+    function draw(now) {
+      const t = now - start;
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Calculate alpha for fade-out
+      let alpha = 1;
+      if (t > duration - fadeDuration) {
+        alpha = 1 - (t - (duration - fadeDuration)) / fadeDuration;
+      }
+
+      // Dark background
+      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+      // Pulsing scale for word
+      const scale = 1 + Math.sin(t / 150) * 0.08;
+
+      ctx.save();
+      ctx.translate(CANVAS_W / 2, CANVAS_H / 2);
+
+      // Slide-in from top for word
+      const wordY = -80 - 50 * Math.exp(-t / 500);
+      ctx.save();
+      ctx.scale(scale, scale);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = 'bold 110px Arial';
+      ctx.fillStyle = `rgba(255,215,0,${alpha})`; // fade with alpha
+      ctx.fillText(word, 0, wordY);
+      ctx.restore();
+
+      // Emoji bouncing
+      const emojiY = 10 + Math.sin(t / 200) * 20;
+      ctx.font = '80px Arial';
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fillText(emoji, 0, emojiY);
+
+      // Phrase sliding from bottom
+      const phraseY = 120 + 60 * Math.exp(-t / 600);
+      ctx.font = 'bold 42px Arial';
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fillText(phrase, 0, phraseY);
+
+      ctx.restore();
+
+      if (t < duration) {
+        requestAnimationFrame(draw);
+      } else {
+        resolve(); // Move on to startAnimation
+      }
+    }
+
+    requestAnimationFrame(draw);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---------- Drawing helpers ---------- */
 function drawRoundRect(x, y, width, height, radius, fillColor, strokeColor, lineWidth) {
   if (!ctx) return;
@@ -3533,20 +3774,55 @@ function drawSwahiliBubble() {
 
 
 
-
-genBtn.addEventListener('click', async ()=>{
+genBtn.addEventListener('click', async ()=> {
   statusEl.textContent = 'Preparing scene...';
   ensureAudioCtx();
-  try{
-    await prepareScene();
-    // Wait small moment to ensure first frames drawn
-    startAnimation();
-    setTimeout(()=> { if(!assetsLoaded) return; statusEl.textContent = 'Preview ready: ' + scene.bgName; }, 350);
-  }catch(e){
+  try {
+    await prepareScene();           // Load assets
+    drawScene(performance.now());   // Draw first frame immediately
+    statusEl.textContent = 'Preview ready: ' + scene.bgName;
+  } catch(e){
     statusEl.textContent = 'Prepare failed: ' + e.message;
     console.error(e);
   }
 });
+
+
+
+
+
+
+
+
+
+function previewLoop() {
+  if (!assetsLoaded) return;
+  drawScene(performance.now());
+  requestAnimationFrame(previewLoop);
+}
+
+genBtn.addEventListener('click', async () => {
+  statusEl.textContent = 'Preparing scene...';
+  ensureAudioCtx();
+  try {
+    await prepareScene();
+    statusEl.textContent = 'Preview ready: ' + scene.bgName;
+
+    // Start looping preview
+    previewLoop();
+  } catch (e) {
+    statusEl.textContent = 'Prepare failed: ' + e.message;
+    console.error(e);
+  }
+});
+
+
+
+
+
+
+
+
 
 
 /* ---------- Voice upload handling (left intact) ---------- */
@@ -3824,9 +4100,26 @@ function nextKnowledgeItem() {
     text: `${counterText} • ${item.text}`
   });
 
-  
-  
+ 
 }
+
+
+
+async function startWithPreHook() {
+  if (animRunning) return;
+
+  // Pick first hook item
+  const hookItem = getRandomKnowledgeItem();
+  showKnowledgeItem(hookItem);
+
+  // Run hook animation
+  await playPreHook();
+
+  // Continue main loop
+  startAnimation();
+}
+
+
 
 recordBtn.addEventListener('click', async () => {
   ensureAudioCtx();
@@ -3835,91 +4128,32 @@ recordBtn.addEventListener('click', async () => {
   if (!assetsLoaded) {
     statusEl.textContent = 'Scene not ready. Preparing...';
     try {
-      await prepareScene();
-      startAnimation();
+      await prepareScene(); // Ensure assets are loaded
     } catch (e) {
       statusEl.textContent = 'Failed to prepare scene: ' + e.message;
       console.error(e);
-      return; // ✅ valid inside async arrow
+      return;
     }
   }
-  
-  // Start the flow
+
+  // ✅ Start showing knowledge items
   showingKnowledge = true;
-  usedFacts = [];           // reset used items
-  nextKnowledgeItem();      // show first random item
+  usedFacts = [];
+  nextKnowledgeItem();
 
-  // Mini loop for Swahili bubble effects
-  function bubbleLoop() {
-    if (!showingKnowledge) return;
-    if (scene.bubble.item) drawSwahiliBubble();
-    requestAnimationFrame(bubbleLoop);
-  }
-  requestAnimationFrame(bubbleLoop);
-
-  // Mic support check
-  if (voiceMethodSel.value === 'mic' && !navigator.mediaDevices?.getUserMedia) {
-    statusEl.textContent = 'Mic not supported in this browser.';
-    return;
-  }
-
-  // Start recording
   try {
-    await startRecordingAuto();
+    // Start recording first
+    await startRecordingAuto(); // recording is now active
+
+    // Then run pre-hook + main animation
+    await startWithPreHook();  // this will show hook AND start main animation
   } catch (err) {
     statusEl.textContent = 'Recording failed: ' + err.message;
     console.error(err);
   }
-}); // ✅ closes the click listener
+});
 
 
-
-
-// Optional helper for comment items
-function showCommentPrompt(item) {
-  // Customize this for your shorts UI
-  console.log("💬 Ask your viewers:", item.text);
-  // Example: show a speech bubble overlay
-  const bubble = document.createElement('div');
-  bubble.className = 'comment-bubble';
-  bubble.textContent = item.text;
-  document.body.appendChild(bubble);
-  setTimeout(() => bubble.remove(), 5000); // remove after 5s
-}
-// Optional helper for comment items
-function showCommentPrompt(item) {
-  // Only show if item asks for comment
-  if (!item.askComment) return;
-
-  // Example: show a speech bubble overlay below the main card
-  const bubble = document.createElement('div');
-  bubble.className = 'comment-bubble';
-
-  // ✅ Fixed comment text instead of item.text
-  bubble.textContent = "💬 Comment your answer";
-
-  // Style it smartly
-  bubble.style.position = 'absolute';
-  bubble.style.bottom = '10%';      // below main bubble
-  bubble.style.left = '50%';
-  bubble.style.transform = 'translateX(-50%)';
-  bubble.style.fontSize = '32px';
-  bubble.style.color = '#ff5722';
-  bubble.style.background = 'rgba(255,255,255,0.8)';
-  bubble.style.padding = '8px 16px';
-  bubble.style.borderRadius = '12px';
-  bubble.style.textAlign = 'center';
-  bubble.style.fontFamily = "'Patrick Hand', Comic Sans";
-  bubble.style.boxShadow = '0 0 15px #fff';
-  bubble.style.zIndex = 9999;
-  bubble.style.maxWidth = '80%';      // fit nicely in card
-  bubble.style.whiteSpace = 'pre-wrap'; // allow line breaks
-
-  document.body.appendChild(bubble);
-
-  // Remove after 5 seconds
-  setTimeout(() => bubble.remove(), 5000);
-}
 
 
 
@@ -3944,11 +4178,6 @@ function getRandomKnowledgeItem() {
   return item;
 }
 
-// When clicking Start & Record
-startBtn.addEventListener('click', () => {
-  currentItem = getRandomKnowledgeItem(); // Pick a random item to start with
-  startAnimation();
-});
 
 
 
@@ -4007,7 +4236,6 @@ function stopAnimation() {
 
 
 
-
 function showKnowledgeItem(item) {
   if (!item) return;
 
@@ -4016,9 +4244,9 @@ function showKnowledgeItem(item) {
   // Assign current item to scene
   scene.subtitle.item = item;
   scene.bubble.item = item;
- // Always show the main item text only — comment will be drawn separately
-scene.subtitle.text = item.text;
 
+  // Always show the main item text only
+  scene.subtitle.text = item.text;
   scene.bubble.text = item.text;
 
   // Start time for animations
@@ -4035,11 +4263,6 @@ scene.subtitle.text = item.text;
 
     // Draw timer arc
     drawTimerArc(timerProgress); 
-
-    // If this knowledge item needs a comment, draw it BELOW
-    if (item.askComment) {
-      drawCommentEffect(now, item);
-    }
 
     // Draw Swahili bubble
     drawSwahiliBubble();
@@ -4058,11 +4281,8 @@ scene.subtitle.text = item.text;
 
 
 
-
-
 </script>
 </body> 
 </html>
-
 
 
