@@ -549,7 +549,7 @@ function showAccessModal(message, btnText="Pay Now"){
   let activeData = null;
   let activeRef = null;
 
-  // STEP 1: Check for any active reference for this device (regardless of browser/profile)
+  // STEP 1: Check for any active reference for this device (all browsers/profiles)
   const existingSnap = await db
     .ref("paystackRefs")
     .orderByChild("fingerprint")
@@ -559,7 +559,6 @@ function showAccessModal(message, btnText="Pay Now"){
   if (existingSnap.exists()) {
     existingSnap.forEach(snap => {
       const val = snap.val();
-      // Only pick the first active reference
       if (Date.now() <= val.expiresAt && !activeData) {
         activeData = val;
         activeRef = snap.key;
@@ -567,7 +566,7 @@ function showAccessModal(message, btnText="Pay Now"){
     });
   }
 
-  // STEP 2: If there is an active reference → CONTINUE IT and IGNORE any URL reference
+  // STEP 2: If active reference exists → CONTINUE IT and IGNORE any URL reference
   if (activeData) {
     unlockPage();
     countdownEl.style.display = "block";
@@ -584,10 +583,16 @@ function showAccessModal(message, btnText="Pay Now"){
 
     updateCountdown();
     setInterval(updateCountdown, 1000);
-    return; // ⚠️ Stop here: never save new references while an active one exists
+
+    // 🔒 STRICT ENFORCEMENT: ignore any URL reference if active ref exists
+    if (urlReference && urlReference !== activeRef) {
+      console.log("Manual or new URL reference ignored. Continuing existing access.");
+    }
+
+    return; // stop here
   }
 
-  // STEP 3: No active reference → URL reference required
+  // STEP 3: No active reference → URL reference is required
   if (!urlReference) {
     showAccessModal("Payment required to access this tool.");
     return;
