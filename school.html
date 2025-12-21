@@ -549,7 +549,7 @@ function showAccessModal(message, btnText="Pay Now"){
   let activeData = null;
   let activeRef = null;
 
-  /* ================= STEP 1: CHECK ACTIVE REF FOR THIS DEVICE ================= */
+  // STEP 1: Check for any active reference for this device
   const existingSnap = await db
     .ref("paystackRefs")
     .orderByChild("fingerprint")
@@ -566,9 +566,8 @@ function showAccessModal(message, btnText="Pay Now"){
     });
   }
 
-  /* ================= STEP 2: IF ACTIVE EXISTS → USE IT ================= */
+  // STEP 2: If there is an active reference → CONTINUE IT and IGNORE URL
   if (activeData) {
-    // Ignore URL reference completely
     unlockPage();
     countdownEl.style.display = "block";
 
@@ -584,10 +583,10 @@ function showAccessModal(message, btnText="Pay Now"){
 
     updateCountdown();
     setInterval(updateCountdown, 1000);
-    return;
+    return; // ⚠️ STOP here, never save new reference
   }
 
-  /* ================= STEP 3: NO ACTIVE → REQUIRE URL REF ================= */
+  // STEP 3: No active reference → URL reference is required
   if (!reference) {
     showAccessModal("Payment required to access this tool.");
     return;
@@ -597,23 +596,22 @@ function showAccessModal(message, btnText="Pay Now"){
   const refSnap = await db.ref(refPath).get();
   let data = refSnap.val();
 
-  /* ================= STEP 4: SAVE FIRST REF FOR DEVICE ================= */
-  if (!data) {
+  // STEP 4: Check if this reference already exists
+  if (data) {
+    // If reference exists, must belong to this device
+    if (data.fingerprint !== fingerprint) {
+      showAccessModal("This payment reference is already used on another device.");
+      return;
+    }
+  } else {
+    // REFERENCE DOES NOT EXIST → save ONLY if no active reference exists
+    // ⚠️ At this point we know no active reference exists (Step 2 returned if active)
     const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({
-      fingerprint,
-      expiresAt
-    });
+    await db.ref(refPath).set({ fingerprint, expiresAt });
     data = { fingerprint, expiresAt };
   }
 
-  /* ================= STEP 5: SAFETY CHECK ================= */
-  if (data.fingerprint !== fingerprint) {
-    showAccessModal("This payment reference is already used on another device.");
-    return;
-  }
-
-  /* ================= STEP 6: GRANT ACCESS ================= */
+  // STEP 5: Grant access
   unlockPage();
   countdownEl.style.display = "block";
 
