@@ -436,8 +436,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 /* ================= SETTINGS ================= */
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 const PAGE_ID = "school";
 
 /* ================= HELPERS ================= */
@@ -493,23 +492,20 @@ function getFingerprint(){
   const snapshot = await db.ref(refPath).get();
   const data = snapshot.val();
 
-  // 🚫 Reference already used on another device
-  if(data && data.fingerprint !== fingerprint){
-    showAccessModal("This payment reference has already been used on another device.");
+  // 🚫 Reference not in Firebase → BLOCK
+  if(!data){
+    showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
     return;
   }
 
-  // ✅ First-time use → bind reference to this device
-  if(!data){
-    await db.ref(refPath).set({
-      fingerprint,
-      page: PAGE_ID,
-      expiresAt: Date.now() + ACCESS_DURATION
-    });
+  // 🚫 Reference already used on another device → BLOCK
+  if(data.fingerprint !== fingerprint){
+    showAccessModal("This payment reference is already used on another device.");
+    return;
   }
 
   // ⏳ Expiry check
-  if(data && Date.now() > data.expiresAt){
+  if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
   }
@@ -518,7 +514,7 @@ function getFingerprint(){
   countdownEl.style.display = "block";
 
   function updateCountdown(){
-    const remaining = (data ? data.expiresAt : Date.now()+ACCESS_DURATION) - Date.now();
+    const remaining = data.expiresAt - Date.now();
     if(remaining <= 0){
       showAccessModal("Access expired. Please pay again.");
     }else{
