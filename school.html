@@ -157,22 +157,20 @@
 </style>
 </head>
 <body>
-<!-- CLICK-BLOCKING OVERLAY (visible page, not clickable) -->
 <div id="pageLock" style="
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  inset:0;
   background:rgba(255,255,255,0);
   z-index:9998;
-  pointer-events:all;
   display:flex;
   align-items:center;
   justify-content:center;
+  pointer-events:all;
   font-family:Segoe UI, sans-serif;
 ">
   <div style="
     background:#fff;
-    padding:14px 18px;
+    padding:12px 18px;
     border-radius:10px;
     box-shadow:0 4px 15px rgba(0,0,0,.2);
     font-weight:600;
@@ -181,7 +179,6 @@
     Checking access…
   </div>
 </div>
-
 
 <header>
   <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
@@ -452,15 +449,6 @@
 
 <script>
 
-function lockPage(){
-  const lock = document.getElementById("pageLock");
-  if(lock) lock.style.display = "flex";
-}
-
-function unlockPage(){
-  const lock = document.getElementById("pageLock");
-  if(lock) lock.style.display = "none";
-}
 
 
 
@@ -532,7 +520,7 @@ function getFingerprint(){
 }
 
 (async function(){
-  lockPage(); // 🔒 lock immediately
+  lockPage(); // 🔒 immediately block clicks
 
   const reference = getQueryParam("reference");
   const fingerprint = getFingerprint();
@@ -547,31 +535,29 @@ function getFingerprint(){
   const snapshot = await db.ref(refPath).get();
   const data = snapshot.val();
 
-  // 🚫 Reference not in Firebase
   if(!data){
     showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
     return;
   }
 
-  // 🚫 Used on another device
   if(data.fingerprint !== fingerprint){
     showAccessModal("This payment reference is already used on another device.");
     return;
   }
 
-  // ⏳ Expired
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
-  unlockPage(); // 🔓 allow clicks
+  unlockPage(); // 🔓 clicks now allowed
   countdownEl.style.display = "block";
 
   function updateCountdown(){
     const remaining = data.expiresAt - Date.now();
     if(remaining <= 0){
+      lockPage();
       showAccessModal("Access expired. Please pay again.");
     }else{
       countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
@@ -581,7 +567,6 @@ function getFingerprint(){
   updateCountdown();
   setInterval(updateCountdown, 1000);
 })();
-
 </script>
 
 </body>
