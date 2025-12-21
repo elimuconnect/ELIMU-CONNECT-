@@ -539,7 +539,6 @@ function showAccessModal(message, btnText="Pay Now"){
   };
 }
 
-/* ================= MAIN LOGIC ================= */
 (async function(){
   lockPage(); // 🔒 immediately lock clicks
 
@@ -556,14 +555,14 @@ function showAccessModal(message, btnText="Pay Now"){
     const snapshot = await db.ref(`paystackRefs/${savedRef}`).get();
     data = snapshot.val();
     if(!data){
-      // Somehow ref missing in Firebase
+      // Somehow ref missing in Firebase, remove localStorage
       localStorage.removeItem("paystack_saved_ref");
       savedRef = null;
     }
   }
 
   if(!savedRef){
-    // First time: check if current reference exists in Firebase
+    // First time: allow saving reference only if present in URL (from Paystack redirect)
     if(!reference){
       showAccessModal("Payment required to access this tool.");
       return;
@@ -574,7 +573,7 @@ function showAccessModal(message, btnText="Pay Now"){
     data = snapshot.val();
 
     if(!data){
-      // Save first valid reference
+      // ✅ First valid payment: save it to Firebase
       const expiresAt = Date.now() + ACCESS_DURATION;
       await db.ref(refPath).set({ fingerprint, expiresAt });
       data = { fingerprint, expiresAt };
@@ -582,6 +581,7 @@ function showAccessModal(message, btnText="Pay Now"){
 
     // Save this reference locally for future checks
     localStorage.setItem("paystack_saved_ref", reference);
+    savedRef = reference;
   }
 
   // Now data contains the saved reference info, validate fingerprint & expiry
@@ -612,6 +612,7 @@ function showAccessModal(message, btnText="Pay Now"){
   updateCountdown();
   setInterval(updateCountdown, 1000);
 })();
+
 </script>
 
 </body>
