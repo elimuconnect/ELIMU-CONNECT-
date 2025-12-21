@@ -542,54 +542,51 @@ function showAccessModal(message, btnText="Pay Now"){
 (async function(){
   lockPage(); // 🔒 immediately lock clicks
 
-  const reference = getQueryParam("reference"); // From Paystack redirect
+  const reference = getQueryParam("reference");
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
-  // Check if we already have a saved reference for this device
-  let savedRef = localStorage.getItem("paystack_saved_ref");
   let data;
 
-  if(savedRef){
-    // Load saved reference from Firebase
-    const snapshot = await db.ref(`paystackRefs/${savedRef}`).get();
+  if(reference){
+    // If reference exists in URL, check Firebase
+    const snapshot = await db.ref(`paystackRefs/${reference}`).get();
     data = snapshot.val();
-    if(!data){
-      // Somehow ref missing in Firebase, remove localStorage
-      localStorage.removeItem("paystack_saved_ref");
-      savedRef = null;
-    }
-  }
 
-  if(!savedRef){
-    // First time: allow saving reference only if present in URL (from Paystack redirect)
-    if(!reference){
+    if(!data){
+      // Reference does not exist, maybe first payment? Save if fingerprint not used yet
+      const existing = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
+      if(existing.exists()){
+        showAccessModal("This device already has a payment reference. Please use the original link.");
+        return;
+      }
+      // Save first reference
+      const expiresAt = Date.now() + ACCESS_DURATION;
+      await db.ref(`paystackRefs/${reference}`).set({ fingerprint, expiresAt });
+      data = { fingerprint, expiresAt };
+    }
+  } else {
+    // No reference in URL → check Firebase for any active reference for this fingerprint
+    const existing = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
+    if(!existing.exists()){
       showAccessModal("Payment required to access this tool.");
       return;
     }
-
-    const refPath = `paystackRefs/${reference}`;
-    const snapshot = await db.ref(refPath).get();
-    data = snapshot.val();
+    // Use the first active reference
+    existing.forEach((snap) => {
+      if(Date.now() <= snap.val().expiresAt){
+        data = snap.val();
+        return true; // stop iteration
+      }
+    });
 
     if(!data){
-      // ✅ First valid payment: save it to Firebase
-      const expiresAt = Date.now() + ACCESS_DURATION;
-      await db.ref(refPath).set({ fingerprint, expiresAt });
-      data = { fingerprint, expiresAt };
+      showAccessModal("Access expired. Please pay again.");
+      return;
     }
-
-    // Save this reference locally for future checks
-    localStorage.setItem("paystack_saved_ref", reference);
-    savedRef = reference;
   }
 
-  // Now data contains the saved reference info, validate fingerprint & expiry
-  if(data.fingerprint !== fingerprint){
-    showAccessModal("This payment reference is already used on another device.");
-    return;
-  }
-
+  // Fingerprint already matched via query or device
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
