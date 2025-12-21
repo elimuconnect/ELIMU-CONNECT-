@@ -539,6 +539,7 @@ function showAccessModal(message, btnText="Pay Now"){
   };
 }
 
+/* ================= MAIN LOGIC ================= */
 (async function(){
   lockPage(); // 🔒 immediately lock clicks
 
@@ -546,47 +547,37 @@ function showAccessModal(message, btnText="Pay Now"){
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
-  let data;
-
-  if(reference){
-    // If reference exists in URL, check Firebase
-    const snapshot = await db.ref(`paystackRefs/${reference}`).get();
-    data = snapshot.val();
-
-    if(!data){
-      // Reference does not exist, maybe first payment? Save if fingerprint not used yet
-      const existing = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
-      if(existing.exists()){
-        showAccessModal("This device already has a payment reference. Please use the original link.");
-        return;
-      }
-      // Save first reference
-      const expiresAt = Date.now() + ACCESS_DURATION;
-      await db.ref(`paystackRefs/${reference}`).set({ fingerprint, expiresAt });
-      data = { fingerprint, expiresAt };
-    }
-  } else {
-    // No reference in URL → check Firebase for any active reference for this fingerprint
-    const existing = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
-    if(!existing.exists()){
-      showAccessModal("Payment required to access this tool.");
-      return;
-    }
-    // Use the first active reference
-    existing.forEach((snap) => {
-      if(Date.now() <= snap.val().expiresAt){
-        data = snap.val();
-        return true; // stop iteration
-      }
-    });
-
-    if(!data){
-      showAccessModal("Access expired. Please pay again.");
-      return;
-    }
+  if(!reference){
+    showAccessModal("Payment required to access this tool.");
+    return;
   }
 
-  // Fingerprint already matched via query or device
+  const refPath = `paystackRefs/${reference}`;
+  const snapshot = await db.ref(refPath).get();
+  let data = snapshot.val();
+
+  if(!data){
+    // First use of this reference
+    // Check if this fingerprint has already used another reference
+    const existing = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
+    if(existing.exists()){
+      showAccessModal("This device already used a different payment reference. Please use the original link.");
+      return;
+    }
+
+    // Save this reference tied to this device fingerprint
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({ fingerprint, expiresAt });
+    data = { fingerprint, expiresAt };
+  }
+
+  // Check if reference is being used on the correct device
+  if(data.fingerprint !== fingerprint){
+    showAccessModal("This payment reference is already used on another device.");
+    return;
+  }
+
+  // Check expiry
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
@@ -609,7 +600,6 @@ function showAccessModal(message, btnText="Pay Now"){
   updateCountdown();
   setInterval(updateCountdown, 1000);
 })();
-
 </script>
 
 </body>
