@@ -15,8 +15,15 @@
   header {
     background-color: #0d47a1;
     color: #fff;
-    padding: 25px 0;
+    padding: 25px 20px;
     text-align: center;
+  }
+
+  header img.logo {
+    display: block;
+    margin: 0 auto 15px;
+    width: 110px;
+    max-width: 40%;
   }
 
   header h1 {
@@ -25,7 +32,11 @@
   }
 
   header p {
-    font-size: 1.2em;
+    font-size: 1.1em;
+    max-width: 800px;
+    margin: 10px auto;
+    color: #e0e0e0;
+    line-height: 1.6;
   }
 
   .container {
@@ -34,28 +45,21 @@
     padding: 20px;
   }
 
- .categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4%;  /* space between two cards */
-  margin-bottom: 30px;
-}
-
-.category {
-  flex: 0 0 48%;  /* force 2 cards per row */
-  background-color: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  overflow: hidden;
-  transition: 0.3s;
-}
-
-@media (max-width: 768px) {
-  .category {
-    flex: 0 0 100%; /* single column on mobile */
+  .categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4%;
+    margin-bottom: 30px;
   }
-}
 
+  .category {
+    flex: 0 0 48%;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: 0.3s;
+  }
 
   .category:hover {
     transform: translateY(-5px);
@@ -90,22 +94,19 @@
     font-size: 1.1em;
     font-weight: 600;
   }
-/* Bright, vivid colors for each category card */
-.category:nth-child(1) .tools a { color: #FF1744; }   /* Vivid Red */
-.category:nth-child(2) .tools a { color: #2979FF; }   /* Vivid Blue */
-.category:nth-child(3) .tools a { color: #FF9100; }   /* Vivid Orange */
-.category:nth-child(4) .tools a { color: #2979FF; }   /* Vivid Blue */
-
-
 
   .tools a:hover {
     background-color: #bbdefb;
     transform: scale(1.05);
   }
 
+  /* Responsive */
+  @media (max-width: 768px) {
+    .category {
+      flex: 0 0 100%;
+    }
   }
-  
-  
+
   footer {
     text-align: center;
     padding: 20px 0;
@@ -118,49 +119,115 @@
     color: #ffeb3b;
     text-decoration: none;
   }
-  
- .logo {
-  width: 110px;
-  max-width: 40%;
-  margin-bottom: 12px;
-}
- header img.logo {
-  display: block;
-  margin: 0 auto 15px auto;
-}
 
-  
+  /* Login container */
+  #loginContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 20px;
+    min-height: 70vh;
+    background: #e3f2fd;
+  }
+
+  #loginContainer input {
+    padding: 12px;
+    margin: 8px 0;
+    width: 250px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+  }
+
+  #loginContainer button {
+    padding: 12px 25px;
+    margin: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  #loginBtn {
+    background-color: #0d47a1;
+    color: white;
+  }
+
+  #loginBtn:hover {
+    background-color: #1565c0;
+  }
+
+  #googleBtn {
+    background-color: #db4437;
+    color: white;
+  }
+
+  #googleBtn:hover {
+    background-color: #c1351d;
+  }
+
+  /* Payment modal */
+  .modal-overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.85);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+  }
+
+  .modal-box {
+    background:#fff;
+    padding:30px 25px;
+    border-radius:12px;
+    max-width:400px;
+    text-align:center;
+    color:#033a63;
+    box-shadow:0 6px 20px rgba(0,0,0,0.3);
+  }
+
+  .modal-box button {
+    background:#0078D7; 
+    color:#fff; 
+    border:none; 
+    padding:12px 20px;
+    border-radius:8px; 
+    font-weight:600; 
+    cursor:pointer;
+    font-size:1em;
+  }
+
 </style>
 </head>
 <body>
-<header>
-<img 
-  src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" 
-  alt="Elimu Connect Ltd Logo"
-  class="logo"
-/>
 
-  <h1>Smart Elimu Connect</h1>
-  <p style="font-size:1.2em; max-width:800px; margin:10px auto;">
-    Smart Elimu Connect is your centralized education hub, providing teachers, school administrators, and students with all the tools needed for efficient school management and enhanced learning.  
-    From attendance tracking, competency monitoring, and STEM learning, to interactive simulations, lesson planning, and communication with parents – everything is just a click away.
-  </p>
-  <p style="font-size:1.1em; max-width:800px; margin:10px auto;"> 
-    Access teaching resources, mathematics and science tools, language aids, educational games, and links to external learning platforms — all organized for quick and easy use. Make school operations smarter, save time, and focus on teaching!
-  </p>
+<header>
+<img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
+<h1>Smart Elimu Connect</h1>
+<p>
+  Your centralized education hub. From attendance, competency tracking, and STEM learning, to lesson planning and communication — everything in one place.
+</p>
+<p>
+  Access teaching resources, math & science tools, language aids, educational games, and external learning platforms — all organized for easy use.
+</p>
 </header>
 
-<div id="loginContainer" style="text-align:center; padding:50px;">
+<div id="loginContainer">
   <h2>Login to Access School Tools</h2>
-  <input type="email" id="email" placeholder="Email" style="padding:10px; margin:5px;"><br>
-  <input type="password" id="password" placeholder="Password" style="padding:10px; margin:5px;"><br>
-  <button id="loginBtn" style="padding:10px 20px; margin:5px;">Login</button>
-  <button id="googleBtn" style="padding:10px 20px; margin:5px;">Login with Google</button>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <button id="googleBtn">Login with Google</button>
 </div>
-	
 
 <div class="container">
-
   <!-- ELIMU CONNECT -->
   <div class="categories">
     <div class="category">
@@ -379,8 +446,11 @@
   &copy; 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyAQNayCzqw8NwIRaky4o21TPMXvL1ED5Mc",
     authDomain: "swissaid-1e9c9.firebaseapp.com",
@@ -391,85 +461,62 @@
     appId: "1:598813811284:web:d4a9ebf46da0fb290043c1"
   };
 
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
 
   const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-  const TOOL_ID = "school tools"; // unique ID for this tool
+  const TOOL_ID = "school_tools";
 
   // Hide main content initially
-  const mainContent = document.querySelector("body");
-  mainContent.style.display = "none";
+  document.querySelector(".container").style.display = "none";
 
-  // Modal for login/payment
-  function showAccessModal(message, btnText="Pay Now") {
-      const modalHTML = `
-        <div style="
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center;
-            z-index:9999; font-family:Segoe UI,sans-serif;
-        ">
-          <div style="
-              background:#fff; padding:25px 30px; border-radius:12px; max-width:400px;
-              text-align:center; color:#033a63; box-shadow:0 6px 20px rgba(0,0,0,0.3);
-          ">
-            <p style="font-size:1rem; margin-bottom:20px;">${message}</p>
-            <button onclick="window.location.href='${PAYMENT_LINK}'" style="
-                background:#0078D7; color:#fff; border:none; padding:10px 18px;
-                border-radius:8px; font-weight:600; cursor:pointer; transition:0.2s;
-            ">${btnText}</button>
-          </div>
+  function showPaymentModal(message) {
+    const modalHTML = `
+      <div class="modal-overlay">
+        <div class="modal-box">
+          <p>${message}</p>
+          <button onclick="window.location.href='${PAYMENT_LINK}'">Pay Now</button>
         </div>
-      `;
-      document.body.innerHTML = modalHTML;
+      </div>
+    `;
+    document.body.innerHTML = modalHTML;
   }
 
-  // Verify payment access
   async function checkAccess(userId) {
     try {
       const snapshot = await db.ref(`paidUsers/${userId}/${TOOL_ID}`).get();
       const accessData = snapshot.val();
 
       if(accessData && accessData.paid && accessData.expiry > Date.now()){
-          console.log("Access granted");
-          mainContent.style.display = "block"; // Show full page
+          document.querySelector(".container").style.display = "block";
           document.getElementById("loginContainer").style.display = "none";
       } else {
-          showAccessModal("Your access has expired or you have not paid for this tool.");
+          showPaymentModal("Access denied. Please pay to continue.");
       }
-    } catch (err) {
-      console.error("Error checking access:", err);
-      showAccessModal("Unable to verify access. Please try again.");
+    } catch(err) {
+      console.error(err);
+      showPaymentModal("Unable to verify access. Try again later.");
     }
   }
 
-  // Email/password login
   document.getElementById("loginBtn").addEventListener("click", ()=>{
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-      if(!email || !password){
-          alert("Please enter email and password.");
-          return;
-      }
+    if(!email || !password){
+      alert("Enter both email and password.");
+      return;
+    }
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            checkAccess(user.uid);
-        })
-        .catch(err => {
-            alert("Login failed: " + err.message);
-        });
+    auth.signInWithEmailAndPassword(email, password)
+      .then(cred => checkAccess(cred.user.uid))
+      .catch(err => alert("Login failed: " + err.message));
   });
 
-  // Check if already logged in
+  // Firebase login state
   auth.onAuthStateChanged(user => {
-      if(user){
-          checkAccess(user.uid);
-      }
+    if(user) checkAccess(user.uid);
   });
 </script>
 
