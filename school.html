@@ -418,79 +418,119 @@
     Loading access info...
 </div>
 
-<script>
-const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid access
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
+<script>
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+  authDomain: "cbc-general.firebaseapp.com",
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ================= SETTINGS ================= */
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const PAGE_ID = "school";
+
+/* ================= HELPERS ================= */
+function getQueryParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function showAccessModal(message, btnText="Pay Now"){
+  document.getElementById("accessMessage").innerHTML = message;
+  document.getElementById("accessBtn").innerText = btnText;
+  document.getElementById("accessModal").style.display = "flex";
+  document.getElementById("accessBtn").onclick = () => {
+    window.location.href = PAYMENT_LINK;
+  };
 }
 
 function formatTime(ms){
-    if(ms <= 0) return "00:00";
-    let totalSec = Math.floor(ms/1000);
-    let h = Math.floor(totalSec / 3600);
-    let m = Math.floor((totalSec % 3600) / 60);
-    let s = totalSec % 60;
-    if(h > 0) return `${h}h ${m}m ${s}s`;
-    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  let s = Math.floor(ms / 1000);
+  let h = Math.floor(s / 3600);
+  let m = Math.floor((s % 3600) / 60);
+  let sec = s % 60;
+  return h > 0 ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
 }
 
-// Access tracking
-let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
-let paidReference = localStorage.getItem('paidReference') || "";
-
-const now = Date.now();
-const reference = getQueryParam('reference');
-
-// Only store new payment if reference is new
-if(reference && reference !== paidReference){
-    lastPaid = now;
-    paidReference = reference;
-    localStorage.setItem('lastPaidTime', lastPaid);
-    localStorage.setItem('paidReference', paidReference);
+/* ================= DEVICE FINGERPRINT ================= */
+function getFingerprint(){
+  let fp = localStorage.getItem("device_fingerprint");
+  if(!fp){
+    fp = "fp_" + btoa(
+      navigator.userAgent +
+      screen.width +
+      screen.height +
+      navigator.language +
+      Math.random()
+    ).replace(/=/g,"");
+    localStorage.setItem("device_fingerprint", fp);
+  }
+  return fp;
 }
 
-// Countdown element
-const countdownEl = document.getElementById('accessCountdown');
+/* ================= MAIN LOGIC ================= */
+(async function(){
+  const reference = getQueryParam("reference");
+  const fingerprint = getFingerprint();
+  const countdownEl = document.getElementById("accessCountdown");
 
-function showAccessModal(message, btnText="OK", callback=null){
-    const modal = document.getElementById('accessModal');
-    const msgEl = document.getElementById('accessMessage');
-    const btn = document.getElementById('accessBtn');
-    msgEl.innerHTML = message;
-    btn.textContent = btnText;
-    modal.style.display = "flex";
-    btn.onclick = ()=> {
-        modal.style.display = "none";
-        if(callback) callback();
-    };
-}
+  if(!reference){
+    showAccessModal("Payment required to access this tool.");
+    return;
+  }
 
-function startCountdown(){
-    countdownEl.style.display = "block";
-    function updateCountdown(){
-        const now = Date.now();
-        if(lastPaid && now - lastPaid < ACCESS_DURATION){
-            const remaining = ACCESS_DURATION - (now - lastPaid);
-            countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
-        } else {
-            countdownEl.textContent = `Access expired.`;
-            showAccessModal(
-                "Your access has expired. Please pay KSh 10/$0.08 to continue using the Smart Elimu Connect tool.",
-                "Pay Now",
-                ()=>{ window.location.href = PAYMENT_LINK; }
-            );
-        }
+  const refPath = `paystackRefs/${reference}`;
+  const snapshot = await db.ref(refPath).get();
+  const data = snapshot.val();
+
+  // 🚫 Reference already used on another device
+  if(data && data.fingerprint !== fingerprint){
+    showAccessModal("This payment reference has already been used on another device.");
+    return;
+  }
+
+  // ✅ First-time use → bind reference to this device
+  if(!data){
+    await db.ref(refPath).set({
+      fingerprint,
+      page: PAGE_ID,
+      expiresAt: Date.now() + ACCESS_DURATION
+    });
+  }
+
+  // ⏳ Expiry check
+  if(data && Date.now() > data.expiresAt){
+    showAccessModal("Access expired. Please pay again.");
+    return;
+  }
+
+  // ✅ ACCESS GRANTED
+  countdownEl.style.display = "block";
+
+  function updateCountdown(){
+    const remaining = (data ? data.expiresAt : Date.now()+ACCESS_DURATION) - Date.now();
+    if(remaining <= 0){
+      showAccessModal("Access expired. Please pay again.");
+    }else{
+      countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
     }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-}
+  }
 
-// Start countdown
-startCountdown();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
 </script>
+
 
 </body>
 </html>
