@@ -549,11 +549,14 @@ async function getDeviceFingerprint(){
   return "dev_" + btoa(raw).replace(/=/g,"");
 }
 
+
+
 /* ================= MAIN ================= */
 (async function(){
   lockPage();
 
   const urlReference = getQueryParam("reference");
+  const fromRedirect = !!urlReference && !!getQueryParam("status"); // Only allow if a status param exists
   const fingerprint = await getDeviceFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
@@ -577,7 +580,7 @@ async function getDeviceFingerprint(){
     });
   }
 
-  // STEP 2: If active reference exists → continue countdown and ignore URL reference
+  // STEP 2: If active reference exists → continue countdown and ignore any URL reference
   if(activeData){
     unlockPage();
     countdownEl.style.display = "block";
@@ -595,7 +598,7 @@ async function getDeviceFingerprint(){
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    // Ignore any manual reference input
+    // Always ignore manually typed refs
     if(urlReference && urlReference !== activeRef){
       console.log("Manual or new URL reference ignored. Continuing existing access.");
     }
@@ -603,7 +606,7 @@ async function getDeviceFingerprint(){
   }
 
   // STEP 3: No active reference → URL reference required
-  if(!urlReference){
+  if(!urlReference || !fromRedirect){
     showAccessModal("Payment required to access this tool.");
     return;
   }
@@ -623,7 +626,7 @@ async function getDeviceFingerprint(){
       return;
     }
   } else {
-    // STEP 5: Save reference ONLY if no active reference exists on this device
+    // STEP 5: Save reference ONLY if it comes from a redirect
     const expiresAt = Date.now() + ACCESS_DURATION;
     await db.ref(refPath).set({ fingerprint, expiresAt, locked: true });
     data = { fingerprint, expiresAt, locked: true };
@@ -647,6 +650,9 @@ async function getDeviceFingerprint(){
   setInterval(updateCountdown, 1000);
 
 })();
+
+
+	
 </script>
 
 </body>
