@@ -520,14 +520,32 @@ function showAccessModal(message, btnText="Pay Now"){
 
 /* ================= DEVICE FINGERPRINT ================= */
 async function getDeviceFingerprint(){
-  let ip = "unknown";
-  try{
-    const res = await fetch("https://api.ipify.org?format=json");
-    const json = await res.json();
-    ip = json.ip;
-  } catch(e){}
+  // Canvas fingerprint
+  let canvas = document.createElement('canvas');
+  let ctx = canvas.getContext('2d');
+  ctx.textBaseline = "top";
+  ctx.font = "14px 'Arial'";
+  ctx.fillStyle = "#f60";
+  ctx.fillRect(125,1,62,20);
+  ctx.fillStyle = "#069";
+  ctx.fillText("DeviceFingerprint", 2, 15);
+  ctx.fillStyle = "rgba(102,204,0,0.7)";
+  ctx.fillText("DeviceFingerprint", 4, 17);
+  const canvasData = canvas.toDataURL();
 
-  const raw = ip + navigator.userAgent + screen.width + screen.height + navigator.language;
+  // WebGL fingerprint
+  let glCanvas = document.createElement('canvas');
+  let gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+  let webglData = "";
+  if(gl){
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    webglData = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) + gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+  }
+
+  // Combine navigator, screen, language
+  const raw = navigator.userAgent + navigator.platform + screen.width + screen.height + screen.colorDepth + navigator.language + canvasData + webglData;
+
+  // Hash to base64
   return "dev_" + btoa(raw).replace(/=/g,"");
 }
 
@@ -559,7 +577,7 @@ async function getDeviceFingerprint(){
     });
   }
 
-  // STEP 2: If active reference exists → continue countdown and ignore any URL reference
+  // STEP 2: If active reference exists → continue countdown and ignore URL reference
   if(activeData){
     unlockPage();
     countdownEl.style.display = "block";
@@ -577,6 +595,7 @@ async function getDeviceFingerprint(){
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
+    // Ignore any manual reference input
     if(urlReference && urlReference !== activeRef){
       console.log("Manual or new URL reference ignored. Continuing existing access.");
     }
@@ -593,17 +612,21 @@ async function getDeviceFingerprint(){
   const refSnap = await db.ref(refPath).get();
   let data = refSnap.val();
 
-  // STEP 4: If reference exists, ensure it belongs to this device
+  // STEP 4: If reference exists, check device fingerprint and locked flag
   if(data){
     if(data.fingerprint !== fingerprint){
       showAccessModal("This payment reference is already used on another device.");
       return;
     }
+    if(data.locked){
+      showAccessModal("This payment reference has already been used and is locked.");
+      return;
+    }
   } else {
     // STEP 5: Save reference ONLY if no active reference exists on this device
     const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({ fingerprint, expiresAt });
-    data = { fingerprint, expiresAt };
+    await db.ref(refPath).set({ fingerprint, expiresAt, locked: true });
+    data = { fingerprint, expiresAt, locked: true };
   }
 
   // STEP 6: Grant access and start countdown
