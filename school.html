@@ -462,26 +462,12 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 /* ================= SETTINGS ================= */
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000;
+const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 
-/* ================= LOCK ================= */
+/* ================= PAGE LOCK ================= */
 function lockPage(){
   const lock = document.getElementById("pageLock");
-  if(lock){
-    lock.style.display = "flex";
-    lock.innerHTML = `
-      <div style="
-        background:#fff;
-        padding:12px 18px;
-        border-radius:10px;
-        box-shadow:0 4px 15px rgba(0,0,0,.2);
-        font-weight:600;
-        color:#033a63;
-      ">
-        Checking access…
-      </div>`;
-  }
+  if(lock) lock.style.display = "flex";
 }
 
 function unlockPage(){
@@ -494,12 +480,23 @@ function getQueryParam(name){
   return new URLSearchParams(window.location.search).get(name);
 }
 
+function showAccessModal(message, btnText="Pay Now"){
+  document.getElementById("accessMessage").innerHTML = message;
+  document.getElementById("accessBtn").innerText = btnText;
+  document.getElementById("accessModal").style.display = "flex";
+  document.getElementById("accessBtn").onclick = () => {
+    window.location.href = PAYMENT_LINK;
+  };
+}
+
 function formatTime(ms){
   let s = Math.floor(ms / 1000);
   let h = Math.floor(s / 3600);
   let m = Math.floor((s % 3600) / 60);
   let sec = s % 60;
-  return h > 0 ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
+  return h > 0
+    ? `${h}h ${m}m ${sec}s`
+    : `${m}:${sec.toString().padStart(2,"0")}`;
 }
 
 /* ================= DEVICE FINGERPRINT ================= */
@@ -510,96 +507,54 @@ function getFingerprint(){
       navigator.userAgent +
       screen.width +
       screen.height +
-      navigator.language
+      navigator.language +
+      Math.random()
     ).replace(/=/g,"");
     localStorage.setItem("device_fingerprint", fp);
   }
   return fp;
 }
 
-/* ================= MODAL ================= */
-function showAccessModal(message, btnText="Pay Now"){
-  const modal = document.getElementById("accessModal");
-  const msg = document.getElementById("accessMessage");
-  const btn = document.getElementById("accessBtn");
-
-  msg.innerHTML = message;
-  btn.innerText = btnText;
-  modal.style.display = "flex";
-
-  btn.onclick = () => window.location.href = PAYMENT_LINK;
-}
-
-/* ================= MAIN ================= */
+/* ================= MAIN LOGIC ================= */
 (async function(){
-  lockPage();
+  lockPage(); // 🔒 lock immediately
 
   const reference = getQueryParam("reference");
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
-  /* 🔹 NO REF → CHECK SAVED ACCESS */
   if(!reference){
-    const savedRef = localStorage.getItem("paid_reference");
-    if(!savedRef){
-      showAccessModal("Payment required to access this tool.");
-      return;
-    }
-    await validateRef(savedRef);
+    showAccessModal("Payment required to access this tool.");
     return;
   }
 
-  /* 🔹 FIRST REDIRECT AFTER PAYMENT */
   const refPath = `paystackRefs/${reference}`;
-  const snap = await db.ref(refPath).get();
+  const snapshot = await db.ref(refPath).get();
+  const data = snapshot.val();
 
-  if(!snap.exists()){
-    await db.ref(refPath).set({
-      fingerprint,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + ACCESS_DURATION
-    });
-    localStorage.setItem("paid_reference", reference);
-  }
-
-  await validateRef(reference);
-
-  /* 🔹 REMOVE REF FROM URL */
-  if(window.history.replaceState){
-    window.history.replaceState({}, document.title, location.pathname);
-  }
-
-})();
-
-/* ================= VALIDATION ================= */
-async function validateRef(reference){
-  const fingerprint = getFingerprint();
-  const countdownEl = document.getElementById("accessCountdown");
-
-  const snap = await db.ref(`paystackRefs/${reference}`).get();
-  const data = snap.val();
-
+  // 🚫 Reference not found
   if(!data){
-    showAccessModal("Invalid payment reference.");
+    showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
     return;
   }
 
+  // 🚫 Used on another device
   if(data.fingerprint !== fingerprint){
-    showAccessModal("This payment was used on another device.");
+    showAccessModal("This payment reference is already used on another device.");
     return;
   }
 
+  // 🚫 Expired
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
-  document.getElementById("accessModal").style.display = "none";
-  unlockPage();
+  unlockPage(); // 🔓 unlock ONLY here
   countdownEl.style.display = "block";
 
-  function update(){
+  function updateCountdown(){
     const remaining = data.expiresAt - Date.now();
     if(remaining <= 0){
       lockPage();
@@ -609,9 +564,9 @@ async function validateRef(reference){
     }
   }
 
-  update();
-  setInterval(update, 1000);
-}
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
 </script>
 
 </body>
