@@ -158,6 +158,7 @@
 </head>
 <body>
 
+
 <header>
   <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
   <h1>Smart Elimu Connect</h1>
@@ -166,6 +167,30 @@
 </header>
 
 
+
+<!-- HARD PAGE LOCK -->
+<div id="hardLock" style="
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:#ffffff;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Segoe UI, sans-serif;
+">
+  <div style="text-align:center">
+    <h3>Checking access…</h3>
+    <p>Please wait</p>
+  </div>
+</div>
+
+
+
+
+
+	
 <!-- Main Content -->
 <div class="container">
 
@@ -437,20 +462,31 @@ const db = firebase.database();
 
 /* ================= SETTINGS ================= */
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
-const PAGE_ID = "school";
+const ACCESS_DURATION = 24*60*60*1000;
+
+/* ================= LOCK HELPERS ================= */
+function unlockPage(){
+  const lock = document.getElementById("hardLock");
+  if(lock) lock.remove();
+}
+
+function keepLocked(message){
+  const lock = document.getElementById("hardLock");
+  lock.innerHTML = `
+    <div style="text-align:center">
+      <h3>${message}</h3>
+      <button onclick="window.location.href='${PAYMENT_LINK}'"
+        style="padding:10px 20px;border:none;border-radius:8px;
+        background:#0078D7;color:white;font-weight:600;cursor:pointer;">
+        Pay Now
+      </button>
+    </div>
+  `;
+}
 
 /* ================= HELPERS ================= */
 function getQueryParam(name){
   return new URLSearchParams(window.location.search).get(name);
-}
-
-function showAccessModal(message, btnText="Pay Now"){
-  document.getElementById("accessMessage").innerHTML = message;
-  document.getElementById("accessBtn").innerText = btnText;
-  document.getElementById("accessModal").style.display = "flex";
-  document.getElementById("accessBtn").onclick = () => {
-    window.location.href = PAYMENT_LINK;
-  };
 }
 
 function formatTime(ms){
@@ -469,8 +505,7 @@ function getFingerprint(){
       navigator.userAgent +
       screen.width +
       screen.height +
-      navigator.language +
-      Math.random()
+      navigator.language
     ).replace(/=/g,"");
     localStorage.setItem("device_fingerprint", fp);
   }
@@ -483,40 +518,47 @@ function getFingerprint(){
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
+  // 🚫 No ref → LOCK
   if(!reference){
-    showAccessModal("Payment required to access this tool.");
+    keepLocked("Payment required to access this tool.");
     return;
   }
 
   const refPath = `paystackRefs/${reference}`;
   const snapshot = await db.ref(refPath).get();
-  const data = snapshot.val();
+  let data = snapshot.val();
 
-  // 🚫 Reference not in Firebase → BLOCK
+  // 🆕 First-time valid redirect → SAVE
   if(!data){
-    showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
-    return;
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({
+      fingerprint,
+      expiresAt,
+      page: "school"
+    });
+    data = { fingerprint, expiresAt };
   }
 
-  // 🚫 Reference already used on another device → BLOCK
+  // 🚫 Used on another device
   if(data.fingerprint !== fingerprint){
-    showAccessModal("This payment reference is already used on another device.");
+    keepLocked("This payment reference is already used on another device.");
     return;
   }
 
-  // ⏳ Expiry check
+  // 🚫 Expired
   if(Date.now() > data.expiresAt){
-    showAccessModal("Access expired. Please pay again.");
+    keepLocked("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
+  unlockPage();
   countdownEl.style.display = "block";
 
   function updateCountdown(){
     const remaining = data.expiresAt - Date.now();
     if(remaining <= 0){
-      showAccessModal("Access expired. Please pay again.");
+      keepLocked("Access expired. Please pay again.");
     }else{
       countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
     }
@@ -526,7 +568,6 @@ function getFingerprint(){
   setInterval(updateCountdown, 1000);
 })();
 </script>
-
 
 </body>
 </html>
