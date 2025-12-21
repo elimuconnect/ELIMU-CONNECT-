@@ -449,9 +449,63 @@
     Loading access info...
 </div>
 
-	
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+  authDomain: "cbc-general.firebaseapp.com",
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ================= SETTINGS ================= */
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+
+/* ================= PAGE LOCK ================= */
+function lockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock){
+    lock.style.display = "flex";
+    lock.innerHTML = `
+      <div style="
+        background:#fff;
+        padding:12px 18px;
+        border-radius:10px;
+        box-shadow:0 4px 15px rgba(0,0,0,.2);
+        font-weight:600;
+        color:#033a63;
+      ">
+        Checking access…
+      </div>
+    `;
+  }
+}
+
+function unlockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "none";
+}
+
+/* ================= HELPERS ================= */
+function getQueryParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function formatTime(ms){
+  let s = Math.floor(ms / 1000);
+  let h = Math.floor(s / 3600);
+  let m = Math.floor((s % 3600) / 60);
+  let sec = s % 60;
+  return h > 0 ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
+}
 
 /* ================= DEVICE FINGERPRINT ================= */
 function getFingerprint(){
@@ -537,6 +591,5 @@ function showAccessModal(message, btnText="Pay Now"){
   setInterval(updateCountdown, 1000);
 })();
 </script>
-
 </body>
 </html>
