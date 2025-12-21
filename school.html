@@ -471,25 +471,16 @@ const db = firebase.database();
 const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
 const ACCESS_DURATION = 24*60*60*1000;
 
-/* ================= LOCK HELPERS ================= */
-function unlockPage(){
-  const lock = document.getElementById("hardLock");
-  if(lock) lock.remove();
+function lockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "flex";
 }
 
-function keepLocked(message){
-  const lock = document.getElementById("hardLock");
-  lock.innerHTML = `
-    <div style="text-align:center">
-      <h3>${message}</h3>
-      <button onclick="window.location.href='${PAYMENT_LINK}'"
-        style="padding:10px 20px;border:none;border-radius:8px;
-        background:#0078D7;color:white;font-weight:600;cursor:pointer;">
-        Pay Now
-      </button>
-    </div>
-  `;
+function unlockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "none";
 }
+
 
 /* ================= HELPERS ================= */
 function getQueryParam(name){
