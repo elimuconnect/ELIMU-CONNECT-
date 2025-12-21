@@ -547,39 +547,56 @@ function showAccessModal(message, btnText="Pay Now"){
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
-  if(!reference){
-    showAccessModal("Payment required to access this tool.");
-    return;
+  // Check if we already have a saved reference for this device
+  let savedRef = localStorage.getItem("paystack_saved_ref");
+  let data;
+
+  if(savedRef){
+    // Load saved reference from Firebase
+    const snapshot = await db.ref(`paystackRefs/${savedRef}`).get();
+    data = snapshot.val();
+    if(!data){
+      // Somehow ref missing in Firebase
+      localStorage.removeItem("paystack_saved_ref");
+      savedRef = null;
+    }
   }
 
-  const refPath = `paystackRefs/${reference}`;
-  const snapshot = await db.ref(refPath).get();
-  let data = snapshot.val();
+  if(!savedRef){
+    // First time: check if current reference exists in Firebase
+    if(!reference){
+      showAccessModal("Payment required to access this tool.");
+      return;
+    }
 
-  // If reference not in Firebase, **save it now** as it's coming from Paystack redirect
-  if(!data){
-    const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({
-      fingerprint,
-      expiresAt
-    });
-    data = { fingerprint, expiresAt };
+    const refPath = `paystackRefs/${reference}`;
+    const snapshot = await db.ref(refPath).get();
+    data = snapshot.val();
+
+    if(!data){
+      // Save first valid reference
+      const expiresAt = Date.now() + ACCESS_DURATION;
+      await db.ref(refPath).set({ fingerprint, expiresAt });
+      data = { fingerprint, expiresAt };
+    }
+
+    // Save this reference locally for future checks
+    localStorage.setItem("paystack_saved_ref", reference);
   }
 
-  // Check fingerprint
+  // Now data contains the saved reference info, validate fingerprint & expiry
   if(data.fingerprint !== fingerprint){
     showAccessModal("This payment reference is already used on another device.");
     return;
   }
 
-  // Check expiry
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
-  unlockPage(); // Allow clicks
+  unlockPage();
   countdownEl.style.display = "block";
 
   function updateCountdown(){
