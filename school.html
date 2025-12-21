@@ -520,7 +520,6 @@ function showAccessModal(message, btnText="Pay Now"){
 
 /* ================= DEVICE FINGERPRINT ================= */
 async function getDeviceFingerprint(){
-  // Canvas fingerprint
   let canvas = document.createElement('canvas');
   let ctx = canvas.getContext('2d');
   ctx.textBaseline = "top";
@@ -533,7 +532,6 @@ async function getDeviceFingerprint(){
   ctx.fillText("DeviceFingerprint", 4, 17);
   const canvasData = canvas.toDataURL();
 
-  // WebGL fingerprint
   let glCanvas = document.createElement('canvas');
   let gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
   let webglData = "";
@@ -542,10 +540,7 @@ async function getDeviceFingerprint(){
     webglData = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) + gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
   }
 
-  // Combine navigator, screen, language
   const raw = navigator.userAgent + navigator.platform + screen.width + screen.height + screen.colorDepth + navigator.language + canvasData + webglData;
-
-  // Hash to base64
   return "dev_" + btoa(raw).replace(/=/g,"");
 }
 
@@ -554,13 +549,19 @@ async function getDeviceFingerprint(){
   lockPage();
 
   const urlReference = getQueryParam("reference");
+  const email = getQueryParam("email"); // Expect Paystack redirect includes email
+  if(!email){
+    showAccessModal("Email is required. Please pay to access.");
+    return;
+  }
+
   const fingerprint = await getDeviceFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
   let activeData = null;
   let activeRef = null;
 
-  // STEP 1: Check for any active reference for this device
+  // STEP 1: Check for any active reference for this device and email
   const existingSnap = await db
     .ref("paystackRefs")
     .orderByChild("fingerprint")
@@ -570,14 +571,14 @@ async function getDeviceFingerprint(){
   if(existingSnap.exists()){
     existingSnap.forEach(snap=>{
       const val = snap.val();
-      if(Date.now() <= val.expiresAt && !activeData){
+      if(Date.now() <= val.expiresAt && val.email === email && !activeData){
         activeData = val;
         activeRef = snap.key;
       }
     });
   }
 
-  // STEP 2: If active reference exists → continue countdown and ignore URL reference
+  // STEP 2: If active reference exists → continue countdown
   if(activeData){
     unlockPage();
     countdownEl.style.display = "block";
@@ -595,7 +596,6 @@ async function getDeviceFingerprint(){
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    // Always ignore manually typed references
     if(urlReference && urlReference !== activeRef){
       console.log("Manual or new URL reference ignored. Continuing existing access.");
     }
@@ -612,20 +612,17 @@ async function getDeviceFingerprint(){
   const refSnap = await db.ref(refPath).get();
   let data = refSnap.val();
 
-  // STEP 4: If reference exists, check device fingerprint and locked flag
   if(data){
-    if(data.fingerprint !== fingerprint || data.locked){
-      showAccessModal("This payment reference is already used on another device.");
+    if(data.fingerprint !== fingerprint || data.locked || data.email !== email){
+      showAccessModal("This payment reference is already used for another email/device.");
       return;
     }
   } else {
-    // STEP 5: Save reference ONLY if this device has no active reference
     const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({ fingerprint, expiresAt, locked: true });
-    data = { fingerprint, expiresAt, locked: true };
+    await db.ref(refPath).set({ fingerprint, expiresAt, locked: true, email });
+    data = { fingerprint, expiresAt, locked: true, email };
   }
 
-  // STEP 6: Grant access and start countdown
   unlockPage();
   countdownEl.style.display = "block";
 
