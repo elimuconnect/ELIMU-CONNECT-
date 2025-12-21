@@ -157,6 +157,30 @@
 </style>
 </head>
 <body>
+<!-- CLICK-BLOCKING OVERLAY (visible page, not clickable) -->
+<div id="pageLock" style="
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(255,255,255,0);
+  z-index:9998;
+  pointer-events:all;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Segoe UI, sans-serif;
+">
+  <div style="
+    background:#fff;
+    padding:14px 18px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+    font-weight:600;
+    color:#033a63;
+  ">
+    Checking access…
+  </div>
+</div>
 
 
 <header>
@@ -168,27 +192,7 @@
 
 
 
-<!-- HARD PAGE LOCK -->
-<div id="hardLock" style="
-  position: fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:#ffffff;
-  z-index:10000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:Segoe UI, sans-serif;
-">
-  <div style="text-align:center">
-    <h3>Checking access…</h3>
-    <p>Please wait</p>
-  </div>
 </div>
-
-
-
-
 
 	
 <!-- Main Content -->
@@ -447,6 +451,21 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
+
+function lockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "flex";
+}
+
+function unlockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "none";
+}
+
+
+
+
+	
 /* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
@@ -512,53 +531,48 @@ function getFingerprint(){
   return fp;
 }
 
-/* ================= MAIN LOGIC ================= */
 (async function(){
+  lockPage(); // 🔒 lock immediately
+
   const reference = getQueryParam("reference");
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
-  // 🚫 No ref → LOCK
   if(!reference){
-    keepLocked("Payment required to access this tool.");
+    showAccessModal("Payment required to access this tool.");
     return;
   }
 
   const refPath = `paystackRefs/${reference}`;
   const snapshot = await db.ref(refPath).get();
-  let data = snapshot.val();
+  const data = snapshot.val();
 
-  // 🆕 First-time valid redirect → SAVE
+  // 🚫 Reference not in Firebase
   if(!data){
-    const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({
-      fingerprint,
-      expiresAt,
-      page: "school"
-    });
-    data = { fingerprint, expiresAt };
+    showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
+    return;
   }
 
   // 🚫 Used on another device
   if(data.fingerprint !== fingerprint){
-    keepLocked("This payment reference is already used on another device.");
+    showAccessModal("This payment reference is already used on another device.");
     return;
   }
 
-  // 🚫 Expired
+  // ⏳ Expired
   if(Date.now() > data.expiresAt){
-    keepLocked("Access expired. Please pay again.");
+    showAccessModal("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
-  unlockPage();
+  unlockPage(); // 🔓 allow clicks
   countdownEl.style.display = "block";
 
   function updateCountdown(){
     const remaining = data.expiresAt - Date.now();
     if(remaining <= 0){
-      keepLocked("Access expired. Please pay again.");
+      showAccessModal("Access expired. Please pay again.");
     }else{
       countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
     }
@@ -567,6 +581,7 @@ function getFingerprint(){
   updateCountdown();
   setInterval(updateCountdown, 1000);
 })();
+
 </script>
 
 </body>
