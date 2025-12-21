@@ -468,6 +468,7 @@ const db = firebase.database();
 
 /* ================= SETTINGS ================= */
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours access
 
 /* ================= PAGE LOCK ================= */
 function lockPage(){
@@ -540,9 +541,9 @@ function showAccessModal(message, btnText="Pay Now"){
 
 /* ================= MAIN LOGIC ================= */
 (async function(){
-  lockPage(); // 🔒 immediately block clicks
+  lockPage(); // 🔒 immediately lock clicks
 
-  const reference = getQueryParam("reference");
+  const reference = getQueryParam("reference"); // From Paystack redirect
   const fingerprint = getFingerprint();
   const countdownEl = document.getElementById("accessCountdown");
 
@@ -553,28 +554,32 @@ function showAccessModal(message, btnText="Pay Now"){
 
   const refPath = `paystackRefs/${reference}`;
   const snapshot = await db.ref(refPath).get();
-  const data = snapshot.val();
+  let data = snapshot.val();
 
-  // 🚫 ONLY accept references already saved by Paystack redirect
+  // If reference not in Firebase, **save it now** as it's coming from Paystack redirect
   if(!data){
-    showAccessModal("Invalid or unrecognized payment reference. Please pay to access.");
-    return; // do NOT save anything automatically
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({
+      fingerprint,
+      expiresAt
+    });
+    data = { fingerprint, expiresAt };
   }
 
-  // 🚫 Used on another device
+  // Check fingerprint
   if(data.fingerprint !== fingerprint){
     showAccessModal("This payment reference is already used on another device.");
     return;
   }
 
-  // 🚫 Expired
+  // Check expiry
   if(Date.now() > data.expiresAt){
     showAccessModal("Access expired. Please pay again.");
     return;
   }
 
   // ✅ ACCESS GRANTED
-  unlockPage();
+  unlockPage(); // Allow clicks
   countdownEl.style.display = "block";
 
   function updateCountdown(){
@@ -591,5 +596,6 @@ function showAccessModal(message, btnText="Pay Now"){
   setInterval(updateCountdown, 1000);
 })();
 </script>
+
 </body>
 </html>
