@@ -495,15 +495,7 @@ const TOOL_ID = "school_tools";
 // Hide main content initially
 document.querySelector(".container").style.display = "none";
 
-// Toggle login/signup forms
-function toggleForms(){
-  const login = document.getElementById("loginContainer");
-  const signup = document.getElementById("signupContainer");
-  login.style.display = login.style.display === "none" ? "flex" : "none";
-  signup.style.display = signup.style.display === "none" ? "flex" : "none";
-}
-
-// Payment modal
+// Show payment modal
 function showPaymentModal(message){
   const modalHTML = `
     <div class="modal-overlay">
@@ -516,7 +508,7 @@ function showPaymentModal(message){
   document.body.innerHTML = modalHTML;
 }
 
-// Verify Firebase access
+// Check access
 async function checkAccess(userId){
   try{
     const snapshot = await db.ref(`paidUsers/${userId}/${TOOL_ID}`).get();
@@ -528,11 +520,19 @@ async function checkAccess(userId){
         if(document.getElementById("signupContainer"))
           document.getElementById("signupContainer").style.display = "none";
     } else {
-        // Check for Paystack reference in URL
+        // Check URL for reference (simple trust-based)
         const urlParams = new URLSearchParams(window.location.search);
         const reference = urlParams.get("reference");
-        if(reference) {
-            verifyPaystackPayment(reference, userId);
+        if(reference){
+            // Mark as paid in Firebase
+            await db.ref(`paidUsers/${userId}/${TOOL_ID}`).set({
+                paid: true,
+                expiry: Date.now() + 30*24*60*60*1000 // 30 days
+            });
+            document.querySelector(".container").style.display = "block";
+            document.getElementById("loginContainer").style.display = "none";
+            if(document.getElementById("signupContainer"))
+              document.getElementById("signupContainer").style.display = "none";
         } else {
             showPaymentModal("Access denied. Please pay to continue.");
         }
@@ -540,33 +540,6 @@ async function checkAccess(userId){
   }catch(err){
     console.error(err);
     showPaymentModal("Unable to verify access. Try again later.");
-  }
-}
-
-// Verify Paystack payment using reference
-async function verifyPaystackPayment(reference, userId){
-  try{
-    const response = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      headers: { Authorization: 'Bearer YOUR_PAYSTACK_SECRET_KEY' } // Replace with your secret key
-    });
-    const data = await response.json();
-
-    if(data.status && data.data.status === "success"){
-      // Payment successful → update Firebase
-      await db.ref(`paidUsers/${userId}/${TOOL_ID}`).set({
-        paid: true,
-        expiry: Date.now() + 30*24*60*60*1000 // 30 days access
-      });
-      document.querySelector(".container").style.display = "block";
-      document.getElementById("loginContainer").style.display = "none";
-      if(document.getElementById("signupContainer"))
-        document.getElementById("signupContainer").style.display = "none";
-    } else {
-      showPaymentModal("Payment verification failed. Try again.");
-    }
-  }catch(err){
-    console.error(err);
-    showPaymentModal("Unable to verify payment. Try again later.");
   }
 }
 
