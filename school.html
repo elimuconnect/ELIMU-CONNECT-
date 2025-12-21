@@ -119,72 +119,7 @@
     text-decoration: none;
   }
 
-  /* Login & Signup container */
-  .authContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px 20px;
-    min-height: 70vh;
-    background: #e3f2fd;
-  }
-
-  .authContainer input {
-    padding: 12px;
-    margin: 8px 0;
-    width: 250px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1em;
-  }
-
-  .authContainer button {
-    padding: 12px 25px;
-    margin: 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  #loginBtn {
-    background-color: #0d47a1;
-    color: white;
-  }
-
-  #loginBtn:hover {
-    background-color: #1565c0;
-  }
-
-  #signupBtn {
-    background-color: #2e7d32;
-    color: white;
-  }
-
-  #signupBtn:hover {
-    background-color: #388e3c;
-  }
-
-  #googleBtn {
-    background-color: #db4437;
-    color: white;
-  }
-
-  #googleBtn:hover {
-    background-color: #c1351d;
-  }
-
-  .toggleLink {
-    color: #1976d2;
-    cursor: pointer;
-    font-weight: bold;
-    text-decoration: underline;
-    margin-top: 10px;
-  }
-
+ 
   /* Payment modal */
   .modal-overlay {
     position: fixed;
@@ -230,24 +165,6 @@
   <p>Access teaching resources, math & science tools, language aids, educational games, and external learning platforms — all organized for easy use.</p>
 </header>
 
-<!-- Login Form -->
-<div id="loginContainer" class="authContainer">
-  <h2>Login to Access School Tools</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <button id="googleBtn">Login with Google</button>
-  <p class="toggleLink" onclick="toggleForms()">Don't have an account? Sign Up</p>
-</div>
-
-<!-- Signup Form -->
-<div id="signupContainer" class="authContainer" style="display:none;">
-  <h2>Create Account</h2>
-  <input type="email" id="signupEmail" placeholder="Email">
-  <input type="password" id="signupPassword" placeholder="Password">
-  <button id="signupBtn">Sign Up</button>
-  <p class="toggleLink" onclick="toggleForms()">Already have an account? Login</p>
-</div>
 
 <!-- Main Content -->
 <div class="container">
@@ -470,113 +387,109 @@
   &copy; 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Payment Access Modal -->
+<div id="accessModal" style="
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;
+    z-index:9999; display:none;
+">
+  <div style="
+      background:#fff; padding:25px 30px; border-radius:12px; max-width:400px;
+      text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
+      box-shadow:0 6px 20px rgba(0,0,0,0.2);
+  ">
+    <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
+    <button id="accessBtn" style="
+        background:#0078D7; color:#fff; border:none; padding:10px 18px;
+        border-radius:8px; font-weight:600; cursor:pointer;
+        transition:0.2s;
+    ">OK</button>
+  </div>
+</div>
+
+<!-- Countdown Display -->
+<div id="accessCountdown" style="
+    position: fixed; top: 100px; left: 10px; 
+    background: #0078D7; color: #fff; padding: 12px 16px; 
+    border-radius: 8px; font-family: 'Segoe UI', sans-serif; 
+    font-weight:600; box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    z-index:999; text-align:center; display:none;
+">
+    Loading access info...
+</div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
-  authDomain: "cbc-general.firebaseapp.com",
-  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
-  projectId: "cbc-general",
-  storageBucket: "cbc-general.firebasestorage.app",
-  messagingSenderId: "764732839741",
-  appId: "1:764732839741:web:ab829af54839de91359754"
-};
+const PAYMENT_LINK = "https://paystack.shop/pay/57-iapq34s";
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid access
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const TOOL_ID = "school_tools";
-
-// Hide main content initially
-document.querySelector(".container").style.display = "none";
-
-// Show payment modal
-function showPaymentModal(message){
-  const modalHTML = `
-    <div class="modal-overlay">
-      <div class="modal-box">
-        <p>${message}</p>
-        <button onclick="window.location.href='${PAYMENT_LINK}'">Pay Now</button>
-      </div>
-    </div>
-  `;
-  document.body.innerHTML = modalHTML;
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
 }
 
-// Check access
-async function checkAccess(userId){
-  try{
-    const snapshot = await db.ref(`paidUsers/${userId}/${TOOL_ID}`).get();
-    const accessData = snapshot.val();
+function formatTime(ms){
+    if(ms <= 0) return "00:00";
+    let totalSec = Math.floor(ms/1000);
+    let h = Math.floor(totalSec / 3600);
+    let m = Math.floor((totalSec % 3600) / 60);
+    let s = totalSec % 60;
+    if(h > 0) return `${h}h ${m}m ${s}s`;
+    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
 
-    if(accessData && accessData.paid && accessData.expiry > Date.now()){
-        document.querySelector(".container").style.display = "block";
-        document.getElementById("loginContainer").style.display = "none";
-        if(document.getElementById("signupContainer"))
-          document.getElementById("signupContainer").style.display = "none";
-    } else {
-        // Check URL for reference (simple trust-based)
-        const urlParams = new URLSearchParams(window.location.search);
-        const reference = urlParams.get("reference");
-        if(reference){
-            // Mark as paid in Firebase
-            await db.ref(`paidUsers/${userId}/${TOOL_ID}`).set({
-                paid: true,
-                expiry: Date.now() + 30*24*60*60*1000 // 30 days
-            });
-            document.querySelector(".container").style.display = "block";
-            document.getElementById("loginContainer").style.display = "none";
-            if(document.getElementById("signupContainer"))
-              document.getElementById("signupContainer").style.display = "none";
+// Access tracking
+let lastPaid = parseInt(localStorage.getItem('lastPaidTime')) || 0;
+let paidReference = localStorage.getItem('paidReference') || "";
+
+const now = Date.now();
+const reference = getQueryParam('reference');
+
+// Only store new payment if reference is new
+if(reference && reference !== paidReference){
+    lastPaid = now;
+    paidReference = reference;
+    localStorage.setItem('lastPaidTime', lastPaid);
+    localStorage.setItem('paidReference', paidReference);
+}
+
+// Countdown element
+const countdownEl = document.getElementById('accessCountdown');
+
+function showAccessModal(message, btnText="OK", callback=null){
+    const modal = document.getElementById('accessModal');
+    const msgEl = document.getElementById('accessMessage');
+    const btn = document.getElementById('accessBtn');
+    msgEl.innerHTML = message;
+    btn.textContent = btnText;
+    modal.style.display = "flex";
+    btn.onclick = ()=> {
+        modal.style.display = "none";
+        if(callback) callback();
+    };
+}
+
+function startCountdown(){
+    countdownEl.style.display = "block";
+    function updateCountdown(){
+        const now = Date.now();
+        if(lastPaid && now - lastPaid < ACCESS_DURATION){
+            const remaining = ACCESS_DURATION - (now - lastPaid);
+            countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
         } else {
-            showPaymentModal("Access denied. Please pay to continue.");
+            countdownEl.textContent = `Access expired.`;
+            showAccessModal(
+                "Your access has expired. Please pay KSh 10/$0.08 to continue using the Smart Elimu Connect tool.",
+                "Pay Now",
+                ()=>{ window.location.href = PAYMENT_LINK; }
+            );
         }
     }
-  }catch(err){
-    console.error(err);
-    showPaymentModal("Unable to verify access. Try again later.");
-  }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 }
 
-// Login
-document.getElementById("loginBtn").addEventListener("click", ()=>{
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  if(!email || !password){ alert("Enter both email and password."); return; }
-
-  auth.signInWithEmailAndPassword(email, password)
-      .then(cred => checkAccess(cred.user.uid))
-      .catch(err => alert("Login failed: " + err.message));
-});
-
-// Signup
-document.getElementById("signupBtn").addEventListener("click", ()=>{
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
-  if(!email || !password){ alert("Enter both email and password."); return; }
-
-  auth.createUserWithEmailAndPassword(email, password)
-      .then(cred => checkAccess(cred.user.uid))
-      .catch(err => alert("Sign up failed: " + err.message));
-});
-
-// Google login
-document.getElementById("googleBtn").addEventListener("click", ()=>{
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-      .then(result => checkAccess(result.user.uid))
-      .catch(err => alert("Google login failed: " + err.message));
-});
-
-// Check login state on page load
-auth.onAuthStateChanged(user => {
-  if(user) checkAccess(user.uid);
-});
+// Start countdown
+startCountdown();
 </script>
 
 </body>
