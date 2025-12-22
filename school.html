@@ -472,7 +472,7 @@ const db = firebase.database();
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-/* ================= DEVICE FINGERPRINT ================= */
+/* ================= DEVICE ================= */
 function getDeviceFingerprint(){
   return "dev_" + btoa(
     navigator.userAgent +
@@ -489,12 +489,9 @@ document.getElementById("googleBtn").onclick = () => {
   auth.signInWithPopup(provider);
 };
 
-/* ================= AUTH GATE ================= */
+/* ================= MAIN LOGIC ================= */
 auth.onAuthStateChanged(async user => {
   if(!user) return;
-
-  // 🔓 UNLOCK PAGE
-  document.getElementById("authOverlay").style.display = "none";
 
   const email = user.email;
   const uid = user.uid;
@@ -504,18 +501,18 @@ auth.onAuthStateChanged(async user => {
 
   let activeAccess = null;
 
-  /* ===== CHECK EXISTING ACTIVE ACCESS (DEVICE + UID) ===== */
+  /* 🔍 CHECK EXISTING ACTIVE ACCESS */
   const snap = await db.ref("paystackRefs")
     .orderByChild("uid")
     .equalTo(uid)
     .get();
 
   if(snap.exists()){
-    snap.forEach(s => {
+    snap.forEach(s=>{
       const v = s.val();
       if(
-        v.fingerprint === fingerprint &&
         v.email === email &&
+        v.fingerprint === fingerprint &&
         Date.now() < v.expiresAt
       ){
         activeAccess = v;
@@ -523,29 +520,30 @@ auth.onAuthStateChanged(async user => {
     });
   }
 
-  // ✅ CONTINUE EXISTING ACCESS (IGNORE URL / MANUAL REFS)
+  /* ✅ HAS ACTIVE PAID ACCESS */
   if(activeAccess){
+    document.getElementById("authOverlay").style.display = "none";
     startCountdown(activeAccess.expiresAt);
     return;
   }
 
-  // 🚫 NO ACTIVE ACCESS → MUST COME FROM PAYSTACK REDIRECT
+  /* 🚫 NO ACCESS + NO PAYSTACK REDIRECT → PAY */
   if(!ref){
-    location.href = PAYMENT_LINK;
+    window.location.replace(PAYMENT_LINK);
     return;
   }
 
+  /* 🔐 HANDLE PAYSTACK REDIRECT */
   const refPath = `paystackRefs/${ref}`;
   const refSnap = await db.ref(refPath).get();
 
-  // 🚫 REF ALREADY USED ANYWHERE
   if(refSnap.exists()){
-    alert("This payment reference has already been used.");
+    alert("This payment reference is already used.");
     return;
   }
 
-  // ✅ SAVE FIRST AND ONLY VALID REF
   const expiresAt = Date.now() + ACCESS_DURATION;
+
   await db.ref(refPath).set({
     email,
     uid,
@@ -555,6 +553,7 @@ auth.onAuthStateChanged(async user => {
     locked: true
   });
 
+  document.getElementById("authOverlay").style.display = "none";
   startCountdown(expiresAt);
 });
 
@@ -564,14 +563,14 @@ function startCountdown(expiresAt){
   el.style.display = "block";
 
   function tick(){
-    const remaining = expiresAt - Date.now();
-    if(remaining <= 0){
+    const r = expiresAt - Date.now();
+    if(r <= 0){
       el.textContent = "Access expired. Please pay again.";
       return;
     }
-    const h = Math.floor(remaining / 3600000);
-    const m = Math.floor((remaining % 3600000) / 60000);
-    const s = Math.floor((remaining % 60000) / 1000);
+    const h = Math.floor(r / 3600000);
+    const m = Math.floor((r % 3600000) / 60000);
+    const s = Math.floor((r % 60000) / 1000);
     el.textContent = `Paid access: ${h}h ${m}m ${s}s`;
   }
 
@@ -579,6 +578,7 @@ function startCountdown(expiresAt){
   setInterval(tick, 1000);
 }
 </script>
+
 
 </body>
 </html>
