@@ -158,14 +158,20 @@
 </head>
 <body>
 
-<!-- LOGIN BUTTON (floating, always visible) -->
-<div id="googleLoginBtnContainer" style="
-  position:fixed; top:20px; right:20px; z-index:10001;
+
+<!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
+<div id="loginOverlay" style="
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(255,255,255,0.3);  /* lighter so page is visible */
+  display:flex; align-items:center; justify-content:center;
+  font-family:Segoe UI,sans-serif;
+  pointer-events:all;                  /* block clicks */
 ">
   <button id="googleLoginBtn" style="
     background:#4285F4;color:#fff;border:none;
     padding:14px 22px;border-radius:8px;
     font-size:16px;font-weight:600;cursor:pointer;
+    pointer-events:auto;                 /* make button clickable */
   ">
     Continue with Google
   </button>
@@ -174,9 +180,21 @@
 
 
 
-<!-- PAGE LOCK --> <div id="pageLock" style=" position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; pointer-events:all; "> <div style=" background:#fff;padding:12px 18px; border-radius:10px;font-weight:600; box-shadow:0 4px 15px rgba(0,0,0,.2); "> Checking access… </div> </div>
-
-
+	
+<!-- PAGE LOCK -->
+<div id="pageLock" style="
+  position:fixed; inset:0; z-index:9998;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:all;
+">
+  <div style="
+    background:#fff;padding:12px 18px;
+    border-radius:10px;font-weight:600;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+  ">
+    Checking access…
+  </div>
+</div>
 
 
 <!-- ACCESS MODAL -->
@@ -465,31 +483,28 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 
-function lockPage(){ 
-  const el = document.getElementById("pageLock");
-  if(el) el.style.display="flex"; 
-}
-
-function unlockPage(){ 
-  const el = document.getElementById("pageLock");
-  if(el) el.style.display="none"; 
-}
+/* ================= HELPERS ================= */
+ function lockPage(){ document.getElementById("pageLock").style.display="flex"; } 
+function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
 
 
+// When hiding login overlay
+const loginOverlay = document.getElementById("loginOverlay");
+if(loginOverlay) loginOverlay.style.display = "none";
 
+// When showing countdown
+const countdown = document.getElementById("accessCountdown");
+if(countdown) countdown.style.display="block";
 
 
 	
+
 function showAccessModal(msg){
-  const m = document.getElementById("accessModal");
-  const messageEl = document.getElementById("accessMessage");
-  const btn = document.getElementById("accessBtn");
-
-  if(messageEl) messageEl.innerHTML = msg;
-  if(m) m.style.display = "flex";
-  if(btn) btn.onclick = () => location.href = PAYMENT_LINK;
+  const m=document.getElementById("accessModal");
+  document.getElementById("accessMessage").innerHTML=msg;
+  m.style.display="flex";
+  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
 }
-
 
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
