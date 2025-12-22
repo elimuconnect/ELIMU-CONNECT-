@@ -395,6 +395,21 @@ function lockPage() { document.getElementById("pageLock").style.display="flex"; 
 function unlockPage() { document.getElementById("pageLock").style.display="none"; }
 function showPayment() { document.getElementById("accessModal").style.display="flex"; }
 
+// Ensure Shimo school exists with admin
+async function ensureAdminSchool() {
+  const schoolRef = db.ref("schooltools/shimo");
+  const snap = await schoolRef.get();
+  if (!snap.exists()) {
+    await schoolRef.set({
+      name: "Shimo",
+      adminEmail: "wamithisolomon@gmail.com",
+      teachers: {},
+      maxTeachers: 20,
+      expiresAt: new Date("2030-01-01").getTime() // expires far in the future
+    });
+  }
+}
+
 async function checkSchoolAccess(email) {
   email = email.toLowerCase().trim();
   const now = Date.now();
@@ -455,16 +470,21 @@ async function removeTeacher(schoolId,email) {
   renderTeacherList(schoolId, snap.val().teachers || {});
 }
 
+// GOOGLE LOGIN
 document.getElementById("googleLoginBtn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try { lockPage(); await auth.signInWithPopup(provider); }
   catch(err){ unlockPage(); alert("Login failed: "+err.message); }
 });
 
+// MAIN FLOW
 auth.onAuthStateChanged(async user => {
   if(!user){ document.getElementById("loginOverlay").style.display="flex"; return; }
   document.getElementById("loginOverlay").style.display="none";
   lockPage();
+
+  await ensureAdminSchool(); // ensure Shimo school with admin exists
+
   const email = user.email;
   const access = await checkSchoolAccess(email);
   if(access.allowed){
