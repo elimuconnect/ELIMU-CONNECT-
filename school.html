@@ -157,40 +157,7 @@
 </style>
 </head>
 <body>
-
-<!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
-<div id="loginOverlay" style="
-  position:fixed; inset:0; z-index:10000;
-  background:rgba(255,255,255,0.3);  /* lighter so page is visible */
-  display:flex; align-items:center; justify-content:center;
-  font-family:Segoe UI,sans-serif;
-  pointer-events:all;                  /* block clicks */
-">
-  <button id="googleLoginBtn" style="
-    background:#4285F4;color:#fff;border:none;
-    padding:14px 22px;border-radius:8px;
-    font-size:16px;font-weight:600;cursor:pointer;
-    pointer-events:auto;                 /* make button clickable */
-  ">
-    Continue with Google
-  </button>
-</div>
-
-
-<!-- PAGE LOCK -->
-<div id="pageLock" style="
-  position:fixed; inset:0; z-index:9998;
-  display:flex; align-items:center; justify-content:center;
-  pointer-events:all;
-">
-  <div style="
-    background:#fff;padding:12px 18px;
-    border-radius:10px;font-weight:600;
-    box-shadow:0 4px 15px rgba(0,0,0,.2);
-  ">
-    Checking access…
-  </div>
-</div>
+<!-- LOGIN OVERLAY --> <div id="loginOverlay" style=" position:fixed; inset:0; z-index:10000; background:rgba(255,255,255,0.96); display:flex; align-items:center; justify-content:center; font-family:Segoe UI,sans-serif; "> <button id="googleLoginBtn" style=" background:#4285F4;color:#fff;border:none; padding:14px 22px;border-radius:8px; font-size:16px;font-weight:600;cursor:pointer; "> Continue with Google </button> </div> <!-- PAGE LOCK --> <div id="pageLock" style=" position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; pointer-events:all; "> <div style=" background:#fff;padding:12px 18px; border-radius:10px;font-weight:600; box-shadow:0 4px 15px rgba(0,0,0,.2); "> Checking access… </div> </div>
 
 
 <!-- ACCESS MODAL -->
