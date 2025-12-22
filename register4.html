@@ -249,8 +249,7 @@
   
 
 <script>
-
-const MAIN_SITE = "https://elimuconnect.github.io/ELIMU-CONNECT-/school";
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/school";
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 
 // Helper: get base URL without query string
@@ -258,48 +257,38 @@ function getBaseURL(url){
     return url.split('?')[0];
 }
 
-// Check if user is visiting main site directly
-const isMainSite = getBaseURL(window.location.href) === MAIN_SITE;
+// Check if this is main link access (ignore query parameters)
+const isMainLink = getBaseURL(window.location.href) === MAIN_LINK;
 
-// Check if user came from main site
-const fromMainSite = getBaseURL(document.referrer) === MAIN_SITE;
+// Check if we came from main link redirect (ignore query)
+const fromMainLink = getBaseURL(document.referrer) === MAIN_LINK;
 
-// Allow access if:
-// 1. User is on the main site itself (regardless of referrer)
-// 2. OR user came from main site
-if(isMainSite || fromMainSite){
-    // Set a flag so other tool pages also allow access
-    localStorage.setItem('allowedAccess', 'true');
+if(isMainLink || fromMainLink){
+    // ✅ Access allowed – do nothing
 } else {
-    // Also check if flag was previously set (user already came via main site)
-    const allowedAccess = localStorage.getItem('allowedAccess');
-    if(!allowedAccess){
-        // Block access completely
-        document.body.innerHTML = `
-            <div style="text-align:center; padding:50px; font-family:sans-serif;">
-                <h2>Access Restricted</h2>
-                <p>You cannot open this tool directly.</p>
-                <p>Access is only allowed via the Main Site.</p>
-                <a href="${MAIN_SITE}" 
-                   style="font-size:1.2rem; color:#fff; background:#0078D7; 
-                          padding:10px 20px; border-radius:6px; display:inline-block;">
-                   Go to Main Site
-                </a>
-                <p>Or pay KSh 5/$0.04 to get access:</p>
-                <a href="${PAYMENT_LINK}" 
-                   style="font-size:1.2rem; color:#fff; background:#0078D7; 
-                          padding:10px 20px; border-radius:6px; display:inline-block;">
-                   Pay Now
-                </a>
-            </div>
-        `;
-        throw new Error("Access blocked until main site or payment.");
-    }
+    // ❌ Block access
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:50px; font-family:sans-serif;">
+            <h2>Access Restricted</h2>
+            <p>You cannot open this tool directly.</p>
+            <p>Please open it from the main simulator page.</p>
+
+            <a href="${MAIN_LINK}"
+               style="font-size:1.2rem; color:#0078D7;">
+               Open Main Simulator
+            </a>
+
+            <p style="margin-top:20px;">Or pay to get access:</p>
+
+            <a href="${PAYMENT_LINK}"
+               style="font-size:1.2rem; color:#fff; background:#0078D7;
+                      padding:10px 20px; border-radius:6px; display:inline-block;">
+               Pay Now
+            </a>
+        </div>
+    `;
+    throw new Error("Access blocked until main link or payment.");
 }
-
-
-
-
 
 
 
