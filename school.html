@@ -521,21 +521,28 @@ function isValidPaystackRedirect() {
   return reference && status === "success" && document.referrer === allowedReferrer;
 }
 
+/* ================= PAY BUTTON ================= */
+document.getElementById("accessBtn").onclick = () => {
+  // Mark that the user clicked the Pay button
+  sessionStorage.setItem("payClicked", "true");
+  location.href = PAYMENT_LINK;
+};
+
 /* ================= MAIN FLOW ================= */
 auth.onAuthStateChanged(async user => {
-  if(!user) return;
+  if (!user) return;
 
   document.getElementById("loginOverlay").style.display = "none";
   lockPage();
 
   const email = user.email;
   const fingerprint = getFingerprint();
-  const countdown = document.getElementById("accessCountdown");
   const reference = getQueryParam("reference");
+  const countdown = document.getElementById("accessCountdown");
 
   let active = null;
 
-  // 1️⃣ CHECK EXISTING ACCESS
+  /* 1️⃣ CHECK EXISTING ACCESS */
   const snap = await db.ref("paystackRefs")
     .orderByChild("fingerprint")
     .equalTo(fingerprint)
@@ -543,57 +550,53 @@ auth.onAuthStateChanged(async user => {
 
   snap.forEach(s => {
     const v = s.val();
-    if(v.email === email && Date.now() <= v.expiresAt && !active) {
+    if (v.email === email && Date.now() <= v.expiresAt && !active) {
       active = v;
     }
   });
 
-  // 2️⃣ IF ACTIVE → IGNORE REF
-  if(active){
+  /* 2️⃣ IF ACTIVE → IGNORE REF */
+  if (active) {
     unlockPage();
     countdown.style.display = "block";
-    setInterval(()=>{
+    setInterval(() => {
       const r = active.expiresAt - Date.now();
-      if(r <= 0) showAccessModal("Access expired.");
+      if (r <= 0) showAccessModal("Access expired.");
       else countdown.textContent = "Paid access: " + formatTime(r);
-    },1000);
+    }, 1000);
     return;
   }
 
-  // 3️⃣ VALIDATE PAYSTACK REDIRECT
-  if(!isValidPaystackRedirect()){
-    showAccessModal("Payment required. Only payments from the official Paystack page are accepted.");
+  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF AND PAY BUTTON CLICK */
+  if (!reference || sessionStorage.getItem("payClicked") !== "true") {
+    showAccessModal("Payment required. Click the Pay button to proceed.");
     return;
   }
 
-  // 4️⃣ CHECK IF REF ALREADY USED
+  /* 4️⃣ SAVE FIRST VALID REF ONLY */
   const refPath = `paystackRefs/${reference}`;
   const refSnap = await db.ref(refPath).get();
-  if(refSnap.exists()){
+  if (refSnap.exists()) {
     showAccessModal("This payment reference was already used.");
     return;
   }
 
-  // 5️⃣ ENSURE FIRST VISIT PER DEVICE
-  if(sessionStorage.getItem("refUsed")) {
-    showAccessModal("Only one reference allowed per device at a time.");
-    return;
-  }
-  sessionStorage.setItem("refUsed", reference);
-
-  // 6️⃣ SAVE REF
   const expiresAt = Date.now() + ACCESS_DURATION;
   await db.ref(refPath).set({ email, fingerprint, expiresAt });
 
-  // 7️⃣ GRANT ACCESS
+  // Remove the flag so no other references are accepted
+  sessionStorage.removeItem("payClicked");
+
+  /* 5️⃣ GRANT ACCESS */
   unlockPage();
   countdown.style.display = "block";
-  setInterval(()=>{
+  setInterval(() => {
     const r = expiresAt - Date.now();
-    if(r <= 0) showAccessModal("Access expired.");
+    if (r <= 0) showAccessModal("Access expired.");
     else countdown.textContent = "Paid access: " + formatTime(r);
-  },1000);
+  }, 1000);
 });
+
 </script>
 
 
