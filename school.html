@@ -158,12 +158,10 @@
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
-<div id="loginOverlay" style="
-  position:fixed; inset:0; z-index:10000;
-  background:rgba(255,255,255,0.96);
-  display:flex; align-items:center; justify-content:center;
-  font-family:Segoe UI,sans-serif;
+
+<!-- LOGIN BUTTON (floating, always visible) -->
+<div id="googleLoginBtnContainer" style="
+  position:fixed; top:20px; right:20px; z-index:10001;
 ">
   <button id="googleLoginBtn" style="
     background:#4285F4;color:#fff;border:none;
@@ -176,8 +174,9 @@
 
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
-  position:fixed; inset:0; z-index:9998;
+  position:fixed; inset:0; z-index:9999;
   display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,0.6);
   pointer-events:all;
 ">
   <div style="
@@ -188,6 +187,7 @@
     Checking access…
   </div>
 </div>
+
 
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
