@@ -158,7 +158,6 @@
 </head>
 <body>
 
-
 <!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
 <div id="loginOverlay" style="
   position:fixed; inset:0; z-index:10000;
@@ -178,9 +177,6 @@
 </div>
 
 
-
-
-	
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
   position:fixed; inset:0; z-index:9998;
@@ -195,7 +191,6 @@
     Checking access…
   </div>
 </div>
-
 
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
@@ -223,6 +218,9 @@
 </div>
 
 
+
+
+	
 <header>
   <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
   <h1>Smart Elimu Connect</h1>
@@ -482,22 +480,9 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
 /* ================= HELPERS ================= */
- function lockPage(){ document.getElementById("pageLock").style.display="flex"; } 
+function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
 function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
-
-
-// When hiding login overlay
-const loginOverlay = document.getElementById("loginOverlay");
-if(loginOverlay) loginOverlay.style.display = "none";
-
-// When showing countdown
-const countdown = document.getElementById("accessCountdown");
-if(countdown) countdown.style.display="block";
-
-
-	
 
 function showAccessModal(msg){
   const m=document.getElementById("accessModal");
@@ -600,8 +585,6 @@ auth.onAuthStateChanged(async user=>{
   },1000);
 });
 </script>
-
-
 
 
 </body>
