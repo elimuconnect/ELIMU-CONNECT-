@@ -502,6 +502,26 @@ function getFingerprint(){
   return fp;
 }
 
+
+/* ================= PAGE LOCK ================= */
+function lockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock){
+    lock.style.display = "flex";
+  }
+}
+
+function unlockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock){
+    lock.style.display = "none";
+  }
+}
+
+
+
+
+	
 /* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLoginBtn").onclick = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
