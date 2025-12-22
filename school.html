@@ -157,8 +157,38 @@
 </style>
 </head>
 <body>
-<!-- LOGIN OVERLAY --> <div id="loginOverlay" style=" position:fixed; inset:0; z-index:10000; background:rgba(255,255,255,0.96); display:flex; align-items:center; justify-content:center; font-family:Segoe UI,sans-serif; "> <button id="googleLoginBtn" style=" background:#4285F4;color:#fff;border:none; padding:14px 22px;border-radius:8px; font-size:16px;font-weight:600;cursor:pointer; "> Continue with Google </button> </div> <!-- PAGE LOCK --> <div id="pageLock" style=" position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; pointer-events:all; "> <div style=" background:#fff;padding:12px 18px; border-radius:10px;font-weight:600; box-shadow:0 4px 15px rgba(0,0,0,.2); "> Checking access… </div> </div>
 
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" style="
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(255,255,255,0.96);
+  display:flex; align-items:center; justify-content:center;
+  font-family:Segoe UI,sans-serif;
+">
+  <button id="googleLoginBtn" style="
+    background:#4285F4;color:#fff;border:none;
+    padding:14px 22px;border-radius:8px;
+    font-size:16px;font-weight:600;cursor:pointer;
+  ">
+    Continue with Google
+  </button>
+</div>
+
+<!-- PAGE LOCK -->
+<div id="pageLock" style="
+  position:fixed; inset:0; z-index:9998;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:all;
+">
+  <div style="
+    background:#fff;padding:12px 18px;
+    border-radius:10px;font-weight:600;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+  ">
+    Checking access…
+  </div>
+</div>
 
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
@@ -186,6 +216,9 @@
 </div>
 
 
+
+
+	
 <header>
   <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
   <h1>Smart Elimu Connect</h1>
@@ -445,27 +478,17 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
 /* ================= HELPERS ================= */
- function lockPage(){ document.getElementById("pageLock").style.display="flex"; } 
+function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
 function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
 
+function showAccessModal(msg){
+  const m=document.getElementById("accessModal");
+  document.getElementById("accessMessage").innerHTML=msg;
+  m.style.display="flex";
+  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
+}
 
-// When hiding login overlay
-const loginOverlay = document.getElementById("loginOverlay");
-if(loginOverlay) loginOverlay.style.display = "none";
-
-// When showing countdown
-const countdown = document.getElementById("accessCountdown");
-if(countdown) countdown.style.display="block";
-
-
-	
-function showAccessModal(msg){ const m=document.getElementById("accessModal"); document.getElementById("accessMessage").innerHTML=msg; m.style.display="flex"; document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK; }
-
-
-
-	
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
 function formatTime(ms){
@@ -560,8 +583,6 @@ auth.onAuthStateChanged(async user=>{
   },1000);
 });
 </script>
-
-
 
 
 </body>
