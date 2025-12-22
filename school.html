@@ -158,21 +158,24 @@
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
+<!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
 <div id="loginOverlay" style="
   position:fixed; inset:0; z-index:10000;
-  background:rgba(255,255,255,0.96);
+  background:rgba(255,255,255,0.3);  /* lighter so page is visible */
   display:flex; align-items:center; justify-content:center;
   font-family:Segoe UI,sans-serif;
+  pointer-events:all;                  /* block clicks */
 ">
   <button id="googleLoginBtn" style="
     background:#4285F4;color:#fff;border:none;
     padding:14px 22px;border-radius:8px;
     font-size:16px;font-weight:600;cursor:pointer;
+    pointer-events:auto;                 /* make button clickable */
   ">
     Continue with Google
   </button>
 </div>
+
 
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
@@ -491,14 +494,11 @@ if(countdown) countdown.style.display="block";
 
 
 	
+function showAccessModal(msg){ const m=document.getElementById("accessModal"); document.getElementById("accessMessage").innerHTML=msg; m.style.display="flex"; document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK; }
 
-function showAccessModal(msg){
-  const m=document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML=msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
-}
 
+
+	
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
 function formatTime(ms){
