@@ -563,6 +563,12 @@ auth.onAuthStateChanged(async user=>{
   const expiresAt=Date.now()+ACCESS_DURATION;
   await db.ref(refPath).set({ email, fingerprint, expiresAt });
 
+  // ✅ REMOVE REFERENCE FROM URL AFTER VALIDATION
+  if (window.history.replaceState) {
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState(null, '', cleanUrl);
+  }
+
   /* 5️⃣ GRANT ACCESS */
   unlockPage();
   countdown.style.display="block";
@@ -573,6 +579,8 @@ auth.onAuthStateChanged(async user=>{
   },1000);
 });
 </script>
+
+
 
 
 </body>
