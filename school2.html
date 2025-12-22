@@ -461,7 +461,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-/* ================= FIREBASE ================= */
+/* ================= FIREBASE INIT ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
@@ -476,115 +476,130 @@ const auth = firebase.auth();
 const db = firebase.database();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-/* ================= SETTINGS ================= */
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000;
-
 /* ================= HELPERS ================= */
-function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
-function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
-
-function showAccessModal(msg){
-  const m=document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML=msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
+function lockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "flex";
 }
 
-function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
-
-function formatTime(ms){
-  let s=Math.floor(ms/1000),h=Math.floor(s/3600),
-  m=Math.floor((s%3600)/60),sec=s%60;
-  return h?`${h}h ${m}m ${sec}s`:`${m}:${sec.toString().padStart(2,"0")}`;
+function unlockPage(){
+  const lock = document.getElementById("pageLock");
+  if(lock) lock.style.display = "none";
 }
 
-function getFingerprint(){
-  let fp=localStorage.getItem("fp");
-  if(!fp){
-    fp="fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
-    localStorage.setItem("fp",fp);
-  }
-  return fp;
+function showPayment(){
+  alert("Payment required for individual access.");
 }
 
-/* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick=()=>{
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-};
+/* ================= SCHOOL ACCESS LOGIC ================= */
+async function checkSchoolAccess(email){
+  email = email.toLowerCase().trim();
+  const now = Date.now();
 
-/* ================= MAIN FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user){ return; }
+  const snap = await db.ref("schooltools").get();
+  let access = { allowed:false, isAdmin:false, schoolId:null, school:null };
 
-  document.getElementById("loginOverlay").style.display="none";
-  lockPage();
+  snap.forEach(s => {
+    const school = s.val();
+    if(!school || now > school.expiresAt) return;
 
-  const email=user.email;
-  const fingerprint=getFingerprint();
-  let reference=getQueryParam("reference");
-  const countdown=document.getElementById("accessCountdown");
+    if(school.adminEmail?.toLowerCase() === email){
+      access = { allowed:true, isAdmin:true, schoolId:s.key, school };
+    }
 
-  let active=null;
-
-  /* 1️⃣ CHECK EXISTING ACCESS */
-  const snap=await db.ref("paystackRefs")
-    .orderByChild("fingerprint")
-    .equalTo(fingerprint)
-    .get();
-
-  snap.forEach(s=>{
-    const v=s.val();
-    if(v.email===email && Date.now()<=v.expiresAt && !active){
-      active=v;
+    if(school.teachers && school.teachers[email]){
+      access = { allowed:true, isAdmin:false, schoolId:s.key, school };
     }
   });
 
-  /* 2️⃣ IF ACTIVE → IGNORE REF */
-  if(active){
+  return access;
+}
+
+/* ================= ADMIN UI ================= */
+function renderAdminPanel(schoolId, school){
+  document.body.innerHTML = `
+    <div style="max-width:600px;margin:40px auto;font-family:sans-serif;">
+      <h2>${school.name} – Admin Panel</h2>
+      <p><b>Teacher limit:</b> ${school.maxTeachers}</p>
+
+      <input id="teacherEmail" placeholder="teacher@email.com"
+             style="padding:8px;width:70%" />
+      <button onclick="addTeacher('${schoolId}')">Add</button>
+
+      <h3>Teachers</h3>
+      <ul id="teacherList"></ul>
+    </div>
+  `;
+
+  renderTeacherList(schoolId, school.teachers || {});
+}
+
+function renderTeacherList(schoolId, teachers){
+  const ul = document.getElementById("teacherList");
+  ul.innerHTML = "";
+
+  Object.keys(teachers).forEach(email=>{
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${email}
+      <button onclick="removeTeacher('${schoolId}','${email}')">Remove</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+async function addTeacher(schoolId){
+  const input = document.getElementById("teacherEmail");
+  const email = input.value.toLowerCase().trim();
+  if(!email) return;
+
+  const ref = db.ref(`schooltools/${schoolId}`);
+  const snap = await ref.get();
+  const school = snap.val();
+
+  const count = school.teachers ? Object.keys(school.teachers).length : 0;
+  if(count >= school.maxTeachers){
+    alert("Teacher limit reached");
+    return;
+  }
+
+  await ref.child(`teachers/${email}`).set(true);
+  input.value = "";
+  location.reload();
+}
+
+async function removeTeacher(schoolId,email){
+  await db.ref(`schooltools/${schoolId}/teachers/${email}`).remove();
+  location.reload();
+}
+
+/* ================= MAIN FLOW ================= */
+auth.onAuthStateChanged(async user=>{
+  if(!user) return;
+
+  lockPage();
+
+  const email = user.email;
+  const schoolAccess = await checkSchoolAccess(email);
+
+  if(schoolAccess.allowed){
+    // Admin → dashboard
+    if(schoolAccess.isAdmin && location.pathname.includes("admin")){
+      renderAdminPanel(schoolAccess.schoolId, schoolAccess.school);
+      return;
+    }
+
+    // Teacher → normal access
     unlockPage();
-    countdown.style.display="block";
-    setInterval(()=>{
-      const r=active.expiresAt-Date.now();
-      if(r<=0) showAccessModal("Access expired.");
-      else countdown.textContent="Paid access: "+formatTime(r);
-    },1000);
     return;
   }
 
-  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF */
-  if(!reference){
-    showAccessModal("Payment required.");
-    return;
-  }
-
-  /* 4️⃣ SAVE FIRST VALID REF ONLY */
-  const refPath=`paystackRefs/${reference}`;
-  const refSnap=await db.ref(refPath).get();
-  if(refSnap.exists()){
-    showAccessModal("This payment reference was already used.");
-    return;
-  }
-
-  const expiresAt=Date.now()+ACCESS_DURATION;
-  await db.ref(refPath).set({ email, fingerprint, expiresAt });
-
-  // ✅ REMOVE REFERENCE FROM URL AFTER VALIDATION
-  if (window.history.replaceState) {
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState(null, '', cleanUrl);
-  }
-
-  /* 5️⃣ GRANT ACCESS */
+  // ❌ Not school user → fall back to individual payment system
   unlockPage();
-  countdown.style.display="block";
-  setInterval(()=>{
-    const r=expiresAt-Date.now();
-    if(r<=0) showAccessModal("Access expired.");
-    else countdown.textContent="Paid access: "+formatTime(r);
-  },1000);
+  showPayment();
 });
 </script>
+
 
 
 </body>
