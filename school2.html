@@ -477,38 +477,38 @@ const db = firebase.database();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 /* ================= HELPERS ================= */
-function lockPage(){
+function lockPage() {
   const lock = document.getElementById("pageLock");
-  if(lock) lock.style.display = "flex";
+  if (lock) lock.style.display = "flex";
 }
 
-function unlockPage(){
+function unlockPage() {
   const lock = document.getElementById("pageLock");
-  if(lock) lock.style.display = "none";
+  if (lock) lock.style.display = "none";
 }
 
-function showPayment(){
+function showPayment() {
   alert("Payment required for individual access.");
 }
 
 /* ================= SCHOOL ACCESS LOGIC ================= */
-async function checkSchoolAccess(email){
+async function checkSchoolAccess(email) {
   email = email.toLowerCase().trim();
   const now = Date.now();
 
   const snap = await db.ref("schooltools").get();
-  let access = { allowed:false, isAdmin:false, schoolId:null, school:null };
+  let access = { allowed: false, isAdmin: false, schoolId: null, school: null };
 
   snap.forEach(s => {
     const school = s.val();
-    if(!school || now > school.expiresAt) return;
+    if (!school || now > school.expiresAt) return;
 
-    if(school.adminEmail?.toLowerCase() === email){
-      access = { allowed:true, isAdmin:true, schoolId:s.key, school };
+    if (school.adminEmail?.toLowerCase() === email) {
+      access = { allowed: true, isAdmin: true, schoolId: s.key, school };
     }
 
-    if(school.teachers && school.teachers[email]){
-      access = { allowed:true, isAdmin:false, schoolId:s.key, school };
+    if (school.teachers && school.teachers[email]) {
+      access = { allowed: true, isAdmin: false, schoolId: s.key, school };
     }
   });
 
@@ -516,29 +516,26 @@ async function checkSchoolAccess(email){
 }
 
 /* ================= ADMIN UI ================= */
-function renderAdminPanel(schoolId, school){
+function renderAdminPanel(schoolId, school) {
   document.body.innerHTML = `
     <div style="max-width:600px;margin:40px auto;font-family:sans-serif;">
       <h2>${school.name} – Admin Panel</h2>
       <p><b>Teacher limit:</b> ${school.maxTeachers}</p>
-
       <input id="teacherEmail" placeholder="teacher@email.com"
              style="padding:8px;width:70%" />
       <button onclick="addTeacher('${schoolId}')">Add</button>
-
       <h3>Teachers</h3>
       <ul id="teacherList"></ul>
     </div>
   `;
-
   renderTeacherList(schoolId, school.teachers || {});
 }
 
-function renderTeacherList(schoolId, teachers){
+function renderTeacherList(schoolId, teachers) {
   const ul = document.getElementById("teacherList");
   ul.innerHTML = "";
 
-  Object.keys(teachers).forEach(email=>{
+  Object.keys(teachers).forEach(email => {
     const li = document.createElement("li");
     li.innerHTML = `
       ${email}
@@ -548,17 +545,17 @@ function renderTeacherList(schoolId, teachers){
   });
 }
 
-async function addTeacher(schoolId){
+async function addTeacher(schoolId) {
   const input = document.getElementById("teacherEmail");
   const email = input.value.toLowerCase().trim();
-  if(!email) return;
+  if (!email) return;
 
   const ref = db.ref(`schooltools/${schoolId}`);
   const snap = await ref.get();
   const school = snap.val();
 
   const count = school.teachers ? Object.keys(school.teachers).length : 0;
-  if(count >= school.maxTeachers){
+  if (count >= school.maxTeachers) {
     alert("Teacher limit reached");
     return;
   }
@@ -568,23 +565,44 @@ async function addTeacher(schoolId){
   location.reload();
 }
 
-async function removeTeacher(schoolId,email){
+async function removeTeacher(schoolId, email) {
   await db.ref(`schooltools/${schoolId}/teachers/${email}`).remove();
   location.reload();
 }
 
-/* ================= MAIN FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user) return;
+/* ================= GOOGLE LOGIN ================= */
+const googleLoginBtn = document.getElementById("googleLoginBtn");
 
+googleLoginBtn.addEventListener("click", async () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    lockPage();
+    await auth.signInWithPopup(provider);
+    // onAuthStateChanged will handle the rest
+  } catch (err) {
+    unlockPage();
+    alert("Login failed: " + err.message);
+  }
+});
+
+/* ================= MAIN FLOW ================= */
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    // User not logged in → show login overlay
+    document.getElementById("loginOverlay").style.display = "flex";
+    return;
+  }
+
+  // User logged in → hide login overlay
+  document.getElementById("loginOverlay").style.display = "none";
   lockPage();
 
   const email = user.email;
   const schoolAccess = await checkSchoolAccess(email);
 
-  if(schoolAccess.allowed){
+  if (schoolAccess.allowed) {
     // Admin → dashboard
-    if(schoolAccess.isAdmin && location.pathname.includes("admin")){
+    if (schoolAccess.isAdmin && location.pathname.includes("admin")) {
       renderAdminPanel(schoolAccess.schoolId, schoolAccess.school);
       return;
     }
@@ -594,12 +612,11 @@ auth.onAuthStateChanged(async user=>{
     return;
   }
 
-  // ❌ Not school user → fall back to individual payment system
+  // ❌ Not a school user → individual payment
   unlockPage();
   showPayment();
 });
 </script>
-
 
 
 </body>
