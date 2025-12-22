@@ -454,7 +454,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
-
 <script>
 /* ================= FIREBASE ================= */
 firebase.initializeApp({
@@ -473,130 +472,106 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 /* ================= SETTINGS ================= */
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 /* ================= HELPERS ================= */
-function lockPage() { document.getElementById("pageLock").style.display = "flex"; }
-function unlockPage() { document.getElementById("pageLock").style.display = "none"; }
+function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
+function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
 
 function showAccessModal(msg){
-  const m = document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML = msg;
-  m.style.display = "flex";
-  document.getElementById("accessBtn").onclick = () => location.href = PAYMENT_LINK;
+  const m=document.getElementById("accessModal");
+  document.getElementById("accessMessage").innerHTML=msg;
+  m.style.display="flex";
+  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
 }
 
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
 function formatTime(ms){
-  let s = Math.floor(ms/1000),
-      h = Math.floor(s/3600),
-      m = Math.floor((s%3600)/60),
-      sec = s%60;
-  return h ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
+  let s=Math.floor(ms/1000),h=Math.floor(s/3600),
+  m=Math.floor((s%3600)/60),sec=s%60;
+  return h?`${h}h ${m}m ${sec}s`:`${m}:${sec.toString().padStart(2,"0")}`;
 }
 
 function getFingerprint(){
-  let fp = localStorage.getItem("fp");
+  let fp=localStorage.getItem("fp");
   if(!fp){
-    fp = "fp_" + btoa(navigator.userAgent + screen.width + screen.height + navigator.language);
-    localStorage.setItem("fp", fp);
+    fp="fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
+    localStorage.setItem("fp",fp);
   }
   return fp;
 }
 
 /* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick = () => {
+document.getElementById("googleLoginBtn").onclick=()=>{
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
 };
 
-/* ================= PAYSTACK REDIRECT CHECK ================= */
-function isValidPaystackRedirect() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const reference = urlParams.get("reference");
-  const status = urlParams.get("status"); // optional but recommended
-  const allowedReferrer = "https://dashboard.paystack.com/#/pages/1938325";
-
-  // Only accept if reference exists, status=success, and referrer is Paystack page
-  return reference && status === "success" && document.referrer === allowedReferrer;
-}
-
-/* ================= PAY BUTTON ================= */
-document.getElementById("accessBtn").onclick = () => {
-  // Mark that the user clicked the Pay button
-  sessionStorage.setItem("payClicked", "true");
-  location.href = PAYMENT_LINK;
-};
-
 /* ================= MAIN FLOW ================= */
-auth.onAuthStateChanged(async user => {
-  if (!user) return;
+auth.onAuthStateChanged(async user=>{
+  if(!user){ return; }
 
-  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("loginOverlay").style.display="none";
   lockPage();
 
-  const email = user.email;
-  const fingerprint = getFingerprint();
-  const reference = getQueryParam("reference");
-  const countdown = document.getElementById("accessCountdown");
+  const email=user.email;
+  const fingerprint=getFingerprint();
+  let reference=getQueryParam("reference");
+  const countdown=document.getElementById("accessCountdown");
 
-  let active = null;
+  let active=null;
 
   /* 1️⃣ CHECK EXISTING ACCESS */
-  const snap = await db.ref("paystackRefs")
+  const snap=await db.ref("paystackRefs")
     .orderByChild("fingerprint")
     .equalTo(fingerprint)
     .get();
 
-  snap.forEach(s => {
-    const v = s.val();
-    if (v.email === email && Date.now() <= v.expiresAt && !active) {
-      active = v;
+  snap.forEach(s=>{
+    const v=s.val();
+    if(v.email===email && Date.now()<=v.expiresAt && !active){
+      active=v;
     }
   });
 
   /* 2️⃣ IF ACTIVE → IGNORE REF */
-  if (active) {
+  if(active){
     unlockPage();
-    countdown.style.display = "block";
-    setInterval(() => {
-      const r = active.expiresAt - Date.now();
-      if (r <= 0) showAccessModal("Access expired.");
-      else countdown.textContent = "Paid access: " + formatTime(r);
-    }, 1000);
+    countdown.style.display="block";
+    setInterval(()=>{
+      const r=active.expiresAt-Date.now();
+      if(r<=0) showAccessModal("Access expired.");
+      else countdown.textContent="Paid access: "+formatTime(r);
+    },1000);
     return;
   }
 
-  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF AND PAY BUTTON CLICK */
-  if (!reference || sessionStorage.getItem("payClicked") !== "true") {
-    showAccessModal("Payment required. Click the Pay button to proceed.");
+  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF */
+  if(!reference){
+    showAccessModal("Payment required.");
     return;
   }
 
   /* 4️⃣ SAVE FIRST VALID REF ONLY */
-  const refPath = `paystackRefs/${reference}`;
-  const refSnap = await db.ref(refPath).get();
-  if (refSnap.exists()) {
+  const refPath=`paystackRefs/${reference}`;
+  const refSnap=await db.ref(refPath).get();
+  if(refSnap.exists()){
     showAccessModal("This payment reference was already used.");
     return;
   }
 
-  const expiresAt = Date.now() + ACCESS_DURATION;
+  const expiresAt=Date.now()+ACCESS_DURATION;
   await db.ref(refPath).set({ email, fingerprint, expiresAt });
-
-  // Remove the flag so no other references are accepted
-  sessionStorage.removeItem("payClicked");
 
   /* 5️⃣ GRANT ACCESS */
   unlockPage();
-  countdown.style.display = "block";
-  setInterval(() => {
-    const r = expiresAt - Date.now();
-    if (r <= 0) showAccessModal("Access expired.");
-    else countdown.textContent = "Paid access: " + formatTime(r);
-  }, 1000);
+  countdown.style.display="block";
+  setInterval(()=>{
+    const r=expiresAt-Date.now();
+    if(r<=0) showAccessModal("Access expired.");
+    else countdown.textContent="Paid access: "+formatTime(r);
+  },1000);
 });
-
 </script>
 
 
