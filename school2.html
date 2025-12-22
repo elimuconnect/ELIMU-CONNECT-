@@ -391,42 +391,41 @@ const auth = firebase.auth();
 const db = firebase.database();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
+/* ======== EMAIL ENCODE/DECODE ======== */
+function encodeEmail(email) {
+  return email.replace(/\./g, ','); // Firebase doesn't allow dots
+}
+function decodeEmail(key) {
+  return key.replace(/,/g, '.');
+}
+
+/* ======== PAGE LOCK/UNLOCK ======== */
 function lockPage() { document.getElementById("pageLock").style.display="flex"; }
 function unlockPage() { document.getElementById("pageLock").style.display="none"; }
 function showPayment() { document.getElementById("accessModal").style.display="flex"; }
 
-// Ensure Shimo school exists with admin
-async function ensureAdminSchool() {
-  const schoolRef = db.ref("schooltools/shimo");
-  const snap = await schoolRef.get();
-  if (!snap.exists()) {
-    await schoolRef.set({
-      name: "Shimo",
-      adminEmail: "wamithisolomon@gmail.com",
-      teachers: {},
-      maxTeachers: 20,
-      expiresAt: new Date("2030-01-01").getTime() // expires far in the future
-    });
-  }
-}
-
+/* ======== CHECK SCHOOL ACCESS ======== */
 async function checkSchoolAccess(email) {
   email = email.toLowerCase().trim();
   const now = Date.now();
   const snap = await db.ref("schooltools").get();
   let access = { allowed: false, isAdmin: false, schoolId: null, school: null };
+
   snap.forEach(s => {
     const school = s.val();
     if (!school || (school.expiresAt && now > school.expiresAt)) return;
+
     if (school.adminEmail?.toLowerCase() === email) {
       access = { allowed: true, isAdmin: true, schoolId: s.key, school };
-    } else if (school.teachers && school.teachers[email]) {
+    } else if (school.teachers && school.teachers[encodeEmail(email)]) {
       access = { allowed: true, isAdmin: false, schoolId: s.key, school };
     }
   });
+
   return access;
 }
 
+/* ======== RENDER ADMIN PANEL ======== */
 function renderAdminPanel(schoolId, school) {
   document.body.innerHTML = `
     <div style="max-width:600px;margin:40px auto;font-family:sans-serif;">
@@ -444,53 +443,70 @@ function renderAdminPanel(schoolId, school) {
 function renderTeacherList(schoolId, teachers) {
   const ul = document.getElementById("teacherList");
   ul.innerHTML = "";
-  Object.keys(teachers).forEach(email => {
+
+  Object.keys(teachers).forEach(encodedEmail => {
+    const email = decodeEmail(encodedEmail);
     const li = document.createElement("li");
     li.innerHTML = `${email} <button onclick="removeTeacher('${schoolId}','${email}')">Remove</button>`;
     ul.appendChild(li);
   });
 }
 
+/* ======== ADD/REMOVE TEACHERS ======== */
 async function addTeacher(schoolId) {
-  const email = document.getElementById("teacherEmail").value.toLowerCase().trim();
+  const emailInput = document.getElementById("teacherEmail");
+  const email = emailInput.value.toLowerCase().trim();
   if (!email) return;
+
+  const encodedEmail = encodeEmail(email);
   const ref = db.ref(`schooltools/${schoolId}`);
   const snap = await ref.get();
   const school = snap.val();
+
   const count = school.teachers ? Object.keys(school.teachers).length : 0;
-  if (count >= (school.maxTeachers || 0)) { alert("Teacher limit reached"); return; }
-  await ref.child(`teachers/${email}`).set(true);
-  renderTeacherList(schoolId, { ...school.teachers, [email]: true });
-  document.getElementById("teacherEmail").value = "";
+  if (count >= (school.maxTeachers || 0)) { 
+    alert("Teacher limit reached"); 
+    return; 
+  }
+
+  await ref.child(`teachers/${encodedEmail}`).set(true);
+  renderTeacherList(schoolId, { ...school.teachers, [encodedEmail]: true });
+  emailInput.value = "";
 }
 
-async function removeTeacher(schoolId,email) {
-  await db.ref(`schooltools/${schoolId}/teachers/${email}`).remove();
+async function removeTeacher(schoolId, email) {
+  const encodedEmail = encodeEmail(email);
+  await db.ref(`schooltools/${schoolId}/teachers/${encodedEmail}`).remove();
+
   const snap = await db.ref(`schooltools/${schoolId}`).get();
   renderTeacherList(schoolId, snap.val().teachers || {});
 }
 
-// GOOGLE LOGIN
+/* ======== GOOGLE LOGIN ======== */
 document.getElementById("googleLoginBtn").addEventListener("click", async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   try { lockPage(); await auth.signInWithPopup(provider); }
   catch(err){ unlockPage(); alert("Login failed: "+err.message); }
 });
 
-// MAIN FLOW
+/* ======== MAIN FLOW ======== */
 auth.onAuthStateChanged(async user => {
   if(!user){ document.getElementById("loginOverlay").style.display="flex"; return; }
   document.getElementById("loginOverlay").style.display="none";
   lockPage();
 
-  await ensureAdminSchool(); // ensure Shimo school with admin exists
-
   const email = user.email;
   const access = await checkSchoolAccess(email);
+
   if(access.allowed){
-    if(access.isAdmin){ renderAdminPanel(access.schoolId,access.school); return; }
-    else unlockPage(); // teacher
-  } else unlockPage(), showPayment();
+    if(access.isAdmin){ 
+      renderAdminPanel(access.schoolId, access.school); 
+      return; 
+    } else unlockPage(); // teacher
+  } else {
+    unlockPage();
+    showPayment();
+  }
 });
 </script>
 
