@@ -468,6 +468,9 @@ firebase.initializeApp({
 const auth = firebase.auth();
 const db = firebase.database();
 
+/* 🔒 ENSURE LOGIN PERSISTS AFTER RELOAD */
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
 /* ================= SETTINGS ================= */
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
@@ -484,14 +487,22 @@ function getDeviceFingerprint(){
 }
 
 /* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleBtn").onclick = () => {
+document.getElementById("googleBtn").onclick = async () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider);
+  await auth.signInWithPopup(provider);
 };
 
 /* ================= MAIN LOGIC ================= */
 auth.onAuthStateChanged(async user => {
-  if(!user) return;
+
+  // 🚫 NOT LOGGED IN → KEEP OVERLAY
+  if(!user){
+    document.getElementById("authOverlay").style.display = "flex";
+    return;
+  }
+
+  // ✅ LOGGED IN → HIDE LOGIN OVERLAY
+  document.getElementById("authOverlay").style.display = "none";
 
   const email = user.email;
   const uid = user.uid;
@@ -520,14 +531,13 @@ auth.onAuthStateChanged(async user => {
     });
   }
 
-  /* ✅ HAS ACTIVE PAID ACCESS */
+  /* ✅ HAS PAID ACCESS */
   if(activeAccess){
-    document.getElementById("authOverlay").style.display = "none";
     startCountdown(activeAccess.expiresAt);
     return;
   }
 
-  /* 🚫 NO ACCESS + NO PAYSTACK REDIRECT → PAY */
+  /* 🚫 NO ACCESS → MUST PAY */
   if(!ref){
     window.location.replace(PAYMENT_LINK);
     return;
@@ -553,7 +563,6 @@ auth.onAuthStateChanged(async user => {
     locked: true
   });
 
-  document.getElementById("authOverlay").style.display = "none";
   startCountdown(expiresAt);
 });
 
