@@ -158,7 +158,6 @@
 </head>
 <body>
 
-
 <!-- LOGIN BUTTON (floating, always visible) -->
 <div id="googleLoginBtnContainer" style="
   position:fixed; top:20px; right:20px; z-index:10001;
@@ -466,25 +465,31 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 
-/* ================= HELPERS ================= */ function lockPage(){ document.getElementById("pageLock").style.display="flex"; } function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
+function lockPage(){ 
+  const el = document.getElementById("pageLock");
+  if(el) el.style.display="flex"; 
+}
 
-// When hiding login overlay
-const loginOverlay = document.getElementById("loginOverlay");
-if(loginOverlay) loginOverlay.style.display = "none";
+function unlockPage(){ 
+  const el = document.getElementById("pageLock");
+  if(el) el.style.display="none"; 
+}
 
-// When showing countdown
-const countdown = document.getElementById("accessCountdown");
-if(countdown) countdown.style.display="block";
+
+
 
 
 	
-
 function showAccessModal(msg){
-  const m=document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML=msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
+  const m = document.getElementById("accessModal");
+  const messageEl = document.getElementById("accessMessage");
+  const btn = document.getElementById("accessBtn");
+
+  if(messageEl) messageEl.innerHTML = msg;
+  if(m) m.style.display = "flex";
+  if(btn) btn.onclick = () => location.href = PAYMENT_LINK;
 }
+
 
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
