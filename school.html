@@ -480,9 +480,50 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-/* ================= HELPERS ================= */
-function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
-function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
+
+/* ================= DEVICE DETECTION ================= */
+const isTV = /Android TV|AFT|SmartTV|TV|BRAVIA|MiTV|GoogleTV/i.test(navigator.userAgent);
+
+
+
+
+
+function lockPage(){
+  if (isTV) {
+    // HARD LOCK for projectors / Android TV
+    document.documentElement.style.pointerEvents = "none";
+    document.body.style.pointerEvents = "none";
+
+    // show simple message
+    document.body.insertAdjacentHTML("beforeend", `
+      <div id="tvLock" style="
+        position:fixed; inset:0; z-index:2147483647;
+        background:#ffffff;
+        display:flex; align-items:center; justify-content:center;
+        font-family:Segoe UI,sans-serif;
+        font-size:18px; font-weight:600;
+      ">
+        Checking access…
+      </div>
+    `);
+  } else {
+    // NORMAL browsers (PC / phone)
+    document.getElementById("pageLock").style.display="flex";
+  }
+}
+
+function unlockPage(){
+  if (isTV) {
+    document.documentElement.style.pointerEvents = "auto";
+    document.body.style.pointerEvents = "auto";
+
+    const tvLock = document.getElementById("tvLock");
+    if (tvLock) tvLock.remove();
+  } else {
+    document.getElementById("pageLock").style.display="none";
+  }
+}
+
 
 function showAccessModal(msg){
   const m=document.getElementById("accessModal");
@@ -584,6 +625,11 @@ auth.onAuthStateChanged(async user=>{
     else countdown.textContent="Paid access: "+formatTime(r);
   },1000);
 });
+
+
+
+	console.log("Is TV device:", isTV, navigator.userAgent);
+
 </script>
 
 
