@@ -479,8 +479,6 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
-
 function lockPage() {
   // Remove existing overlay if any
   const old = document.getElementById("fullLockOverlay");
@@ -489,18 +487,18 @@ function lockPage() {
   const header = document.querySelector("header");
   const headerHeight = header ? header.offsetHeight : 0;
 
-  // Make sure header stays on top
+  // Keep header on top
   if (header) {
     header.style.zIndex = "10001";
     header.style.position = "relative";
   }
 
-  // Overlay only for page content below header
+  // Create overlay covering the content (not header)
   const overlay = document.createElement("div");
   overlay.id = "fullLockOverlay";
   overlay.style.cssText = `
     position:fixed;
-    top:${headerHeight}px;  /* start BELOW header */
+    top:${headerHeight}px;  /* start below header */
     left:0;
     right:0;
     bottom:0;
@@ -516,35 +514,39 @@ function lockPage() {
     font-size:20px;
     font-weight:600;
     text-align:center;
-    pointer-events:all;
   `;
 
-  overlay.innerHTML = `
-    <div>
-      <p>Access restricted.<br>Please login and pay to continue.</p>
-      <button id="googleLoginBtnDynamic" style="
-        background:#4285F4;
-        color:#fff;
-        border:none;
-        padding:14px 24px;
-        border-radius:8px;
-        font-size:18px;
-        font-weight:600;
-        cursor:pointer;
-      ">Continue with Google</button>
-    </div>
+  // Add Google login button directly to body, above overlay
+  const loginBtn = document.createElement("button");
+  loginBtn.id = "googleLoginBtnDynamic";
+  loginBtn.textContent = "Continue with Google";
+  loginBtn.style.cssText = `
+    position:fixed;
+    top:${headerHeight + 50}px;  /* slightly below header */
+    left:50%;
+    transform:translateX(-50%);
+    background:#4285F4;
+    color:#fff;
+    border:none;
+    padding:14px 24px;
+    border-radius:8px;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    z-index:10002;  /* above overlay */
   `;
 
   document.body.appendChild(overlay);
+  document.body.appendChild(loginBtn);
 
-  // Attach click handler to dynamic button
-  const dynamicBtn = document.getElementById("googleLoginBtnDynamic");
-  dynamicBtn.onclick = () => {
+  // Attach login handler
+  loginBtn.onclick = () => {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
       .then(result => console.log("Google login successful:", result.user.email))
       .catch(err => console.error("Google login error:", err.message));
   };
 }
+
 
 
 	
