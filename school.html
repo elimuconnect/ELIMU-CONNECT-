@@ -161,23 +161,27 @@
 </style>
 </head>
 <body>
-<!-- FULL LOGIN LOCK -->
+<!-- LOGIN OVERLAY -->
 <div id="loginOverlay" style="
-  position:fixed; inset:0; z-index:2147483647;
-  background:rgba(255,255,255,1);  /* fully opaque so nothing is visible */
-  display:flex; align-items:center; justify-content:center;
+  position:fixed; inset:0;
+  background:rgba(255,255,255,0.95);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:2147483647;
   font-family:Segoe UI,sans-serif;
-  pointer-events:all;
 ">
+  <h2 style="margin-bottom:20px; color:#333;">Access Required</h2>
   <button id="googleLoginBtn" style="
-    background:#4285F4;color:#fff;border:none;
-    padding:14px 22px;border-radius:8px;
-    font-size:16px;font-weight:600;cursor:pointer;
-    pointer-events:auto;  /* only button clickable */
+    background:#4285F4; color:#fff; border:none;
+    padding:14px 24px; border-radius:8px;
+    font-size:18px; font-weight:600;
+    cursor:pointer;
+    z-index:2147483648;
   ">
     Continue with Google
   </button>
 </div>
+
 
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
@@ -480,20 +484,22 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 function lockPage() {
-  // Remove existing overlay if any
-  const old = document.getElementById("fullLockOverlay");
-  if (old) old.remove();
+  // Remove existing overlay and button if any
+  const oldOverlay = document.getElementById("fullLockOverlay");
+  if (oldOverlay) oldOverlay.remove();
+  const oldBtn = document.getElementById("googleLoginBtnDynamic");
+  if (oldBtn) oldBtn.remove();
 
   const header = document.querySelector("header");
   const headerHeight = header ? header.offsetHeight : 0;
 
   // Keep header on top
   if (header) {
-    header.style.zIndex = "10001";
+    header.style.zIndex = "10003"; // higher than overlay and button
     header.style.position = "relative";
   }
 
-  // Create overlay covering the content (not header)
+  // Create overlay covering the page (excluding header)
   const overlay = document.createElement("div");
   overlay.id = "fullLockOverlay";
   overlay.style.cssText = `
@@ -505,9 +511,8 @@ function lockPage() {
     width:100vw;
     height: calc(100vh - ${headerHeight}px);
     background:rgba(255,255,255,0.95);
-    z-index:10000;
+    z-index:10001;  /* below button and header */
     display:flex;
-    flex-direction:column;
     align-items:center;
     justify-content:center;
     font-family:Segoe UI,sans-serif;
@@ -515,16 +520,13 @@ function lockPage() {
     font-weight:600;
     text-align:center;
   `;
+  document.body.appendChild(overlay);
 
-  // Add Google login button directly to body, above overlay
+  // Add Google login button inside overlay (so it’s visible)
   const loginBtn = document.createElement("button");
   loginBtn.id = "googleLoginBtnDynamic";
   loginBtn.textContent = "Continue with Google";
   loginBtn.style.cssText = `
-    position:fixed;
-    top:${headerHeight + 50}px;  /* slightly below header */
-    left:50%;
-    transform:translateX(-50%);
     background:#4285F4;
     color:#fff;
     border:none;
@@ -535,9 +537,7 @@ function lockPage() {
     cursor:pointer;
     z-index:10002;  /* above overlay */
   `;
-
-  document.body.appendChild(overlay);
-  document.body.appendChild(loginBtn);
+  overlay.appendChild(loginBtn); // append directly inside overlay
 
   // Attach login handler
   loginBtn.onclick = () => {
@@ -546,8 +546,6 @@ function lockPage() {
       .catch(err => console.error("Google login error:", err.message));
   };
 }
-
-
 
 	
 function unlockPage() {
