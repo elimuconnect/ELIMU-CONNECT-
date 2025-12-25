@@ -483,35 +483,36 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-function lockPage() {
+
+  function lockPage() {
   const overlay = document.getElementById("loginOverlay");
   const pageLock = document.getElementById("pageLock");
   const header = document.querySelector("header");
-
   const headerHeight = header ? header.offsetHeight : 0;
 
   // Keep header on top
   if (header) {
     header.style.zIndex = "2147483648";
-    header.style.position = "sticky"; // already sticky in CSS
+    header.style.position = "sticky";
   }
 
-  // Show overlays
+  // Show login overlay and page lock
   if (overlay) {
     overlay.style.display = "flex";
-    overlay.style.top = `${headerHeight}px`; // start below header
+    overlay.style.top = `${headerHeight}px`;
     overlay.style.height = `calc(100vh - ${headerHeight}px)`;
   }
+
   if (pageLock) {
     pageLock.style.display = "flex";
     pageLock.style.top = `${headerHeight}px`;
     pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
   }
 
-  // Ensure Google login button is clickable inside overlay
+  // Google login button
   const loginBtn = document.getElementById("googleLoginBtn");
   if (loginBtn) {
-    loginBtn.style.pointerEvents = "auto"; // make button clickable
+    loginBtn.style.pointerEvents = "auto";
     loginBtn.onclick = () => {
       auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
         .then(result => console.log("Google login successful:", result.user.email))
@@ -528,7 +529,6 @@ function unlockPage() {
   if (pageLock) pageLock.style.display = "none";
 }
 
-  
 	
 
 function showAccessModal(msg){
