@@ -390,6 +390,8 @@
   © 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
+
+
 <!-- Full Page Payment Lock -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -406,7 +408,7 @@
         background:#0078D7; color:#fff; border:none; padding:12px 20px;
         border-radius:8px; font-weight:600; cursor:pointer;
         font-size:1em;
-    ">Sign in & Pay</button>
+    ">Sign in with Google</button>
   </div>
 </div>
 
@@ -418,12 +420,12 @@
     font-weight:600; z-index:99999; display:none;
 "></p>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
+// ================= FIREBASE =================
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
@@ -439,6 +441,7 @@ const auth = firebase.auth();
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours
 
+// ===== Helpers =====
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 function getFingerprint(){
     let fp = localStorage.getItem("fp");
@@ -449,11 +452,11 @@ function getFingerprint(){
     return fp;
 }
 function formatTime(ms){
-    let s=Math.floor(ms/1000), h=Math.floor(s/3600),
-        m=Math.floor((s%3600)/60), sec=s%60;
-    return h?`${h}h ${m}m ${sec}s`:`${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    let s = Math.floor(ms/1000), h = Math.floor(s/3600),
+        m = Math.floor((s%3600)/60), sec = s%60;
+    return h ? `${h}h ${m}m ${sec}s` : `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
 }
-function showAccessModal(msg, showButton=true){
+function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
     const modal = document.getElementById('accessModal');
     const msgEl = document.getElementById('accessMessage');
     const btn = document.getElementById('accessBtn');
@@ -461,12 +464,14 @@ function showAccessModal(msg, showButton=true){
     modal.style.display="flex";
     if(showButton){
         btn.style.display="inline-block";
-        btn.onclick = signInAndPay;
+        btn.textContent = btnText;
     } else {
         btn.style.display="none";
     }
 }
-function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
+function hideAccessModal(){
+    document.getElementById('accessModal').style.display="none";
+}
 function startCountdown(expiresAt){
     const countdownEl = document.getElementById('accessCountdown');
     countdownEl.style.display="block";
@@ -474,7 +479,7 @@ function startCountdown(expiresAt){
         const remaining = expiresAt - Date.now();
         if(remaining <= 0){
             clearInterval(interval);
-            showAccessModal("Access expired. Please pay to continue.", true);
+            showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
             countdownEl.style.display="none";
         } else {
             countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
@@ -482,51 +487,19 @@ function startCountdown(expiresAt){
     },1000);
 }
 
-// ===== Google Sign-In & Payment Flow =====
-async function signInAndPay(){
-    const provider = new firebase.auth.GoogleAuthProvider();
-    try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
-        if(!user) throw "Google sign-in failed";
-
-        const fingerprint = getFingerprint();
-        const reference = getQueryParam("reference") || btoa(user.email + Date.now());
-
-        // Save to Firebase
-        const expiresAt = Date.now() + ACCESS_DURATION;
-        await db.ref(`paystackRefs/${reference}`).set({
-            fingerprint,
-            email: user.email,
-            expiresAt,
-            createdAt: Date.now()
-        });
-
-        // Remove reference from URL
-        if(window.history.replaceState){
-            window.history.replaceState(null, '', window.location.origin + window.location.pathname);
-        }
-
-        // Unlock page
-        hideAccessModal();
-        startCountdown(expiresAt);
-
-    } catch(e){
-        alert("Sign-in failed. Please try again.");
-        console.error(e);
-    }
-}
-
 // ===== MAIN FLOW =====
-(async function(){
+async function checkAccess(user){
     const fingerprint = getFingerprint();
     const reference = getQueryParam("reference");
-    let active=null;
+    let active = null;
 
+    // 1️⃣ Check active access for this device
     const snap = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
     snap.forEach(s=>{
         const v = s.val();
-        if(Date.now() <= v.expiresAt && !active) active=v;
+        if(Date.now() <= v.expiresAt && !active){
+            active = v;
+        }
     });
 
     if(active){
@@ -535,24 +508,58 @@ async function signInAndPay(){
         return;
     }
 
+    // 2️⃣ No active access → require new reference
     if(!reference){
-        showAccessModal("No active access found. Sign in to continue.", true);
+        showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+        document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
         return;
     }
 
-    const refSnap = await db.ref(`paystackRefs/${reference}`).get();
+    // 3️⃣ Validate reference
+    const refPath = `paystackRefs/${reference}`;
+    const refSnap = await db.ref(refPath).get();
     if(refSnap.exists()){
         showAccessModal("This payment reference was already used.", false);
         return;
     }
 
-    // Allow signing in and saving new reference
-    showAccessModal("Please sign in with Google to unlock access.", true);
+    // 4️⃣ Save reference with user email and fingerprint
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({
+        fingerprint,
+        email: user.email,
+        reference,
+        expiresAt,
+        createdAt: Date.now()
+    });
 
-})();
+    // 5️⃣ Remove reference from URL
+    if(window.history.replaceState){
+        window.history.replaceState(null, '', window.location.origin + window.location.pathname);
+    }
+
+    // 6️⃣ Grant access → hide overlay, show countdown
+    hideAccessModal();
+    startCountdown(expiresAt);
+}
+
+// ===== Sign in flow =====
+showAccessModal("Please sign in with Google to continue.");
+document.getElementById('accessBtn').onclick = async function(){
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try{
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        if(!user) throw "Google sign-in failed";
+        await checkAccess(user);
+    } catch(e){
+        alert("Sign-in failed. Please try again.");
+        console.error(e);
+    }
+};
 </script>
 
-
+	
 
 </body>
 </html>
