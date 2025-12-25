@@ -411,6 +411,10 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
+const EXTRA_ADMIN_EMAIL = "wamithisolomon@gmail.com";
+
+
+	
 /* ================= FIREBASE ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
@@ -502,9 +506,19 @@ async function checkSchoolAccess(email){
     const school=s.val();
     if(!school || (school.expiresAt && now>school.expiresAt)) return;
 
-    if(school.adminEmail?.toLowerCase()===email){
-      access={allowed:true,isAdmin:true,schoolId:s.key,school,adminEmail:school.adminEmail};
-    } else if(school.teachers && school.teachers[encodeEmail(email)]){
+    if(
+  school.adminEmail?.toLowerCase() === email ||
+  email === EXTRA_ADMIN_EMAIL
+){
+  access = {
+    allowed: true,
+    isAdmin: true,
+    schoolId: s.key,
+    school,
+    adminEmail: school.adminEmail || email
+  };
+}
+ else if(school.teachers && school.teachers[encodeEmail(email)]){
       access={allowed:true,isAdmin:false,schoolId:s.key,school,adminEmail:school.adminEmail};
     }
   });
