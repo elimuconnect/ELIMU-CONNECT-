@@ -58,7 +58,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 
 const FIRST_TRIAL_MIN = 30;
-const DAILY_FREE_MIN = 3;
+const DAILY_FREE_MIN = 1;
 const PAID_DURATION = 24 * 60 * 60 * 1000;  // 24 hours 
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
 
@@ -146,7 +146,6 @@ if(firstTrialEnd && now() > firstTrialEnd){
     }
 }
 
-
 function engine(){
     countdownEl.style.display = "block";
     setInterval(()=>{
@@ -173,19 +172,12 @@ function engine(){
             return;
         }
 
-        // NOTHING ACTIVE → LOCK & REDIRECT
+        // NOTHING ACTIVE → LOCK & REDIRECT BACK TO ACCESS PAGE
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
 
-        // Redirect automatically after 0.5s delay (to allow modal to show if desired)
-        showModal(
-           "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
-           "Unlock Daily Pass — $0.15/KSh 20.",
-           ()=> location.href = PAYMENT_LINK
-        );
-
-        // Auto redirect if user ignores modal after 3 seconds
-        setTimeout(()=>location.href = PAYMENT_LINK, 3000);
+        // Redirect the user back to the main access page (replace 'index.html' with your main page)
+        location.href = "index.html";  // <-- this will move the user out of the features page
 
     }, 500);
 }
