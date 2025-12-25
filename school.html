@@ -391,30 +391,21 @@
   
 </footer>
 
-
-<!-- LOGIN OVERLAY (shows page but blocks clicks until login) -->
+<!-- LOGIN OVERLAY (completely hides page until login) -->
 <div id="loginOverlay" style="
   position:fixed; inset:0; z-index:10000;
-  background:rgba(255,255,255,0.3);
+  background:#fff;  /* fully white, hide page completely */
   display:flex; align-items:center; justify-content:center;
   font-family:Segoe UI,sans-serif;
-  pointer-events:all;
 ">
   <button id="googleLoginBtn" style="
     background:#4285F4;color:#fff;border:none;
     padding:14px 22px;border-radius:8px;
     font-size:16px;font-weight:600;cursor:pointer;
-    pointer-events:auto;
   ">
     Continue with Google
   </button>
 </div>
-
-
-
-
-
-	
 
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
@@ -463,116 +454,116 @@ firebase.initializeApp({
   appId: "1:764732839741:web:ab829af54839de91359754"
 });
 
+
 const auth = firebase.auth();
 const db = firebase.database();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 const PAYMENT_LINK = "https://paystack.shop/pay/u7q214ftyd";
-const ACCESS_DURATION = 24*60*60*1000; // 24h access
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours paid
 
-function getQueryParam(param){
-  return new URLSearchParams(window.location.search).get(param);
+
+// Helper functions
+function showAccessModal(message, btnText="OK", callback=null){
+    const modal = document.getElementById('accessModal');
+    const msgEl = document.getElementById('accessMessage');
+    const btn = document.getElementById('accessBtn');
+    msgEl.innerHTML = message;
+    btn.textContent = btnText;
+    modal.style.display = "flex";
+    btn.onclick = () => { modal.style.display = "none"; if(callback) callback(); };
 }
 
 function formatTime(ms){
-  if(ms<=0) return "00:00";
-  let s=Math.floor(ms/1000), h=Math.floor(s/3600);
-  let m=Math.floor((s%3600)/60), sec=s%60;
-  return h?`${h}h ${m}m ${sec}s`:`${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+    let s=Math.floor(ms/1000),h=Math.floor(s/3600),
+        m=Math.floor((s%3600)/60),sec=s%60;
+    return h?`${h}h ${m}m ${sec}s`:`${m.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
 }
 
 function getFingerprint(){
-  let fp = localStorage.getItem("fp");
-  if(!fp){
-    fp = "fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
-    localStorage.setItem("fp",fp);
-  }
-  return fp;
+    let fp=localStorage.getItem("fp");
+    if(!fp){
+        fp="fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
+        localStorage.setItem("fp",fp);
+    }
+    return fp;
 }
 
-function showAccessModal(msg, btnText="OK", callback=null){
-  const modal = document.getElementById('accessModal');
-  const msgEl = document.getElementById('accessMessage');
-  const btn = document.getElementById('accessBtn');
-  msgEl.innerHTML = msg;
-  btn.textContent = btnText;
-  modal.style.display = "flex";
-  btn.onclick = ()=> {
-      modal.style.display = "none";
-      if(callback) callback();
-  };
+function getQueryParam(name){
+    return new URLSearchParams(window.location.search).get(name);
 }
 
-/* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick = ()=>{
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+function startCountdown(expiresAt){
+    const countdownEl = document.getElementById('accessCountdown');
+    countdownEl.style.display="block";
+    const interval = setInterval(()=>{
+        const remaining = expiresAt-Date.now();
+        if(remaining <= 0){
+            clearInterval(interval);
+            showAccessModal("Access expired.", "Pay Now", ()=>window.location.href=PAYMENT_LINK);
+            countdownEl.style.display="none";
+        } else {
+            countdownEl.textContent="Paid access: "+formatTime(remaining);
+        }
+    }, 1000);
+}
+
+// Google login
+document.getElementById("googleLoginBtn").onclick = () => {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+        .catch(err => console.error(err));
 };
 
-/* ================= MAIN ACCESS FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user) return;
+// Check access after login
+auth.onAuthStateChanged(async user => {
+    if(!user) return;
 
-  const email = user.email;
-  const fingerprint = getFingerprint();
-  const reference = getQueryParam("reference");
-  const countdownEl = document.getElementById("accessCountdown");
+    const email = user.email;
+    const fingerprint = getFingerprint();
+    const reference = getQueryParam("reference");
 
-  let active = null;
+    let active = null;
 
-  // 1️⃣ Check DB for existing access for this email+device
-  const snap = await db.ref("paystackRefs")
-    .orderByChild("fingerprint")
-    .equalTo(fingerprint)
-    .get();
+    const snap = await db.ref("paystackRefs")
+        .orderByChild("fingerprint")
+        .equalTo(fingerprint)
+        .get();
 
-  snap.forEach(s=>{
-    const v = s.val();
-    if(v.email===email && Date.now()<=v.expiresAt && !active){
-      active = v;
+    snap.forEach(s => {
+        const v = s.val();
+        if(v.email === email && Date.now() <= v.expiresAt && !active) active=v;
+    });
+
+    if(active){
+        document.getElementById('loginOverlay').style.display="none";
+        startCountdown(active.expiresAt);
+        return;
     }
-  });
 
-  // 2️⃣ If active, start countdown
-  if(active){
-    countdownEl.style.display="block";
-    setInterval(()=>{
-      const r = active.expiresAt - Date.now();
-      if(r<=0) showAccessModal("Access expired.");
-      else countdownEl.textContent="Paid access: "+formatTime(r);
-    },1000);
-    return;
-  }
+    if(!reference){
+        showAccessModal("Payment required.");
+        return;
+    }
 
-  // 3️⃣ No access → require Paystack ref
-  if(!reference){
-    showAccessModal("Payment required.");
-    return;
-  }
+    const refPath = `paystackRefs/${reference}`;
+    const refSnap = await db.ref(refPath).get();
+    if(refSnap.exists()){
+        showAccessModal("This payment reference was already used.");
+        return;
+    }
 
-  // 4️⃣ Save first valid reference only
-  const refPath = `paystackRefs/${reference}`;
-  const refSnap = await db.ref(refPath).get();
-  if(refSnap.exists()){
-    showAccessModal("This payment reference was already used.");
-    return;
-  }
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({ email, fingerprint, expiresAt });
 
-  const expiresAt = Date.now() + ACCESS_DURATION;
-  await db.ref(refPath).set({ email, fingerprint, expiresAt });
+    if(window.history.replaceState){
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null,'',cleanUrl);
+    }
 
-  // Remove reference from URL
-  if(window.history.replaceState){
-    window.history.replaceState(null,'',window.location.origin+window.location.pathname);
-  }
-
-  // 5️⃣ Grant access
-  countdownEl.style.display="block";
-  setInterval(()=>{
-    const r = expiresAt - Date.now();
-    if(r<=0) showAccessModal("Access expired.");
-    else countdownEl.textContent="Paid access: "+formatTime(r);
-  },1000);
+    document.getElementById('loginOverlay').style.display="none";
+    startCountdown(expiresAt);
 });
+
 </script>
 
 	
