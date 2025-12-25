@@ -480,22 +480,23 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-const ua = navigator.userAgent;
 
-// Detect phones, tablets, and PCs
-const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|iOS/i.test(ua);
-const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua);
+const ua = navigator.userAgent;
+const isMobile = /iPhone|iPod|Windows Phone/i.test(ua);
+const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua); // iPad or Android tablet
 const isPC = /Windows|Macintosh|Linux/i.test(ua);
 
-// Normal devices: phones, tablets, PCs
+// Devices that should be allowed normal overlay lock
 const isNormalDevice = isMobile || isTablet || isPC;
 
-// All others: full lock until login + payment
-const isFullLockDevice = !isNormalDevice;
-
-console.log("Normal device (overlay lock):", isNormalDevice);
+// Full lock: anything else OR Android that is NOT phone/tablet
+const isFullLockDevice = !isNormalDevice || (/Android/i.test(ua) && !/Mobile|iPad/i.test(ua));
+console.log("UA:", ua);
+console.log("Normal device:", isNormalDevice);
 console.log("Full lock device:", isFullLockDevice);
 
+
+	
 /* ================= LOCK / UNLOCK ================= */
 function lockPage() {
   if (isFullLockDevice) {
