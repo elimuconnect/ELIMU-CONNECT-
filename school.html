@@ -480,24 +480,28 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-// ================= DEVICE DETECTION =================
 const ua = navigator.userAgent;
 
-// Broad match for Android TVs, Smart TVs, popular projector brands
-const isTV = /Android TV|AFT|SmartTV|TV|BRAVIA|MiTV|GoogleTV/i.test(ua)
-             || /X96|XGIMI|Epson|ViewSonic|BenQ|Nebula|Hisense|Philips|Sharp|Panasonic/i.test(ua)
-             || (/Android/i.test(ua) && screen.width >= 1280 && screen.height >= 720); // fallback for large Android devices
+// Detect phones, tablets, and PCs
+const isMobile = /Android|iPhone|iPad|iPod|Windows Phone|iOS/i.test(ua);
+const isTablet = /iPad|Android(?!.*Mobile)/i.test(ua);
+const isPC = /Windows|Macintosh|Linux/i.test(ua);
 
-console.log("Is TV/Projector device:", isTV, ua);
+// Normal devices: phones, tablets, PCs
+const isNormalDevice = isMobile || isTablet || isPC;
 
-// ================= LOCK PAGE =================
+// All others: full lock until login + payment
+const isFullLockDevice = !isNormalDevice;
+
+console.log("Normal device (overlay lock):", isNormalDevice);
+console.log("Full lock device:", isFullLockDevice);
+
+/* ================= LOCK / UNLOCK ================= */
 function lockPage() {
-  if (isTV) {
-    // HARD LOCK for projectors / Android TV
+  if (isFullLockDevice) {
     document.documentElement.style.pointerEvents = "none";
     document.body.style.pointerEvents = "none";
 
-    // show simple message
     if (!document.getElementById("tvLock")) {
       document.body.insertAdjacentHTML("beforeend", `
         <div id="tvLock" style="
@@ -506,21 +510,22 @@ function lockPage() {
           display:flex; align-items:center; justify-content:center;
           font-family:Segoe UI,sans-serif;
           font-size:18px; font-weight:600;
+          text-align:center;
+          padding:20px;
         ">
-          Access restricted on projector / TV
+          Access restricted.<br>
+          Please login with Google and complete payment to continue.
         </div>
       `);
     }
   } else {
-    // NORMAL browsers (PC / phone)
     const pageLock = document.getElementById("pageLock");
     if (pageLock) pageLock.style.display = "flex";
   }
 }
 
-// ================= UNLOCK PAGE =================
 function unlockPage() {
-  if (isTV) {
+  if (isFullLockDevice) {
     document.documentElement.style.pointerEvents = "auto";
     document.body.style.pointerEvents = "auto";
 
@@ -532,90 +537,93 @@ function unlockPage() {
   }
 }
 
-
+/* ================= ACCESS MODAL ================= */
 function showAccessModal(msg){
-  const m=document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML=msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
+  const m = document.getElementById("accessModal");
+  document.getElementById("accessMessage").innerHTML = msg;
+  m.style.display = "flex";
+  document.getElementById("accessBtn").onclick = () => location.href = PAYMENT_LINK;
 }
 
+/* ================= HELPERS ================= */
 function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
 
 function formatTime(ms){
-  let s=Math.floor(ms/1000),h=Math.floor(s/3600),
-  m=Math.floor((s%3600)/60),sec=s%60;
-  return h?`${h}h ${m}m ${sec}s`:`${m}:${sec.toString().padStart(2,"0")}`;
+  let s = Math.floor(ms/1000), h = Math.floor(s/3600),
+      m = Math.floor((s%3600)/60), sec = s%60;
+  return h ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
 }
 
 function getFingerprint(){
-  let fp=localStorage.getItem("fp");
+  let fp = localStorage.getItem("fp");
   if(!fp){
-    fp="fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
-    localStorage.setItem("fp",fp);
+    fp = "fp_" + btoa(navigator.userAgent + screen.width + screen.height + navigator.language);
+    localStorage.setItem("fp", fp);
   }
   return fp;
 }
 
 /* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick=()=>{
+document.getElementById("googleLoginBtn").onclick = () => {
   auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
 };
 
 /* ================= MAIN FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user){ return; }
+auth.onAuthStateChanged(async user => {
+  if(!user) return;
 
-  document.getElementById("loginOverlay").style.display="none";
+  document.getElementById("loginOverlay").style.display = "none";
+
+  // ALWAYS lock first
   lockPage();
 
-  const email=user.email;
-  const fingerprint=getFingerprint();
-  let reference=getQueryParam("reference");
-  const countdown=document.getElementById("accessCountdown");
+  const email = user.email;
+  const fingerprint = getFingerprint();
+  let reference = getQueryParam("reference");
+  const countdown = document.getElementById("accessCountdown");
 
-  let active=null;
+  let active = null;
 
-  /* 1️⃣ CHECK EXISTING ACCESS */
-  const snap=await db.ref("paystackRefs")
+  // 1️⃣ CHECK EXISTING ACCESS
+  const snap = await db.ref("paystackRefs")
     .orderByChild("fingerprint")
     .equalTo(fingerprint)
     .get();
 
-  snap.forEach(s=>{
-    const v=s.val();
-    if(v.email===email && Date.now()<=v.expiresAt && !active){
-      active=v;
+  snap.forEach(s => {
+    const v = s.val();
+    if(v.email === email && Date.now() <= v.expiresAt && !active){
+      active = v;
     }
   });
 
-  /* 2️⃣ IF ACTIVE → IGNORE REF */
+  // 2️⃣ IF ACTIVE → UNLOCK
   if(active){
     unlockPage();
-    countdown.style.display="block";
-    setInterval(()=>{
-      const r=active.expiresAt-Date.now();
-      if(r<=0) showAccessModal("Access expired.");
-      else countdown.textContent="Paid access: "+formatTime(r);
-    },1000);
+    countdown.style.display = "block";
+    setInterval(() => {
+      const r = active.expiresAt - Date.now();
+      if(r <= 0) showAccessModal("Access expired.");
+      else countdown.textContent = "Paid access: " + formatTime(r);
+    }, 1000);
     return;
   }
 
-  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF */
+  // 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF
   if(!reference){
     showAccessModal("Payment required.");
     return;
   }
 
-  /* 4️⃣ SAVE FIRST VALID REF ONLY */
-  const refPath=`paystackRefs/${reference}`;
-  const refSnap=await db.ref(refPath).get();
+  // 4️⃣ SAVE FIRST VALID REF ONLY
+  const refPath = `paystackRefs/${reference}`;
+  const refSnap = await db.ref(refPath).get();
   if(refSnap.exists()){
     showAccessModal("This payment reference was already used.");
     return;
   }
 
-  const expiresAt=Date.now()+ACCESS_DURATION;
+  const expiresAt = Date.now() + ACCESS_DURATION;
   await db.ref(refPath).set({ email, fingerprint, expiresAt });
 
   // ✅ REMOVE REFERENCE FROM URL AFTER VALIDATION
@@ -624,21 +632,17 @@ auth.onAuthStateChanged(async user=>{
     window.history.replaceState(null, '', cleanUrl);
   }
 
-  /* 5️⃣ GRANT ACCESS */
+  // 5️⃣ GRANT ACCESS
   unlockPage();
-  countdown.style.display="block";
-  setInterval(()=>{
-    const r=expiresAt-Date.now();
-    if(r<=0) showAccessModal("Access expired.");
-    else countdown.textContent="Paid access: "+formatTime(r);
-  },1000);
+  countdown.style.display = "block";
+  setInterval(() => {
+    const r = expiresAt - Date.now();
+    if(r <= 0) showAccessModal("Access expired.");
+    else countdown.textContent = "Paid access: " + formatTime(r);
+  }, 1000);
 });
-
-
-
-	
-
 </script>
+
 
 
 </body>
