@@ -390,6 +390,8 @@
   © 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
+
+
 <!-- Full Page Payment Lock -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -406,7 +408,7 @@
         background:#0078D7; color:#fff; border:none; padding:12px 20px;
         border-radius:8px; font-weight:600; cursor:pointer;
         font-size:1em;
-    ">Pay Now</button>
+    ">Sign in with Google</button>
   </div>
 </div>
 
@@ -419,6 +421,7 @@
 "></p>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
@@ -434,6 +437,7 @@ firebase.initializeApp({
 });
 
 const db = firebase.database();
+const auth = firebase.auth();
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours
 
@@ -452,15 +456,15 @@ function formatTime(ms){
         m = Math.floor((s%3600)/60), sec = s%60;
     return h ? `${h}h ${m}m ${sec}s` : `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
 }
-function showAccessModal(msg, showPayButton = true){
+function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
     const modal = document.getElementById('accessModal');
     const msgEl = document.getElementById('accessMessage');
     const btn = document.getElementById('accessBtn');
     msgEl.innerHTML = msg;
     modal.style.display="flex";
-    if(showPayButton){
+    if(showButton){
         btn.style.display="inline-block";
-        btn.onclick = () => window.location.href = PAYMENT_LINK;
+        btn.textContent = btnText;
     } else {
         btn.style.display="none";
     }
@@ -475,7 +479,7 @@ function startCountdown(expiresAt){
         const remaining = expiresAt - Date.now();
         if(remaining <= 0){
             clearInterval(interval);
-            showAccessModal("Access expired. Please pay to continue.", true);
+            showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
             countdownEl.style.display="none";
         } else {
             countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
@@ -484,7 +488,7 @@ function startCountdown(expiresAt){
 }
 
 // ===== MAIN FLOW =====
-(async function(){
+async function checkAccess(user){
     const fingerprint = getFingerprint();
     const reference = getQueryParam("reference");
     let active = null;
@@ -499,7 +503,6 @@ function startCountdown(expiresAt){
     });
 
     if(active){
-        // ✅ Active: unlock page and countdown
         hideAccessModal();
         startCountdown(active.expiresAt);
         return;
@@ -507,7 +510,8 @@ function startCountdown(expiresAt){
 
     // 2️⃣ No active access → require new reference
     if(!reference){
-        showAccessModal("No active access found. Please pay to continue.", true);
+        showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+        document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
         return;
     }
 
@@ -519,10 +523,12 @@ function startCountdown(expiresAt){
         return;
     }
 
-    // 4️⃣ Save reference for this device
+    // 4️⃣ Save reference with user email and fingerprint
     const expiresAt = Date.now() + ACCESS_DURATION;
     await db.ref(refPath).set({
         fingerprint,
+        email: user.email,
+        reference,
         expiresAt,
         createdAt: Date.now()
     });
@@ -532,13 +538,28 @@ function startCountdown(expiresAt){
         window.history.replaceState(null, '', window.location.origin + window.location.pathname);
     }
 
-    // 6️⃣ Grant access → hide overlay, show countdown (no button)
+    // 6️⃣ Grant access → hide overlay, show countdown
     hideAccessModal();
     startCountdown(expiresAt);
+}
 
-})();
+// ===== Sign in flow =====
+showAccessModal("Please sign in with Google to continue.");
+document.getElementById('accessBtn').onclick = async function(){
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try{
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        if(!user) throw "Google sign-in failed";
+        await checkAccess(user);
+    } catch(e){
+        alert("Sign-in failed. Please try again.");
+        console.error(e);
+    }
+};
 </script>
 
+	
 
 </body>
 </html>
