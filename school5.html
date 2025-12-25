@@ -345,13 +345,7 @@
 </div>
     </div>
  
-</div>
-
-
-<!-- Container for Admin Panel -->
-<div id="adminContainer"></div>
-
-
+  </div>
 
 	
 <footer>
@@ -360,19 +354,20 @@
 </footer>
 
 
+<!-- Admin Panel Container -->
+<div id="adminContainer"></div>
 
-	
-<!-- LOGIN OVERLAY / FULL PAGE WHITE LOCK -->
+<!-- Login Overlay -->
 <div id="loginOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:flex;justify-content:center;align-items:center;z-index:99999;">
   <button id="googleLoginBtn" style="padding:12px 20px;font-size:1em;border:none;border-radius:8px;background:#0078D7;color:#fff;cursor:pointer;">Continue with Google</button>
 </div>
 
-<!-- PAGE LOCK -->
+<!-- Page Lock -->
 <div id="pageLock" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;display:none;justify-content:center;align-items:center;z-index:99998;">
   <div>Checking access…</div>
 </div>
 
-<!-- ACCESS MODAL -->
+<!-- Access Modal -->
 <div id="accessModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;justify-content:center;align-items:center;z-index:99999;">
   <div style="background:#fff;padding:30px 25px;border-radius:12px;max-width:400px;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.3);">
     <p id="accessMessage" style="margin-bottom:20px;"></p>
@@ -380,7 +375,7 @@
   </div>
 </div>
 
-<!-- COUNTDOWN -->
+<!-- Countdown -->
 <p id="accessCountdown" style="position:fixed;top:10px;right:10px;background:#0078D7;color:#fff;padding:8px 12px;border-radius:6px;font-weight:600;display:none;"></p>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -409,11 +404,12 @@ const ACCESS_DURATION = 24*60*60*1000; // 24h
 /* ================= HELPERS ================= */
 function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
 function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
-function showAccessModal(msg){
+function showAccessModal(msg, btnAction = () => location.href = PAYMENT_LINK){
   const m = document.getElementById("accessModal");
   document.getElementById("accessMessage").innerHTML = msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick = () => location.href = PAYMENT_LINK;
+  m.style.display = "flex";
+  const btn = document.getElementById("accessBtn");
+  btn.onclick = btnAction;
 }
 function hideAccessModal(){ document.getElementById("accessModal").style.display="none"; }
 function formatTime(ms){ 
@@ -432,17 +428,13 @@ function getFingerprint(){
 function encodeEmail(email){ return email.replace(/\./g, ','); }
 function decodeEmail(key){ return key.replace(/,/g, '.'); }
 
-/* ================= GOOGLE LOGIN WITH REDIRECT ================= */
+/* ================= GOOGLE LOGIN ================= */
 document.getElementById("googleLoginBtn").onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithRedirect(provider); // redirect login works on projectors
+  auth.signInWithRedirect(provider);
 };
-
-// Handle redirect result
-auth.getRedirectResult().then(async result => {
-  if(result.user){
-    handleUser(result.user);
-  }
+auth.getRedirectResult().then(result => {
+  if(result.user) handleUser(result.user);
 }).catch(err => console.error(err));
 
 /* ================= CHECK SCHOOL ACCESS ================= */
@@ -465,11 +457,7 @@ async function checkSchoolAccess(email){
 
 /* ================= ADMIN PANEL ================= */
 function renderAdminPanel(schoolId, school){
-  const container = document.getElementById("adminContainer") || document.createElement("div");
-  container.id = "adminContainer";
-  container.style.maxWidth = "600px";
-  container.style.margin = "40px auto";
-  container.style.fontFamily = "sans-serif";
+  const container = document.getElementById("adminContainer");
   container.innerHTML = `
     <h2>${school.name||"School"} – Admin Panel</h2>
     <p><b>Teacher limit:</b> ${school.maxTeachers||0}</p>
@@ -479,7 +467,6 @@ function renderAdminPanel(schoolId, school){
     <ul id="teacherList"></ul>
     <p id="adminCountdown" style="margin-top:10px;color:green;"></p>
   `;
-  document.body.appendChild(container);
   renderTeacherList(schoolId, school.teachers||{});
 }
 function renderTeacherList(schoolId, teachers){
@@ -497,8 +484,7 @@ async function addTeacher(schoolId){
   const ref = db.ref(`schooltools/${schoolId}`);
   const snap = await ref.get();
   const school = snap.val();
-  const count = school.teachers ? Object.keys(school.teachers).length : 0;
-  if(count >= (school.maxTeachers||0)){ alert("Teacher limit reached"); return; }
+  if(Object.keys(school.teachers||{}).length >= (school.maxTeachers||0)){ alert("Teacher limit reached"); return; }
   await ref.child(`teachers/${encodeEmail(email)}`).set(true);
   renderTeacherList(schoolId, {...school.teachers, [encodeEmail(email)]:true});
   document.getElementById("teacherEmail").value="";
@@ -509,7 +495,7 @@ async function removeTeacher(schoolId,email){
   renderTeacherList(schoolId, snap.val().teachers||{});
 }
 
-/* ================= HANDLE USER AFTER LOGIN ================= */
+/* ================= HANDLE USER ================= */
 async function handleUser(user){
   document.getElementById("loginOverlay").style.display = "none";
   lockPage();
@@ -517,8 +503,8 @@ async function handleUser(user){
   const email = user.email;
   const fingerprint = getFingerprint();
   let reference = new URLSearchParams(location.search).get("reference");
-
   const access = await checkSchoolAccess(email);
+
   if(!access.allowed){
     unlockPage();
     showAccessModal("Payment required to access tools.");
@@ -536,7 +522,6 @@ async function handleUser(user){
   }
 
   if(access.isAdmin){
-    // Admin must pay
     let active = await checkAdminPaid(email);
     if(!active){
       if(!reference){ showAccessModal("Admin must pay to access tools."); return; }
@@ -545,9 +530,7 @@ async function handleUser(user){
       if(refSnap.exists()){ showAccessModal("This payment reference was already used."); return; }
       const expiresAt = Date.now() + ACCESS_DURATION;
       await db.ref(refPath).set({email,fingerprint,expiresAt});
-      if(window.history.replaceState){
-        window.history.replaceState(null,'',window.location.origin + window.location.pathname);
-      }
+      if(window.history.replaceState) window.history.replaceState(null,'',window.location.origin + window.location.pathname);
       active = {expiresAt};
     }
     unlockPage();
@@ -560,16 +543,11 @@ async function handleUser(user){
       if(r <= 0) showAccessModal("Admin access expired.");
       else countdown.textContent = "Paid access: " + formatTime(r);
     },1000);
-
   } else {
-    // Teacher – check if admin has paid
+    // Teacher view
     const active = await checkAdminPaid(access.adminEmail);
-    if(!active){
-      showAccessModal("Admin has not paid. Teacher access blocked.");
-      return;
-    }
+    if(!active){ showAccessModal("Admin has not paid. Teacher access blocked."); return; }
 
-    // ✅ SHOW TEACHER COUNTDOWN
     const countdown = document.createElement("p");
     countdown.id = "teacherCountdown";
     countdown.style.color = "blue";
@@ -586,30 +564,8 @@ async function handleUser(user){
   }
 }
 
-// Automatically handle login if redirected back
-auth.onAuthStateChanged(user => {
-  if(user) handleUser(user);
-});
-
-
-function renderAdminPanel(schoolId, school){
-    const container = document.getElementById("adminContainer");
-    container.innerHTML = `
-        <h2>${school.name||"School"} – Admin Panel</h2>
-        <p><b>Teacher limit:</b> ${school.maxTeachers||0}</p>
-        <input id="teacherEmail" placeholder="teacher@email.com" style="padding:8px;width:70%" />
-        <button onclick="addTeacher('${schoolId}')">Add</button>
-        <h3>Teachers</h3>
-        <ul id="teacherList"></ul>
-        <p id="adminCountdown" style="margin-top:10px;color:green;"></p>
-    `;
-    renderTeacherList(schoolId, school.teachers||{});
-}
-
-
-	
+auth.onAuthStateChanged(user => { if(user) handleUser(user); });
 </script>
-
 
 
 </body>
