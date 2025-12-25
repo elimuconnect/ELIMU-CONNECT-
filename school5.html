@@ -124,6 +124,27 @@
 </head>
 <body>
 
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <button id="googleLoginBtn">Continue with Google</button>
+</div>
+
+<!-- PAGE LOCK -->
+<div id="pageLock">
+  <div>Checking access…</div>
+</div>
+
+<!-- ACCESS MODAL -->
+<div id="accessModal">
+  <div>
+    <p id="accessMessage">Payment required to access resources.</p>
+    <button id="accessBtn" onclick="showPayment()">Pay Now</button>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="accessCountdown"></div>
+
 <header>
   <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Logo" class="logo"/>
   <h1>Smart Elimu Connect</h1>
@@ -131,7 +152,6 @@
   <p>Access teaching resources, math & science tools, language aids, educational games, and external learning platforms — all organized for easy use.</p>
 </header>
 
-	
 <div class="container">
 
   <!-- ELIMU CONNECT -->
@@ -345,76 +365,18 @@
 </div>
     </div>
  
-  </div>
+</div>
 
 
-<!-- Container for Admin Panel -->
-<div id="adminContainer" style="display:none;"></div>
-
-
-	
 <footer>
   &copy; 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
-
-
-
-	<!-- FULL WHITE OVERLAY LOGIN -->
-<div id="loginOverlay" style="
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background:#ffffff; display:flex; justify-content:center; align-items:center;
-    z-index:99999; flex-direction:column;
-">
-  <button id="googleLoginBtn" style="
-      padding:12px 20px; font-size:1rem; border-radius:8px;
-      border:none; background:#0078D7; color:#fff; cursor:pointer;
-  ">Continue with Google</button>
-</div>
-
-<!-- PAGE LOCK OVERLAY -->
-<div id="pageLock" style="
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background:#ffffff; display:none; justify-content:center; align-items:center;
-    z-index:99998; font-family:sans-serif; font-size:1.2rem;
-">
-  <div>Checking access…</div>
-</div>
-
-<!-- ACCESS MODAL -->
-<div id="accessModal" style="
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background:#ffffff; display:none; justify-content:center; align-items:center;
-    z-index:99999; flex-direction: column;
-">
-  <div style="
-      background:#fff; padding:30px; border-radius:12px; max-width:400px;
-      text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.3);
-  ">
-    <p id="accessMessage">Payment required to access resources.</p>
-    <button id="accessBtn" style="
-        padding:12px 20px; border:none; border-radius:8px;
-        background:#0078D7; color:#fff; cursor:pointer;
-    ">Pay Now</button>
-  </div>
-</div>
-
-<!-- COUNTDOWN -->
-<div id="accessCountdown" style="
-    position: fixed; top:10px; right:10px; padding:8px 12px;
-    background:#0078D7; color:#fff; border-radius:6px;
-    font-family:sans-serif; font-weight:600; display:none; z-index:99999;
-"></div>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
-const EXTRA_ADMIN_EMAIL = "wamithisolomon@gmail.com";
-
-
-	
 /* ================= FIREBASE ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
@@ -432,7 +394,7 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
 /* ================= SETTINGS ================= */
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000;
+const ACCESS_DURATION = 24 * 60 * 60 * 1000; // 24h
 
 /* ================= HELPERS ================= */
 function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
@@ -446,9 +408,9 @@ function showAccessModal(msg){
 }
 
 function formatTime(ms){
-  const s=Math.floor(ms/1000), h=Math.floor(s/3600),
-        m=Math.floor((s%3600)/60), sec=s%60;
-  return h ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2,"0")}`;
+  let s=Math.floor(ms/1000),h=Math.floor(s/3600),
+      m=Math.floor((s%3600)/60),sec=s%60;
+  return h?`${h}h ${m}m ${sec}s`:`${m}:${sec.toString().padStart(2,"0")}`;
 }
 
 function getFingerprint(){
@@ -460,77 +422,94 @@ function getFingerprint(){
   return fp;
 }
 
+/* ======== EMAIL ENCODE/DECODE ======== */
 function encodeEmail(email){ return email.replace(/\./g, ','); }
 function decodeEmail(key){ return key.replace(/,/g, '.'); }
 
-/* ================= ADMIN PANEL ================= */
-function renderAdminPanel(schoolId, school){
-  const container = document.getElementById("adminContainer");
-  if(!container) return;
-
-  container.style.display = "block";
-  container.innerHTML = `
-    <h2>${school.name || "School"} – Admin Panel</h2>
-    <p><b>Teacher limit:</b> ${school.maxTeachers || 0}</p>
-
-    <input id="teacherEmail" placeholder="teacher@email.com" style="padding:8px;width:70%" />
-    <button onclick="addTeacher('${schoolId}')">Add</button>
-
-    <h3>Teachers</h3>
-    <ul id="teacherList"></ul>
-
-    <p id="adminCountdown" style="margin-top:10px;color:green;"></p>
-  `;
-
-  renderTeacherList(schoolId, school.teachers || {});
-}
-
-function renderTeacherList(schoolId, teachers){
-  const ul=document.getElementById("teacherList");
-  ul.innerHTML="";
-  Object.keys(teachers).forEach(enc=>{
-    const li=document.createElement("li");
-    li.textContent=decodeEmail(enc);
-    ul.appendChild(li);
-  });
-}
-
 /* ================= CHECK SCHOOL ACCESS ================= */
 async function checkSchoolAccess(email){
-  email=email.toLowerCase().trim();
-  const now=Date.now();
-  const snap=await db.ref("schooltools").get();
-  let access={allowed:false,isAdmin:false,schoolId:null,school:null,adminEmail:null};
+  email = email.toLowerCase().trim();
+  const now = Date.now();
+  const snap = await db.ref("schooltools").get();
+  let access = { allowed:false, isAdmin:false, schoolId:null, school:null, adminEmail:null };
 
   snap.forEach(s=>{
     const school=s.val();
     if(!school || (school.expiresAt && now>school.expiresAt)) return;
 
-    if(
-  school.adminEmail?.toLowerCase() === email ||
-  email === EXTRA_ADMIN_EMAIL
-){
-  access = {
-    allowed: true,
-    isAdmin: true,
-    schoolId: s.key,
-    school,
-    adminEmail: school.adminEmail || email
-  };
-}
- else if(school.teachers && school.teachers[encodeEmail(email)]){
-      access={allowed:true,isAdmin:false,schoolId:s.key,school,adminEmail:school.adminEmail};
+    if(school.adminEmail?.toLowerCase()===email){
+      access={allowed:true, isAdmin:true, schoolId:s.key, school, adminEmail:school.adminEmail};
+    } else if(school.teachers && school.teachers[encodeEmail(email)]){
+      access={allowed:true, isAdmin:false, schoolId:s.key, school, adminEmail:school.adminEmail};
     }
   });
 
   return access;
 }
 
+/* ================= RENDER ADMIN PANEL ================= */
+function renderAdminPanel(schoolId, school){
+  document.body.innerHTML=`
+    <div style="max-width:600px;margin:40px auto;font-family:sans-serif;">
+      <h2>${school.name||"School"} – Admin Panel</h2>
+      <p><b>Teacher limit:</b> ${school.maxTeachers||0}</p>
+      <input id="teacherEmail" placeholder="teacher@email.com" style="padding:8px;width:70%" />
+      <button onclick="addTeacher('${schoolId}')">Add</button>
+      <h3>Teachers</h3>
+      <ul id="teacherList"></ul>
+      <p id="adminCountdown" style="margin-top:10px;color:green;"></p>
+    </div>
+  `;
+  renderTeacherList(schoolId, school.teachers||{});
+}
+
+function renderTeacherList(schoolId, teachers){
+  const ul=document.getElementById("teacherList");
+  ul.innerHTML="";
+  Object.keys(teachers).forEach(encEmail=>{
+    const email=decodeEmail(encEmail);
+    const li=document.createElement("li");
+    li.innerHTML=`${email} <button onclick="removeTeacher('${schoolId}','${email}')">Remove</button>`;
+    ul.appendChild(li);
+  });
+}
+
+/* ================= ADD/REMOVE TEACHERS ================= */
+async function addTeacher(schoolId){
+  const email=document.getElementById("teacherEmail").value.toLowerCase().trim();
+  if(!email) return;
+
+  const ref=db.ref(`schooltools/${schoolId}`);
+  const snap=await ref.get();
+  const school=snap.val();
+
+  const count=school.teachers ? Object.keys(school.teachers).length : 0;
+  if(count>=(school.maxTeachers||0)){ alert("Teacher limit reached"); return; }
+
+  await ref.child(`teachers/${encodeEmail(email)}`).set(true);
+  renderTeacherList(schoolId, {...school.teachers, [encodeEmail(email)]:true});
+  document.getElementById("teacherEmail").value="";
+}
+
+async function removeTeacher(schoolId,email){
+  await db.ref(`schooltools/${schoolId}/teachers/${encodeEmail(email)}`).remove();
+  const snap=await db.ref(`schooltools/${schoolId}`).get();
+  renderTeacherList(schoolId, snap.val().teachers||{});
+}
+
 /* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick=()=>{
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+document.getElementById("googleLoginBtn").onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
 };
 
+
+auth.getRedirectResult().catch(err => {
+  console.error("Login error:", err);
+});
+
+
+	
 /* ================= MAIN FLOW ================= */
 auth.onAuthStateChanged(async user=>{
   if(!user) return;
@@ -540,9 +519,10 @@ auth.onAuthStateChanged(async user=>{
 
   const email=user.email;
   const fingerprint=getFingerprint();
-  const reference=new URLSearchParams(location.search).get("reference");
+  let reference=new URLSearchParams(location.search).get("reference");
 
   const access=await checkSchoolAccess(email);
+
   if(!access.allowed){
     unlockPage();
     showAccessModal("Payment required to access tools.");
@@ -560,40 +540,62 @@ auth.onAuthStateChanged(async user=>{
   }
 
   if(access.isAdmin){
+    // Admin must pay
     let active=await checkAdminPaid(email);
 
     if(!active){
       if(!reference){ showAccessModal("Admin must pay to access tools."); return; }
 
       const refPath=`paystackRefs/${reference}`;
-      if((await db.ref(refPath).get()).exists()){
-        showAccessModal("This payment reference was already used."); return;
-      }
+      const refSnap=await db.ref(refPath).get();
+      if(refSnap.exists()){ showAccessModal("This payment reference was already used."); return; }
 
       const expiresAt=Date.now()+ACCESS_DURATION;
       await db.ref(refPath).set({email,fingerprint,expiresAt});
-      history.replaceState(null,"",location.origin+location.pathname);
+
+      if(window.history.replaceState){
+        const cleanUrl=window.location.origin+window.location.pathname;
+        window.history.replaceState(null,'',cleanUrl);
+      }
       active={expiresAt};
     }
 
     unlockPage();
     renderAdminPanel(access.schoolId, access.school);
 
-    const cd=document.getElementById("adminCountdown");
+    const countdown=document.getElementById("adminCountdown");
+    countdown.style.display="block";
     setInterval(()=>{
       const r=active.expiresAt-Date.now();
       if(r<=0) showAccessModal("Admin access expired.");
-      else cd.textContent="Paid access: "+formatTime(r);
+      else countdown.textContent="Paid access: "+formatTime(r);
     },1000);
 
-  } else {
-    // 🚫 TEACHER – NEVER SEE ADMIN PANEL
-    document.getElementById("adminContainer").style.display="none";
+ } else {
+  document.body.innerHTML = ""; // 🚫 teachers never see admin panel
 
-    const active=await checkAdminPaid(access.adminEmail);
-    if(!active){ showAccessModal("Admin has not paid."); return; }
+  const active=await checkAdminPaid(access.adminEmail);
+  if(!active){
+    showAccessModal("Admin has not paid. Teacher access blocked.");
+    return;
+  }
+
+
+    // ✅ SHOW TEACHER COUNTDOWN
+    const countdown = document.createElement("p");
+    countdown.id="teacherCountdown";
+    countdown.style.color="blue";
+    countdown.style.marginTop="10px";
+    countdown.textContent="Admin access: "+formatTime(active.expiresAt-Date.now());
+    document.body.appendChild(countdown);
 
     unlockPage();
+
+    setInterval(()=>{
+      const r=active.expiresAt-Date.now();
+      if(r<=0) showAccessModal("Admin access expired.");
+      else countdown.textContent="Admin access: "+formatTime(r);
+    },1000);
   }
 });
 </script>
