@@ -34,10 +34,15 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 </style>
 </head>
 <body>
-
 <div class="login-container">
   <h3>🎓 Student</h3>
   <button id="studentBtn">📚Enter (Free Trial / Pro Access)</button>
+<p style="font-size:13px;color:#444;margin-top:10px;">
+  ⏳ Free trial works best without using the Back button.
+  If access stops responding, restart the app to continue.
+</p>
+
+  
 </div>
 
 <div class="login-container">
@@ -57,12 +62,12 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 
-const FIRST_TRIAL_MIN = 2;
-const DAILY_FREE_MIN = 1;
+const FIRST_TRIAL_MIN = 1;
+const DAILY_FREE_MIN = 0;
 const PAID_DURATION = 24 * 60 * 60 * 1000;  // 24 hours 
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
 
-const KEY = "elimu_student26_";
+const KEY = "elimu_student32_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -178,8 +183,8 @@ function engine(){
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
         showModal(
-            "⛔ Your access has ended.<br>Pay KSh 20 / $0.15 to continue.",
-            "Pay Now",
+            "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes, past papers and STEM labs/simulations ",
+            "Unlock Daily Pass — $0.15/KSh 20.",
             ()=> location.href = PAYMENT_LINK
         );
     }, 500);
@@ -188,6 +193,13 @@ function engine(){
 engine();
 
 let featuresWindow = null;
+
+
+
+mainBtn.style.pointerEvents = "auto";
+
+
+
 
 mainBtn.onclick = () => {
     const t = now();
