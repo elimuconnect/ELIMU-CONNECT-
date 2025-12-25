@@ -517,34 +517,28 @@ document.getElementById("googleLoginBtn").onclick = () => {
 auth.onAuthStateChanged(async user => {
   if (!user) return;
 
-  // ALWAYS unlock UI after login
-  document.getElementById('loginOverlay').style.display = "none";
-
   const email = user.email;
   const reference = getQueryParam("reference");
 
   let active = null;
 
-  // 🔹 Restore existing access by EMAIL (not fingerprint)
+  // 🔍 Check existing paid access (by email)
   const snap = await db.ref("paystackRefs").get();
   snap.forEach(s => {
     const v = s.val();
-    if (
-      v.email === email &&
-      Date.now() < v.expiresAt &&
-      !active
-    ) {
+    if (v.email === email && Date.now() < v.expiresAt && !active) {
       active = v;
     }
   });
 
-  // ✅ Existing paid access
+  // ✅ PAID → unlock page
   if (active) {
+    document.getElementById('loginOverlay').style.display = "none";
     startCountdown(active.expiresAt);
     return;
   }
 
-  // ❌ No payment and no active access
+  // ❌ NOT PAID → keep page locked
   if (!reference) {
     showAccessModal(
       "No active access found. Please pay to continue.",
@@ -554,7 +548,7 @@ auth.onAuthStateChanged(async user => {
     return;
   }
 
-  // 🔹 New payment (first time)
+  // 💳 New payment
   const refPath = `paystackRefs/${reference}`;
   const refSnap = await db.ref(refPath).get();
 
@@ -580,8 +574,11 @@ auth.onAuthStateChanged(async user => {
     );
   }
 
+  // ✅ Unlock after successful payment
+  document.getElementById('loginOverlay').style.display = "none";
   startCountdown(expiresAt);
 });
+
 
 </script>
 
