@@ -480,41 +480,46 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
+// ================= DEVICE DETECTION =================
 const ua = navigator.userAgent;
+
+// Broad match for Android TVs, Smart TVs, popular projector brands
 const isTV = /Android TV|AFT|SmartTV|TV|BRAVIA|MiTV|GoogleTV/i.test(ua)
-             || /X96|XGIMI|Epson|ViewSonic|BenQ/i.test(ua)
-             || (/Android/i.test(ua) && screen.width >= 1280 && screen.height >= 720);
+             || /X96|XGIMI|Epson|ViewSonic|BenQ|Nebula|Hisense|Philips|Sharp|Panasonic/i.test(ua)
+             || (/Android/i.test(ua) && screen.width >= 1280 && screen.height >= 720); // fallback for large Android devices
+
 console.log("Is TV/Projector device:", isTV, ua);
 
-
-
-
-
-function lockPage(){
+// ================= LOCK PAGE =================
+function lockPage() {
   if (isTV) {
     // HARD LOCK for projectors / Android TV
     document.documentElement.style.pointerEvents = "none";
     document.body.style.pointerEvents = "none";
 
     // show simple message
-    document.body.insertAdjacentHTML("beforeend", `
-      <div id="tvLock" style="
-        position:fixed; inset:0; z-index:2147483647;
-        background:#ffffff;
-        display:flex; align-items:center; justify-content:center;
-        font-family:Segoe UI,sans-serif;
-        font-size:18px; font-weight:600;
-      ">
-        Checking access…
-      </div>
-    `);
+    if (!document.getElementById("tvLock")) {
+      document.body.insertAdjacentHTML("beforeend", `
+        <div id="tvLock" style="
+          position:fixed; inset:0; z-index:2147483647;
+          background:#ffffff;
+          display:flex; align-items:center; justify-content:center;
+          font-family:Segoe UI,sans-serif;
+          font-size:18px; font-weight:600;
+        ">
+          Access restricted on projector / TV
+        </div>
+      `);
+    }
   } else {
     // NORMAL browsers (PC / phone)
-    document.getElementById("pageLock").style.display="flex";
+    const pageLock = document.getElementById("pageLock");
+    if (pageLock) pageLock.style.display = "flex";
   }
 }
 
-function unlockPage(){
+// ================= UNLOCK PAGE =================
+function unlockPage() {
   if (isTV) {
     document.documentElement.style.pointerEvents = "auto";
     document.body.style.pointerEvents = "auto";
@@ -522,7 +527,8 @@ function unlockPage(){
     const tvLock = document.getElementById("tvLock");
     if (tvLock) tvLock.remove();
   } else {
-    document.getElementById("pageLock").style.display="none";
+    const pageLock = document.getElementById("pageLock");
+    if (pageLock) pageLock.style.display = "none";
   }
 }
 
