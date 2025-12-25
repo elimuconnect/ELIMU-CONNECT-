@@ -13,11 +13,15 @@
   }
 
   header {
-    background-color: #0d47a1;
-    color: #fff;
-    padding: 25px 20px;
-    text-align: center;
-  }
+  background-color: #0d47a1;
+  color: #fff;
+  padding: 25px 20px;
+  text-align: center;
+  position: sticky;    /* sticky keeps it on top */
+  top: 0;              /* at the very top */
+  z-index: 2147483648; /* higher than loginOverlay */
+}
+
 
   header img.logo {
     display: block;
@@ -475,29 +479,23 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
-/* ================= FULL LOCK WITH VISIBLE HEADER ================= */
 function lockPage() {
-  // Remove existing overlay if any
+  const header = document.querySelector("header");
+  const headerHeight = header ? header.offsetHeight : 0;
+
   const old = document.getElementById("fullLockOverlay");
   if (old) old.remove();
 
-  // Make sure header is on top
-  const header = document.querySelector("header");
-  if (header) header.style.zIndex = "10001";  // higher than overlay
-  if (header) header.style.position = "relative"; // ensure z-index works
-
-  // Create overlay for the rest of the page
   const overlay = document.createElement("div");
   overlay.id = "fullLockOverlay";
   overlay.style.cssText = `
     position:fixed;
-    top:${header ? header.offsetHeight + "px" : "0"}; /* start below header */
+    top:${headerHeight}px;   /* start below header */
     left:0; right:0; bottom:0;
     width:100vw;
-    height: calc(100vh - ${header ? header.offsetHeight + "px" : "0"});
-    background:rgba(255,255,255,0.95); /* almost opaque */
-    z-index:10000;
+    height: calc(100vh - ${headerHeight}px);
+    background:rgba(255,255,255,0.95);
+    z-index:2147483647; /* less than header */
     display:flex;
     flex-direction:column;
     align-items:center;
@@ -527,11 +525,11 @@ function lockPage() {
 
   document.body.appendChild(overlay);
 
-  // Attach login
   document.getElementById("googleLoginBtn").onclick = () => {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   };
 }
+
 
 function unlockPage() {
   const overlay = document.getElementById("fullLockOverlay");
