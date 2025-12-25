@@ -480,9 +480,11 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
-/* ================= DEVICE DETECTION ================= */
-const isTV = /Android TV|AFT|SmartTV|TV|BRAVIA|MiTV|GoogleTV/i.test(navigator.userAgent);
+const ua = navigator.userAgent;
+const isTV = /Android TV|AFT|SmartTV|TV|BRAVIA|MiTV|GoogleTV/i.test(ua)
+             || /X96|XGIMI|Epson|ViewSonic|BenQ/i.test(ua)
+             || (/Android/i.test(ua) && screen.width >= 1280 && screen.height >= 720);
+console.log("Is TV/Projector device:", isTV, ua);
 
 
 
@@ -628,7 +630,7 @@ auth.onAuthStateChanged(async user=>{
 
 
 
-	console.log("Is TV device:", isTV, navigator.userAgent);
+	
 
 </script>
 
