@@ -514,54 +514,73 @@ document.getElementById("googleLoginBtn").onclick = () => {
         .catch(err => console.error(err));
 };
 
-// Check access after login
 auth.onAuthStateChanged(async user => {
-    if(!user) return;
+  if (!user) return;
 
-    const email = user.email;
-    const fingerprint = getFingerprint();
-    const reference = getQueryParam("reference");
+  // ALWAYS unlock UI after login
+  document.getElementById('loginOverlay').style.display = "none";
 
-    let active = null;
+  const email = user.email;
+  const reference = getQueryParam("reference");
 
-    const snap = await db.ref("paystackRefs")
-        .orderByChild("fingerprint")
-        .equalTo(fingerprint)
-        .get();
+  let active = null;
 
-    snap.forEach(s => {
-        const v = s.val();
-        if(v.email === email && Date.now() <= v.expiresAt && !active) active=v;
-    });
-
-    if(active){
-        document.getElementById('loginOverlay').style.display="none";
-        startCountdown(active.expiresAt);
-        return;
+  // 🔹 Restore existing access by EMAIL (not fingerprint)
+  const snap = await db.ref("paystackRefs").get();
+  snap.forEach(s => {
+    const v = s.val();
+    if (
+      v.email === email &&
+      Date.now() < v.expiresAt &&
+      !active
+    ) {
+      active = v;
     }
+  });
 
-    if(!reference){
-        showAccessModal("Payment required.");
-        return;
-    }
+  // ✅ Existing paid access
+  if (active) {
+    startCountdown(active.expiresAt);
+    return;
+  }
 
-    const refPath = `paystackRefs/${reference}`;
-    const refSnap = await db.ref(refPath).get();
-    if(refSnap.exists()){
-        showAccessModal("This payment reference was already used.");
-        return;
-    }
+  // ❌ No payment and no active access
+  if (!reference) {
+    showAccessModal(
+      "No active access found. Please pay to continue.",
+      "Pay Now",
+      () => window.location.href = PAYMENT_LINK
+    );
+    return;
+  }
 
-    const expiresAt = Date.now() + ACCESS_DURATION;
-    await db.ref(refPath).set({ email, fingerprint, expiresAt });
+  // 🔹 New payment (first time)
+  const refPath = `paystackRefs/${reference}`;
+  const refSnap = await db.ref(refPath).get();
 
-    if(window.history.replaceState){
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState(null,'',cleanUrl);
-    }
+  if (refSnap.exists()) {
+    showAccessModal("This payment reference was already used.");
+    return;
+  }
 
-    document.getElementById('loginOverlay').style.display="none";
-    startCountdown(expiresAt);
+  const expiresAt = Date.now() + ACCESS_DURATION;
+
+  await db.ref(refPath).set({
+    email,
+    expiresAt,
+    createdAt: Date.now()
+  });
+
+  // Clean URL
+  if (window.history.replaceState) {
+    window.history.replaceState(
+      null,
+      "",
+      window.location.origin + window.location.pathname
+    );
+  }
+
+  startCountdown(expiresAt);
 });
 
 </script>
