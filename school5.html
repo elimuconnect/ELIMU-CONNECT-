@@ -350,10 +350,6 @@
 
 
 
-<!-- Container for Admin Panel -->
-<div id="adminContainer"></div>
-
-
 
 	
 <footer>
@@ -593,20 +589,6 @@ auth.onAuthStateChanged(user => {
   if(user) handleUser(user);
 });
 
-
-function renderAdminPanel(schoolId, school){
-    const container = document.getElementById("adminContainer");
-    container.innerHTML = `
-        <h2>${school.name||"School"} – Admin Panel</h2>
-        <p><b>Teacher limit:</b> ${school.maxTeachers||0}</p>
-        <input id="teacherEmail" placeholder="teacher@email.com" style="padding:8px;width:70%" />
-        <button onclick="addTeacher('${schoolId}')">Add</button>
-        <h3>Teachers</h3>
-        <ul id="teacherList"></ul>
-        <p id="adminCountdown" style="margin-top:10px;color:green;"></p>
-    `;
-    renderTeacherList(schoolId, school.teachers||{});
-}
 
 
 	
