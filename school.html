@@ -573,15 +573,17 @@ loginBtn.onclick = () => {
     });
 };
 
-/* ================= MAIN FLOW ================= */
 auth.onAuthStateChanged(async user => {
   if (!user) return;
 
   const email = user.email;
   const fingerprint = getFingerprint();
   let reference = getQueryParam("reference");
+  const countdown = document.getElementById("accessCountdown");
 
   let active = null;
+
+  // 1️⃣ CHECK EXISTING ACCESS
   const snap = await db.ref("paystackRefs")
     .orderByChild("fingerprint")
     .equalTo(fingerprint)
@@ -594,20 +596,20 @@ auth.onAuthStateChanged(async user => {
     }
   });
 
-  // 1️⃣ If there’s active access, unlock and start countdown
+  // 2️⃣ ACTIVE → show countdown & unlock
   if (active) {
-    unlockPage();
+    unlockPage();            // <-- unlock only here
     startCountdown(active.expiresAt);
     return;
   }
 
-  // 2️⃣ No active access → require payment
+  // 3️⃣ NO ACCESS → REQUIRE PAYMENT
   if (!reference) {
     showAccessModal("Payment required.");
     return;
   }
 
-  // 3️⃣ Save first valid reference only
+  // 4️⃣ SAVE FIRST VALID REF ONLY
   const refPath = `paystackRefs/${reference}`;
   const refSnap = await db.ref(refPath).get();
   if (refSnap.exists()) {
@@ -624,8 +626,8 @@ auth.onAuthStateChanged(async user => {
     window.history.replaceState(null, '', cleanUrl);
   }
 
-  // ✅ Only now unlock the page and start countdown
-  unlockPage();
+  // 5️⃣ GRANT ACCESS
+  unlockPage();           // <-- unlock here after saving reference
   startCountdown(expiresAt);
 });
 
