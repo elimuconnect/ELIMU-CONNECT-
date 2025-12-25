@@ -147,7 +147,6 @@ if(firstTrialEnd && now() > firstTrialEnd){
 }
 
 
-/* ---------------- COUNTDOWN ENGINE ---------------- */
 function engine(){
     countdownEl.style.display = "block";
     setInterval(()=>{
@@ -174,16 +173,23 @@ function engine(){
             return;
         }
 
-        // NOTHING ACTIVE → LOCK
+        // NOTHING ACTIVE → LOCK & REDIRECT
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
+
+        // Redirect automatically after 0.5s delay (to allow modal to show if desired)
         showModal(
            "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI Tutoring, STEM Labs & Past Papers for just $0.15/KSh 20.",
-            "Unlock Daily Pass — $0.15/KSh 20.",
-            ()=> location.href = PAYMENT_LINK
+           "Unlock Daily Pass — $0.15/KSh 20.",
+           ()=> location.href = PAYMENT_LINK
         );
+
+        // Auto redirect if user ignores modal after 3 seconds
+        setTimeout(()=>location.href = PAYMENT_LINK, 3000);
+
     }, 500);
 }
+
 
 engine();
 
