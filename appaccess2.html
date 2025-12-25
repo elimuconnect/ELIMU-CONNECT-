@@ -186,20 +186,48 @@ function engine(){
 }
 
 engine();
-/* ------------------ BUTTON CLICK ------------------ */
+
+// UI
+const mainBtn = document.getElementById("studentBtn");
+const countdownEl = document.getElementById("accessCountdown");
+const modal = document.getElementById("accessModal");
+const modalMsg = document.getElementById("accessMessage");
+const modalBtn = document.getElementById("accessBtn");
+
+// ====== NEW: Control features window and auto-return ======
+let featuresWindow = null;
+
 mainBtn.onclick = ()=>{
     const t = now();
+    if(t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd){
+        // Open features in a controlled window/tab
+        featuresWindow = window.open("go:bot1", "_blank");
+        return;
+    }
 
-    if(t < paidUntil) return location.href = "go:bot1";
-    if(t < dailyFreeEnd) return location.href = "go:bot1";
-    if(t < firstTrialEnd) return location.href = "go:bot1";
-
+    // Expired → reload access page
     showModal(
-        "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
-        "Unlock Daily Pass — $0.15/KSh 20.",
-        ()=> location.href = PAYMENT_LINK
+        "🚀 Your free access has ended.",
+        "OK",
+        ()=> location.href = location.origin + location.pathname
     );
 };
+
+// Periodically check if free/daily trial has expired
+setInterval(()=>{
+    const t = now();
+    if(featuresWindow && !featuresWindow.closed){
+        if(t > paidUntil && t > dailyFreeEnd && t > firstTrialEnd){
+            // Close the features window and force user back
+            featuresWindow.close();
+            featuresWindow = null;
+            alert("⛔ Your free access has ended. Please return to the access page.");
+        }
+    }
+}, 1000);
+// ====== END NEW ======
+
+  
 </script>
 
 
