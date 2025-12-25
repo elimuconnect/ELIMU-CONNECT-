@@ -13,15 +13,11 @@
   }
 
   header {
-  background-color: #0d47a1;
-  color: #fff;
-  padding: 25px 20px;
-  text-align: center;
-  position: sticky;    /* sticky keeps it on top */
-  top: 0;              /* at the very top */
-  z-index: 2147483648; /* higher than loginOverlay */
-}
-
+    background-color: #0d47a1;
+    color: #fff;
+    padding: 25px 20px;
+    text-align: center;
+  }
 
   header img.logo {
     display: block;
@@ -161,22 +157,20 @@
 </style>
 </head>
 <body>
-<!-- LOGIN OVERLAY -->
+
+<!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
 <div id="loginOverlay" style="
-  position:fixed; inset:0;
-  background:rgba(255,255,255,0.95);
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  z-index:2147483647;
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(255,255,255,0.3);  /* lighter so page is visible */
+  display:flex; align-items:center; justify-content:center;
   font-family:Segoe UI,sans-serif;
+  pointer-events:all;                  /* block clicks */
 ">
-  <h2 style="margin-bottom:20px; color:#333;">Access Required</h2>
   <button id="googleLoginBtn" style="
-    background:#4285F4; color:#fff; border:none;
-    padding:14px 24px; border-radius:8px;
-    font-size:18px; font-weight:600;
-    cursor:pointer;
-    z-index:2147483648;
+    background:#4285F4;color:#fff;border:none;
+    padding:14px 22px;border-radius:8px;
+    font-size:16px;font-weight:600;cursor:pointer;
+    pointer-events:auto;                 /* make button clickable */
   ">
     Continue with Google
   </button>
@@ -185,14 +179,17 @@
 
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
-  position:fixed; inset:0; z-index:2147483646;
+  position:fixed; inset:0; z-index:9998;
   display:flex; align-items:center; justify-content:center;
-  background:#fff;
   pointer-events:all;
-  font-weight:600;
-  font-size:18px;
 ">
-  Checking access…
+  <div style="
+    background:#fff;padding:12px 18px;
+    border-radius:10px;font-weight:600;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+  ">
+    Checking access…
+  </div>
 </div>
 
 <!-- ACCESS MODAL -->
@@ -483,54 +480,61 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
+/* ================= HELPERS ================= */
+function lockPage(){ document.getElementById("pageLock").style.display="flex"; }
+function unlockPage(){ document.getElementById("pageLock").style.display="none"; }
+
+
+
+/* ================= TOOL VISIBILITY ================= */
+function hideTools() {
+  const tools = document.querySelectorAll('.tools');
+  tools.forEach(t => t.style.display = 'none'); // hide all tools initially
+}
+
+function showTools() {
+  const tools = document.querySelectorAll('.tools');
+  tools.forEach(t => t.style.display = 'grid'); // show tools after payment/access
+}
+
+/* ================= LOCK PAGE ================= */
 function lockPage() {
+  hideTools(); // hide tools
   const overlay = document.getElementById("loginOverlay");
   const pageLock = document.getElementById("pageLock");
-  const header = document.querySelector("header");
 
-  const headerHeight = header ? header.offsetHeight : 0;
+  if (overlay) overlay.style.display = "flex";
+  if (pageLock) pageLock.style.display = "flex";
 
-  // Keep header on top
-  if (header) {
-    header.style.zIndex = "2147483648";
-    header.style.position = "sticky"; // already sticky in CSS
-  }
-
-  // Show overlays
-  if (overlay) {
-    overlay.style.display = "flex";
-    overlay.style.top = `${headerHeight}px`; // start below header
-    overlay.style.height = `calc(100vh - ${headerHeight}px)`;
-  }
-  if (pageLock) {
-    pageLock.style.display = "flex";
-    pageLock.style.top = `${headerHeight}px`;
-    pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
-  }
-
-  // Ensure Google login button is clickable inside overlay
+  // Google login button clickable
   const loginBtn = document.getElementById("googleLoginBtn");
   if (loginBtn) {
-    loginBtn.style.pointerEvents = "auto"; // make button clickable
+    loginBtn.style.pointerEvents = "auto";
     loginBtn.onclick = () => {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then(result => console.log("Google login successful:", result.user.email))
-        .catch(err => console.error("Google login error:", err.message));
+      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
     };
   }
 }
 
+/* ================= UNLOCK PAGE ================= */
 function unlockPage() {
   const overlay = document.getElementById("loginOverlay");
   const pageLock = document.getElementById("pageLock");
 
   if (overlay) overlay.style.display = "none";
   if (pageLock) pageLock.style.display = "none";
+
+  showTools(); // reveal tools only after access granted
 }
 
-  
-	
+/* ================= INITIAL PAGE STATE ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  hideTools(); // hide all tools initially
+  lockPage();  // show login overlay
+});
 
+
+	
 function showAccessModal(msg){
   const m=document.getElementById("accessModal");
   document.getElementById("accessMessage").innerHTML=msg;
@@ -631,15 +635,6 @@ auth.onAuthStateChanged(async user=>{
     else countdown.textContent="Paid access: "+formatTime(r);
   },1000);
 });
-
-
-
-
-// Immediately lock the page
-document.getElementById("pageLock").style.display = "flex";
-document.getElementById("loginOverlay").style.display = "flex";
-
-	
 </script>
 
 
