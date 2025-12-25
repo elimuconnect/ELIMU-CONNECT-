@@ -187,43 +187,30 @@ function engine(){
 
 engine();
 
-// UI
-
-
-// ====== NEW: Control features window and auto-return ======
-let featuresWindow = null;
-
+// --- BUTTON HANDLER ---
 mainBtn.onclick = ()=>{
-    const t = now();
-    if(t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd){
-        // Open features in a controlled window/tab
-        featuresWindow = window.open("go:bot1", "_blank");
+    const now = Date.now();
+
+    if(lastPaid && now - lastPaid < PAID_DURATION){
+        window.location.href = "go:bot1";
+        return;
+    }
+    if(returnFreeEnd && now < returnFreeEnd){
+        window.location.href = "go:bot1";
+        return;
+    }
+    if(freeEnd && now < freeEnd){
+        window.location.href = "go:bot1";
         return;
     }
 
-    // Expired → reload access page
     showModal(
-        "🚀 Your free access has ended.",
-        "OK",
-        ()=> location.href = location.origin + location.pathname
+        "⛔ Your access has ended. Pay KSh 20 / $0.15 to continue.",
+        "Pay Now",
+        ()=> window.location.href = PAYMENT_LINK
     );
 };
 
-// Periodically check if free/daily trial has expired
-setInterval(()=>{
-    const t = now();
-    if(featuresWindow && !featuresWindow.closed){
-        if(t > paidUntil && t > dailyFreeEnd && t > firstTrialEnd){
-            // Close the features window and force user back
-            featuresWindow.close();
-            featuresWindow = null;
-            alert("⛔ Your free access has ended. Please return to the access page.");
-        }
-    }
-}, 1000);
-// ====== END NEW ======
-
-  
 </script>
 
 
