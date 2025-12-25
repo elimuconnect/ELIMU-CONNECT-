@@ -146,6 +146,8 @@ if(firstTrialEnd && now() > firstTrialEnd){
     }
 }
 
+
+/* ---------------- COUNTDOWN ENGINE ---------------- */
 function engine(){
     countdownEl.style.display = "block";
     setInterval(()=>{
@@ -172,19 +174,18 @@ function engine(){
             return;
         }
 
-        // NOTHING ACTIVE → LOCK & REDIRECT BACK TO ACCESS PAGE
+        // NOTHING ACTIVE → LOCK
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
-
-        // Redirect the user back to the main access page (replace 'index.html' with your main page)
-        location.href = "index.html";  // <-- this will move the user out of the features page
-
+        showModal(
+            "⛔ Your access has ended.<br>Pay KSh 20 / $0.15 to continue.",
+            "Pay Now",
+            ()=> location.href = PAYMENT_LINK
+        );
     }, 500);
 }
 
-
 engine();
-
 /* ------------------ BUTTON CLICK ------------------ */
 mainBtn.onclick = ()=>{
     const t = now();
