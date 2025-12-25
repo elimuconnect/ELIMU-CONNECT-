@@ -135,6 +135,65 @@
     </footer>
 
     <script>
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/school";
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+
+// Helper: get base URL without query string
+function getBaseURL(url){
+    return url.split('?')[0];
+}
+
+// Check if this is main link access (ignore query parameters)
+const isMainLink = getBaseURL(window.location.href) === MAIN_LINK;
+
+// Check if we came from main link redirect (ignore query)
+const fromMainLink = getBaseURL(document.referrer) === MAIN_LINK;
+
+if(isMainLink || fromMainLink){
+    // ✅ Access allowed – do nothing
+} else {
+    // ❌ Block access
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:50px; font-family:sans-serif;">
+            <h2>Access Restricted</h2>
+            <p>You cannot open this tool directly.</p>
+            <p>Please open it from the main simulator page.</p>
+
+            <a href="${MAIN_LINK}"
+               style="font-size:1.2rem; color:#0078D7;">
+               Open Main school tools
+            </a>
+
+            <p style="margin-top:20px;">Or pay to get access:</p>
+
+            <a href="${PAYMENT_LINK}"
+               style="font-size:1.2rem; color:#fff; background:#0078D7;
+                      padding:10px 20px; border-radius:6px; display:inline-block;">
+               Pay Now 
+            </a>
+        </div>
+    `;
+    throw new Error("Access blocked until main link or payment.");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         const bones = [
             { name: "Cranium", function: "Protects the brain", region: "Skull" },
             { name: "Mandible", function: "Supports lower jaw and teeth", region: "Skull" },
@@ -187,3 +246,4 @@
     </script>
 </body>
 </html>
+
