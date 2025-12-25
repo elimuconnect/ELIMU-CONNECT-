@@ -396,23 +396,22 @@
     background: #ffffff; display:flex; justify-content:center; align-items:center;
     z-index:99999; flex-direction: column;
 ">
-  <p id="accessCountdown" style="
-    color:#000; font-size:1.2em; margin-bottom:20px;
-    font-family: 'Segoe UI', sans-serif; font-weight:600;
-  ">Loading access info...</p>
   <div style="
       background:#fff; padding:30px 25px; border-radius:12px; max-width:400px;
       text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
       box-shadow:0 6px 20px rgba(0,0,0,0.3);
   ">
     <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
-    <button id="accessBtn" style="
-        background:#0078D7; color:#fff; border:none; padding:12px 20px;
-        border-radius:8px; font-weight:600; cursor:pointer;
-        font-size:1em;
-    ">OK</button>
   </div>
 </div>
+
+<!-- Countdown Display (Top Right) -->
+<p id="accessCountdown" style="
+    position: fixed; top:10px; right:10px; 
+    background: #0078D7; color: #fff; padding: 8px 12px;
+    border-radius: 6px; font-family: 'Segoe UI', sans-serif; 
+    font-weight:600; z-index:99999; display:none;
+"></p>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -446,16 +445,16 @@ function getFingerprint(){
 function formatTime(ms){
     let s = Math.floor(ms/1000), h = Math.floor(s/3600),
         m = Math.floor((s%3600)/60), sec = s%60;
-    return h ? `${h}h ${m}m ${sec}s` : `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    return h ? `${h}h ${m}m ${sec}s` : `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
 }
-function showAccessModal(msg, btnText="OK", callback=null){
+function showAccessModal(msg){
     const modal = document.getElementById('accessModal');
     const msgEl = document.getElementById('accessMessage');
-    const btn = document.getElementById('accessBtn');
     msgEl.innerHTML = msg;
-    btn.textContent = btnText;
     modal.style.display="flex";
-    btn.onclick = ()=> { if(callback) callback(); };
+}
+function hideAccessModal(){
+    document.getElementById('accessModal').style.display="none";
 }
 function startCountdown(expiresAt){
     const countdownEl = document.getElementById('accessCountdown');
@@ -464,7 +463,7 @@ function startCountdown(expiresAt){
         const remaining = expiresAt - Date.now();
         if(remaining <= 0){
             clearInterval(interval);
-            showAccessModal("Access expired.", "Pay Now", ()=>window.location.href = PAYMENT_LINK);
+            showAccessModal("Access expired. Please pay to continue.");
             countdownEl.style.display="none";
         } else {
             countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
@@ -478,7 +477,7 @@ function startCountdown(expiresAt){
     const reference = getQueryParam("reference");
     let active = null;
 
-    // 1️⃣ Check if this device already has active access
+    // 1️⃣ Check active access for this device
     const snap = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
     snap.forEach(s=>{
         const v = s.val();
@@ -488,14 +487,15 @@ function startCountdown(expiresAt){
     });
 
     if(active){
-        // ✅ Active access: unlock countdown
+        // ✅ Active: unlock page and countdown
+        hideAccessModal();
         startCountdown(active.expiresAt);
         return;
     }
 
     // 2️⃣ No active access → require new reference
     if(!reference){
-        showAccessModal("No active access found. Please pay to continue.", "Pay Now", ()=>window.location.href = PAYMENT_LINK);
+        showAccessModal("No active access found. Please pay to continue.");
         return;
     }
 
@@ -520,8 +520,10 @@ function startCountdown(expiresAt){
         window.history.replaceState(null, '', window.location.origin + window.location.pathname);
     }
 
-    // 6️⃣ Start countdown
+    // 6️⃣ Grant access → hide overlay, show countdown
+    hideAccessModal();
     startCountdown(expiresAt);
+
 })();
 </script>
 
