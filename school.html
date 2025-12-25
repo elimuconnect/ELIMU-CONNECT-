@@ -479,28 +479,34 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
+
+
 function lockPage() {
   // Remove existing overlay if any
   const old = document.getElementById("fullLockOverlay");
   if (old) old.remove();
 
-  // Make sure header is on top
   const header = document.querySelector("header");
+  const headerHeight = header ? header.offsetHeight : 0;
+
+  // Make sure header stays on top
   if (header) {
-    header.style.zIndex = "10001";  // higher than overlay
-    header.style.position = "relative"; // ensure z-index works
+    header.style.zIndex = "10001";
+    header.style.position = "relative";
   }
 
-  // Create overlay for the rest of the page
+  // Overlay only for page content below header
   const overlay = document.createElement("div");
   overlay.id = "fullLockOverlay";
   overlay.style.cssText = `
     position:fixed;
-    top:${header ? header.offsetHeight + "px" : "0"}; /* start below header */
-    left:0; right:0; bottom:0;
+    top:${headerHeight}px;  /* start BELOW header */
+    left:0;
+    right:0;
+    bottom:0;
     width:100vw;
-    height: calc(100vh - ${header ? header.offsetHeight + "px" : "0"});
-    background:rgba(255,255,255,0.95); /* almost opaque */
+    height: calc(100vh - ${headerHeight}px);
+    background:rgba(255,255,255,0.95);
     z-index:10000;
     display:flex;
     flex-direction:column;
@@ -513,7 +519,6 @@ function lockPage() {
     pointer-events:all;
   `;
 
-  // Add inner content with a **unique button id**
   overlay.innerHTML = `
     <div>
       <p>Access restricted.<br>Please login and pay to continue.</p>
@@ -532,19 +537,17 @@ function lockPage() {
 
   document.body.appendChild(overlay);
 
-  // Attach click handler to the dynamic button
+  // Attach click handler to dynamic button
   const dynamicBtn = document.getElementById("googleLoginBtnDynamic");
   dynamicBtn.onclick = () => {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(result => {
-        console.log("Google login successful:", result.user.email);
-      })
-      .catch(err => {
-        console.error("Google login error:", err.message);
-      });
+      .then(result => console.log("Google login successful:", result.user.email))
+      .catch(err => console.error("Google login error:", err.message));
   };
 }
 
+
+	
 function unlockPage() {
   const overlay = document.getElementById("fullLockOverlay");
   if (overlay) overlay.remove();
