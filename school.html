@@ -392,6 +392,30 @@
 </footer>
 
 
+<!-- LOGIN OVERLAY (shows page but blocks clicks until login) -->
+<div id="loginOverlay" style="
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(255,255,255,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-family:Segoe UI,sans-serif;
+  pointer-events:all;
+">
+  <button id="googleLoginBtn" style="
+    background:#4285F4;color:#fff;border:none;
+    padding:14px 22px;border-radius:8px;
+    font-size:16px;font-weight:600;cursor:pointer;
+    pointer-events:auto;
+  ">
+    Continue with Google
+  </button>
+</div>
+
+
+
+
+
+	
+
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
