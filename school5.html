@@ -391,20 +391,56 @@
   
 </footer>
 
+<!-- Full Page Payment Lock -->
+<div id="accessModal" style="
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: #ffffff; display:flex; justify-content:center; align-items:center;
+    z-index:99999; flex-direction: column;
+">
+  <div style="
+      background:#fff; padding:30px 25px; border-radius:12px; max-width:400px;
+      text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
+      box-shadow:0 6px 20px rgba(0,0,0,0.3);
+  ">
+    <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
+    <button id="accessBtn" style="
+        background:#0078D7; color:#fff; border:none; padding:12px 20px;
+        border-radius:8px; font-weight:600; cursor:pointer;
+        font-size:1em;
+    ">Sign in with Google</button>
+  </div>
+</div>
 
-<!-- Full Page Payment Lock --> <div id="accessModal" style=" position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:flex; justify-content:center; align-items:center; z-index:99999; flex-direction: column; "> <div style=" background:#fff; padding:30px 25px; border-radius:12px; max-width:400px; text-align:center; font-family:Segoe UI, sans-serif; color:#033a63; box-shadow:0 6px 20px rgba(0,0,0,0.3); "> <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p> <button id="accessBtn" style=" background:#0078D7; color:#fff; border:none; padding:12px 20px; border-radius:8px; font-weight:600; cursor:pointer; font-size:1em; ">Sign in with Google</button> </div> </div> <!-- Countdown Display (Top Right) --> <p id="accessCountdown" style=" position: fixed; top:10px; right:10px; background: #0078D7; color: #fff; padding: 8px 12px; border-radius: 6px; font-family: 'Segoe UI', sans-serif; font-weight:600; z-index:99999; display:none; "></p> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Countdown Display (Top Right) -->
+<p id="accessCountdown" style="
+    position: fixed; top:10px; right:10px; 
+    background: #0078D7; color: #fff; padding: 8px 12px;
+    border-radius: 6px; font-family: 'Segoe UI', sans-serif; 
+    font-weight:600; z-index:99999; display:none;
+"></p>
 
-	
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
-script> // ================= FIREBASE ================= firebase.initializeApp({ apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ", authDomain: "cbc-general.firebaseapp.com", databaseURL: "https://cbc-general-default-rtdb.firebaseio.com", projectId: "cbc-general", storageBucket: "cbc-general.firebasestorage.app", messagingSenderId: "764732839741", appId: "1:764732839741:web:ab829af54839de91359754" }); const db = firebase.database(); const auth = firebase.auth();
+// ================= FIREBASE =================
+firebase.initializeApp({
+  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+  authDomain: "cbc-general.firebaseapp.com",
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
+});
 
-	
-// ===== CONFIG =====
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24*60*60*1000;
 const db = firebase.database();
 const auth = firebase.auth();
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours
 
+// ===== HELPERS =====
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 function getFingerprint(){
     let fp = localStorage.getItem("fp");
@@ -524,7 +560,6 @@ async function checkActiveAccess(){
     });
 })();
 </script>
-
 
 </body>
 </html>
