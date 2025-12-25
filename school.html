@@ -390,58 +390,41 @@
   © 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
-
-<!-- LOGIN OVERLAY (hard lock) -->
-<div id="loginOverlay" style="
-  position:fixed; inset:0; z-index:10000;
-  background:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font-family:Segoe UI,sans-serif;
-">
-  <button id="googleLoginBtn" style="
-    background:#4285F4;color:#fff;border:none;
-    padding:14px 22px;border-radius:8px;
-    font-size:16px;font-weight:600;cursor:pointer;
-  ">
-    Continue with Google
-  </button>
-</div>
-
-<!-- ACCESS MODAL -->
+<!-- Payment Access Modal -->
 <div id="accessModal" style="
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.6);
-  display:none; align-items:center; justify-content:center;
-  z-index:10001;
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center;
+    z-index:9999; display:none;
 ">
   <div style="
-    background:#fff;padding:25px 30px;
-    border-radius:12px;max-width:400px;
-    text-align:center;font-family:Segoe UI,sans-serif;
+      background:#fff; padding:25px 30px; border-radius:12px; max-width:400px;
+      text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
+      box-shadow:0 6px 20px rgba(0,0,0,0.2);
   ">
-    <p id="accessMessage" style="margin-bottom:20px;"></p>
+    <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
     <button id="accessBtn" style="
-      background:#0078D7;color:#fff;border:none;
-      padding:10px 18px;border-radius:8px;
-      font-weight:600;cursor:pointer;
-    ">Pay Now</button>
+        background:#0078D7; color:#fff; border:none; padding:10px 18px;
+        border-radius:8px; font-weight:600; cursor:pointer;
+        transition:0.2s;
+    ">OK</button>
   </div>
 </div>
 
-<!-- COUNTDOWN -->
+<!-- Countdown Display -->
 <div id="accessCountdown" style="
-  position:fixed; top:100px; left:10px;
-  background:#0078D7;color:#fff;
-  padding:12px 16px;border-radius:8px;
-  display:none;font-weight:600;z-index:999;
-"></div>
+    position: fixed; top: 100px; left: 10px; 
+    background: #0078D7; color: #fff; padding: 12px 16px; 
+    border-radius: 8px; font-family: 'Segoe UI', sans-serif; 
+    font-weight:600; box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    z-index:999; text-align:center; display:none;
+">
+    Loading access info...
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-/* ================= FIREBASE ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
   authDomain: "cbc-general.firebaseapp.com",
@@ -452,102 +435,91 @@ firebase.initializeApp({
   appId: "1:764732839741:web:ab829af54839de91359754"
 });
 
-const auth = firebase.auth();
-const db   = firebase.database();
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+const db = firebase.database();
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24*60*60*1000; // 24 hours
 
-/* ================= SETTINGS ================= */
-const PAYMENT_LINK   = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24 * 60 * 60 * 1000;
-
-/* ================= HELPERS ================= */
-function showAccessModal(msg){
-  const m = document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML = msg;
-  m.style.display = "flex";
-  document.getElementById("accessBtn").onclick =
-    () => location.href = PAYMENT_LINK;
+function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
+function getFingerprint(){
+    let fp = localStorage.getItem("fp");
+    if(!fp){
+        fp = "fp_" + btoa(navigator.userAgent + screen.width + screen.height + navigator.language);
+        localStorage.setItem("fp", fp);
+    }
+    return fp;
 }
-
 function formatTime(ms){
-  const s=Math.floor(ms/1000);
-  const h=Math.floor(s/3600);
-  const m=Math.floor((s%3600)/60);
-  const sec=s%60;
-  return h ? `${h}h ${m}m ${sec}s`
-           : `${m}:${sec.toString().padStart(2,"0")}`;
+    let s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+    return h?`${h}h ${m}m ${sec}s`:`${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
 }
-
+function showAccessModal(msg, btnText="OK", callback=null){
+    const modal = document.getElementById('accessModal');
+    const msgEl = document.getElementById('accessMessage');
+    const btn = document.getElementById('accessBtn');
+    msgEl.innerHTML = msg;
+    btn.textContent = btnText;
+    modal.style.display = "flex";
+    btn.onclick = ()=>{ modal.style.display="none"; if(callback) callback(); };
+}
 function startCountdown(expiresAt){
-  const el=document.getElementById("accessCountdown");
-  el.style.display="block";
-  setInterval(()=>{
-    const r=expiresAt-Date.now();
-    if(r<=0){
-      el.style.display="none";
-      showAccessModal("Access expired. Please pay to continue.");
-    } else {
-      el.textContent="Paid access: "+formatTime(r);
-    }
-  },1000);
+    const countdownEl = document.getElementById('accessCountdown');
+    countdownEl.style.display = "block";
+    const interval = setInterval(()=>{
+        const remaining = expiresAt - Date.now();
+        if(remaining <=0){
+            clearInterval(interval);
+            showAccessModal("Access expired.", "Pay Now", ()=>window.location.href=PAYMENT_LINK);
+            countdownEl.style.display = "none";
+        } else {
+            countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
+        }
+    },1000);
 }
 
-function getQueryParam(n){
-  return new URLSearchParams(location.search).get(n);
-}
+// ===== MAIN FLOW =====
+(async function(){
+    const fingerprint = getFingerprint();
+    const reference = getQueryParam("reference");
+    let active = null;
 
-/* ================= LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick = () =>
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    // check if any active access for this device
+    const snap = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
+    snap.forEach(s=>{
+        const v = s.val();
+        if(Date.now() <= v.expiresAt && !active){
+            active = v;
+        }
+    });
 
-/* ================= ACCESS FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user) return;
-
-  const email = user.email;
-  const reference = getQueryParam("reference");
-
-  let active=null;
-
-  const snap = await db.ref("paystackRefs").get();
-  snap.forEach(s=>{
-    const v=s.val();
-    if(v.email===email && Date.now()<v.expiresAt && !active){
-      active=v;
+    if(active){
+        startCountdown(active.expiresAt);
+        return;
     }
-  });
 
-  // ✅ PAID
-  if(active){
-    document.getElementById("loginOverlay").style.display="none";
-    startCountdown(active.expiresAt);
-    return;
-  }
+    if(!reference){
+        showAccessModal("No active access found. Please pay to continue.", "Pay Now", ()=>window.location.href=PAYMENT_LINK);
+        return;
+    }
 
-  // ❌ NOT PAID
-  if(!reference){
-    showAccessModal("No active access found. Please pay to continue.");
-    return;
-  }
+    // save new reference for this device
+    const refPath = `paystackRefs/${reference}`;
+    const refSnap = await db.ref(refPath).get();
+    if(refSnap.exists()){
+        showAccessModal("This payment reference was already used.");
+        return;
+    }
 
-  // 💳 NEW PAYMENT
-  const refPath="paystackRefs/"+reference;
-  const used = await db.ref(refPath).get();
-  if(used.exists()){
-    showAccessModal("This payment reference was already used.");
-    return;
-  }
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({ fingerprint, expiresAt, createdAt: Date.now() });
 
-  const expiresAt=Date.now()+ACCESS_DURATION;
-  await db.ref(refPath).set({ email, expiresAt });
+    // remove ref from URL
+    if(window.history.replaceState){
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null,'',cleanUrl);
+    }
 
-  history.replaceState(null,"",location.pathname);
-
-  document.getElementById("loginOverlay").style.display="none";
-  startCountdown(expiresAt);
-});
-</script>
-
+    startCountdown(expiresAt);
+})();
 </script>
 
 	
