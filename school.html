@@ -476,54 +476,67 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 
-/* ================= FULL LOCK ================= */
-function lockPage(){
-  // Block everything
-  document.body.style.pointerEvents = "none";
-  document.body.style.userSelect = "none";
+/* ================= FULL LOCK WITH VISIBLE HEADER ================= */
+function lockPage() {
+  // Remove existing overlay if any
+  const old = document.getElementById("fullLockOverlay");
+  if (old) old.remove();
 
-  // Show overlay if not already visible
-  if(!document.getElementById("pageLock")){
-    const overlay = document.createElement("div");
-    overlay.id = "pageLock";
-    overlay.style.cssText = `
-      position:fixed; inset:0; z-index:2147483647;
-      background:#fff;  /* fully opaque so nothing shows through */
-      display:flex; align-items:center; justify-content:center;
-      font-family:Segoe UI,sans-serif; font-size:18px; font-weight:600;
-      text-align:center; padding:20px;
-    `;
+  // Make sure header is on top
+  const header = document.querySelector("header");
+  if (header) header.style.zIndex = "10001";  // higher than overlay
+  if (header) header.style.position = "relative"; // ensure z-index works
 
-    // Add inner HTML so you can also show Google login button inside overlay
-    overlay.innerHTML = `
-      <div>
-        Checking access… Please login and pay to continue.<br><br>
-        <button id="googleLoginBtn" style="
-          background:#4285F4;color:#fff;border:none;
-          padding:14px 22px;border-radius:8px;
-          font-size:16px;font-weight:600;cursor:pointer;
-        ">Continue with Google</button>
-      </div>
-    `;
+  // Create overlay for the rest of the page
+  const overlay = document.createElement("div");
+  overlay.id = "fullLockOverlay";
+  overlay.style.cssText = `
+    position:fixed;
+    top:${header ? header.offsetHeight + "px" : "0"}; /* start below header */
+    left:0; right:0; bottom:0;
+    width:100vw;
+    height: calc(100vh - ${header ? header.offsetHeight + "px" : "0"});
+    background:rgba(255,255,255,0.95); /* almost opaque */
+    z-index:10000;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-family:Segoe UI,sans-serif;
+    font-size:20px;
+    font-weight:600;
+    text-align:center;
+    pointer-events:all;
+  `;
 
-    document.body.appendChild(overlay);
+  overlay.innerHTML = `
+    <div>
+      <p>Access restricted.<br>Please login and pay to continue.</p>
+      <button id="googleLoginBtn" style="
+        background:#4285F4;
+        color:#fff;
+        border:none;
+        padding:14px 24px;
+        border-radius:8px;
+        font-size:18px;
+        font-weight:600;
+        cursor:pointer;
+      ">Continue with Google</button>
+    </div>
+  `;
 
-    // Attach login handler
-    document.getElementById("googleLoginBtn").onclick = () => {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    };
-  }
+  document.body.appendChild(overlay);
+
+  // Attach login
+  document.getElementById("googleLoginBtn").onclick = () => {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  };
 }
 
-function unlockPage(){
-  const overlay = document.getElementById("pageLock");
-  if(overlay) overlay.remove();
-
-  // Enable page interactions
-  document.body.style.pointerEvents = "auto";
-  document.body.style.userSelect = "auto";
+function unlockPage() {
+  const overlay = document.getElementById("fullLockOverlay");
+  if (overlay) overlay.remove();
 }
-
 
 	
 
