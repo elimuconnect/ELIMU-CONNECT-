@@ -391,22 +391,16 @@
   
 </footer>
 
-<script>
-// ================= FIREBASE =================
-firebase.initializeApp({
-  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
-  authDomain: "cbc-general.firebaseapp.com",
-  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
-  projectId: "cbc-general",
-  storageBucket: "cbc-general.firebasestorage.app",
-  messagingSenderId: "764732839741",
-  appId: "1:764732839741:web:ab829af54839de91359754"
-});
 
+<!-- Full Page Payment Lock --> <div id="accessModal" style=" position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:flex; justify-content:center; align-items:center; z-index:99999; flex-direction: column; "> <div style=" background:#fff; padding:30px 25px; border-radius:12px; max-width:400px; text-align:center; font-family:Segoe UI, sans-serif; color:#033a63; box-shadow:0 6px 20px rgba(0,0,0,0.3); "> <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p> <button id="accessBtn" style=" background:#0078D7; color:#fff; border:none; padding:12px 20px; border-radius:8px; font-weight:600; cursor:pointer; font-size:1em; ">Sign in with Google</button> </div> </div> <!-- Countdown Display (Top Right) --> <p id="accessCountdown" style=" position: fixed; top:10px; right:10px; background: #0078D7; color: #fff; padding: 8px 12px; border-radius: 6px; font-family: 'Segoe UI', sans-serif; font-weight:600; z-index:99999; display:none; "></p> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+	
+<script>
+// ===== CONFIG =====
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24*60*60*1000;
 const db = firebase.database();
 const auth = firebase.auth();
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
-const ACCESS_DURATION = 24*60*60*1000; // 24 hours
 
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
 function getFingerprint(){
@@ -417,27 +411,15 @@ function getFingerprint(){
     }
     return fp;
 }
-function formatTime(ms){
-    let s = Math.floor(ms/1000), h = Math.floor(s/3600),
-        m = Math.floor((s%3600)/60), sec = s%60;
-    return h ? `${h}h ${m}m ${sec}s` : `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-}
 function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
     const modal = document.getElementById('accessModal');
-    const msgEl = document.getElementById('accessMessage');
     const btn = document.getElementById('accessBtn');
-    msgEl.innerHTML = msg;
-    modal.style.display="flex";
-    if(showButton){
-        btn.style.display="inline-block";
-        btn.textContent = btnText;
-    } else {
-        btn.style.display="none";
-    }
+    document.getElementById('accessMessage').innerHTML = msg;
+    modal.style.display = "flex";
+    btn.style.display = showButton ? "inline-block" : "none";
+    btn.textContent = btnText;
 }
-function hideAccessModal(){
-    document.getElementById('accessModal').style.display="none";
-}
+function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
 function startCountdown(expiresAt){
     const countdownEl = document.getElementById('accessCountdown');
     countdownEl.style.display="block";
@@ -448,86 +430,95 @@ function startCountdown(expiresAt){
             showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
             countdownEl.style.display="none";
         } else {
-            countdownEl.textContent = `Paid access: ${formatTime(remaining)}`;
+            countdownEl.textContent = `Paid access: ${Math.floor(remaining/3600000)}h ${Math.floor((remaining%3600000)/60000)}m`;
         }
     },1000);
 }
 
-// ================= MAIN =================
-async function handleReference(ref){
-    const refPath = `paystackRefs/${ref}`;
+// ===== SAVE ACCESS =====
+async function saveAccess(user, reference){
+    if(!reference) return false;
+
+    const fp = getFingerprint();
+    const refPath = `paystackRefs/${reference}`;
     const refSnap = await db.ref(refPath).get();
-    if(refSnap.exists()){
-        showAccessModal("This payment reference was already used.", false);
-        return;
+
+    if(refSnap.exists()) return false; // Already used
+
+    const expiresAt = Date.now() + ACCESS_DURATION;
+    await db.ref(refPath).set({
+        fingerprint: fp,
+        email: user.email,
+        reference,
+        createdAt: Date.now(),
+        expiresAt
+    });
+
+    // remove reference from URL
+    if(window.history.replaceState){
+        window.history.replaceState(null, '', window.location.origin + window.location.pathname);
     }
 
-    // Ask user to sign in with Google to save email
-    showAccessModal("Please sign in with Google to confirm your payment.", true, "Sign in with Google");
-
-    document.getElementById('accessBtn').onclick = async function(){
-        try{
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const result = await auth.signInWithPopup(provider);
-            const user = result.user;
-            if(!user) throw "Google sign-in failed";
-
-            // Save reference with fingerprint, email, createdAt
-            const expiresAt = Date.now() + ACCESS_DURATION;
-            await db.ref(refPath).set({
-                fingerprint: getFingerprint(),
-                email: user.email,
-                reference: ref,
-                expiresAt,
-                createdAt: Date.now()
-            });
-
-            // Remove reference from URL
-            if(window.history.replaceState){
-                window.history.replaceState(null, '', window.location.origin + window.location.pathname);
-            }
-
-            hideAccessModal();
-            startCountdown(expiresAt);
-
-        } catch(e){
-            alert("Sign-in failed. Please try again.");
-            console.error(e);
-        }
-    };
+    hideAccessModal();
+    startCountdown(expiresAt);
+    return true;
 }
 
-// ================= CHECK ACCESS =================
-(async function(){
-    const fingerprint = getFingerprint();
-    const reference = getQueryParam("reference");
+// ===== CHECK ACTIVE ACCESS =====
+async function checkActiveAccess(){
+    const fp = getFingerprint();
+    const snap = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fp).get();
     let active = null;
-
-    // Check if this device already has active access
-    const snap = await db.ref("paystackRefs").orderByChild("fingerprint").equalTo(fingerprint).get();
     snap.forEach(s=>{
         const v = s.val();
         if(Date.now() <= v.expiresAt && !active){
             active = v;
         }
     });
-
     if(active){
         hideAccessModal();
         startCountdown(active.expiresAt);
-        return;
+        return true;
     }
+    return false;
+}
 
-    // No active access: handle reference if exists
-    if(reference){
-        await handleReference(reference);
-        return;
-    }
+// ===== MAIN FLOW =====
+(async function(){
+    const reference = getQueryParam("reference");
 
-    // No reference: prompt to pay
-    showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-    document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+    if(await checkActiveAccess()) return; // Already unlocked
 
+    auth.onAuthStateChanged(async user=>{
+        if(user){
+            // Signed in → check/save reference
+            const success = await saveAccess(user, reference);
+            if(!success){
+                // Reference missing or already used → prompt payment
+                showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+            }
+        } else {
+            // Not signed in → show Google login
+            showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+            document.getElementById('accessBtn').onclick = async ()=>{
+                try{
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    const result = await auth.signInWithPopup(provider);
+                    const user = result.user;
+                    if(!user) throw "Google login failed";
+                    const success = await saveAccess(user, reference);
+                    if(!success){
+                        showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                        document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+                    }
+                } catch(e){
+                    alert("Sign-in failed.");
+                    console.error(e);
+                }
+            }
+        }
+    });
 })();
 </script>
 
