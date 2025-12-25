@@ -464,6 +464,8 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
 <script>
+
+<script>
 /* ================= FIREBASE ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
@@ -483,8 +485,8 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
-
-  function lockPage() {
+/* ================= PAGE LOCK ================= */
+function lockPage() {
   const overlay = document.getElementById("loginOverlay");
   const pageLock = document.getElementById("pageLock");
   const header = document.querySelector("header");
@@ -508,85 +510,42 @@ const ACCESS_DURATION = 24 * 60 * 60 * 1000;
     pageLock.style.top = `${headerHeight}px`;
     pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
   }
+}
 
- // Immediately lock page on load
-lockPage();
+function unlockPage() {
+  const overlay = document.getElementById("loginOverlay");
+  const pageLock = document.getElementById("pageLock");
+  if (overlay) overlay.style.display = "none";
+  if (pageLock) pageLock.style.display = "none";
+}
 
-// Google login button
-const loginBtn = document.getElementById("googleLoginBtn");
-loginBtn.onclick = () => {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .catch(err => {
-      if (err.code === 'auth/popup-closed-by-user') {
-        console.warn("Login popup closed before completion.");
-      } else {
-        console.error("Google login error:", err.message);
-      }
-    });
-};
+/* ================= HELPERS ================= */
+function getQueryParam(name) {
+  return new URLSearchParams(location.search).get(name);
+}
 
-// Auth state change
-auth.onAuthStateChanged(async user => {
-  if (!user) return;
+function formatTime(ms) {
+  let s = Math.floor(ms / 1000), h = Math.floor(s / 3600);
+  let m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h ? `${h}h ${m}m ${sec}s` : `${m}:${sec.toString().padStart(2, "0")}`;
+}
 
-  // ✅ Unlock the overlay immediately after login
-  unlockPage();
-
-  const email = user.email;
-  const fingerprint = getFingerprint();
-  let reference = getQueryParam("reference");
-  const countdown = document.getElementById("accessCountdown");
-
-  let active = null;
-
-  // 1️⃣ CHECK EXISTING ACCESS
-  const snap = await db.ref("paystackRefs")
-    .orderByChild("fingerprint")
-    .equalTo(fingerprint)
-    .get();
-
-  snap.forEach(s => {
-    const v = s.val();
-    if (v.email === email && Date.now() <= v.expiresAt && !active) {
-      active = v;
-    }
-  });
-
-  // 2️⃣ ACTIVE → show countdown
-  if (active) {
-    startCountdown(active.expiresAt);
-    return;
+function getFingerprint() {
+  let fp = localStorage.getItem("fp");
+  if (!fp) {
+    fp = "fp_" + btoa(navigator.userAgent + screen.width + screen.height + navigator.language);
+    localStorage.setItem("fp", fp);
   }
+  return fp;
+}
 
-  // 3️⃣ NO ACCESS → REQUIRE PAYMENT
-  if (!reference) {
-    showAccessModal("Payment required.");
-    return;
-  }
+function showAccessModal(msg) {
+  const modal = document.getElementById("accessModal");
+  document.getElementById("accessMessage").innerHTML = msg;
+  modal.style.display = "flex";
+  document.getElementById("accessBtn").onclick = () => location.href = PAYMENT_LINK;
+}
 
-  // 4️⃣ SAVE FIRST VALID REF ONLY
-  const refPath = `paystackRefs/${reference}`;
-  const refSnap = await db.ref(refPath).get();
-  if (refSnap.exists()) {
-    showAccessModal("This payment reference was already used.");
-    return;
-  }
-
-  const expiresAt = Date.now() + ACCESS_DURATION;
-  await db.ref(refPath).set({ email, fingerprint, expiresAt });
-
-  // Remove reference from URL
-  if (window.history.replaceState) {
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState(null, '', cleanUrl);
-  }
-
-  // 5️⃣ GRANT ACCESS
-  startCountdown(expiresAt);
-
-});
-
-// Countdown helper
 function startCountdown(expiresAt) {
   const countdown = document.getElementById("accessCountdown");
   countdown.style.display = "block";
@@ -601,14 +560,72 @@ function startCountdown(expiresAt) {
   }, 1000);
 }
 
+/* ================= GOOGLE LOGIN ================= */
+const loginBtn = document.getElementById("googleLoginBtn");
+loginBtn.onclick = () => {
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(err => {
+      if (err.code === 'auth/popup-closed-by-user') {
+        console.warn("Login popup closed before completion.");
+      } else {
+        console.error("Google login error:", err.message);
+      }
+    });
+};
 
+/* ================= MAIN FLOW ================= */
+auth.onAuthStateChanged(async user => {
+  if (!user) return;
 
+  unlockPage();
+
+  const email = user.email;
+  const fingerprint = getFingerprint();
+  let reference = getQueryParam("reference");
+
+  let active = null;
+  const snap = await db.ref("paystackRefs")
+    .orderByChild("fingerprint")
+    .equalTo(fingerprint)
+    .get();
+
+  snap.forEach(s => {
+    const v = s.val();
+    if (v.email === email && Date.now() <= v.expiresAt && !active) {
+      active = v;
+    }
+  });
+
+  if (active) {
+    startCountdown(active.expiresAt);
+    return;
+  }
+
+  if (!reference) {
+    showAccessModal("Payment required.");
+    return;
+  }
+
+  const refPath = `paystackRefs/${reference}`;
+  const refSnap = await db.ref(refPath).get();
+  if (refSnap.exists()) {
+    showAccessModal("This payment reference was already used.");
+    return;
+  }
+
+  const expiresAt = Date.now() + ACCESS_DURATION;
+  await db.ref(refPath).set({ email, fingerprint, expiresAt });
+
+  if (window.history.replaceState) {
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState(null, '', cleanUrl);
+  }
+
+  startCountdown(expiresAt);
+});
 
 // Immediately lock the page
-document.getElementById("pageLock").style.display = "flex";
-document.getElementById("loginOverlay").style.display = "flex";
-
-	
+lockPage();
 </script>
 
 
