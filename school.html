@@ -509,128 +509,97 @@ const ACCESS_DURATION = 24 * 60 * 60 * 1000;
     pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
   }
 
-  // Google login button
-  const loginBtn = document.getElementById("googleLoginBtn");
-  if (loginBtn) {
-    loginBtn.style.pointerEvents = "auto";
-    loginBtn.onclick = () => {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then(result => console.log("Google login successful:", result.user.email))
-        .catch(err => console.error("Google login error:", err.message));
-    };
-  }
-}
+ // Immediately lock page on load
+lockPage();
 
-function unlockPage() {
-  const overlay = document.getElementById("loginOverlay");
-  const pageLock = document.getElementById("pageLock");
-
-  if (overlay) overlay.style.display = "none";
-  if (pageLock) pageLock.style.display = "none";
-}
-
-	
-
-function showAccessModal(msg){
-  const m=document.getElementById("accessModal");
-  document.getElementById("accessMessage").innerHTML=msg;
-  m.style.display="flex";
-  document.getElementById("accessBtn").onclick=()=>location.href=PAYMENT_LINK;
-}
-
-function getQueryParam(n){ return new URLSearchParams(location.search).get(n); }
-
-function formatTime(ms){
-  let s=Math.floor(ms/1000),h=Math.floor(s/3600),
-  m=Math.floor((s%3600)/60),sec=s%60;
-  return h?`${h}h ${m}m ${sec}s`:`${m}:${sec.toString().padStart(2,"0")}`;
-}
-
-function getFingerprint(){
-  let fp=localStorage.getItem("fp");
-  if(!fp){
-    fp="fp_"+btoa(navigator.userAgent+screen.width+screen.height+navigator.language);
-    localStorage.setItem("fp",fp);
-  }
-  return fp;
-}
-
-/* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick=()=>{
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+// Google login button
+const loginBtn = document.getElementById("googleLoginBtn");
+loginBtn.onclick = () => {
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(err => {
+      if (err.code === 'auth/popup-closed-by-user') {
+        console.warn("Login popup closed before completion.");
+      } else {
+        console.error("Google login error:", err.message);
+      }
+    });
 };
 
-/* ================= MAIN FLOW ================= */
-auth.onAuthStateChanged(async user=>{
-  if(!user){ return; }
+// Auth state change
+auth.onAuthStateChanged(async user => {
+  if (!user) return;
 
-  document.getElementById("loginOverlay").style.display="none";
-  lockPage();
+  // ✅ Unlock the overlay immediately after login
+  unlockPage();
 
-  const email=user.email;
-  const fingerprint=getFingerprint();
-  let reference=getQueryParam("reference");
-  const countdown=document.getElementById("accessCountdown");
+  const email = user.email;
+  const fingerprint = getFingerprint();
+  let reference = getQueryParam("reference");
+  const countdown = document.getElementById("accessCountdown");
 
-  let active=null;
+  let active = null;
 
-  /* 1️⃣ CHECK EXISTING ACCESS */
-  const snap=await db.ref("paystackRefs")
+  // 1️⃣ CHECK EXISTING ACCESS
+  const snap = await db.ref("paystackRefs")
     .orderByChild("fingerprint")
     .equalTo(fingerprint)
     .get();
 
-  snap.forEach(s=>{
-    const v=s.val();
-    if(v.email===email && Date.now()<=v.expiresAt && !active){
-      active=v;
+  snap.forEach(s => {
+    const v = s.val();
+    if (v.email === email && Date.now() <= v.expiresAt && !active) {
+      active = v;
     }
   });
 
-  /* 2️⃣ IF ACTIVE → IGNORE REF */
-  if(active){
-    unlockPage();
-    countdown.style.display="block";
-    setInterval(()=>{
-      const r=active.expiresAt-Date.now();
-      if(r<=0) showAccessModal("Access expired.");
-      else countdown.textContent="Paid access: "+formatTime(r);
-    },1000);
+  // 2️⃣ ACTIVE → show countdown
+  if (active) {
+    startCountdown(active.expiresAt);
     return;
   }
 
-  /* 3️⃣ NO ACCESS → REQUIRE PAYSTACK REF */
-  if(!reference){
+  // 3️⃣ NO ACCESS → REQUIRE PAYMENT
+  if (!reference) {
     showAccessModal("Payment required.");
     return;
   }
 
-  /* 4️⃣ SAVE FIRST VALID REF ONLY */
-  const refPath=`paystackRefs/${reference}`;
-  const refSnap=await db.ref(refPath).get();
-  if(refSnap.exists()){
+  // 4️⃣ SAVE FIRST VALID REF ONLY
+  const refPath = `paystackRefs/${reference}`;
+  const refSnap = await db.ref(refPath).get();
+  if (refSnap.exists()) {
     showAccessModal("This payment reference was already used.");
     return;
   }
 
-  const expiresAt=Date.now()+ACCESS_DURATION;
+  const expiresAt = Date.now() + ACCESS_DURATION;
   await db.ref(refPath).set({ email, fingerprint, expiresAt });
 
-  // ✅ REMOVE REFERENCE FROM URL AFTER VALIDATION
+  // Remove reference from URL
   if (window.history.replaceState) {
     const cleanUrl = window.location.origin + window.location.pathname;
     window.history.replaceState(null, '', cleanUrl);
   }
 
-  /* 5️⃣ GRANT ACCESS */
-  unlockPage();
-  countdown.style.display="block";
-  setInterval(()=>{
-    const r=expiresAt-Date.now();
-    if(r<=0) showAccessModal("Access expired.");
-    else countdown.textContent="Paid access: "+formatTime(r);
-  },1000);
+  // 5️⃣ GRANT ACCESS
+  startCountdown(expiresAt);
+
 });
+
+// Countdown helper
+function startCountdown(expiresAt) {
+  const countdown = document.getElementById("accessCountdown");
+  countdown.style.display = "block";
+  const interval = setInterval(() => {
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) {
+      clearInterval(interval);
+      showAccessModal("Access expired.");
+    } else {
+      countdown.textContent = "Paid access: " + formatTime(remaining);
+    }
+  }, 1000);
+}
 
 
 
