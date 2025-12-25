@@ -161,22 +161,21 @@
 </style>
 </head>
 <body>
-<!-- LOGIN OVERLAY -->
+
+
+<!-- LOGIN OVERLAY (semi-transparent, shows page but blocks clicks) -->
 <div id="loginOverlay" style="
-  position:fixed; inset:0;
-  background:rgba(255,255,255,0.95);
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  z-index:2147483647;
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(255,255,255,0.3);  /* lighter so page is visible */
+  display:flex; align-items:center; justify-content:center;
   font-family:Segoe UI,sans-serif;
+  pointer-events:all;                  /* block clicks */
 ">
-  <h2 style="margin-bottom:20px; color:#333;">Access Required</h2>
   <button id="googleLoginBtn" style="
-    background:#4285F4; color:#fff; border:none;
-    padding:14px 24px; border-radius:8px;
-    font-size:18px; font-weight:600;
-    cursor:pointer;
-    z-index:2147483648;
+    background:#4285F4;color:#fff;border:none;
+    padding:14px 22px;border-radius:8px;
+    font-size:16px;font-weight:600;cursor:pointer;
+    pointer-events:auto;                 /* make button clickable */
   ">
     Continue with Google
   </button>
@@ -185,16 +184,36 @@
 
 <!-- PAGE LOCK -->
 <div id="pageLock" style="
-  position:fixed; inset:0; z-index:2147483646;
+  position:fixed; inset:0; z-index:9998;
   display:flex; align-items:center; justify-content:center;
-  background:#fff;
   pointer-events:all;
-  font-weight:600;
-  font-size:18px;
 ">
-  Checking access…
+  <div style="
+    background:#fff;padding:12px 18px;
+    border-radius:10px;font-weight:600;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+  ">
+    Checking access…
+  </div>
 </div>
 
+<!-- ACCESS MODAL -->
+<div id="accessModal" style="
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.6); display:none;
+  align-items:center; justify-content:center;
+">
+  <div style="
+    background:#fff;padding:25px 30px;
+    border-radius:12px;max-width:400px;
+    text-align:center;
+  ">
+    <p id="accessMessage"></p>
+    <button id="accessBtn">Pay Now</button>
+  </div>
+</div>
+
+	
 <!-- ACCESS MODAL -->
 <div id="accessModal" style="
   position:fixed; inset:0; z-index:9999;
@@ -484,50 +503,65 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 function lockPage() {
-  const overlay = document.getElementById("loginOverlay");
-  const pageLock = document.getElementById("pageLock");
+  // Remove existing overlay if any
+  const old = document.getElementById("fullLockOverlay");
+  if (old) old.remove();
+
+  // Make sure header is on top
   const header = document.querySelector("header");
-
-  const headerHeight = header ? header.offsetHeight : 0;
-
-  // Keep header on top
   if (header) {
-    header.style.zIndex = "2147483648";
-    header.style.position = "sticky"; // already sticky in CSS
+    header.style.zIndex = "10001";  // higher than overlay
+    header.style.position = "relative"; // ensure z-index works
   }
 
-  // Show overlays
-  if (overlay) {
-    overlay.style.display = "flex";
-    overlay.style.top = `${headerHeight}px`; // start below header
-    overlay.style.height = `calc(100vh - ${headerHeight}px)`;
-  }
-  if (pageLock) {
-    pageLock.style.display = "flex";
-    pageLock.style.top = `${headerHeight}px`;
-    pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
-  }
+  // Create overlay for the rest of the page
+  const overlay = document.createElement("div");
+  overlay.id = "fullLockOverlay";
+  overlay.style.cssText = `
+    position:fixed;
+    top:${header ? header.offsetHeight + "px" : "0"};
+    left:0; right:0; bottom:0;
+    width:100vw;
+    height: calc(100vh - ${header ? header.offsetHeight + "px" : "0"});
+    background:rgba(255,255,255,0.95);
+    z-index:10000;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-family:Segoe UI,sans-serif;
+    font-size:20px;
+    font-weight:600;
+    text-align:center;
+    pointer-events:all;
+  `;
 
-  // Ensure Google login button is clickable inside overlay
-  const loginBtn = document.getElementById("googleLoginBtn");
-  if (loginBtn) {
-    loginBtn.style.pointerEvents = "auto"; // make button clickable
-    loginBtn.onclick = () => {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then(result => console.log("Google login successful:", result.user.email))
-        .catch(err => console.error("Google login error:", err.message));
-    };
-  }
+  overlay.innerHTML = `
+    <div>
+      <p>Access restricted.<br>Please login and pay to continue.</p>
+      <button class="googleLoginBtn" style="
+        background:#4285F4;
+        color:#fff;
+        border:none;
+        padding:14px 24px;
+        border-radius:8px;
+        font-size:18px;
+        font-weight:600;
+        cursor:pointer;
+      ">Continue with Google</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  // Attach click handler to the button inside overlay
+  const btn = overlay.querySelector(".googleLoginBtn");
+  btn.onclick = () => {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  };
 }
 
-function unlockPage() {
-  const overlay = document.getElementById("loginOverlay");
-  const pageLock = document.getElementById("pageLock");
-
-  if (overlay) overlay.style.display = "none";
-  if (pageLock) pageLock.style.display = "none";
-}
-
+function unlockPage() { const overlay = document.getElementById("fullLockOverlay"); if (overlay) overlay.remove(); }
   
 	
 
