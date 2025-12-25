@@ -484,75 +484,51 @@ const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24 * 60 * 60 * 1000;
 
 function lockPage() {
-  // Remove existing overlay and button if any
-  const oldOverlay = document.getElementById("fullLockOverlay");
-  if (oldOverlay) oldOverlay.remove();
-  const oldBtn = document.getElementById("googleLoginBtnDynamic");
-  if (oldBtn) oldBtn.remove();
-
+  const overlay = document.getElementById("loginOverlay");
+  const pageLock = document.getElementById("pageLock");
   const header = document.querySelector("header");
+
   const headerHeight = header ? header.offsetHeight : 0;
 
   // Keep header on top
   if (header) {
-    header.style.zIndex = "10003"; // higher than overlay and button
-    header.style.position = "relative";
+    header.style.zIndex = "2147483648";
+    header.style.position = "sticky"; // already sticky in CSS
   }
 
-  // Create overlay covering the page (excluding header)
-  const overlay = document.createElement("div");
-  overlay.id = "fullLockOverlay";
-  overlay.style.cssText = `
-    position:fixed;
-    top:${headerHeight}px;  /* start below header */
-    left:0;
-    right:0;
-    bottom:0;
-    width:100vw;
-    height: calc(100vh - ${headerHeight}px);
-    background:rgba(255,255,255,0.95);
-    z-index:10001;  /* below button and header */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:Segoe UI,sans-serif;
-    font-size:20px;
-    font-weight:600;
-    text-align:center;
-  `;
-  document.body.appendChild(overlay);
+  // Show overlays
+  if (overlay) {
+    overlay.style.display = "flex";
+    overlay.style.top = `${headerHeight}px`; // start below header
+    overlay.style.height = `calc(100vh - ${headerHeight}px)`;
+  }
+  if (pageLock) {
+    pageLock.style.display = "flex";
+    pageLock.style.top = `${headerHeight}px`;
+    pageLock.style.height = `calc(100vh - ${headerHeight}px)`;
+  }
 
-  // Add Google login button inside overlay (so it’s visible)
-  const loginBtn = document.createElement("button");
-  loginBtn.id = "googleLoginBtnDynamic";
-  loginBtn.textContent = "Continue with Google";
-  loginBtn.style.cssText = `
-    background:#4285F4;
-    color:#fff;
-    border:none;
-    padding:14px 24px;
-    border-radius:8px;
-    font-size:18px;
-    font-weight:600;
-    cursor:pointer;
-    z-index:10002;  /* above overlay */
-  `;
-  overlay.appendChild(loginBtn); // append directly inside overlay
-
-  // Attach login handler
-  loginBtn.onclick = () => {
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(result => console.log("Google login successful:", result.user.email))
-      .catch(err => console.error("Google login error:", err.message));
-  };
+  // Ensure Google login button is clickable inside overlay
+  const loginBtn = document.getElementById("googleLoginBtn");
+  if (loginBtn) {
+    loginBtn.style.pointerEvents = "auto"; // make button clickable
+    loginBtn.onclick = () => {
+      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+        .then(result => console.log("Google login successful:", result.user.email))
+        .catch(err => console.error("Google login error:", err.message));
+    };
+  }
 }
 
-	
 function unlockPage() {
-  const overlay = document.getElementById("fullLockOverlay");
-  if (overlay) overlay.remove();
+  const overlay = document.getElementById("loginOverlay");
+  const pageLock = document.getElementById("pageLock");
+
+  if (overlay) overlay.style.display = "none";
+  if (pageLock) pageLock.style.display = "none";
 }
 
+  
 	
 
 function showAccessModal(msg){
