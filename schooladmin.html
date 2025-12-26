@@ -686,44 +686,62 @@ async function checkTeacherAccess(email){
     const reference = getQueryParam("reference");
 
     auth.onAuthStateChanged(async user => {
-        if(!user){
-            // Not signed in → show Google login
-            showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+    const reference = getQueryParam("reference");
 
-            document.getElementById("accessBtn").onclick = async () => {
-                try {
-                    const provider = new firebase.auth.GoogleAuthProvider();
-                    const result = await auth.signInWithPopup(provider);
-                    const user = result.user;
-                    if(!user) throw "Google login failed";
-                    await handleAccess(user);
-                } catch(e) {
-                    alert("Sign-in failed.");
-                    console.error(e);
-                }
-            };
-        } else {
-            // Already signed in → check access
-            await handleAccess(user);
-        }
-    });
+    if (!user) {
+        // Not signed in → show Google login
+        showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
 
-    async function handleAccess(user){
+        const btn = document.getElementById("accessBtn");
+        btn.onclick = async () => {
+            btn.disabled = true;
+            btn.textContent = "Signing in...";
+
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                if (!result.user) throw "No user";
+                // DO NOTHING ELSE HERE
+                // onAuthStateChanged will handle access
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = "Sign in with Google";
+                alert("Sign-in failed. Please try again.");
+                console.error(e);
+            }
+        };
+    } else {
+        // Already signed in → handle access
+        await handleAccess(user, reference);
+    }
+});
+
+// Prevent double execution
+let handlingAccess = false;
+
+async function handleAccess(user, reference) {
+    if (handlingAccess) return;
+    handlingAccess = true;
+
+    try {
+        // Small delay to ensure Firebase auth state is fully ready
+        await new Promise(r => setTimeout(r, 300));
+
         const email = user.email.toLowerCase().trim();
         const normalizedAdmins = adminEmails.map(e => e.toLowerCase().trim());
-        const isAdmin = normalizedAdmins.includes(email); // admin check
+        const isAdmin = normalizedAdmins.includes(email);
         let allowed = false;
 
-        if(isAdmin){
+        if (isAdmin) {
             // Admin: check if already paid
             allowed = await checkAdminAccess(email);
 
             // Save access if reference exists in URL
-            if(reference && !allowed){
+            if (reference && !allowed) {
                 allowed = await saveAccess(user, reference);
             }
 
-            if(allowed){
+            if (allowed) {
                 showAdminAccess(); // show admin tools
             } else {
                 showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
@@ -733,16 +751,19 @@ async function checkTeacherAccess(email){
             // Teacher: check admin's paid access
             allowed = await checkTeacherAccess(email);
 
-            if(!allowed){
+            if (!allowed) {
                 showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
                 document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
             }
         }
 
-        if(allowed){
+        if (allowed) {
             hideAccessModal();
         }
+    } finally {
+        handlingAccess = false;
     }
+}
 
 })();
 
