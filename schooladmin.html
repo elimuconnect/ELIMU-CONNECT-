@@ -569,15 +569,18 @@ async function addTeacher(email){
 
 
 	
-
 async function checkAdmin(email){
     email = email.toLowerCase().trim();
-    if(adminEmails.includes(email)){
+    // Make sure adminEmails are lowercase too
+    const normalizedAdmins = adminEmails.map(e => e.toLowerCase().trim());
+    if(normalizedAdmins.includes(email)){
         showAdminAccess();
         return true;
     }
     return false;
 }
+
+
 
 async function checkTeacher(email){
     const key = emailToKey(email);
@@ -631,11 +634,11 @@ async function checkTeacherAccess(email){
 
 
 
-
 // ===== MAIN FLOW =====
-(async function(){
+(async function() {
     const reference = getQueryParam("reference");
 
+    // Triggered on login state change
     auth.onAuthStateChanged(async user => {
         if(!user){
             // Not signed in → show Google login
@@ -661,48 +664,43 @@ async function checkTeacherAccess(email){
 
     async function handleAccess(user){
         const email = user.email.toLowerCase().trim();
-        const isAdmin = await checkAdmin(email);
+        const isAdmin = await checkAdmin(email); // check if current user is admin
         let allowed = false;
 
         if(isAdmin){
             // Admin: check if they already paid
             allowed = await checkAdminAccess(email);
 
-            // If URL has reference, save it for admin
+            // If URL has reference and admin hasn't paid yet, save it
             if(reference && !allowed){
                 const success = await saveAccess(user, reference);
                 allowed = success;
             }
 
-            if(allowed) showAdminAccess();
-
+            if(allowed){
+                showAdminAccess(); // show admin tools
+            } else {
+                // Admin has not paid → show Pay Now
+                showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
+                document.getElementById('accessBtn').onclick = () => window.location.href = PAYMENT_LINK;
+            }
         } else {
-            // Teacher: access allowed only if their admin has paid
+            // Teacher: allowed only if their admin has paid
             allowed = await checkTeacherAccess(email);
+
+            if(!allowed){
+                // Teacher blocked → ask admin
+                showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
+                document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
+            }
         }
 
-        if(!allowed){
-            // Show modal for denied access
-            showAccessModal(
-                "Access denied. Admin must pay to grant access.", 
-                true, 
-                isAdmin ? "Pay Now" : "Ask Admin"
-            );
-
-            document.getElementById('accessBtn').onclick = () => {
-                if(isAdmin){
-                    window.location.href = PAYMENT_LINK;
-                } else {
-                    alert("Ask your admin to pay for access.");
-                }
-            };
-        } else {
-            hideAccessModal(); // Hide modal if allowed
+        if(allowed){
+            hideAccessModal(); // Hide modal if access is allowed
         }
     }
 
 })();
-
 
 
 
