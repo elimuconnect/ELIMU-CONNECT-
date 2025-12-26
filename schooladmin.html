@@ -644,41 +644,38 @@ function adminAddTeacher(){
 }
 
 
-
-// Check if admin has paid access
-async function checkAdminAccess(email){
+async function checkAdminAccess(email) {
     const key = emailToKey(email);
-    const snap = await db.ref("paystackRefs").get();
-    let active = null;
-    snap.forEach(s => {
-        const data = s.val();
-        if(data && emailToKey(data.email) === key && data.expiresAt && Date.now() <= data.expiresAt){
-            active = { expiresAt: data.expiresAt };
+    try {
+        const snap = await db.ref("paystackRefs").get();
+        if (!snap.exists()) return false; // no references yet
+
+        let active = null;
+        snap.forEach(s => {
+            const data = s.val();
+            if (data && data.email && data.expiresAt) {
+                if (emailToKey(data.email) === key && Date.now() <= data.expiresAt) {
+                    active = { expiresAt: data.expiresAt };
+                }
+            }
+        });
+
+        if (active) {
+            startCountdown(active.expiresAt);
+            const label = document.getElementById("accessType");
+            label.style.display = "block";
+            label.style.background = "#0078D7";
+            label.textContent = "Access type: Paid Admin";
+            return true;
         }
-    });
-    if(active){
-        startCountdown(active.expiresAt);
-        const label = document.getElementById("accessType");
-        label.style.display = "block";
-        label.style.background = "#0078D7";
-        label.textContent = "Access type: Paid Admin";
-        return true;
+
+        return false;
+    } catch (err) {
+        console.error("checkAdminAccess error:", err);
+        return false;
     }
-    return false;
 }
 
-// Check if teacher has access via their admin
-async function checkTeacherAccess(email){
-    const key = emailToKey(email);
-    const snap = await db.ref("schooltools/teachers").child(key).get();
-    if(!snap.exists()) return false;
-
-    const adminEmail = snap.val().addedBy;
-    if(!adminEmail) return false;
-
-    const activeAdmin = await checkAdminAccess(adminEmail);
-    return !!activeAdmin;
-}
 
 
 // ===== MAIN FLOW =====
