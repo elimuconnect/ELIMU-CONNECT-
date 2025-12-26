@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Tools Access</title>
+<style>
+  body { margin:0; font-family:'Segoe UI', sans-serif; background:#f4f4f4; }
+  #accessModal {
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background: #ffffff; display:flex; justify-content:center; align-items:center;
+    z-index:99999; flex-direction: column;
+  }
+  #accessModal div {
+    background:#fff; padding:30px 25px; border-radius:12px; max-width:400px;
+    text-align:center; color:#033a63; box-shadow:0 6px 20px rgba(0,0,0,0.3);
+  }
+  #accessModal button {
+    background:#0078D7; color:#fff; border:none; padding:12px 20px;
+    border-radius:8px; font-weight:600; cursor:pointer; font-size:1em;
+  }
+  #accessCountdown, #accessType { 
+    position: fixed; right:10px; padding:6px 12px; border-radius:6px;
+    font-family:'Segoe UI', sans-serif; font-weight:600; z-index:99999; display:none;
+  }
+  #accessCountdown { top:10px; background:#0078D7; color:#fff; }
+  #accessType { top:50px; }
+  #adminPanel {
+    position: fixed; bottom:10px; right:10px; background:#fff; padding:15px; border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.3); max-width:300px; font-size:0.9em;
+  }
+  #adminPanel input { width:90%; margin:5px 0; padding:6px; border-radius:6px; border:1px solid #ccc; }
+  #adminPanel button { width:100%; margin-top:5px; }
+</style>
+</head>
+<body>
+
+<!-- Full Page Payment Lock -->
+<div id="accessModal">
+  <div>
+    <p id="accessMessage"></p>
+    <button id="accessBtn">Sign in with Google</button>
+  </div>
+</div>
+
+<!-- Countdown & Type -->
+<p id="accessCountdown"></p>
+<p id="accessType"></p>
+
+<!-- Admin Panel -->
+<div id="adminPanel" style="display:none;">
+  <h3>Admin Panel</h3>
+  <input id="teacherEmail" type="email" placeholder="Teacher Email"/>
+  <input id="expiresIn" type="number" placeholder="Access duration (hours)"/>
+  <button id="addTeacherBtn">Add Teacher</button>
+  <p id="adminMessage" style="color:#e63946;"></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+// ================= FIREBASE =================
+firebase.initializeApp({
+  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
+  authDomain: "cbc-general.firebaseapp.com",
+  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
+  projectId: "cbc-general",
+  storageBucket: "cbc-general.firebasestorage.app",
+  messagingSenderId: "764732839741",
+  appId: "1:764732839741:web:ab829af54839de91359754"
+});
+
+const db = firebase.database();
+const auth = firebase.auth();
+const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+const ACCESS_DURATION = 24*60*60*1000; // 24h
+
+// ===== HELPERS =====
+function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
+function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
+  const modal = document.getElementById('accessModal');
+  const btn = document.getElementById('accessBtn');
+  document.getElementById('accessMessage').innerHTML = msg;
+  modal.style.display = "flex";
+  btn.style.display = showButton ? "inline-block" : "none";
+  btn.textContent = btnText;
+}
+function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
+function startCountdown(expiresAt){
+  const countdownEl = document.getElementById('accessCountdown');
+  countdownEl.style.display="block";
+  const interval = setInterval(()=>{
+      const remaining = expiresAt - Date.now();
+      if(remaining <= 0){
+          clearInterval(interval);
+          showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
+          countdownEl.style.display="none";
+          document.getElementById('accessType').style.display="none";
+      } else {
+          countdownEl.textContent = `Access: ${Math.floor(remaining/3600000)}h ${Math.floor((remaining%3600000)/60000)}m`;
+      }
+  },1000);
+}
+
+// ===== SAVE PAYSTACK ACCESS =====
+async function saveAccess(user, reference){
+  if(!reference) return false;
+  const refPath = `paystackRefs/${reference}`;
+  const refSnap = await db.ref(refPath).get();
+  if(refSnap.exists()) return false; // already used
+
+  const expiresAt = Date.now() + ACCESS_DURATION;
+  await db.ref(refPath).set({
+      email: user.email,
+      reference,
+      createdAt: Date.now(),
+      expiresAt
+  });
+
+  if(window.history.replaceState){
+      window.history.replaceState(null, '', window.location.origin + window.location.pathname);
+  }
+  hideAccessModal();
+  startCountdown(expiresAt);
+
+  const label = document.getElementById("accessType");
+  label.style.display="block"; label.style.background="#0078D7"; label.textContent="Access type: Paid";
+  return true;
+}
+
+// ===== CHECK TEACHER ACCESS =====
+async function checkTeacherAccess(email){
+  email = email.toLowerCase().trim();
+  const snap = await db.ref("schooltools/admins/teachers").get();
+  let active = null;
+  snap.forEach(s=>{
+      if(s.key === email){
+          active = true;
+      }
+  });
+  if(active){
+      hideAccessModal();
+      startCountdown(Date.now() + ACCESS_DURATION); // optional: set admin duration
+      const label = document.getElementById("accessType");
+      label.style.display="block"; label.style.background="#2a9d8f"; label.textContent="Access type: Admin-granted";
+      return true;
+  }
+  return false;
+}
+
+// ===== MAIN FLOW =====
+(async function(){
+  const reference = getQueryParam("reference");
+
+  auth.onAuthStateChanged(async user => {
+      if(!user){
+          showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+          document.getElementById('accessBtn').onclick = async () => {
+              try{
+                  const provider = new firebase.auth.GoogleAuthProvider();
+                  const result = await auth.signInWithPopup(provider);
+                  user = result.user;
+                  if(!user) throw "Google login failed";
+
+                  const teacherAccess = await checkTeacherAccess(user.email);
+                  if(!teacherAccess){
+                      showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                      document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+                  } else {
+                      // show admin panel if admin email
+                      if(user.email === "youremail@domain.com"){ 
+                          document.getElementById("adminPanel").style.display="block";
+                      }
+                  }
+              }catch(e){ alert("Sign-in failed."); console.error(e); }
+          };
+      } else {
+          const teacherAccess = await checkTeacherAccess(user.email);
+          if(!teacherAccess){
+              const success = await saveAccess(user, reference);
+              if(!success){
+                  showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                  document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+              }
+          } else {
+              if(user.email === "youremail@domain.com"){ 
+                  document.getElementById("adminPanel").style.display="block";
+              }
+          }
+      }
+  });
+
+  // ===== ADMIN PANEL LOGIC =====
+  document.getElementById("addTeacherBtn").onclick = async ()=>{
+      const email = document.getElementById("teacherEmail").value.toLowerCase().trim();
+      if(!email){ document.getElementById("adminMessage").textContent="Enter email!"; return; }
+      await db.ref(`schooltools/admins/teachers/${email}`).set(true);
+      document.getElementById("adminMessage").textContent="Teacher added!";
+      document.getElementById("teacherEmail").value="";
+  }
+
+})();
+</script>
