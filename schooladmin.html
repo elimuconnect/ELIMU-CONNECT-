@@ -50,15 +50,16 @@
 <!-- Admin Panel -->
 <div id="adminPanel" style="display:none;">
   <h3>Admin Panel</h3>
-  <input id="teacherEmail" type="email" placeholder="Teacher Email"/>
-  <input id="expiresIn" type="number" placeholder="Access duration (hours)"/>
+  <input id="teacherEmail" placeholder="Enter teacher email" style="padding:6px;"/>
   <button id="addTeacherBtn">Add Teacher</button>
-  <p id="adminMessage" style="color:#e63946;"></p>
+  <p id="adminMessage" style="color:green;"></p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+
 
 <script>
 // ================= FIREBASE =================
@@ -76,6 +77,11 @@ const db = firebase.database();
 const auth = firebase.auth();
 const PAYMENT_LINK = "https://paystack.shop/pay/b-fmc6kyut";
 const ACCESS_DURATION = 24*60*60*1000; // 24h
+
+// ===== ADMIN EMAIL ARRAY =====
+const adminEmails = [
+  "wamithisolomonndegwa@gmail.com" // add more later
+];
 
 // ===== HELPERS =====
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
@@ -105,46 +111,54 @@ function startCountdown(expiresAt){
 }
 
 // ===== SAVE PAYSTACK ACCESS =====
-async function saveAccess(user, reference){
-  if(!reference) return false;
-  const refPath = `paystackRefs/${reference}`;
-  const refSnap = await db.ref(refPath).get();
-  if(refSnap.exists()) return false; // already used
-
+async function saveAccessForUser(user){
   const expiresAt = Date.now() + ACCESS_DURATION;
-  await db.ref(refPath).set({
+  await db.ref(`paystackRefs/${user.uid || user.email}`).set({
       email: user.email,
-      reference,
       createdAt: Date.now(),
       expiresAt
   });
-
   if(window.history.replaceState){
       window.history.replaceState(null, '', window.location.origin + window.location.pathname);
   }
   hideAccessModal();
   startCountdown(expiresAt);
-
   const label = document.getElementById("accessType");
-  label.style.display="block"; label.style.background="#0078D7"; label.textContent="Access type: Paid";
-  return true;
+  label.style.display="block"; label.style.background="#0078D7"; 
+  label.textContent="Access type: Paid";
 }
 
-// ===== CHECK TEACHER ACCESS =====
-async function checkTeacherAccess(email){
-  email = email.toLowerCase().trim();
-  const snap = await db.ref("schooltools/admins/teachers").get();
+// ===== CHECK PAID ACCESS =====
+async function checkPaidAccess(email){
+  const snap = await db.ref("paystackRefs").orderByChild("email").equalTo(email).get();
   let active = null;
   snap.forEach(s=>{
-      if(s.key === email){
-          active = true;
-      }
+      const v = s.val();
+      if(Date.now() <= v.expiresAt && !active) active = v;
   });
   if(active){
       hideAccessModal();
-      startCountdown(Date.now() + ACCESS_DURATION); // optional: set admin duration
+      startCountdown(active.expiresAt);
       const label = document.getElementById("accessType");
-      label.style.display="block"; label.style.background="#2a9d8f"; label.textContent="Access type: Admin-granted";
+      label.style.display="block";
+      label.style.background="#0078D7";
+      label.textContent="Access type: Paid";
+      return true;
+  }
+  return false;
+}
+
+// ===== CHECK ADMIN ACCESS =====
+async function checkAdminAccess(email){
+  email = email.toLowerCase().trim();
+  if(adminEmails.includes(email)){
+      hideAccessModal();
+      startCountdown(Date.now() + ACCESS_DURATION); // optional duration
+      const label = document.getElementById("accessType");
+      label.style.display="block"; label.style.background="#2a9d8f";
+      label.textContent="Access type: Admin-granted";
+      // show admin panel
+      document.getElementById("adminPanel").style.display="block";
       return true;
   }
   return false;
@@ -164,29 +178,22 @@ async function checkTeacherAccess(email){
                   user = result.user;
                   if(!user) throw "Google login failed";
 
-                  const teacherAccess = await checkTeacherAccess(user.email);
-                  if(!teacherAccess){
-                      showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                      document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-                  } else {
-                      // show admin panel if admin email
-                      if(user.email === "youremail@domain.com"){ 
-                          document.getElementById("adminPanel").style.display="block";
+                  const adminAccess = await checkAdminAccess(user.email);
+                  if(!adminAccess){
+                      const paid = await checkPaidAccess(user.email);
+                      if(!paid){
+                          showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                          document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
                       }
                   }
               }catch(e){ alert("Sign-in failed."); console.error(e); }
           };
       } else {
-          const teacherAccess = await checkTeacherAccess(user.email);
-          if(!teacherAccess){
-              const success = await saveAccess(user, reference);
-              if(!success){
-                  showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                  document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-              }
-          } else {
-              if(user.email === "youremail@domain.com"){ 
-                  document.getElementById("adminPanel").style.display="block";
+          const adminAccess = await checkAdminAccess(user.email);
+          if(!adminAccess){
+              const paid = await checkPaidAccess(user.email);
+              if(!paid){
+                  await saveAccessForUser(user); // unlock after paying
               }
           }
       }
@@ -196,10 +203,13 @@ async function checkTeacherAccess(email){
   document.getElementById("addTeacherBtn").onclick = async ()=>{
       const email = document.getElementById("teacherEmail").value.toLowerCase().trim();
       if(!email){ document.getElementById("adminMessage").textContent="Enter email!"; return; }
+      // Add to Firebase
       await db.ref(`schooltools/admins/teachers/${email}`).set(true);
       document.getElementById("adminMessage").textContent="Teacher added!";
       document.getElementById("teacherEmail").value="";
   }
-
 })();
 </script>
+
+</body>
+</html>
