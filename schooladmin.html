@@ -353,7 +353,7 @@
 </footer>
 
 
-<!-- FULL PAGE PAYMENT LOCK -->
+<!-- Full Page Payment Lock -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
     background: #ffffff; display:flex; justify-content:center; align-items:center;
@@ -395,7 +395,7 @@
 ">
   Admin Access Active
 </div>
-
+	
 <div id="adminTools" style="display:none; position:fixed; top:50px; left:50%; transform:translateX(-50%);
  background:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:99999;">
   <input type="email" id="newTeacherEmail" placeholder="Teacher Email" style="padding:6px 10px;">
@@ -455,59 +455,11 @@ function startCountdown(expiresAt){
     },1000);
 }
 
-// ===== ADMINS & TEACHERS =====
-const adminEmails = ["wamithisolomonndegwa@gmail.com"];
-const MAX_TEACHERS = 30;
 
-function showAdminAccess(){ document.getElementById("adminAccess").style.display = "block"; }
 
-async function addTeacher(email, addedBy){
-    const key = emailToKey(email);
-    const teachersRef = db.ref("schooltools/teachers");
-    const snap = await teachersRef.get();
-    const currentTeachers = snap.exists() ? Object.keys(snap.val()) : [];
-    if(currentTeachers.length >= MAX_TEACHERS){
-        alert("Maximum of 30 teachers reached!");
-        return false;
-    }
-    await teachersRef.child(key).set({ addedBy });
-    alert(`Teacher ${email} added successfully`);
-    return true;
-}
 
-async function checkAdmin(email){
-    email = email.toLowerCase().trim();
-    if(adminEmails.includes(email)){
-        showAdminAccess();
-        return true;
-    }
-    return false;
-}
 
-// ===== CHECK ADMIN PAID ACCESS =====
-async function checkAdminAccess(email){
-    const key = emailToKey(email);
-    const snap = await db.ref("paystackRefs").get();
-    let active = null;
-    snap.forEach(s => {
-        const data = s.val();
-        if(data && emailToKey(data.email) === key && data.expiresAt && Date.now() <= data.expiresAt){
-            active = { expiresAt: data.expiresAt };
-        }
-    });
-    if(active){
-        hideAccessModal();
-        startCountdown(active.expiresAt);
-        const label = document.getElementById("accessType");
-        label.style.display = "block";
-        label.style.background = "#0078D7";
-        label.textContent = "Access type: Paid Admin";
-        return true;
-    }
-    return false;
-}
-
-// ===== CHECK TEACHER ACCESS (via admin) =====
+// Check if teacher has access via their admin
 async function checkTeacherAccess(email){
     const key = emailToKey(email);
     const snap = await db.ref("schooltools/teachers").child(key).get();
@@ -520,77 +472,206 @@ async function checkTeacherAccess(email){
     return !!activeAdmin;
 }
 
-// ===== SAVE ADMIN ACCESS =====
-async function saveAccess(user, reference){
-    if(!reference) return false;
+
+
+
+
+
+
+
+async function saveAccess(user, reference) {
+    if (!reference) return false;
+
     const refPath = `paystackRefs/${reference}`;
     const refSnap = await db.ref(refPath).get();
-    if(refSnap.exists()) return false;
+
+    // If the reference already exists, don't allow reuse
+    if (refSnap.exists()) return false;
 
     const expiresAt = Date.now() + ACCESS_DURATION;
+
+    // Save reference in the database for admin
     await db.ref(refPath).set({
-        email: user.email,
+        email: user.email,      // Admin email
         reference,
         createdAt: Date.now(),
         expiresAt
     });
 
-    if(window.history.replaceState){
-        window.history.replaceState(null, '', window.location.origin + window.location.pathname);
+    // Remove reference from URL
+    if (window.history.replaceState) {
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState(null, '', cleanUrl);
     }
 
+    // Hide modal and start countdown for admin
     hideAccessModal();
     startCountdown(expiresAt);
 
+    // Show access type label
     const label = document.getElementById("accessType");
     label.style.display = "block";
     label.style.background = "#0078D7";
-    label.textContent = "Access type: Paid Admin";
+    label.textContent = "Access type: Paid (Admin)";
+
+    // Grant access to all teachers added by this admin
+    const teachersSnap = await db.ref("schooltools/teachers").get();
+    if (teachersSnap.exists()) {
+        const updates = {};
+        teachersSnap.forEach(snap => {
+            const teacherKey = snap.key;
+            const teacherData = snap.val();
+            if (teacherData.addedBy === user.email) {
+                // Mark teacher as active with same expiration
+                updates[`schooltools/teachers/${teacherKey}/expiresAt`] = expiresAt;
+            }
+        });
+        if (Object.keys(updates).length > 0) {
+            await db.ref().update(updates);
+        }
+    }
 
     return true;
+}
+
+
+
+
+		
+// ===== ADMINS & TEACHERS =====
+const adminEmails = ["wamithisolomonndegwa@gmail.com"];
+const MAX_TEACHERS = 30;
+
+function showAdminAccess(){ document.getElementById("adminAccess").style.display = "block"; }
+
+
+async function addTeacher(email){
+    const key = emailToKey(email);
+    const teachersRef = db.ref("schooltools/teachers");
+    const snap = await teachersRef.get();
+    const currentTeachers = snap.exists() ? Object.keys(snap.val()) : [];
+    if(currentTeachers.length >= MAX_TEACHERS){
+        alert("Maximum of 30 teachers reached!");
+        return false;
+    }
+
+    // Save teacher with admin email as addedBy
+    const currentUser = auth.currentUser;
+    if(!currentUser) return alert("Admin not signed in");
+
+    await teachersRef.child(key).set({
+        addedBy: currentUser.email
+    });
+
+    alert(`Teacher ${email} added successfully`);
+    return true;
+}
+
+
+	
+
+async function checkAdmin(email){
+    email = email.toLowerCase().trim();
+    if(adminEmails.includes(email)){
+        showAdminAccess();
+        return true;
+    }
+    return false;
+}
+
+async function checkTeacher(email){
+    const key = emailToKey(email);
+    const snap = await db.ref("schooltools/teachers").child(key).get();
+    return snap.exists();
 }
 
 // ===== ADMIN TOOL FUNCTION =====
 function adminAddTeacher(){
     const email = document.getElementById("newTeacherEmail").value;
     if(!email) return alert("Enter teacher email");
-
-    auth.onAuthStateChanged(async user => {
-        if(!user) return alert("Sign in first");
-        const emailKey = user.email.toLowerCase().trim();
-        if(!adminEmails.includes(emailKey)) return alert("Only admins can add teachers");
-        await addTeacher(email, user.email);
-    });
+    addTeacher(email);
 }
+
+
+
+// Check if admin has paid access
+async function checkAdminAccess(email){
+    const key = emailToKey(email);
+    const snap = await db.ref("paystackRefs").get();
+    let active = null;
+    snap.forEach(s => {
+        const data = s.val();
+        if(data && emailToKey(data.email) === key && data.expiresAt && Date.now() <= data.expiresAt){
+            active = { expiresAt: data.expiresAt };
+        }
+    });
+    if(active){
+        startCountdown(active.expiresAt);
+        const label = document.getElementById("accessType");
+        label.style.display = "block";
+        label.style.background = "#0078D7";
+        label.textContent = "Access type: Paid Admin";
+        return true;
+    }
+    return false;
+}
+
+// Check if teacher has access via their admin
+async function checkTeacherAccess(email){
+    const key = emailToKey(email);
+    const snap = await db.ref("schooltools/teachers").child(key).get();
+    if(!snap.exists()) return false;
+
+    const adminEmail = snap.val().addedBy;
+    if(!adminEmail) return false;
+
+    const activeAdmin = await checkAdminAccess(adminEmail);
+    return !!activeAdmin;
+}
+
+
+
 
 // ===== MAIN FLOW =====
 (async function(){
     const reference = getQueryParam("reference");
 
     auth.onAuthStateChanged(async user => {
+
         async function handleAccess(user){
             const email = user.email.toLowerCase().trim();
             const isAdmin = await checkAdmin(email);
             let allowed = false;
 
             if(isAdmin){
+                // Admin must have paid access
                 allowed = await checkAdminAccess(email);
             } else {
+                // Teacher can access only if their admin has paid
                 allowed = await checkTeacherAccess(email);
             }
 
             if(!allowed){
-                showAccessModal("Access denied. Admin must pay to grant access.", true, "Pay Now");
-                if(isAdmin){
-                    document.getElementById('accessBtn').onclick = () => {
-                        if(reference) saveAccess(user, reference).then(success=>{
-                            if(!success) window.location.href = PAYMENT_LINK;
-                        });
-                        else window.location.href = PAYMENT_LINK;
+                showAccessModal(
+                    "Access denied. Admin must pay to grant access.", 
+                    true, 
+                    isAdmin ? "Pay Now" : "Ask Admin"
+                );
+
+                document.getElementById('accessBtn').onclick = () => {
+                    if(isAdmin){
+                        if(reference){
+                            saveAccess(user, reference).then(success => {
+                                if(!success) window.location.href = PAYMENT_LINK;
+                            });
+                        } else {
+                            window.location.href = PAYMENT_LINK;
+                        }
+                    } else {
+                        alert("Ask your admin to pay for access.");
                     }
-                } else {
-                    document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
-                }
+                };
+
                 auth.signOut();
             } else if(isAdmin){
                 showAdminAccess();
@@ -598,13 +679,16 @@ function adminAddTeacher(){
         }
 
         if(!user){
+            // Not signed in → show Google login
             showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+
             document.getElementById("accessBtn").onclick = async () => {
                 try{
                     const provider = new firebase.auth.GoogleAuthProvider();
                     const result = await auth.signInWithPopup(provider);
                     const user = result.user;
                     if(!user) throw "Google login failed";
+
                     await handleAccess(user);
                 } catch(e){
                     alert("Sign-in failed.");
@@ -612,14 +696,17 @@ function adminAddTeacher(){
                 }
             };
         } else {
+            // Already signed in → check access
             await handleAccess(user);
         }
     });
+
 })();
+
+
+
+
+
 </script>
-
-
-
-	
 </body>
 </html>
