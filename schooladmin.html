@@ -637,60 +637,18 @@ async function checkTeacherAccess(email){
     const reference = getQueryParam("reference");
 
     auth.onAuthStateChanged(async user => {
-
-        async function handleAccess(user){
-            const email = user.email.toLowerCase().trim();
-            const isAdmin = await checkAdmin(email);
-            let allowed = false;
-
-            if(isAdmin){
-                // Admin must have paid access
-                allowed = await checkAdminAccess(email);
-            } else {
-                // Teacher can access only if their admin has paid
-                allowed = await checkTeacherAccess(email);
-            }
-
-            if(!allowed){
-                showAccessModal(
-                    "Access denied. Admin must pay to grant access.", 
-                    true, 
-                    isAdmin ? "Pay Now" : "Ask Admin"
-                );
-
-                document.getElementById('accessBtn').onclick = () => {
-                    if(isAdmin){
-                        if(reference){
-                            saveAccess(user, reference).then(success => {
-                                if(!success) window.location.href = PAYMENT_LINK;
-                            });
-                        } else {
-                            window.location.href = PAYMENT_LINK;
-                        }
-                    } else {
-                        alert("Ask your admin to pay for access.");
-                    }
-                };
-
-                auth.signOut();
-            } else if(isAdmin){
-                showAdminAccess();
-            }
-        }
-
         if(!user){
             // Not signed in → show Google login
             showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
 
             document.getElementById("accessBtn").onclick = async () => {
-                try{
+                try {
                     const provider = new firebase.auth.GoogleAuthProvider();
                     const result = await auth.signInWithPopup(provider);
                     const user = result.user;
                     if(!user) throw "Google login failed";
-
                     await handleAccess(user);
-                } catch(e){
+                } catch(e) {
                     alert("Sign-in failed.");
                     console.error(e);
                 }
@@ -701,8 +659,49 @@ async function checkTeacherAccess(email){
         }
     });
 
-})();
+    async function handleAccess(user){
+        const email = user.email.toLowerCase().trim();
+        const isAdmin = await checkAdmin(email);
+        let allowed = false;
 
+        if(isAdmin){
+            // Admin: check if they already paid
+            allowed = await checkAdminAccess(email);
+
+            // If URL has reference, save it for admin
+            if(reference && !allowed){
+                const success = await saveAccess(user, reference);
+                allowed = success;
+            }
+
+            if(allowed) showAdminAccess();
+
+        } else {
+            // Teacher: access allowed only if their admin has paid
+            allowed = await checkTeacherAccess(email);
+        }
+
+        if(!allowed){
+            // Show modal for denied access
+            showAccessModal(
+                "Access denied. Admin must pay to grant access.", 
+                true, 
+                isAdmin ? "Pay Now" : "Ask Admin"
+            );
+
+            document.getElementById('accessBtn').onclick = () => {
+                if(isAdmin){
+                    window.location.href = PAYMENT_LINK;
+                } else {
+                    alert("Ask your admin to pay for access.");
+                }
+            };
+        } else {
+            hideAccessModal(); // Hide modal if allowed
+        }
+    }
+
+})();
 
 
 
