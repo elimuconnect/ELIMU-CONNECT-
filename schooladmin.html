@@ -732,16 +732,16 @@ async function handleAccess(user, reference) {
         const isAdmin = normalizedAdmins.includes(email);
         let allowed = false;
 
-        if (isAdmin) {
+       if(isAdmin){
             // Admin: check if already paid
             allowed = await checkAdminAccess(email);
 
             // Save access if reference exists in URL
-            if (reference && !allowed) {
+            if(reference && !allowed){
                 allowed = await saveAccess(user, reference);
             }
 
-            if (allowed) {
+            if(allowed){
                 showAdminAccess(); // show admin tools
             } else {
                 showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
@@ -751,19 +751,16 @@ async function handleAccess(user, reference) {
             // Teacher: check admin's paid access
             allowed = await checkTeacherAccess(email);
 
-            if (!allowed) {
+            if(!allowed){
                 showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
                 document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
             }
         }
 
-        if (allowed) {
+        if(allowed){
             hideAccessModal();
         }
-    } finally {
-        handlingAccess = false;
     }
-}
 
 })();
 
