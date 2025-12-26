@@ -542,7 +542,10 @@ async function saveAccess(user, reference) {
 const adminEmails = ["wamithisolomon@gmail.com"];
 const MAX_TEACHERS = 30;
 
-function showAdminAccess(){ document.getElementById("adminAccess").style.display = "block"; }
+function showAdminAccess(){
+    document.getElementById("adminAccess").style.display = "block";
+    document.getElementById("adminTools").style.display = "block";
+}
 
 
 async function addTeacher(email){
