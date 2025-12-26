@@ -382,6 +382,16 @@
     font-weight:600; z-index:99999; display:none;
 "></p>
 
+
+<p id="accessType" style="
+    position: fixed; top:50px; right:10px;
+    background:#2a9d8f; color:#fff; padding:6px 10px;
+    border-radius:6px; font-family:'Segoe UI', sans-serif;
+    font-weight:600; z-index:99999; display:none;
+"></p>
+
+	
+
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -431,7 +441,35 @@ function startCountdown(expiresAt){
 }
 
 
-// ===== SAVE ACCESS =====
+async function checkTeacherAccess(email){
+    email = email.toLowerCase().trim();
+    const snap = await db.ref("schooltools").get();
+    let active = null;
+
+    snap.forEach(s => {
+        const school = s.val();
+        if (!school || !school.teachers) return;
+
+        // Admin-added teacher
+        if (school.teachers[email] && school.expiresAt && Date.now() <= school.expiresAt) {
+            active = { schoolId: s.key, school, expiresAt: school.expiresAt, type: "Admin-granted" };
+        }
+    });
+
+    if (active) {
+        hideAccessModal();
+        startCountdown(active.expiresAt);
+
+        // Show type label
+        const label = document.getElementById("accessType");
+        label.style.display = "block";
+        label.textContent = "Access type: " + active.type;
+
+        return true;
+    }
+    return false;
+}
+
 async function saveAccess(user, reference){
     if(!reference) return false;
 
@@ -449,7 +487,6 @@ async function saveAccess(user, reference){
         expiresAt
     });
 
-    // remove reference from URL
     if(window.history.replaceState){
         window.history.replaceState(null, '', window.location.origin + window.location.pathname);
     }
@@ -457,35 +494,16 @@ async function saveAccess(user, reference){
     hideAccessModal();
     startCountdown(expiresAt);
 
+    // Show type label for paid access
+    const label = document.getElementById("accessType");
+    label.style.display = "block";
+    label.textContent = "Access type: Paid";
+
     return true;
 }
 
 
-
-async function checkTeacherAccess(email){
-    email = email.toLowerCase().trim();
-    const snap = await db.ref("schooltools").get();
-    let active = null;
-
-    snap.forEach(s => {
-        const school = s.val();
-        if (!school || !school.teachers) return;
-
-        // Check if email is listed as teacher
-        if (school.teachers[email] && school.expiresAt && Date.now() <= school.expiresAt) {
-            active = { schoolId: s.key, school, expiresAt: school.expiresAt };
-        }
-    });
-
-    if (active) {
-        hideAccessModal();
-        startCountdown(active.expiresAt);
-        return true;
-    }
-    return false;
-}
-
-
+	
 // ===== MAIN FLOW =====
 (async function(){
     const reference = getQueryParam("reference");
