@@ -385,7 +385,7 @@
 
 <p id="accessType" style="
     position: fixed; top:50px; right:10px;
-    background:#2a9d8f; color:#fff; padding:6px 10px;
+    padding:6px 10px;
     border-radius:6px; font-family:'Segoe UI', sans-serif;
     font-weight:600; z-index:99999; display:none;
 "></p>
@@ -440,7 +440,6 @@ function startCountdown(expiresAt){
     },1000);
 }
 
-
 async function checkTeacherAccess(email){
     email = email.toLowerCase().trim();
     const snap = await db.ref("schooltools").get();
@@ -460,9 +459,10 @@ async function checkTeacherAccess(email){
         hideAccessModal();
         startCountdown(active.expiresAt);
 
-        // Show type label
+        // Show type label (green for admin)
         const label = document.getElementById("accessType");
         label.style.display = "block";
+        label.style.background = "#2a9d8f"; // green
         label.textContent = "Access type: " + active.type;
 
         return true;
@@ -494,14 +494,14 @@ async function saveAccess(user, reference){
     hideAccessModal();
     startCountdown(expiresAt);
 
-    // Show type label for paid access
+    // Show type label (blue for paid)
     const label = document.getElementById("accessType");
     label.style.display = "block";
+    label.style.background = "#0078D7"; // blue
     label.textContent = "Access type: Paid";
 
     return true;
 }
-
 
 	
 // ===== MAIN FLOW =====
