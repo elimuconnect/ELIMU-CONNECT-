@@ -275,66 +275,74 @@
       localStorage.setItem("currentLesson", currentLesson);
     }
 
-    function loadVoices() {
-      let voices = speechSynthesis.getVoices();
-      if (voices.length === 0) {
-        setTimeout(loadVoices, 200);
-        return;
-      }
 
-      const selectedLang = document.getElementById("voiceLang").value;
 
-      if (selectedLang === "sw") {
-        // Find a Swahili voice if available
-        selectedVoice = voices.find(v =>
-          v.lang.toLowerCase().startsWith("sw") || v.name.toLowerCase().includes("swahili")
-        );
-      } else {
-        // English voices, prioritize African or Nigerian female voice
-        selectedVoice = voices.find(v =>
-          (v.lang.toLowerCase().startsWith("en") && (v.name.toLowerCase().includes("nigerian") || v.name.toLowerCase().includes("african")))
-        );
-        if (!selectedVoice) {
-          selectedVoice = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
-        }
-      }
+function loadVoices() {
+  let voices = speechSynthesis.getVoices();
 
-      // Fallback to any voice if none found for chosen language
-      if (!selectedVoice) {
-        selectedVoice = voices[0];
-      }
-    }
-    loadVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
+  if (!voices || voices.length === 0) {
+    console.log("No voices detected, retrying...");
+    setTimeout(loadVoices, 500);
+    return;
+  }
 
-    function readLessonAloud() {
-      if (!tutorStarted || lessonsArray.length === 0) {
-        alert("No lesson loaded.");
-        return;
-      }
-      const editorText = document.getElementById("editor").innerText;
-      const mathInput = document.getElementById("mathInput");
-      const mathText = mathInput?.getValue?.() || "";
+  const selectedLang = document.getElementById("voiceLang").value;
+  if (selectedLang === "sw") {
+    selectedVoice = voices.find(v =>
+      v.lang.toLowerCase().startsWith("sw") || v.name.toLowerCase().includes("swahili")
+    );
+  } else {
+    selectedVoice = voices.find(v =>
+      v.lang.toLowerCase().startsWith("en")
+    );
+  }
 
-      const combined = [
-        editorText,
-        mathText ? ("Math expression: " + mathText) : "",
-        ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""
-      ].filter(Boolean).join("\n");
+  if (!selectedVoice) selectedVoice = voices[0];
+}
 
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-      }
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
 
-      speechUtterance = new SpeechSynthesisUtterance(combined);
-      speechUtterance.voice = selectedVoice;
-      speechUtterance.rate = 1;
-      speechUtterance.pitch = 1.1;
 
-      speechSynthesis.speak(speechUtterance);
-    }
+    
+
+
+function readLessonAloud() {
+  if (!tutorStarted || lessonsArray.length === 0) {
+    alert("No lesson loaded.");
+    return;
+  }
+
+  if (!('speechSynthesis' in window)) {
+    alert("Sorry, this device does not support text-to-speech.");
+    return;
+  }
+
+  const editorText = document.getElementById("editor").innerText;
+  const mathInput = document.getElementById("mathInput");
+  const mathText = mathInput?.getValue?.() || "";
+
+  const combined = [
+    editorText,
+    mathText ? ("Math expression: " + mathText) : "",
+    ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""
+  ].filter(Boolean).join("\n");
+
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+  }
+
+  speechUtterance = new SpeechSynthesisUtterance(combined);
+  speechUtterance.voice = selectedVoice;
+  speechUtterance.rate = 1;
+  speechUtterance.pitch = 1.1;
+
+  speechSynthesis.speak(speechUtterance);
+}
+
+
+
 
     function pauseSpeech() {
       if (speechSynthesis.speaking && !speechSynthesis.paused) {
@@ -411,3 +419,4 @@
 
 </body>
 </html>
+
