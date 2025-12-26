@@ -353,7 +353,6 @@
 </footer>
 
 
-
 <!-- Full Page Payment Lock -->
 <div id="accessModal" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -382,7 +381,6 @@
     font-weight:600; z-index:99999; display:none;
 "></p>
 
-
 <p id="accessType" style="
     position: fixed; top:50px; right:10px;
     padding:6px 10px;
@@ -390,7 +388,23 @@
     font-weight:600; z-index:99999; display:none;
 "></p>
 
-	
+<!-- Admin badges and tools -->
+<div id="adminAccess" style="
+    display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
+    background:#2a9d8f; color:#fff; padding:10px 16px; border-radius:8px; z-index:99999;
+    font-weight:600; font-family:Segoe UI,sans-serif;
+">
+  Admin Access Active
+</div>
+
+<div id="adminTools" style="
+    display:none; position:fixed; top:50px; left:50%; transform:translateX(-50%);
+    background:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.2);
+    z-index:99999;
+">
+  <input type="email" id="newTeacherEmail" placeholder="Teacher Email" style="padding:6px 10px;">
+  <button onclick="adminAddTeacher()">Add Teacher</button>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -412,6 +426,8 @@ const db = firebase.database();
 const auth = firebase.auth();
 const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
 const ACCESS_DURATION = 24*60*60*1000; // 24 hours
+const adminEmails = ["wamithisolomonndegwa@gmail.com"];
+const MAX_TEACHERS = 30;
 
 // ===== HELPERS =====
 function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
@@ -424,7 +440,9 @@ function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
     btn.style.display = showButton ? "inline-block" : "none";
     btn.textContent = btnText;
 }
+
 function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
+
 function startCountdown(expiresAt){
     const countdownEl = document.getElementById('accessCountdown');
     countdownEl.style.display="block";
@@ -440,6 +458,23 @@ function startCountdown(expiresAt){
     },1000);
 }
 
+// ===== ACCESS CHECKS =====
+async function checkAdmin(email){
+    email = email.toLowerCase().trim();
+    if(adminEmails.includes(email)){
+        document.getElementById("adminAccess").style.display = "block";
+        document.getElementById("adminTools").style.display = "block";
+        return true;
+    }
+    return false;
+}
+
+async function checkTeacher(email){
+    email = email.toLowerCase().trim();
+    const snap = await db.ref("schooltools/teachers").child(email).get();
+    return snap.exists();
+}
+
 async function checkTeacherAccess(email){
     email = email.toLowerCase().trim();
     const snap = await db.ref("schooltools").get();
@@ -448,8 +483,6 @@ async function checkTeacherAccess(email){
     snap.forEach(s => {
         const school = s.val();
         if (!school || !school.teachers) return;
-
-        // Admin-added teacher
         if (school.teachers[email] && school.expiresAt && Date.now() <= school.expiresAt) {
             active = { schoolId: s.key, school, expiresAt: school.expiresAt, type: "Admin-granted" };
         }
@@ -458,13 +491,10 @@ async function checkTeacherAccess(email){
     if (active) {
         hideAccessModal();
         startCountdown(active.expiresAt);
-
-        // Show type label (green for admin)
         const label = document.getElementById("accessType");
         label.style.display = "block";
-        label.style.background = "#2a9d8f"; // green
+        label.style.background = "#2a9d8f";
         label.textContent = "Access type: " + active.type;
-
         return true;
     }
     return false;
@@ -472,14 +502,11 @@ async function checkTeacherAccess(email){
 
 async function saveAccess(user, reference){
     if(!reference) return false;
-
     const refPath = `paystackRefs/${reference}`;
     const refSnap = await db.ref(refPath).get();
-
     if(refSnap.exists()) return false; // Already used
 
     const expiresAt = Date.now() + ACCESS_DURATION;
-
     await db.ref(refPath).set({
         email: user.email,
         reference,
@@ -494,59 +521,75 @@ async function saveAccess(user, reference){
     hideAccessModal();
     startCountdown(expiresAt);
 
-    // Show type label (blue for paid)
     const label = document.getElementById("accessType");
     label.style.display = "block";
-    label.style.background = "#0078D7"; // blue
+    label.style.background = "#0078D7";
     label.textContent = "Access type: Paid";
 
     return true;
 }
 
-	
-// ===== MAIN FLOW =====
+// ===== ADMIN TOOL =====
+async function adminAddTeacher(){
+    const email = document.getElementById("newTeacherEmail").value.trim().toLowerCase();
+    if(!email) return alert("Enter a valid email.");
+    const snap = await db.ref("schooltools/teachers").get();
+    const currentTeachers = snap.exists() ? Object.keys(snap.val()) : [];
+    if(currentTeachers.length >= MAX_TEACHERS){
+        return alert("Maximum of 30 teachers reached!");
+    }
+    await db.ref("schooltools/teachers").child(email).set(true);
+    alert(`Teacher ${email} added successfully`);
+}
+
+// ===== MAIN AUTH FLOW =====
 (async function(){
     const reference = getQueryParam("reference");
 
     auth.onAuthStateChanged(async user => {
-        if (!user) {
-            // Not signed in → show Google login
+
+        async function handleAccess(user){
+            const email = user.email.toLowerCase().trim();
+            const isAdmin = await checkAdmin(email);
+            const isTeacherRegistered = await checkTeacher(email);
+            const activeTeacherAccess = await checkTeacherAccess(email);
+
+            if(!isAdmin && !isTeacherRegistered && !activeTeacherAccess){
+                alert("Access denied: you are neither admin nor a registered teacher.");
+                auth.signOut();
+                return;
+            }
+
+            if(!activeTeacherAccess && reference){
+                const success = await saveAccess(user, reference);
+                if(!success){
+                    showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                    document.getElementById('accessBtn').onclick = () => window.location.href = PAYMENT_LINK;
+                }
+            }
+        }
+
+        if(!user){
             showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
-            document.getElementById('accessBtn').onclick = async () => {
-                try {
+            document.getElementById("accessBtn").onclick = async () => {
+                try{
                     const provider = new firebase.auth.GoogleAuthProvider();
                     const result = await auth.signInWithPopup(provider);
                     const user = result.user;
                     if(!user) throw "Google login failed";
-
-                    // Check teacher access after login
-                    const teacherAccess = await checkTeacherAccess(user.email);
-                    if(!teacherAccess){
-                        showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                        document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-                    }
-                } catch(e){
+                    await handleAccess(user);
+                }catch(e){
                     alert("Sign-in failed.");
                     console.error(e);
                 }
             };
         } else {
-            // Signed in → check teacher access
-            const teacherAccess = await checkTeacherAccess(user.email);
-            if(!teacherAccess){
-                // If no active teacher access, save Paystack ref
-                const success = await saveAccess(user, reference);
-                if(!success){
-                    showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                    document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-                }
-            }
+            await handleAccess(user);
         }
     });
 })();
-	
-
 </script>
+
 	
 </body>
 </html>
