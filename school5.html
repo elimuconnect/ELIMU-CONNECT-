@@ -430,6 +430,7 @@ function startCountdown(expiresAt){
     },1000);
 }
 
+
 // ===== SAVE ACCESS =====
 async function saveAccess(user, reference){
     if(!reference) return false;
@@ -440,6 +441,7 @@ async function saveAccess(user, reference){
     if(refSnap.exists()) return false; // Already used
 
     const expiresAt = Date.now() + ACCESS_DURATION;
+
     await db.ref(refPath).set({
         email: user.email,
         reference,
@@ -452,15 +454,14 @@ async function saveAccess(user, reference){
         window.history.replaceState(null, '', window.location.origin + window.location.pathname);
     }
 
-    return true;
-}
-
-
     hideAccessModal();
     startCountdown(expiresAt);
+
     return true;
 }
 
+
+	
 // ===== CHECK ACTIVE ACCESS =====
 async function checkActiveAccess(reference){
     if(!reference) return false;
