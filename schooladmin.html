@@ -397,12 +397,25 @@
 ">
   Admin Access Active
 </div>
-	
+
+
 <div id="adminTools" style="display:none; position:fixed; top:50px; left:50%; transform:translateX(-50%);
  background:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:99999;">
+  
   <input type="email" id="newTeacherEmail" placeholder="Teacher Email" style="padding:6px 10px;">
-  <button onclick="adminAddTeacher()">Add Teacher</button>
+
+  <button onclick="adminAddTeacher()" style="margin-left:6px;">
+    Add Teacher
+  </button>
+
+  <button onclick="adminDeleteTeacher()" style="margin-left:6px; background:#e63946; color:#fff;">
+    Delete Teacher
+  </button>
+
 </div>
+
+
+	
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -573,6 +586,36 @@ async function addTeacher(email){
 }
 
 
+async function adminDeleteTeacher(){
+    const email = document.getElementById("newTeacherEmail").value;
+    if(!email) return alert("Enter teacher email");
+
+    const key = emailToKey(email);
+    const currentUser = auth.currentUser;
+    if(!currentUser) return alert("Admin not signed in");
+
+    const teacherRef = db.ref("schooltools/teachers").child(key);
+    const snap = await teacherRef.get();
+
+    if(!snap.exists()){
+        return alert("Teacher not found");
+    }
+
+    // 🔐 Security: only allow deleting teachers added by THIS admin
+    if(snap.val().addedBy !== currentUser.email){
+        return alert("You can only delete teachers you added");
+    }
+
+    const confirmDelete = confirm(`Delete teacher ${email}?`);
+    if(!confirmDelete) return;
+
+    await teacherRef.remove();
+    alert(`Teacher ${email} deleted successfully`);
+}
+
+
+
+	
 	
 async function checkAdmin(email){
     email = email.toLowerCase().trim();
