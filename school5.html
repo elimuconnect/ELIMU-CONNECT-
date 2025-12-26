@@ -412,38 +412,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-
-// ================= PROJECTOR-SAFE LOGIN WRAPPER =================
-
-// Wait for Firebase auth to initialize
-auth.onAuthStateChanged(user => {
-    if(user){
-        // User already signed in → hide login overlay, continue normal flow
-        document.getElementById("loginOverlay").style.display = "none";
-        return; // existing onAuthStateChanged logic will handle admin/teacher
-    }
-
-    // User not signed in → show projector-safe login
-    const loginBtn = document.getElementById("googleLoginLink");
-    const overlay = document.getElementById("loginOverlay");
-    overlay.style.display = "flex";
-
-    loginBtn.onclick = async (e)=>{
-        e.preventDefault();
-        try{
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const result = await auth.signInWithPopup(provider); // popup only
-            const user = result.user;
-            if(!user) throw "Login failed";
-            overlay.style.display = "none"; // hide login overlay
-            // existing onAuthStateChanged will now trigger
-        } catch(err){
-            console.error("Google login error:", err);
-            alert("Google login failed. Please try again.");
-        }
-    };
-});
-	
 /* ================= FIREBASE ================= */
 firebase.initializeApp({
   apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
@@ -494,7 +462,6 @@ function getFingerprint(){
   return fp;
 }
 
-/* ======== EMAIL ENCODE/DECODE ======== */
 function encodeEmail(email){ return email.replace(/\./g, ','); }
 function decodeEmail(key){ return key.replace(/,/g, '.'); }
 
@@ -576,106 +543,116 @@ async function removeTeacher(schoolId,email){
   renderTeacherList(schoolId, snap.val().teachers||{});
 }
 
-/* ================= GOOGLE LOGIN (POPUP for projector) ================= */
-document.getElementById("googleLoginLink").onclick = async (e)=>{
-  e.preventDefault();
-  try{
-    const provider = new firebase.auth.GoogleAuthProvider();
-    const result = await auth.signInWithPopup(provider);
-    const user = result.user;
-    if(!user) throw "Login failed";
-  } catch(err){
-    console.error("Login error:", err);
-    alert("Google login failed. Please try again.");
-  }
-};
-
-/* ================= MAIN FLOW ================= */
+/* ================= MAIN FLOW + PROJECTOR-SAFE LOGIN ================= */
 auth.onAuthStateChanged(async user=>{
-  if(!user) return;
+    if(!user){
+        // Not signed in → show login overlay
+        const overlay = document.getElementById("loginOverlay");
+        overlay.style.display = "flex";
 
-  document.getElementById("loginOverlay").style.display="none";
-  lockPage();
-
-  const email=user.email;
-  const fingerprint=getFingerprint();
-  let reference=new URLSearchParams(location.search).get("reference");
-  const access=await checkSchoolAccess(email);
-
-  async function checkAdminPaid(adminEmail){
-    let active=null;
-    const snap=await db.ref("paystackRefs").orderByChild("email").equalTo(adminEmail).get();
-    snap.forEach(s=>{
-      const v=s.val();
-      if(Date.now()<=v.expiresAt && !active) active=v;
-    });
-    return active;
-  }
-
-  if(!access.allowed){
-    unlockPage();
-    showAccessModal("Payment required to access tools.", "Pay Now", ()=>location.href=PAYMENT_LINK);
-    return;
-  }
-
-  if(access.isAdmin){
-    let active = await checkAdminPaid(email);
-
-    if(!active){
-      if(!reference){ showAccessModal("Admin must pay to access tools.", "Pay Now", ()=>location.href=PAYMENT_LINK); return; }
-
-      const refPath=`paystackRefs/${reference}`;
-      const refSnap=await db.ref(refPath).get();
-      if(refSnap.exists()){ showAccessModal("This payment reference was already used.", "Pay Now", ()=>location.href=PAYMENT_LINK); return; }
-
-      const expiresAt=Date.now()+ACCESS_DURATION;
-      await db.ref(refPath).set({email,fingerprint,expiresAt});
-
-      if(window.history.replaceState){
-        window.history.replaceState(null,'',window.location.origin+window.location.pathname);
-      }
-      active={expiresAt};
+        const loginBtn = document.getElementById("googleLoginLink");
+        loginBtn.onclick = async (e)=>{
+            e.preventDefault();
+            try{
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider); // safe for projector & PC
+                const user = result.user;
+                if(!user) throw "Login failed";
+                overlay.style.display = "none"; // hide overlay
+                // onAuthStateChanged triggers again automatically
+            } catch(err){
+                console.error("Login error:", err);
+                alert("Google login failed. Please try again.");
+            }
+        };
+        return; // stop further execution until login
     }
 
-    unlockPage();
-    renderAdminPanel(access.schoolId, access.school);
+    // Signed in → continue normal flow
+    document.getElementById("loginOverlay").style.display="none";
+    lockPage();
+    const email=user.email;
+    const fingerprint=getFingerprint();
+    let reference=new URLSearchParams(location.search).get("reference");
+    const access=await checkSchoolAccess(email);
 
-    const countdown=document.getElementById("adminCountdown");
-    countdown.style.display="block";
-    setInterval(()=>{
-      const r=active.expiresAt-Date.now();
-      if(r<=0) showAccessModal("Admin access expired.", "Pay Now", ()=>location.href=PAYMENT_LINK);
-      else countdown.textContent="Paid access: "+formatTime(r);
-    },1000);
-
-  } else {
-    // TEACHER FLOW
-    const active=await checkAdminPaid(access.adminEmail);
-    if(!active){
-      showAccessModal("Admin has not paid. Teacher access blocked.", "Pay Now", ()=>location.href=PAYMENT_LINK);
-      return;
+    async function checkAdminPaid(adminEmail){
+        let active=null;
+        const snap=await db.ref("paystackRefs").orderByChild("email").equalTo(adminEmail).get();
+        snap.forEach(s=>{
+            const v=s.val();
+            if(Date.now()<=v.expiresAt && !active) active=v;
+        });
+        return active;
     }
 
-    // ✅ SHOW TEACHER COUNTDOWN
-    let countdown = document.getElementById("teacherCountdown");
-    if(!countdown){
-      countdown = document.createElement("p");
-      countdown.id="teacherCountdown";
-      countdown.style.color="blue";
-      countdown.style.marginTop="10px";
-      document.body.appendChild(countdown);
+    if(!access.allowed){
+        unlockPage();
+        showAccessModal("Payment required to access tools.", "Pay Now", ()=>location.href=PAYMENT_LINK);
+        return;
     }
 
-    countdown.textContent="Admin access: "+formatTime(active.expiresAt-Date.now());
-    unlockPage();
+    if(access.isAdmin){
+        let active = await checkAdminPaid(email);
 
-    setInterval(()=>{
-      const r=active.expiresAt-Date.now();
-      if(r<=0) showAccessModal("Admin access expired.", "Pay Now", ()=>location.href=PAYMENT_LINK);
-      else countdown.textContent="Admin access: "+formatTime(r);
-    },1000);
-  }
+        if(!active){
+            if(!reference){ showAccessModal("Admin must pay to access tools.", "Pay Now", ()=>location.href=PAYMENT_LINK); return; }
+
+            const refPath=`paystackRefs/${reference}`;
+            const refSnap=await db.ref(refPath).get();
+            if(refSnap.exists()){ showAccessModal("This payment reference was already used.", "Pay Now", ()=>location.href=PAYMENT_LINK); return; }
+
+            const expiresAt=Date.now()+ACCESS_DURATION;
+            await db.ref(refPath).set({email,fingerprint,expiresAt});
+
+            if(window.history.replaceState){
+                window.history.replaceState(null,'',window.location.origin+window.location.pathname);
+            }
+            active={expiresAt};
+        }
+
+        unlockPage();
+        renderAdminPanel(access.schoolId, access.school);
+
+        const countdown=document.getElementById("adminCountdown");
+        countdown.style.display="block";
+        setInterval(()=>{
+            const r=active.expiresAt-Date.now();
+            if(r<=0) showAccessModal("Admin access expired.", "Pay Now", ()=>location.href=PAYMENT_LINK);
+            else countdown.textContent="Paid access: "+formatTime(r);
+        },1000);
+
+    } else {
+        // TEACHER FLOW
+        const active=await checkAdminPaid(access.adminEmail);
+        if(!active){
+            showAccessModal("Admin has not paid. Teacher access blocked.", "Pay Now", ()=>location.href=PAYMENT_LINK);
+            return;
+        }
+
+        // ✅ SHOW TEACHER COUNTDOWN
+        let countdown = document.getElementById("teacherCountdown");
+        if(!countdown){
+            countdown = document.createElement("p");
+            countdown.id="teacherCountdown";
+            countdown.style.color="blue";
+            countdown.style.marginTop="10px";
+            document.body.appendChild(countdown);
+        }
+
+        countdown.textContent="Admin access: "+formatTime(active.expiresAt-Date.now());
+        unlockPage();
+
+        setInterval(()=>{
+            const r=active.expiresAt-Date.now();
+            if(r<=0) showAccessModal("Admin access expired.", "Pay Now", ()=>location.href=PAYMENT_LINK);
+            else countdown.textContent="Admin access: "+formatTime(r);
+        },1000);
+    }
 });
 </script>
+
+
+	
 </body>
 </html>
