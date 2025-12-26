@@ -732,35 +732,46 @@ async function handleAccess(user, reference) {
         const isAdmin = normalizedAdmins.includes(email);
         let allowed = false;
 
-       if(isAdmin){
+        const btn = document.getElementById("accessBtn");
+
+        if (isAdmin) {
             // Admin: check if already paid
             allowed = await checkAdminAccess(email);
 
             // Save access if reference exists in URL
-            if(reference && !allowed){
+            if (reference && !allowed) {
                 allowed = await saveAccess(user, reference);
             }
 
-            if(allowed){
+            if (allowed) {
                 showAdminAccess(); // show admin tools
+                hideAccessModal();
             } else {
                 showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
-                document.getElementById('accessBtn').onclick = () => window.location.href = PAYMENT_LINK;
+                btn.onclick = () => window.location.href = PAYMENT_LINK;
+                btn.disabled = false; // ensure button is clickable
             }
         } else {
             // Teacher: check admin's paid access
             allowed = await checkTeacherAccess(email);
 
-            if(!allowed){
+            if (!allowed) {
                 showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
-                document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
+                btn.onclick = () => alert("Ask your admin to pay for access.");
+                btn.disabled = false; // ensure button is clickable
+            } else {
+                hideAccessModal();
             }
         }
 
-        if(allowed){
-            hideAccessModal();
-        }
+    } catch (err) {
+        console.error(err);
+        alert("Error checking access. Please try again.");
+    } finally {
+        handlingAccess = false;
     }
+}
+
 
 })();
 
