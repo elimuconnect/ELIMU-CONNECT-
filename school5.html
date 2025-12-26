@@ -355,37 +355,25 @@
 
 <!-- FULL WHITE OVERLAY LOGIN -->
 <div id="loginOverlay" style="
-  position:fixed; inset:0; background:#fff;
-  display:flex; align-items:center; justify-content:center;
-  z-index:99999; font-family:sans-serif;
+    position: fixed; top:0; left:0; width:100%; height:100%;
+    background:#ffffff; display:flex; justify-content:center; align-items:center;
+    z-index:99999; flex-direction:column;
 ">
-  <div style="width:320px;text-align:center">
-    <h3>Sign in</h3>
-
-    <input id="loginEmail" type="email" placeholder="Email"
-      style="width:100%;padding:10px;margin:8px 0" />
-
-    <input id="loginPassword" type="password" placeholder="Password"
-      style="width:100%;padding:10px;margin:8px 0" />
-
-    <button id="signinBtn"
-      style="width:100%;padding:12px;background:#0078D7;color:#fff;border:none;border-radius:6px">
-      Sign In
-    </button>
-
-    <p style="margin:10px 0">or</p>
-
-    <button id="signupBtn"
-      style="width:100%;padding:12px;background:#2a9d8f;color:#fff;border:none;border-radius:6px">
-      Create Account
-    </button>
-
-    <p id="loginError" style="color:red;margin-top:10px"></p>
-  </div>
+ <a href="#" id="googleLoginLink"
+   style="
+     display:inline-block;
+     padding:14px 24px;
+     font-size:1.1rem;
+     border-radius:10px;
+     background:#0078D7;
+     color:#fff;
+     text-decoration:none;
+     font-family:sans-serif;
+   ">
+  Continue with Google
+</a>
 </div>
 
-
-	
 <!-- PAGE LOCK OVERLAY -->
 <div id="pageLock" style="
     position: fixed; top:0; left:0; width:100%; height:100%;
@@ -557,57 +545,19 @@ async function removeTeacher(schoolId,email){
   renderTeacherList(schoolId, snap.val().teachers||{});
 }
 
-
-
-// ================= EMAIL/PASSWORD AUTH (PROJECTOR SAFE) =================
-
-const overlay = document.getElementById("loginOverlay");
-const errorEl = document.getElementById("loginError");
-
-function showError(msg){
-  errorEl.textContent = msg;
-}
-
-// SIGN IN
-document.getElementById("signinBtn").onclick = async ()=>{
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value;
-
-  if(!email || !password){
-    showError("Enter email and password");
-    return;
-  }
-
+/* ================= GOOGLE LOGIN (POPUP for projector) ================= */
+document.getElementById("googleLoginLink").onclick = async (e)=>{
+  e.preventDefault();
   try{
-    await auth.signInWithEmailAndPassword(email, password);
-    overlay.style.display = "none";
-  }catch(e){
-    showError(e.message);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const result = await auth.signInWithPopup(provider);
+    const user = result.user;
+    if(!user) throw "Login failed";
+  } catch(err){
+    console.error("Login error:", err);
+    alert("Google login failed. Please try again.");
   }
 };
-
-// SIGN UP
-document.getElementById("signupBtn").onclick = async ()=>{
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value;
-
-  if(password.length < 6){
-    showError("Password must be at least 6 characters");
-    return;
-  }
-
-  try{
-    await auth.createUserWithEmailAndPassword(email, password);
-    overlay.style.display = "none";
-  }catch(e){
-    showError(e.message);
-  }
-};
-
-
-
-
-	
 
 /* ================= MAIN FLOW ================= */
 auth.onAuthStateChanged(async user=>{
@@ -696,6 +646,8 @@ auth.onAuthStateChanged(async user=>{
   }
 });
 </script>
+
+
 
 
 	
