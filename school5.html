@@ -461,20 +461,28 @@ async function saveAccess(user, reference){
 }
 
 
-	
-// ===== CHECK ACTIVE ACCESS =====
-async function checkActiveAccess(reference){
-    if(!reference) return false;
 
-    const refSnap = await db.ref(`paystackRefs/${reference}`).get();
-    if(!refSnap.exists()) return false;
+async function checkTeacherAccess(email){
+    email = email.toLowerCase().trim();
+    const snap = await db.ref("schooltools").get();
+    let active = null;
 
-    const access = refSnap.val();
-    if(Date.now() > access.expiresAt) return false; // expired
+    snap.forEach(s => {
+        const school = s.val();
+        if (!school || !school.teachers) return;
 
-    hideAccessModal();
-    startCountdown(access.expiresAt);
-    return true;
+        // Check if email is listed as teacher
+        if (school.teachers[email] && school.expiresAt && Date.now() <= school.expiresAt) {
+            active = { schoolId: s.key, school, expiresAt: school.expiresAt };
+        }
+    });
+
+    if (active) {
+        hideAccessModal();
+        startCountdown(active.expiresAt);
+        return true;
+    }
+    return false;
 }
 
 
@@ -482,28 +490,20 @@ async function checkActiveAccess(reference){
 (async function(){
     const reference = getQueryParam("reference");
 
-    if(await checkActiveAccess(reference)) return; // pass reference
-
-    auth.onAuthStateChanged(async user=>{
-        if(user){
-            // Signed in → check/save reference
-            const success = await saveAccess(user, reference);
-            if(!success){
-                // Reference missing or already used → prompt payment
-                showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-            }
-        } else {
+    auth.onAuthStateChanged(async user => {
+        if (!user) {
             // Not signed in → show Google login
             showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
-            document.getElementById('accessBtn').onclick = async ()=>{
-                try{
+            document.getElementById('accessBtn').onclick = async () => {
+                try {
                     const provider = new firebase.auth.GoogleAuthProvider();
                     const result = await auth.signInWithPopup(provider);
                     const user = result.user;
                     if(!user) throw "Google login failed";
-                    const success = await saveAccess(user, reference);
-                    if(!success){
+
+                    // Check teacher access after login
+                    const teacherAccess = await checkTeacherAccess(user.email);
+                    if(!teacherAccess){
                         showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
                         document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
                     }
@@ -511,10 +511,22 @@ async function checkActiveAccess(reference){
                     alert("Sign-in failed.");
                     console.error(e);
                 }
+            };
+        } else {
+            // Signed in → check teacher access
+            const teacherAccess = await checkTeacherAccess(user.email);
+            if(!teacherAccess){
+                // If no active teacher access, save Paystack ref
+                const success = await saveAccess(user, reference);
+                if(!success){
+                    showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                    document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+                }
             }
         }
     });
 })();
+	
 
 </script>
 	
