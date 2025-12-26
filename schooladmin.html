@@ -633,12 +633,10 @@ async function checkTeacherAccess(email){
 }
 
 
-
 // ===== MAIN FLOW =====
 (async function() {
     const reference = getQueryParam("reference");
 
-    // Triggered on login state change
     auth.onAuthStateChanged(async user => {
         if(!user){
             // Not signed in → show Google login
@@ -664,39 +662,37 @@ async function checkTeacherAccess(email){
 
     async function handleAccess(user){
         const email = user.email.toLowerCase().trim();
-        const isAdmin = await checkAdmin(email); // check if current user is admin
+        const normalizedAdmins = adminEmails.map(e => e.toLowerCase().trim());
+        const isAdmin = normalizedAdmins.includes(email); // admin check
         let allowed = false;
 
         if(isAdmin){
-            // Admin: check if they already paid
+            // Admin: check if already paid
             allowed = await checkAdminAccess(email);
 
-            // If URL has reference and admin hasn't paid yet, save it
+            // Save access if reference exists in URL
             if(reference && !allowed){
-                const success = await saveAccess(user, reference);
-                allowed = success;
+                allowed = await saveAccess(user, reference);
             }
 
             if(allowed){
                 showAdminAccess(); // show admin tools
             } else {
-                // Admin has not paid → show Pay Now
                 showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
                 document.getElementById('accessBtn').onclick = () => window.location.href = PAYMENT_LINK;
             }
         } else {
-            // Teacher: allowed only if their admin has paid
+            // Teacher: check admin's paid access
             allowed = await checkTeacherAccess(email);
 
             if(!allowed){
-                // Teacher blocked → ask admin
                 showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
                 document.getElementById('accessBtn').onclick = () => alert("Ask your admin to pay for access.");
             }
         }
 
         if(allowed){
-            hideAccessModal(); // Hide modal if access is allowed
+            hideAccessModal();
         }
     }
 
