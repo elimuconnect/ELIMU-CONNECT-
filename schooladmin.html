@@ -168,36 +168,45 @@ async function checkAdminAccess(email){
 (async function(){
   const reference = getQueryParam("reference");
 
-  auth.onAuthStateChanged(async user => {
-      if(!user){
-          showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
-          document.getElementById('accessBtn').onclick = async () => {
-              try{
-                  const provider = new firebase.auth.GoogleAuthProvider();
-                  const result = await auth.signInWithPopup(provider);
-                  user = result.user;
-                  if(!user) throw "Google login failed";
+auth.onAuthStateChanged(async user => {
+    if(!user){
+        showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+        document.getElementById('accessBtn').onclick = async () => {
+            try{
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                user = result.user;
+                if(!user) throw "Google login failed";
 
-                  const adminAccess = await checkAdminAccess(user.email);
-                  if(!adminAccess){
-                      const paid = await checkPaidAccess(user.email);
-                      if(!paid){
-                          showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
-                          document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
-                      }
-                  }
-              }catch(e){ alert("Sign-in failed."); console.error(e); }
-          };
-      } else {
-          const adminAccess = await checkAdminAccess(user.email);
-          if(!adminAccess){
-              const paid = await checkPaidAccess(user.email);
-              if(!paid){
-                  await saveAccessForUser(user); // unlock after paying
-              }
-          }
-      }
-  });
+                // Check admin first
+                const adminAccess = await checkAdminAccess(user.email);
+                if(!adminAccess){
+                    // Not admin → check paid access
+                    const paid = await checkPaidAccess(user.email);
+                    if(!paid){
+                        showAccessModal("No active access found. Please pay to continue.", true, "Pay Now");
+                        document.getElementById('accessBtn').onclick = ()=> window.location.href = PAYMENT_LINK;
+                    }
+                }
+                // **If admin, panel already shown inside checkAdminAccess**
+            } catch(e){ alert("Sign-in failed."); console.error(e); }
+        };
+    } else {
+        // Already signed in → check admin first
+        const adminAccess = await checkAdminAccess(user.email);
+        if(!adminAccess){
+            // Not admin → check paid access
+            const paid = await checkPaidAccess(user.email);
+            if(!paid){
+                await saveAccessForUser(user); // unlock after paying
+            }
+        } else {
+            // Admin → show admin panel
+            document.getElementById("adminPanel").style.display="block";
+        }
+    }
+});
+
 
   // ===== ADMIN PANEL LOGIC =====
   document.getElementById("addTeacherBtn").onclick = async ()=>{
