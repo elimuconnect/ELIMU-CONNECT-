@@ -359,10 +359,20 @@
     background:#ffffff; display:flex; justify-content:center; align-items:center;
     z-index:99999; flex-direction:column;
 ">
-  <button id="googleLoginBtn" style="
-      padding:12px 20px; font-size:1rem; border-radius:8px;
-      border:none; background:#0078D7; color:#fff; cursor:pointer;
-  ">Continue with Google</button>
+ <a href="#" id="googleLoginLink"
+   style="
+     display:inline-block;
+     padding:14px 24px;
+     font-size:1.1rem;
+     border-radius:10px;
+     background:#0078D7;
+     color:#fff;
+     text-decoration:none;
+     font-family:sans-serif;
+   ">
+  Continue with Google
+</a>
+
 </div>
 
 <!-- PAGE LOCK OVERLAY -->
@@ -529,11 +539,14 @@ async function removeTeacher(schoolId,email){
   renderTeacherList(schoolId, snap.val().teachers||{});
 }
 
-/* ================= GOOGLE LOGIN ================= */
-document.getElementById("googleLoginBtn").onclick = () => {
+document.getElementById("googleLoginLink").onclick = (e) => {
+  e.preventDefault();
+
+  // FORCE REAL NAVIGATION (PROJECTOR SAFE)
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithRedirect(provider);
 };
+
 
 
 auth.getRedirectResult().catch(err => {
