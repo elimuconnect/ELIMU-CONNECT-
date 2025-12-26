@@ -113,13 +113,18 @@
   meSpeak.loadConfig("https://cdnjs.cloudflare.com/ajax/libs/mespeak/1.0.1/mespeak_config.json");
   meSpeak.loadVoice("https://cdnjs.cloudflare.com/ajax/libs/mespeak/1.0.1/voices/en/en-us.json");
   // You can add Swahili voice JSON if available
-
+ // ===== Global variables =====
   let lessonsArray = [];
   let currentLesson = 0;
-  let tutorStarted = false;
+  let tutorStarted = false; // <-- declare before functions
   let ocrTexts = [];
   let pausedSpeech = false;
 
+  // ======= meSpeak Setup =======
+  meSpeak.loadConfig("https://cdnjs.cloudflare.com/ajax/libs/mespeak/1.0.1/mespeak_config.json");
+  meSpeak.loadVoice("https://cdnjs.cloudflare.com/ajax/libs/mespeak/1.0.1/voices/en/en-us.json");
+
+  // ===== Functions =====
   function parseLessonBlocks(text) {
     const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
     const parsed = [];
@@ -135,6 +140,8 @@
     if (block) parsed.push(block.trim());
     return parsed;
   }
+
+  
 
   function showLesson(index) {
     if (index >= 0 && index < lessonsArray.length) {
@@ -167,6 +174,12 @@
     showLesson(currentLesson);
   }
 
+
+
+
+
+
+  
   function loadCustomLesson() {
     const fileInput = document.getElementById("lessonFile");
     const file = fileInput.files[0];
@@ -211,11 +224,17 @@
     if(lang==="sw") alert("Swahili voice not loaded yet, defaulting to English.");
   }
 
+ 
   function readLessonAloud() {
     if(!tutorStarted || lessonsArray.length===0) return alert("No lesson loaded.");
     const editorText = document.getElementById("editor").innerText;
     const mathText = document.getElementById("mathInput")?.getValue?.() || "";
-    const combined = [editorText, mathText ? ("Math expression: " + mathText) : "", ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""].filter(Boolean).join("\n");
+    const combined = [
+      editorText,
+      mathText ? ("Math expression: " + mathText) : "",
+      ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""
+    ].filter(Boolean).join("\n");
+
     meSpeak.speak(combined, { amplitude: 100, pitch: 50, speed: 150 });
   }
 
@@ -272,5 +291,6 @@
 
 </body>
 </html>
+
 
 
