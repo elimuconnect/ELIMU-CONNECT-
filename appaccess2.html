@@ -235,14 +235,16 @@ setInterval(() => {
 }, 1000);
 
 
-// ACCESS PAGE: Disable Back button completely
+
+
+// ACCESS PAGE: Back button = reload page
 
 history.pushState(null, "", location.href);
 
 window.addEventListener("popstate", function () {
-  // Re-push immediately so back never moves
-  history.pushState(null, "", location.href);
-});
+  location.re
+
+  
 </script>
 
 
