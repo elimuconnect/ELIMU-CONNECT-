@@ -235,14 +235,13 @@ setInterval(() => {
 }, 1000);
 
 
-
-
 // ACCESS PAGE: Back button = reload page
 
 history.pushState(null, "", location.href);
 
 window.addEventListener("popstate", function () {
-  location.re
+  location.reload();
+});
 
   
 </script>
