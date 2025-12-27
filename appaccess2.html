@@ -59,10 +59,15 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
   </div>
 </div>
 
-
 <script>
-const KEY = "elimu_student45_"; // your storage key
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
+
+const FIRST_TRIAL_MIN = 1;
+const DAILY_FREE_MIN = 0;
+const PAID_DURATION = 3 * 60 * 1000;  // 24 hours 
+const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
+
+const KEY = "elimu_student43_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -71,7 +76,9 @@ const modal = document.getElementById("accessModal");
 const modalMsg = document.getElementById("accessMessage");
 const modalBtn = document.getElementById("accessBtn");
 
+function getQuery(param){ return new URLSearchParams(location.search).get(param); }
 function now(){ return Date.now(); }
+
 function format(ms){
     if(ms <= 0) return "00:00:00";
     let s = Math.floor(ms/1000);
@@ -81,6 +88,7 @@ function format(ms){
     s %= 60;
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
+
 function showModal(msg, btn="OK", cb=null){
     modalMsg.innerHTML = msg;
     modalBtn.textContent = btn;
@@ -91,51 +99,113 @@ function showModal(msg, btn="OK", cb=null){
     };
 }
 
-// ----------------- STORAGE -----------------
+/* --------------------- STORAGE --------------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
 let paidRef = localStorage.getItem(KEY+"paidReference") || "";
-let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
-let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
-let featuresWindow = null;
 
-// ----------------- COUNTDOWN ENGINE -----------------
+let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+
+let dailyFreeStart = parseInt(localStorage.getItem(KEY+"dailyFreeStart")) || 0;
+let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
+let lastDailyFreeUsed = parseInt(localStorage.getItem(KEY+"lastDailyFreeUsed")) || 0;
+
+/* ------------------- HANDLE PAYMENT ------------------- */
+const reference = getQuery("reference");
+
+if(reference && reference !== paidRef){
+    paidRef = reference;
+    paidUntil = now() + PAID_DURATION;
+
+    localStorage.setItem(KEY+"paidReference", paidRef);
+    localStorage.setItem(KEY+"paidUntil", paidUntil);
+
+    // Payment overrides all free modes
+    localStorage.removeItem(KEY+"firstTrialEnd");
+    localStorage.removeItem(KEY+"dailyFreeStart");
+    localStorage.removeItem(KEY+"dailyFreeEnd");
+    localStorage.removeItem(KEY+"lastDailyFreeUsed");
+
+    firstTrialEnd = 0;
+    dailyFreeStart = 0;
+    dailyFreeEnd = 0;
+    lastDailyFreeUsed = 0;
+}
+
+/* ------------------ FIRST TRIAL ------------------ */
+if(!firstTrialEnd){
+    firstTrialEnd = now() + FIRST_TRIAL_MIN * 60 * 1000;
+    localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
+}
+
+/* ------------------ DAILY FREE RENEW ------------------ */
+/* ------------------ DAILY FREE RENEW (ONLY AFTER FIRST TRIAL ENDS!) ------------------ */
+if(firstTrialEnd && now() > firstTrialEnd){  
+    // First trial is over → now we can activate daily free
+    if(!lastDailyFreeUsed || now() - lastDailyFreeUsed >= DAILY_INTERVAL){
+        dailyFreeStart = now();
+        dailyFreeEnd = now() + DAILY_FREE_MIN * 60 * 1000;
+
+        localStorage.setItem(KEY+"dailyFreeStart", dailyFreeStart);
+        localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
+        localStorage.setItem(KEY+"lastDailyFreeUsed", now());
+    }
+}
+
+
+/* ---------------- COUNTDOWN ENGINE ---------------- */
 function engine(){
     countdownEl.style.display = "block";
     setInterval(()=>{
         const t = now();
 
+        // PAID MODE
         if(t < paidUntil){
             countdownEl.textContent = "Paid access: " + format(paidUntil - t);
             mainBtn.disabled = false;
             return;
         }
+
+        // DAILY FREE
         if(t < dailyFreeEnd){
             countdownEl.textContent = "Daily free: " + format(dailyFreeEnd - t);
             mainBtn.disabled = false;
             return;
         }
+
+        // FIRST TRIAL
         if(t < firstTrialEnd){
             countdownEl.textContent = "Free trial: " + format(firstTrialEnd - t);
             mainBtn.disabled = false;
             return;
         }
 
-        // LOCK ACCESS
+        // NOTHING ACTIVE → LOCK
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
         showModal(
-            "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor...",
+            "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes, past papers and STEM labs/simulations ",
             "Unlock Daily Pass — $0.15/KSh 20.",
             ()=> location.href = PAYMENT_LINK
         );
     }, 500);
 }
+
 engine();
 
-// ----------------- MAIN BUTTON -----------------
+let featuresWindow = null;
+
+
+
+mainBtn.style.pointerEvents = "auto";
+
+
+
+
 mainBtn.onclick = () => {
     const t = now();
+
     if(t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd){
+        // Open the features in a new window if not already open
         if(!featuresWindow || featuresWindow.closed){
             featuresWindow = window.open("go:bot1", "_blank");
         } else {
@@ -143,35 +213,37 @@ mainBtn.onclick = () => {
         }
         return;
     }
-    showModal("⛔ Your free/pro access has ended. Returning to Access Page...", "OK",
-        ()=> location.replace("go:access"));
+
+    // If expired
+    showModal(
+        "⛔ Your free/pro access has ended. Returning to Access Page...",
+        "OK",
+        () => location.href = "go:access"
+    );
 };
 
-// ----------------- AUTO-REDIRECT WHEN EXPIRED -----------------
+// Auto-close features window and redirect when access expires
 setInterval(() => {
     const t = now();
     if(featuresWindow && !featuresWindow.closed){
         if(t > paidUntil && t > dailyFreeEnd && t > firstTrialEnd){
-            featuresWindow.close();
+            featuresWindow.close();           // close the features page
             featuresWindow = null;
-            location.replace("go:access"); // <-- replaces history to block Back
-            history.pushState(null, "", location.href); // trap Back
+            location.href = "go:access";     // redirect the main access page
         }
     }
 }, 1000);
 
-// ----------------- SMART BACK BUTTON -----------------
-history.pushState(null, "", location.href); // initial fake state
-window.addEventListener("popstate", function () {
-    const t = now();
-    if(t > paidUntil && t > dailyFreeEnd && t > firstTrialEnd){
-        history.pushState(null, "", location.href); // trap Back
-        alert("⛔ You cannot go back to locked sections. Please unlock first.");
-    }
+
 });
-</script>
+
 
 
   
+
+  
+</script>
+
+
 </body>
 </html>
