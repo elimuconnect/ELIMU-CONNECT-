@@ -67,7 +67,7 @@ const DAILY_FREE_MIN = 0;
 const PAID_DURATION =  2 * 60 * 1000;  // 24 hours 
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
 
-const KEY = "elimu_student50_";
+const KEY = "elimu_student51_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -236,25 +236,15 @@ setInterval(() => {
 
 
 
+// ACCESS PAGE ONLY: Back → go:start
 
-// Helper to check if user is paid
-function isPaid() {
-    const paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
-    return Date.now() < paidUntil;
-}
+history.replaceState({page:"access"}, "", location.href);
+history.pushState({trap:true}, "", location.href);
 
-// Handle Back button
-window.addEventListener('pageshow', function(event) {
-    // If coming from Back / bfcache
-    if(event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
-        if(!isPaid()) {
-            // Reload the Access page for expired/free users
-            location.replace(location.href);
-        }
-        // else do nothing for paid users → Back works normally
-    }
+window.addEventListener("popstate", function () {
+  // Always send to start page
+  location.replace("go:start");
 });
-
   
 </script>
 
