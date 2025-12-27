@@ -275,78 +275,89 @@
       localStorage.setItem("currentLesson", currentLesson);
     }
 
-    function loadVoices() {
-      let voices = speechSynthesis.getVoices();
-      if (voices.length === 0) {
-        setTimeout(loadVoices, 200);
-        return;
-      }
+    
+	
+	
+let speechUtterances = [];
+let currentUtteranceIndex = 0;
+let isPaused = false;
 
-      const selectedLang = document.getElementById("voiceLang").value;
+// Load voices and choose fallback
+let voices = [];
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  if (voices.length === 0) {
+    setTimeout(loadVoices, 200);
+    return;
+  }
+}
+loadVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
 
-      if (selectedLang === "sw") {
-        // Find a Swahili voice if available
-        selectedVoice = voices.find(v =>
-          v.lang.toLowerCase().startsWith("sw") || v.name.toLowerCase().includes("swahili")
-        );
-      } else {
-        // English voices, prioritize African or Nigerian female voice
-        selectedVoice = voices.find(v =>
-          (v.lang.toLowerCase().startsWith("en") && (v.name.toLowerCase().includes("nigerian") || v.name.toLowerCase().includes("african")))
-        );
-        if (!selectedVoice) {
-          selectedVoice = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
-        }
-      }
-
-      // Fallback to any voice if none found for chosen language
-      if (!selectedVoice) {
-        selectedVoice = voices[0];
-      }
+// Split text into manageable chunks
+function splitText(text, maxLength = 200) {
+  const chunks = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = start + maxLength;
+    if (end < text.length) {
+      let lastSpace = text.lastIndexOf(' ', end);
+      if (lastSpace > start) end = lastSpace;
     }
-    loadVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    chunks.push(text.slice(start, end));
+    start = end;
+  }
+  return chunks;
+}
 
-    function readLessonAloud() {
-      if (!tutorStarted || lessonsArray.length === 0) {
-        alert("No lesson loaded.");
-        return;
+function readLessonAloud() {
+  if (!tutorStarted || lessonsArray.length === 0) return alert("No lesson loaded.");
+
+  const editorText = document.getElementById("editor").innerText;
+  const mathInput = document.getElementById("mathInput");
+  const mathText = mathInput?.getValue?.() || "";
+  const combined = [editorText, mathText ? "Math expression: " + mathText : "", ocrTexts.length ? "Text from images: " + ocrTexts.join(". ") : ""]
+    .filter(Boolean)
+    .join("\n");
+
+  speechSynthesis.cancel(); // Stop any existing speech
+  speechUtterances = splitText(combined).map(chunk => {
+    const u = new SpeechSynthesisUtterance(chunk);
+    u.voice = voices.find(v => v.lang.startsWith('en')) || voices[0]; // fallback
+    u.rate = 1;
+    u.pitch = 1;
+    u.onend = () => {
+      currentUtteranceIndex++;
+      if (!isPaused && currentUtteranceIndex < speechUtterances.length) {
+        speechSynthesis.speak(speechUtterances[currentUtteranceIndex]);
       }
-      const editorText = document.getElementById("editor").innerText;
-      const mathInput = document.getElementById("mathInput");
-      const mathText = mathInput?.getValue?.() || "";
+    };
+    return u;
+  });
 
-      const combined = [
-        editorText,
-        mathText ? ("Math expression: " + mathText) : "",
-        ocrTexts.length ? ("Text from images: " + ocrTexts.join(". ")) : ""
-      ].filter(Boolean).join("\n");
+  currentUtteranceIndex = 0;
+  isPaused = false;
+  speechSynthesis.speak(speechUtterances[currentUtteranceIndex]);
+}
 
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-      }
+function pauseSpeech() {
+  if (speechSynthesis.speaking && !speechSynthesis.paused) {
+    speechSynthesis.pause();
+    isPaused = true;
+  }
+}
 
-      speechUtterance = new SpeechSynthesisUtterance(combined);
-      speechUtterance.voice = selectedVoice;
-      speechUtterance.rate = 1;
-      speechUtterance.pitch = 1.1;
+function resumeSpeech() {
+  if (speechSynthesis.paused) {
+    isPaused = false;
+    speechSynthesis.resume();
+  }
+}
 
-      speechSynthesis.speak(speechUtterance);
-    }
-
-    function pauseSpeech() {
-      if (speechSynthesis.speaking && !speechSynthesis.paused) {
-        speechSynthesis.pause();
-      }
-    }
-
-    function resumeSpeech() {
-      if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-      }
-    }
+	
+	
 
     function printLesson() {
       if (!tutorStarted) return alert("Load a lesson first.");
