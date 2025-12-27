@@ -67,7 +67,7 @@ const DAILY_FREE_MIN = 0;
 const PAID_DURATION =  2 * 60 * 1000;  // 24 hours 
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
 
-const KEY = "elimu_student51_";
+const KEY = "elimu_student52_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -235,17 +235,14 @@ setInterval(() => {
 }, 1000);
 
 
+// ACCESS PAGE: Disable Back button completely
 
-// ACCESS PAGE ONLY: Back → go:start
-
-history.replaceState({page:"access"}, "", location.href);
-history.pushState({trap:true}, "", location.href);
+history.pushState(null, "", location.href);
 
 window.addEventListener("popstate", function () {
-  // Always send to start page
-  location.replace("go:start");
+  // Re-push immediately so back never moves
+  history.pushState(null, "", location.href);
 });
-  
 </script>
 
 
