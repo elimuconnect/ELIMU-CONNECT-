@@ -235,6 +235,24 @@ setInterval(() => {
 }, 1000);
 
 
+
+
+
+
+// ================= BACK BUTTON CONTROL =================
+
+// Push a fake history state so Back has nowhere to go
+history.pushState(null, "", location.href);
+
+// Trap back button
+window.addEventListener("popstate", function () {
+    // Re-push state to block navigation
+    history.pushState(null, "", location.href);
+
+    // Optional: force reload (acts like app restart)
+    location.replace("go:access");
+});
+  
 </script>
 
 
