@@ -67,7 +67,7 @@ const DAILY_FREE_MIN = 0;
 const PAID_DURATION = 3 * 60 * 1000;  // 24 hours 
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; // Renew every 24h
 
-const KEY = "elimu_student40_";
+const KEY = "elimu_student41_";
 
 // UI
 const mainBtn = document.getElementById("studentBtn");
@@ -235,7 +235,37 @@ setInterval(() => {
 }, 1000);
 
 
+// ----------------- SMART BACK BUTTON -----------------
 
+
+function isAccessExpired() {
+    const t = Date.now();
+    const paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
+    const firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+    const dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
+    return t > paidUntil && t > firstTrialEnd && t > dailyFreeEnd;
+}
+
+// ----------------- INITIAL HISTORY PUSH -----------------
+history.pushState(null, "", location.href);
+
+// ----------------- TRAP BACK BUTTON -----------------
+window.addEventListener("popstate", function (event) {
+    if (isAccessExpired()) {
+        // User is not allowed → stay on Access page
+        history.pushState(null, "", location.href); // trap again
+        alert("⛔ You cannot go back to locked sections. Please unlock first.");
+    } else {
+        // User is allowed → do nothing, allow normal Back behavior
+        // NOTE: we do NOT reload the page, so countdown / paid info remains intact
+        // This ensures paid/free sessions continue seamlessly
+        history.back();
+    }
+});
+
+
+
+  
 
   
 </script>
