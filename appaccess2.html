@@ -77,7 +77,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION = 2 * 60 * 1000; 
-const KEY = "elimu_student111_";
+const KEY = "elimu_student112_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -224,24 +224,27 @@ mainBtn.onclick = () => {
 updateUI();
 
 
-
 // --- Detect Paystack return & unlock ---
-const payUrl = new URL(window.location.href);
-const ref = payUrl.searchParams.get("ref");
+const url = new URL(window.location.href);
+const reference = url.searchParams.get("reference");
 
-if (ref === "success") {
-
-    // give paid access (2 minutes — uses your PAID_DURATION)
+if (reference) {
+    // grant paid access
     paidUntil = now() + PAID_DURATION;
     localStorage.setItem(KEY + "paidUntil", paidUntil);
 
-    // clean the URL so it won't keep re-triggering
-    payUrl.searchParams.delete("ref");
-    window.history.replaceState({}, "", payUrl.toString());
+    localStorage.setItem(KEY + "paidReference", reference);
 
-    // refresh UI once (NO LOOPING)
+    // refresh countdown + logic
+    paidUntil = parseInt(localStorage.getItem(KEY + "paidUntil")) || 0;
+
+    // clean URL
+    url.searchParams.delete("reference");
+    window.history.replaceState({}, "", url.toString());
+
     updateUI();
 }
+
 
 
   
