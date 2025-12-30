@@ -135,8 +135,11 @@
     </footer>
 
     <script>
-const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/school";
-const PAYMENT_LINK = "https://paystack.shop/pay/xa5ez78ywo";
+
+
+
+
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/schooladmin";
 
 // Helper: get base URL without query string
 function getBaseURL(url){
@@ -157,37 +160,21 @@ if(isMainLink || fromMainLink){
         <div style="text-align:center; padding:50px; font-family:sans-serif;">
             <h2>Access Restricted</h2>
             <p>You cannot open this tool directly.</p>
-            <p>Please open it from the main simulator page.</p>
+            <p>Please open it from the main link(school Tools).</p>
 
             <a href="${MAIN_LINK}"
                style="font-size:1.2rem; color:#0078D7;">
-               Open Main school tools
-            </a>
-
-            <p style="margin-top:20px;">Or pay to get access:</p>
-
-            <a href="${PAYMENT_LINK}"
-               style="font-size:1.2rem; color:#fff; background:#0078D7;
-                      padding:10px 20px; border-radius:6px; display:inline-block;">
-               Pay Now 
+               Open from Main School Tools
             </a>
         </div>
     `;
-    throw new Error("Access blocked until main link or payment.");
+    throw new Error("Access blocked until opened from main link.");
 }
 
 
 
 
-
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -246,4 +233,5 @@ if(isMainLink || fromMainLink){
     </script>
 </body>
 </html>
+
 
