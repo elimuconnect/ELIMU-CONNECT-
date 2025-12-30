@@ -1,73 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mole Concept Tool</title>
+  <title>Chemistry Calculators</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 50px auto;
+      max-width: 600px;
+      margin: 30px auto;
       padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border: 2px solid #ddd;
+      border-radius: 15px;
+      background: #f0f8ff;
     }
-
-    h1 {
+    h2 {
       text-align: center;
-      color: #2c3e50;
+      margin-top: 40px;
+      color: #003366;
     }
-
-    select, .output {
-      width: 100%;
-      padding: 10px;
+    label, select, input, button {
+      display: block;
       margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .output {
+      width: 100%;
       font-size: 16px;
-      color: #2c3e50;
-      padding: 10px;
-      background-color: #ecf0f1;
-      margin-top: 20px;
-      border-radius: 4px;
     }
-
-    .output h3 {
-      color: #3498db;
+    input, select {
+      padding: 8px;
     }
-
-    .output p {
-      line-height: 1.6;
-    }
-
-    .formula {
+    button {
+      cursor: pointer;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 12px 0;
       font-weight: bold;
-      color: #27ae60;
-      font-size: 1.2em;
     }
-
-    .example {
-      background-color: #f9f9f9;
-      padding: 10px;
+    button:hover {
+      background-color: #0055aa;
+    }
+    #resultMass, #resultMolarity {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      font-style: italic;
+      min-height: 80px;
+    }
+    .step {
+      margin-bottom: 10px;
+    }
+    strong {
+      color: #003366;
+    }
+    .formula {
+      background: #e3f2fd;
+      padding: 6px 10px;
+      margin: 6px 0 15px 0;
+      border-left: 5px solid #1976d2;
+      font-family: monospace;
+      font-weight: bold;
+    }
+    .section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #003366;
     }
   </style>
 </head>
 <body>
+
+
+
   <div class="container">
     <h1>Mole Concept Tool</h1>
 
@@ -91,8 +94,96 @@
     </div>
   </div>
 
-  <script>
 
+
+
+
+
+
+
+
+
+
+  <!-- MASS - MOLES - MOLAR MASS CALCULATOR -->
+  <h2>Mass - Moles - Molar Mass Calculator</h2>
+
+  <label for="calculateMass">Calculate:</label>
+  <select id="calculateMass" onchange="updateFormMass()">
+    <option value="mass">Mass (g)</option>
+    <option value="moles">Moles (mol)</option>
+    <option value="molarMass">Molar Mass (g/mol)</option>
+  </select>
+
+  <div id="inputsMass"></div>
+
+  <button onclick="calculateMass()">Calculate</button>
+
+  <div id="resultMass"></div>
+  
+  
+  
+  <!-- MOLARITY - g/L - MOLAR MASS CALCULATOR -->
+<div class="section">
+  <h2>Molarity - Concentration (g/L) - Molar Mass Calculator</h2>
+
+  <label for="calculateMolarityMass">Calculate:</label>
+  <select id="calculateMolarityMass" onchange="updateFormMolarityMass()">
+    <option value="molarity">Molarity (mol/L)</option>
+    <option value="concentration">Concentration (g/L)</option>
+    <option value="molarMass">Molar Mass (g/mol)</option>
+  </select>
+
+  <div id="inputsMolarityMass"></div>
+
+  <button onclick="calculateMolarityMass()">Calculate</button>
+
+  <div id="resultMolarityMass"></div>
+</div>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <!-- MOLARITY - MOLES - VOLUME CALCULATOR -->
+  <div class="section">
+    <h2>Molarity - Moles - Volume Calculator (Volume in cm³)</h2>
+
+    <label for="calculateMolarity">Calculate:</label>
+    <select id="calculateMolarity" onchange="updateFormMolarity()">
+      <option value="molarity">Molarity (mol/L)</option>
+      <option value="moles">Moles (mol)</option>
+      <option value="volume">Volume (cm³)</option>
+    </select>
+
+    <div id="inputsMolarity"></div>
+
+    <button onclick="calculateMolarity()">Calculate</button>
+
+    <div id="resultMolarity"></div>
+  </div>
+
+
+
+
+
+<script>
 const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/schooladmin";
 
 // Helper: get base URL without query string
@@ -134,10 +225,234 @@ if(isMainLink || fromMainLink){
 
 
 
+  
+  // Helper to format numbers without trailing zeros
+  function format(num) {
+    return Number(num.toFixed(4)).toString();
+  }
 
+  // -------- MASS - MOLES - MOLAR MASS --------
+  function updateFormMass() {
+    const calc = document.getElementById("calculateMass").value;
+    const inputsDiv = document.getElementById("inputsMass");
 
-    
-    function displayConceptInfo() {
+    let input1Label = "", input2Label = "";
+
+    if (calc === "mass") {
+      input1Label = "Moles (mol):";
+      input2Label = "Molar Mass (g/mol):";
+    } else if (calc === "moles") {
+      input1Label = "Mass (g):";
+      input2Label = "Molar Mass (g/mol):";
+    } else {
+      input1Label = "Mass (g):";
+      input2Label = "Moles (mol):";
+    }
+
+    inputsDiv.innerHTML = `
+      <label>${input1Label}</label>
+      <input type="number" id="value1Mass" step="any">
+      <label>${input2Label}</label>
+      <input type="number" id="value2Mass" step="any">
+    `;
+  }
+
+  function calculateMass() {
+    const calc = document.getElementById("calculateMass").value;
+    const val1 = parseFloat(document.getElementById("value1Mass").value);
+    const val2 = parseFloat(document.getElementById("value2Mass").value);
+    const resultDiv = document.getElementById("resultMass");
+
+    if (isNaN(val1) || isNaN(val2)) {
+      resultDiv.innerHTML = "<span style='color:red;'>Please enter valid numbers.</span>";
+      return;
+    }
+
+    let result;
+    let steps = "";
+
+    if (calc === "mass") {
+      result = val1 * val2;
+      steps += "<div class='step'><strong>Step 1:</strong> Use formula: Mass = Moles × Molar Mass</div>";
+      steps += `<div class='step'><strong>Step 2:</strong> Mass = ${format(val1)} mol × ${format(val2)} g/mol</div>`;
+      steps += `<div class='step'><strong>Step 3:</strong> Mass = ${format(result)} g</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} grams<br><br>${steps}`;
+    } else if (calc === "moles") {
+      if (val2 === 0) {
+        resultDiv.innerHTML = "<span style='color:red;'>Molar Mass cannot be zero.</span>";
+        return;
+      }
+      result = val1 / val2;
+      steps += "<div class='step'><strong>Step 1:</strong> Use formula: Moles = Mass ÷ Molar Mass</div>";
+      steps += `<div class='step'><strong>Step 2:</strong> Moles = ${format(val1)} g ÷ ${format(val2)} g/mol</div>`;
+      steps += `<div class='step'><strong>Step 3:</strong> Moles = ${format(result)} mol</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} moles<br><br>${steps}`;
+    } else {
+      if (val2 === 0) {
+        resultDiv.innerHTML = "<span style='color:red;'>Moles cannot be zero.</span>";
+        return;
+      }
+      result = val1 / val2;
+      steps += "<div class='step'><strong>Step 1:</strong> Use formula: Molar Mass = Mass ÷ Moles</div>";
+      steps += `<div class='step'><strong>Step 2:</strong> Molar Mass = ${format(val1)} g ÷ ${format(val2)} mol</div>`;
+      steps += `<div class='step'><strong>Step 3:</strong> Molar Mass = ${format(result)} g/mol</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} g/mol<br><br>${steps}`;
+    }
+  }
+
+  // Initialize Mass form
+  updateFormMass();
+
+  // -------- MOLARITY - MOLES - VOLUME (cm³) --------
+  function updateFormMolarity() {
+    const calc = document.getElementById("calculateMolarity").value;
+    const inputsDiv = document.getElementById("inputsMolarity");
+
+    let input1Label = "", input2Label = "";
+
+    if (calc === "molarity") {
+      input1Label = "Moles (mol):";
+      input2Label = "Volume (cm³):";
+    } else if (calc === "moles") {
+      input1Label = "Molarity (mol/L):";
+      input2Label = "Volume (cm³):";
+    } else {
+      input1Label = "Moles (mol):";
+      input2Label = "Molarity (mol/L):";
+    }
+
+    inputsDiv.innerHTML = `
+      <label>${input1Label}</label>
+      <input type="number" id="value1Molarity" step="any">
+      <label>${input2Label}</label>
+      <input type="number" id="value2Molarity" step="any">
+    `;
+  }
+
+  function calculateMolarity() {
+    const calc = document.getElementById("calculateMolarity").value;
+    const val1 = parseFloat(document.getElementById("value1Molarity").value);
+    const val2 = parseFloat(document.getElementById("value2Molarity").value);
+    const resultDiv = document.getElementById("resultMolarity");
+
+    if (isNaN(val1) || isNaN(val2)) {
+      resultDiv.innerHTML = "<span style='color:red;'>Please enter valid numbers.</span>";
+      return;
+    }
+
+    let result;
+    let steps = "";
+
+    if (calc === "moles") {
+      // Moles = (Molarity × Volume(cm³)) / 1000
+      result = (val1 * val2) / 1000;
+      steps += `<div class='formula'>Moles = (Molarity × Volume(cm³)) / 1000</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Substitute values: Moles = (${format(val1)} mol/L × ${format(val2)} cm³) ÷ 1000</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Calculate: Moles = ${format(result)} mol</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} moles<br><br>${steps}`;
+    } else if (calc === "volume") {
+      if (val2 === 0) {
+        resultDiv.innerHTML = "<span style='color:red;'>Molarity cannot be zero.</span>";
+        return;
+      }
+      // Volume(cm³) = (Moles × 1000) / Molarity
+      result = (val1 * 1000) / val2;
+      steps += `<div class='formula'>Volume(cm³) = (Moles × 1000) / Molarity</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Substitute values: Volume = (${format(val1)} mol × 1000) ÷ ${format(val2)} mol/L</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Calculate: Volume = ${format(result)} cm³</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} cm³<br><br>${steps}`;
+    } else {
+      if (val2 === 0) {
+        resultDiv.innerHTML = "<span style='color:red;'>Volume cannot be zero.</span>";
+        return;
+      }
+      // Molarity = (Moles × 1000) / Volume(cm³)
+      result = (val1 * 1000) / val2;
+      steps += `<div class='formula'>Molarity = (Moles × 1000) / Volume(cm³)</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Substitute values: Molarity = (${format(val1)} mol × 1000) ÷ ${format(val2)} cm³</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Calculate: Molarity = ${format(result)} mol/L</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} mol/L<br><br>${steps}`;
+    }
+  }
+
+  // Initialize Molarity form
+  updateFormMolarity();
+  
+  
+  function updateFormMolarityMass() {
+    const calc = document.getElementById("calculateMolarityMass").value;
+    const div = document.getElementById("inputsMolarityMass");
+
+    let label1 = "", label2 = "";
+
+    if (calc === "molarity") {
+      label1 = "Concentration (g/L):";
+      label2 = "Molar Mass (g/mol):";
+    } else if (calc === "concentration") {
+      label1 = "Molarity (mol/L):";
+      label2 = "Molar Mass (g/mol):";
+    } else {
+      label1 = "Concentration (g/L):";
+      label2 = "Molarity (mol/L):";
+    }
+
+    div.innerHTML = `
+      <label>${label1}</label>
+      <input type="number" id="value1MolarityMass" step="any">
+      <label>${label2}</label>
+      <input type="number" id="value2MolarityMass" step="any">
+    `;
+  }
+
+  function calculateMolarityMass() {
+    const calc = document.getElementById("calculateMolarityMass").value;
+    const val1 = parseFloat(document.getElementById("value1MolarityMass").value);
+    const val2 = parseFloat(document.getElementById("value2MolarityMass").value);
+    const resultDiv = document.getElementById("resultMolarityMass");
+
+    if (isNaN(val1) || isNaN(val2)) {
+      resultDiv.innerHTML = "<span style='color:red;'>Please enter valid numbers.</span>";
+      return;
+    }
+
+    let result, steps = "";
+
+    if (calc === "molarity") {
+      result = val1 / val2;
+      steps += `<div class='formula'>Molarity = Concentration (g/L) ÷ Molar Mass (g/mol)</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Molarity = ${format(val1)} ÷ ${format(val2)}</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Molarity = ${format(result)} mol/L</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} mol/L<br><br>${steps}`;
+    } else if (calc === "concentration") {
+      result = val1 * val2;
+      steps += `<div class='formula'>Concentration (g/L) = Molarity × Molar Mass</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Concentration = ${format(val1)} × ${format(val2)}</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Concentration = ${format(result)} g/L</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} g/L<br><br>${steps}`;
+    } else {
+      if (val2 === 0) {
+        resultDiv.innerHTML = "<span style='color:red;'>Molarity cannot be zero.</span>";
+        return;
+      }
+      result = val1 / val2;
+      steps += `<div class='formula'>Molar Mass = Concentration (g/L) ÷ Molarity (mol/L)</div>`;
+      steps += `<div class='step'><strong>Step 1:</strong> Molar Mass = ${format(val1)} ÷ ${format(val2)}</div>`;
+      steps += `<div class='step'><strong>Step 2:</strong> Molar Mass = ${format(result)} g/mol</div>`;
+      resultDiv.innerHTML = `<strong>Final Answer:</strong> ${format(result)} g/mol<br><br>${steps}`;
+    }
+  }
+
+  updateFormMolarityMass();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+   function displayConceptInfo() {
       const concept = document.getElementById('conceptSelect').value;
       const outputDiv = document.getElementById('conceptOutput');
 
@@ -231,6 +546,10 @@ if(isMainLink || fromMainLink){
         <p>${explanation}</p>
       `;
     }
-  </script>
+  
+  
+</script>
+
 </body>
 </html>
+
