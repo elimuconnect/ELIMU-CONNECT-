@@ -279,14 +279,21 @@
 
 
 
+
 <section style="max-width:650px;margin:30px auto;padding:20px;border-radius:10px;background:#f7f7f7;font-family:Arial;">
   <h2>Teacher Suggestions / Areas of Improvement</h2>
   <p style="color:#555;">Kindly share feedback that can help us make the tools better.</p>
 
+  <label>School Name</label><br>
+  <input id="schoolName" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"><br>
+
   <label>Teacher Name</label><br>
   <input id="teacherName" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"><br>
 
-  <label>Your Suggestion</label><br>
+  <label>Tool Name</label><br>
+  <input id="toolName" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"><br>
+
+  <label>Area of Improvement</label><br>
   <textarea id="suggestionText" rows="5" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"></textarea>
 
   <button onclick="submitSuggestion()" style="margin-top:10px;padding:10px 18px;border:none;border-radius:6px;background:#0078D7;color:white;">
@@ -297,10 +304,6 @@
     Suggestion sent — thank you!
   </p>
 </section>
-
-
-
-
 
 	  
 
@@ -804,14 +807,15 @@ async function handleAccess(user, reference) {
 
 
 
-
 function submitSuggestion() {
-  const name = document.getElementById("teacherName").value.trim();
-  const suggestion = document.getElementById("suggestionText").value.trim();
+  const school = document.getElementById("schoolName").value.trim();
+  const teacher = document.getElementById("teacherName").value.trim();
+  const tool = document.getElementById("toolName").value.trim();
+  const improvement = document.getElementById("suggestionText").value.trim();
   const msg = document.getElementById("feedbackMsg");
 
-  if (!name || !suggestion) {
-    alert("Please fill in both fields.");
+  if (!school || !teacher || !tool || !improvement) {
+    alert("Please fill in all fields.");
     return;
   }
 
@@ -819,13 +823,18 @@ function submitSuggestion() {
 
   newRef
     .set({
-      name,
-      suggestion,
+      school,
+      teacher,
+      tool,
+      improvement,
       time: new Date().toISOString()
     })
     .then(() => {
       msg.style.display = "block";
+
+      document.getElementById("schoolName").value = "";
       document.getElementById("teacherName").value = "";
+      document.getElementById("toolName").value = "";
       document.getElementById("suggestionText").value = "";
     })
     .catch(err => {
@@ -833,8 +842,6 @@ function submitSuggestion() {
       console.error(err);
     });
 }
-
-
 	
 </script>
 </body>
