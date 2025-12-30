@@ -279,6 +279,30 @@
 
 
 
+<section style="max-width:650px;margin:30px auto;padding:20px;border-radius:10px;background:#f7f7f7;font-family:Arial;">
+  <h2>Teacher Suggestions / Areas of Improvement</h2>
+  <p style="color:#555;">Kindly share feedback that can help us make the tools better.</p>
+
+  <label>Teacher Name</label><br>
+  <input id="teacherName" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"><br>
+
+  <label>Your Suggestion</label><br>
+  <textarea id="suggestionText" rows="5" style="width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;"></textarea>
+
+  <button onclick="submitSuggestion()" style="margin-top:10px;padding:10px 18px;border:none;border-radius:6px;background:#0078D7;color:white;">
+    Send Suggestion
+  </button>
+
+  <p id="feedbackMsg" style="margin-top:10px;color:green;display:none;">
+    Suggestion sent — thank you!
+  </p>
+</section>
+
+
+
+
+
+	  
 
 
 
@@ -335,7 +359,7 @@
 
 
 
-    <!-- Wisdom App -->
+   
     <div class="category">
       <div class="category-header">TPAD,TPAY,ZERAKI,TSC WEBSITE</div>
       <div class="tools">
@@ -779,6 +803,39 @@ async function handleAccess(user, reference) {
 
 
 
+
+
+function submitSuggestion() {
+  const name = document.getElementById("teacherName").value.trim();
+  const suggestion = document.getElementById("suggestionText").value.trim();
+  const msg = document.getElementById("feedbackMsg");
+
+  if (!name || !suggestion) {
+    alert("Please fill in both fields.");
+    return;
+  }
+
+  const newRef = db.ref("school_tool_suggestions").push();
+
+  newRef
+    .set({
+      name,
+      suggestion,
+      time: new Date().toISOString()
+    })
+    .then(() => {
+      msg.style.display = "block";
+      document.getElementById("teacherName").value = "";
+      document.getElementById("suggestionText").value = "";
+    })
+    .catch(err => {
+      alert("Could not send — try again.");
+      console.error(err);
+    });
+}
+
+
+	
 </script>
 </body>
 </html>
