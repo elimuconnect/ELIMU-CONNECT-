@@ -804,54 +804,41 @@ async function handleAccess(user, reference) {
 
 })();
 
+function submitSuggestion() {
+  const school = document.getElementById("schoolName").value.trim();
+  const teacher = document.getElementById("teacherName").value.trim();
+  const tool = document.getElementById("toolName").value.trim();
+  const improvement = document.getElementById("suggestionText").value.trim();
+  const msg = document.getElementById("feedbackMsg");
 
-    function formatDate(iso){
-      const d = new Date(iso);
-      return d.toLocaleString();
-    }
+  if (!school || !teacher || !tool || !improvement) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-    function loadSuggestions(){
-      db.ref("school_tool_suggestions").on("value", snapshot => {
-        tableBody.innerHTML = "";
-        let count = 0;
+  const newRef = db.ref("school_tool_suggestions").push();
 
-        if(!snapshot.exists()){
-          tableBody.innerHTML = `<tr><td colspan="5">No suggestions yet.</td></tr>`;
-          countBadge.textContent = "0 records";
-          return;
-        }
+  newRef
+    .set({
+      school,
+      teacher,
+      tool,
+      improvement,
+      time: new Date().toISOString()
+    })
+    .then(() => {
+      msg.style.display = "block";
 
-        snapshot.forEach(child => {
-          const s = child.val();
-          count++;
-
-          // Support old and new format
-          const school = s.school || "-";
-          const teacher = s.teacher || s.name || "-";
-          const tool = s.tool || "-";
-          const improvement = s.improvement || s.suggestion || "-";
-          const time = s.time ? formatDate(s.time) : "-";
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${school}</td>
-            <td>${teacher}</td>
-            <td>${tool}</td>
-            <td>${improvement}</td>
-            <td>${time}</td>
-          `;
-          tableBody.appendChild(tr);
-        });
-
-        countBadge.textContent = count + " records";
-      }, error => {
-        tableBody.innerHTML = `<tr><td colspan="5">Error loading data.</td></tr>`;
-        console.error("Firebase read error:", error);
-      });
-    }
-
-    loadSuggestions();
-
+      document.getElementById("schoolName").value = "";
+      document.getElementById("teacherName").value = "";
+      document.getElementById("toolName").value = "";
+      document.getElementById("suggestionText").value = "";
+    })
+    .catch(err => {
+      alert("Could not send — try again.");
+      console.error(err);
+    });
+}
 </script>
 </body>
 </html>
