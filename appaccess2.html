@@ -77,7 +77,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION =   2 * 60 * 1000;
-const KEY = "elimu_students1_";
+const KEY = "elimu_students2_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -168,9 +168,8 @@ function updateUI(){
     }
 }
 
-// AUTO-KICK: Only triggers if user is NOT on this page (prevents white screen)
 setInterval(()=>{
-    if(!hasAccess() && !isOnAccessPage){
+    if(!hasAccess()){
         window.location.replace("go:access");
     }
 }, 1500);
