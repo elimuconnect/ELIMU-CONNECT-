@@ -150,10 +150,14 @@ function hasAccess(){
     return (t < paidUntil || t < firstTrialEnd || t < dailyFreeEnd);
 }
 
-// ------------------- UI CONTROL & KICK LOGIC -----------------
 function updateUI(){
     const ok = hasAccess();
     mainBtn.disabled = !ok;
+
+    // RESET the kick flag when access is restored
+    if (ok) {
+        kickedToAccessOnce = false;
+    }
 
     if(!ok && !modalIsVisible){
         countdownEl.style.display = "none";
@@ -168,11 +172,15 @@ function updateUI(){
     }
 }
 
+
+  let kickedToAccessOnce = false;
 setInterval(()=>{
-    if(!hasAccess()){
+    if(!hasAccess() && !kickedToAccessOnce){
+        kickedToAccessOnce = true;
         window.location.replace("go:access");
     }
 }, 1500);
+
 
 // ------------------- COUNTDOWN ENGINE -------------------
 setInterval(()=>{
