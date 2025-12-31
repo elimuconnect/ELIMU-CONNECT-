@@ -73,11 +73,13 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 
 <div id="accessCountdown">Loading access info...</div>
 
+
+
 <script>
 // --------------------- CONFIGURATION ---------------------
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
-const PAID_DURATION =   1 * 60 * 1000;
+const PAID_DURATION =   2 * 60 * 1000;
 const KEY = "elimu_students5_";
 
 const DAILY_FREE_MIN = 0;         
@@ -151,7 +153,6 @@ function hasAccess(){
     return (t < paidUntil || t < firstTrialEnd || t < dailyFreeEnd);
 }
 
-
 // ------------------- UI CONTROL & KICK LOGIC -----------------
 function updateUI(){
     const ok = hasAccess();
@@ -170,11 +171,10 @@ function updateUI(){
     }
 }
 
-let kickedToAccessOnce = false; // Prevent multiple reloads
-
+// FIX: Added check to prevent reloading if already on the access page
 setInterval(()=>{
-    if(!hasAccess() && !kickedToAccessOnce){
-        kickedToAccessOnce = true; // mark that we've already redirected
+    const onAccessPage = window.location.href.includes("access");
+    if(!hasAccess() && !onAccessPage){
         window.location.replace("go:access");
     }
 }, 1500);
@@ -193,19 +193,25 @@ setInterval(()=>{
 }, 500);
 
 // ------------------- BACK BUTTON PROTECTION -----------------
+// This triggers if they try to use the browser back button
 function forceBackToStart(){ 
-    window.location.replace("go:start"); 
+    if(!hasAccess()) {
+        window.location.replace("go:access"); 
+    } else {
+        window.location.replace("go:start");
+    }
 }
 
 window.onpopstate = forceBackToStart;
 window.onhashchange = forceBackToStart;
 
-// Memory-safe history pulse (always trap back button)
+// Memory-safe history pulse (This is your "Trap")
+// It keeps adding the current page to history so 'Back' just lands here again
 setInterval(()=> {
-    if(isOnAccessPage){
+    if(isOnAccessPage || !hasAccess()) {
         window.history.pushState(null, "", window.location.href);
     }
-}, 200);
+}, 500); // Slightly slowed to 500ms to reduce "stutter" while staying secure
 
 document.addEventListener('touchstart', ()=>{
     window.history.pushState(null, "", window.location.href);
@@ -219,7 +225,7 @@ startBtn.onclick = () => {
 
 mainBtn.onclick = () => {
     if(hasAccess()){
-        isOnAccessPage = false; // Prevents "Auto-Kick" from seeing this as an error
+        isOnAccessPage = false; 
         window.location.replace("go:bot1");
     } else {
         updateUI();
@@ -234,20 +240,19 @@ const url = new URL(window.location.href);
 const reference = url.searchParams.get("reference");
 
 if (reference) {
-    // grant paid access
     paidUntil = now() + PAID_DURATION;
     localStorage.setItem(KEY + "paidUntil", paidUntil);
     localStorage.setItem(KEY + "paidReference", reference);
 
-    // refresh countdown + logic
     paidUntil = parseInt(localStorage.getItem(KEY + "paidUntil")) || 0;
 
-    // clean URL
+    // Clean URL and force a state update
     url.searchParams.delete("reference");
     window.history.replaceState({}, "", url.toString());
 
     updateUI();
 }
+
 
   
 </script>
