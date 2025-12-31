@@ -78,7 +78,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION =   1 * 60 * 1000;
-const KEY = "elimu_students3_";
+const KEY = "elimu_students4_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -151,6 +151,9 @@ function hasAccess(){
     return (t < paidUntil || t < firstTrialEnd || t < dailyFreeEnd);
 }
 
+
+
+  // ------------------- UI CONTROL & KICK LOGIC -----------------
 function updateUI(){
     const ok = hasAccess();
     mainBtn.disabled = !ok;
@@ -173,15 +176,16 @@ function updateUI(){
     }
 }
 
+let kickedToAccessOnce = false;
 
-  let kickedToAccessOnce = false;
+// ------------------- AUTO-KICK -----------------
 setInterval(()=>{
     if(!hasAccess() && !kickedToAccessOnce){
         kickedToAccessOnce = true;
+        // Redirect to access page only once
         window.location.replace("go:access");
     }
 }, 1500);
-
 
 // ------------------- COUNTDOWN ENGINE -------------------
 setInterval(()=>{
@@ -197,16 +201,23 @@ setInterval(()=>{
 }, 500);
 
 // ------------------- BACK BUTTON PROTECTION -----------------
-function forceBackToStart(){ window.location.replace("go:start"); }
+function forceBackToStart(){
+    // Always redirect to access page if no access
+    if(!hasAccess()){
+        window.location.replace("go:access");
+    } else {
+        // If user has access, keep them on the current page (trap back)
+        window.history.pushState(null, "", window.location.href);
+    }
+}
 
+// Bind back/forward events
 window.onpopstate = forceBackToStart;
 window.onhashchange = forceBackToStart;
 
-// Memory-safe history pulse (only traps if they have access)
+// Aggressively trap back button
 setInterval(()=> {
-    if(isOnAccessPage) {
-        window.history.pushState(null, "", window.location.href);
-    }
+    window.history.pushState(null, "", window.location.href);
 }, 200);
 
 document.addEventListener('touchstart', ()=>{
@@ -231,7 +242,6 @@ mainBtn.onclick = () => {
 // Final safeguard: Initial UI check
 updateUI();
 
-
 // --- Detect Paystack return & unlock ---
 const url = new URL(window.location.href);
 const reference = url.searchParams.get("reference");
@@ -240,7 +250,6 @@ if (reference) {
     // grant paid access
     paidUntil = now() + PAID_DURATION;
     localStorage.setItem(KEY + "paidUntil", paidUntil);
-
     localStorage.setItem(KEY + "paidReference", reference);
 
     // refresh countdown + logic
@@ -252,11 +261,6 @@ if (reference) {
 
     updateUI();
 }
-
-
-
-  
-
 
   
 </script>
