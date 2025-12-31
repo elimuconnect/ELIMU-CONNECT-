@@ -66,14 +66,19 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
   </div>
 </div>
 
-<script>
-// --------------------- VARIABLES ---------------------
+
+
+  <script>
+// --------------------- CONFIGURATION ---------------------
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
-const DAILY_FREE_MIN = 0;
 const PAID_DURATION = 1 * 60 * 1000; 
-const KEY = "elimu_connect3_";
+const KEY = "elimu_connect6_";
 
+const DAILY_FREE_MIN = 0;         
+const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
+
+// UI Elements
 const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById("accessCountdown");
 const modal = document.getElementById("accessModal");
@@ -81,7 +86,10 @@ const modalMsg = document.getElementById("accessMessage");
 const modalBtn = document.getElementById("accessBtn");
 const startBtn = document.getElementById("startBtn");
 
-function getQuery(param){ return new URLSearchParams(location.search).get(param); }
+// State Tracking
+let isOnAccessPage = true; 
+let modalIsVisible = false;
+
 function now(){ return Date.now(); }
 
 function format(ms){
@@ -94,119 +102,149 @@ function format(ms){
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function showModal(msg, btn="OK", cb=null){
+function showModal(msg, btnText="OK", cb=null){
     modalMsg.innerHTML = msg;
-    modalBtn.textContent = btn;
+    modalBtn.textContent = btnText;
     modal.style.display = "flex";
-    modalBtn.onclick = ()=>{ modal.style.display="none"; if(cb) cb(); };
+    modalIsVisible = true;
+
+    // Force Start Button to stay above the modal backdrop
+    startBtn.style.zIndex = "2147483647";
+    startBtn.style.display = "block";
+
+    modalBtn.onclick = ()=>{
+        modal.style.display = "none";
+        modalIsVisible = false;
+        if(cb) cb();
+    };
 }
 
-// --------------------- STORAGE ---------------------
-let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
-let paidRef = localStorage.getItem(KEY+"paidReference") || "";
-let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
-let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
-
-const reference = getQuery("reference");
-if(reference && reference !== paidRef){
-    paidRef = reference;
-    paidUntil = now() + PAID_DURATION;
-    localStorage.setItem(KEY+"paidReference", paidRef);
-    localStorage.setItem(KEY+"paidUntil", paidUntil);
-    localStorage.removeItem(KEY+"firstTrialEnd");
-    firstTrialEnd = 0;
-}
+// --------------------- STORAGE & INITIALIZATION ---------------------
+let paidUntil       = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
+let firstTrialEnd   = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+let dailyFreeEnd    = parseInt(localStorage.getItem(KEY+"dailyFreeEnd"))  || 0;
+let lastDailyFreeUsed = parseInt(localStorage.getItem(KEY+"lastDailyFreeUsed")) || 0;
 
 if(!firstTrialEnd && !paidUntil){
     firstTrialEnd = now() + FIRST_TRIAL_MIN * 60 * 1000;
     localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
 }
 
-// ---------------- ENGINE & LOCK -----------------
-function engine(){
-    countdownEl.style.display = "block";
-    setInterval(()=>{
-        const t = now();
-        const hasAccess = (t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd);
-
-        if(t < paidUntil) countdownEl.textContent = "Paid access: " + format(paidUntil - t);
-        else if(t < dailyFreeEnd) countdownEl.textContent = "Daily free: " + format(dailyFreeEnd - t);
-        else if(t < firstTrialEnd) countdownEl.textContent = "Free trial: " + format(firstTrialEnd - t);
-
-        if(!hasAccess){
-            countdownEl.style.display = "none";
-            mainBtn.disabled = true;
-            showModal(
-                "🚀 Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor access.",
-                "Unlock Daily Pass — KSh 20",
-                ()=> location.replace(PAYMENT_LINK)
-            );
-        } else {
-            mainBtn.disabled = false;
+(function checkDailyFree(){
+    const t = now();
+    if(firstTrialEnd && t > firstTrialEnd){
+        if(!lastDailyFreeUsed || t - lastDailyFreeUsed >= DAILY_INTERVAL){
+            localStorage.setItem(KEY+"dailyFreeEnd", t + DAILY_FREE_MIN * 60 * 1000);
+            localStorage.setItem(KEY+"lastDailyFreeUsed", t);
+            dailyFreeEnd = t + DAILY_FREE_MIN * 60 * 1000;
         }
-    }, 500);
+    }
+})();
+
+
+function hasAccess() {
+    const t = now();
+
+    // reset expired timers
+    if (paidUntil && t > paidUntil) {
+        paidUntil = 0;
+        localStorage.setItem(KEY + "paidUntil", 0);
+    }
+
+    if (firstTrialEnd && t > firstTrialEnd) {
+        firstTrialEnd = 0;
+        localStorage.setItem(KEY + "firstTrialEnd", 0);
+    }
+
+    if (dailyFreeEnd && t > dailyFreeEnd) {
+        dailyFreeEnd = 0;
+        localStorage.setItem(KEY + "dailyFreeEnd", 0);
+    }
+
+    return (
+        (paidUntil && t < paidUntil) ||
+        (firstTrialEnd && t < firstTrialEnd) ||
+        (dailyFreeEnd && t < dailyFreeEnd)
+    );
 }
-engine();
 
 
-// ------------------- BULLETPROOF BACK TRAP (OPTIMIZED) -----------------
-function forceBackToStart() { 
-    window.location.replace("go:start"); 
+
+    
+
+// ------------------- UI CONTROL & KICK LOGIC -----------------
+function updateUI(){
+    const ok = hasAccess();
+    mainBtn.disabled = !ok;
+
+    if(!ok && !modalIsVisible){
+        countdownEl.style.display = "none";
+        showModal(
+            "🚀 Unlock 24 hours of AI tutor access",
+            "Unlock Daily Pass — KSh 20",
+            () => { window.location.href = PAYMENT_LINK; }
+        );
+    } else if (ok) {
+        modal.style.display = "none";
+        modalIsVisible = false;
+    }
 }
 
-// Push ONE state to stay ahead of the user
-function stayAhead() {
+// AUTO-KICK: Only triggers if user is NOT on this page (prevents white screen)
+setInterval(()=>{
+    if(!hasAccess() && !isOnAccessPage){
+        window.location.replace("go:access");
+    }
+}, 1500);
+
+// ------------------- COUNTDOWN ENGINE -------------------
+setInterval(()=>{
+    const t = now();
+    if(hasAccess()){
+        countdownEl.style.display = "block";
+        if(t < paidUntil) countdownEl.textContent = "Paid access: " + format(paidUntil - t);
+        else if(t < firstTrialEnd) countdownEl.textContent = "Free trial: " + format(firstTrialEnd - t);
+        else if(t < dailyFreeEnd) countdownEl.textContent = "Daily free: " + format(dailyFreeEnd - t);
+    } else {
+        updateUI();
+    }
+}, 500);
+
+// ------------------- BACK BUTTON PROTECTION -----------------
+function forceBackToStart(){ window.location.replace("go:start"); }
+
+window.onpopstate = forceBackToStart;
+window.onhashchange = forceBackToStart;
+
+// Memory-safe history pulse (only traps if they have access)
+setInterval(()=> {
+    if(isOnAccessPage) {
+        window.history.pushState(null, "", window.location.href);
+    }
+}, 200);
+
+document.addEventListener('touchstart', ()=>{
     window.history.pushState(null, "", window.location.href);
-}
-
-// Initial 10-page buffer (so they can't double-click back immediately on load)
-for(let i=0; i<10; i++){
-    window.history.pushState(null, "", window.location.href);
-}
-
-// Catch the back button and send to start
-window.onpopstate = forceBackToStart; 
-
-// Pulse every 100ms to keep the 'Back' button locked to this page
-setInterval(stayAhead, 100);
-
-// If they touch the screen, add 5 more layers just to be safe
-document.addEventListener('touchstart', () => {
-    for(let i=0; i<5; i++) stayAhead();
 }, {passive:true});
 
 // ------------------- NAVIGATION -----------------
-// CRITICAL: Ensure this is the ONLY startBtn logic
-startBtn.onclick = () => { 
-    window.location.replace("go:start"); 
+startBtn.onclick = () => {
+    isOnAccessPage = false;
+    window.location.replace("go:start");
 };
 
-
-
 mainBtn.onclick = () => {
-    const t = now();
-    if(t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd){
+    if(hasAccess()){
+        isOnAccessPage = false; // Prevents "Auto-Kick" from seeing this as an error
         window.location.replace("go:bot1");
     } else {
-        window.location.replace("go:access");
+        updateUI();
     }
 };
 
-// Safety check for expired access
-setInterval(() => {
-    const t = now();
-    const hasAccess = (t < paidUntil || t < dailyFreeEnd || t < firstTrialEnd);
-    if(!hasAccess) window.location.replace("go:access");
-}, 2000);
-
-
-
-
-  
+// Final safeguard: Initial UI check
+updateUI();
 </script>
-
-
-
   
 
 </body>
