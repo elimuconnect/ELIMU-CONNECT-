@@ -145,8 +145,8 @@ function engine(){
         countdownEl.style.display = "none";
         mainBtn.disabled = true;
         showModal(
-            "⛔ Your access has ended.<br>Pay KSh 20 / $0.15 to continue.",
-            "Pay Now",
+            "🚀 YouYour journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
+            "Unlock Daily Pass — $0.15/KSh 20.",
             ()=> location.href = PAYMENT_LINK
         );
     }, 500);
@@ -160,8 +160,8 @@ mainBtn.onclick = ()=>{
     if(t < paidUntil || t < firstTrialEnd) return location.href = "go:bot1";
 
     showModal(
-        "⛔ Your access has ended.<br>Pay KSh 20 / $0.15 to continue.",
-        "Pay Now",
+        "🚀 YouYour journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
+        "Unlock Daily Pass — $0.15/KSh 20.",
         ()=> location.href = PAYMENT_LINK
     );
 };
