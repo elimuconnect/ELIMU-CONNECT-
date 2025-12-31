@@ -78,7 +78,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION =   1 * 60 * 1000;
-const KEY = "elimu_students4_";
+const KEY = "elimu_students5_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -152,16 +152,10 @@ function hasAccess(){
 }
 
 
-
-  // ------------------- UI CONTROL & KICK LOGIC -----------------
+// ------------------- UI CONTROL & KICK LOGIC -----------------
 function updateUI(){
     const ok = hasAccess();
     mainBtn.disabled = !ok;
-
-    // RESET the kick flag when access is restored
-    if (ok) {
-        kickedToAccessOnce = false;
-    }
 
     if(!ok && !modalIsVisible){
         countdownEl.style.display = "none";
@@ -176,13 +170,11 @@ function updateUI(){
     }
 }
 
-let kickedToAccessOnce = false;
+let kickedToAccessOnce = false; // Prevent multiple reloads
 
-// ------------------- AUTO-KICK -----------------
 setInterval(()=>{
     if(!hasAccess() && !kickedToAccessOnce){
-        kickedToAccessOnce = true;
-        // Redirect to access page only once
+        kickedToAccessOnce = true; // mark that we've already redirected
         window.location.replace("go:access");
     }
 }, 1500);
@@ -201,23 +193,18 @@ setInterval(()=>{
 }, 500);
 
 // ------------------- BACK BUTTON PROTECTION -----------------
-function forceBackToStart(){
-    // Always redirect to access page if no access
-    if(!hasAccess()){
-        window.location.replace("go:access");
-    } else {
-        // If user has access, keep them on the current page (trap back)
-        window.history.pushState(null, "", window.location.href);
-    }
+function forceBackToStart(){ 
+    window.location.replace("go:start"); 
 }
 
-// Bind back/forward events
 window.onpopstate = forceBackToStart;
 window.onhashchange = forceBackToStart;
 
-// Aggressively trap back button
+// Memory-safe history pulse (always trap back button)
 setInterval(()=> {
-    window.history.pushState(null, "", window.location.href);
+    if(isOnAccessPage){
+        window.history.pushState(null, "", window.location.href);
+    }
 }, 200);
 
 document.addEventListener('touchstart', ()=>{
