@@ -74,13 +74,12 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 <div id="accessCountdown">Loading access info...</div>
 
 
-
 <script>
 // --------------------- CONFIGURATION ---------------------
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION =   2 * 60 * 1000;
-const KEY = "elimu_students6_";
+const KEY = "elimu_students16_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -171,10 +170,8 @@ function updateUI(){
     }
 }
 
-// FIX: Added check to prevent reloading if already on the access page
 setInterval(()=>{
-    const onAccessPage = window.location.href.includes("access");
-    if(!hasAccess() && !onAccessPage){
+    if(!hasAccess()){
         window.location.replace("go:access");
     }
 }, 1500);
@@ -193,25 +190,17 @@ setInterval(()=>{
 }, 500);
 
 // ------------------- BACK BUTTON PROTECTION -----------------
-// This triggers if they try to use the browser back button
-function forceBackToStart(){ 
-    if(!hasAccess()) {
-        window.location.replace("go:access"); 
-    } else {
-        window.location.replace("go:start");
-    }
-}
+function forceBackToStart(){ window.location.replace("go:start"); }
 
 window.onpopstate = forceBackToStart;
 window.onhashchange = forceBackToStart;
 
-// Memory-safe history pulse (This is your "Trap")
-// It keeps adding the current page to history so 'Back' just lands here again
+// Memory-safe history pulse (only traps if they have access)
 setInterval(()=> {
-    if(isOnAccessPage || !hasAccess()) {
+    if(isOnAccessPage) {
         window.history.pushState(null, "", window.location.href);
     }
-}, 500); // Slightly slowed to 500ms to reduce "stutter" while staying secure
+}, 200);
 
 document.addEventListener('touchstart', ()=>{
     window.history.pushState(null, "", window.location.href);
@@ -225,7 +214,7 @@ startBtn.onclick = () => {
 
 mainBtn.onclick = () => {
     if(hasAccess()){
-        isOnAccessPage = false; 
+        isOnAccessPage = false; // Prevents "Auto-Kick" from seeing this as an error
         window.location.replace("go:bot1");
     } else {
         updateUI();
@@ -235,18 +224,22 @@ mainBtn.onclick = () => {
 // Final safeguard: Initial UI check
 updateUI();
 
+
 // --- Detect Paystack return & unlock ---
 const url = new URL(window.location.href);
 const reference = url.searchParams.get("reference");
 
 if (reference) {
+    // grant paid access
     paidUntil = now() + PAID_DURATION;
     localStorage.setItem(KEY + "paidUntil", paidUntil);
+
     localStorage.setItem(KEY + "paidReference", reference);
 
+    // refresh countdown + logic
     paidUntil = parseInt(localStorage.getItem(KEY + "paidUntil")) || 0;
 
-    // Clean URL and force a state update
+    // clean URL
     url.searchParams.delete("reference");
     window.history.replaceState({}, "", url.toString());
 
@@ -254,7 +247,9 @@ if (reference) {
 }
 
 
+
   
 </script>
 </body>
 </html>
+
