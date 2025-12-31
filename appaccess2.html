@@ -85,7 +85,7 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx"; 
 const FIRST_TRIAL_MIN = 1;
 const PAID_DURATION =   1 * 60 * 1000;
-const KEY = "elimu_students29_";
+const KEY = "elimu_students30_";
 
 const DAILY_FREE_MIN = 0;         
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000; 
@@ -177,23 +177,32 @@ function updateUI(){
 }
 
 setInterval(()=>{
-    if(!hasAccess()){
-        window.location.replace("go:access");
-    }
-}, 1500);
-
-// ------------------- COUNTDOWN ENGINE -------------------
-setInterval(()=>{
     const t = now();
-    if(hasAccess()){
+    const ok = hasAccess();
+
+    if (ok) {
         countdownEl.style.display = "block";
+
         if(t < paidUntil) countdownEl.textContent = "Paid access: " + format(paidUntil - t);
         else if(t < firstTrialEnd) countdownEl.textContent = "Free trial: " + format(firstTrialEnd - t);
         else if(t < dailyFreeEnd) countdownEl.textContent = "Daily free: " + format(dailyFreeEnd - t);
+
+        modal.style.display = "none";
+        modalIsVisible = false;
+
     } else {
+
+        // Always force return to access page
+        if (window.location.href.indexOf("go:access") === -1){
+            window.location.replace("go:access");
+            return;
+        }
+
         updateUI();
     }
-}, 500);
+
+}, 700);
+
 
 // ------------------- BACK BUTTON PROTECTION -----------------
 function forceBackToStart(){ window.location.replace("go:start"); }
