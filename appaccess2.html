@@ -37,12 +37,12 @@ button:disabled { opacity:0.5; cursor:not-allowed; }
 
 <div class="login-container">
   <h3>🎓 Student</h3>
-  <button id="studentBtn">Enter (Free / Paid)</button>
+  <button id="studentBtn">📚Enter (Free Trial / Pro Access)</button>
 </div>
 
 <div class="login-container">
   <h3>👨‍👩‍👧 Parent</h3>
-  <button onclick="window.location.href='go:parent'">Parent Dashboard (Free)</button>
+  <button onclick="window.location.href='go:parent'">Parent Dashboard </button>
 </div>
 
 <div id="accessCountdown">Loading access info...</div>
@@ -146,7 +146,7 @@ function engine(){
         mainBtn.disabled = true;
         showModal(
             "🚀 YouYour journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
-            "Unlock Daily Pass — $0.15/KSh 20.",
+            "Unlock Daily Pass — $3.9/KSh 500.",
             ()=> location.href = PAYMENT_LINK
         );
     }, 500);
@@ -161,7 +161,7 @@ mainBtn.onclick = ()=>{
 
     showModal(
         "🚀 YouYour journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.",
-        "Unlock Daily Pass — $0.15/KSh 20.",
+        "Unlock Monthly Pass — $3.9/KSh 500.",
         ()=> location.href = PAYMENT_LINK
     );
 };
