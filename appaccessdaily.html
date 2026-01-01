@@ -1,178 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>School Tools Hub</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Elimu Connect - Access</title>
+
 <style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f8;
-    margin: 0;
-    padding: 0;
-  }
+body{
+  margin:0;
+  font-family: Segoe UI, Arial;
+  background: linear-gradient(135deg,#6DD5FA,#2980B9);
+}
 
-  header {
-    background-color: #0d47a1;
-    color: #fff;
-    padding: 25px 20px;
-    text-align: center;
-  }
+/* Countdown top bar */
+#accessCountdown{
+  position:fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#ffb347,#ffcc33);
+  padding:10px 20px;
+  border-radius:12px;
+  box-shadow:0 6px 15px rgba(0,0,0,.25);
+  font-weight:bold;
+  display:none;
+}
 
-  header img.logo {
-    display: block;
-    margin: 0 auto 15px;
-    width: 110px;
-    max-width: 40%;
-  }
+/* Dark overlay when locked */
+#lockOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.78);
+  color:white;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:25px;
+  backdrop-filter:blur(4px);
+}
 
-  header h1 {
-    margin: 0;
-    font-size: 2.5em;
-  }
+#lockOverlay div{
+  background:#ffffff15;
+  padding:25px 20px;
+  border-radius:18px;
+  max-width:420px;
+}
 
-  header p {
-    font-size: 1.1em;
-    max-width: 800px;
-    margin: 10px auto;
-    color: #e0e0e0;
-    line-height: 1.6;
-  }
+#lockOverlay button{
+  margin-top:12px;
+  padding:12px 22px;
+  border:0;
+  border-radius:12px;
+  background:#ff6a00;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-  .container {
-    max-width: 1400px;
-    margin: auto;
-    padding: 20px;
-  }
-
-  .categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4%;
-    margin-bottom: 30px;
-  }
-
-  .category {
-    flex: 0 0 48%;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transition: 0.3s;
-  }
-
-  .category:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
-
-  .category-header {
-    background-color: #1976d2;
-    color: #fff;
-    padding: 20px;
-    font-weight: bold;
-    font-size: 1.5em;
-    text-align: center;
-  }
-
-  .tools {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px;
-    padding: 20px;
-  }
-
-  .tools a {
-    display: block;
-    padding: 15px;
-    background-color: #e3f2fd;
-    text-decoration: none;
-    color: #0d47a1;
-    text-align: center;
-    border-radius: 10px;
-    transition: 0.3s;
-    font-size: 1.1em;
-    font-weight: 600;
-  }
-
-  .tools a:hover {
-    background-color: #bbdefb;
-    transform: scale(1.05);
-  }
-
-  @media (max-width: 768px) {
-    .category {
-      flex: 0 0 100%;
-    }
-  }
-
-  footer {
-    text-align: center;
-    padding: 20px 0;
-    background-color: #0d47a1;
-    color: #fff;
-    font-size: 0.9em;
-  }
-
-  footer a {
-    color: #ffeb3b;
-    text-decoration: none;
-  }
-
- 
-  /* Payment modal */
-  .modal-overlay {
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background: rgba(0,0,0,0.85);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:9999;
-  }
-
-  .modal-box {
-    background:#fff;
-    padding:30px 25px;
-    border-radius:12px;
-    max-width:400px;
-    text-align:center;
-    color:#033a63;
-    box-shadow:0 6px 20px rgba(0,0,0,0.3);
-  }
-
-  .modal-box button {
-    background:#0078D7; 
-    color:#fff; 
-    border:none; 
-    padding:12px 20px;
-    border-radius:8px; 
-    font-weight:600; 
-    cursor:pointer;
-    font-size:1em;
-  }
+/* content starts blurred until unlocked */
+#content{
+  filter:blur(5px);
+  pointer-events:none;
+}
 </style>
 </head>
+
 <body>
-<header>
-  <img src="https://static.wixstatic.com/media/9ba186_61b351de3531446995b426f1c49950ed~mv2.png" alt="Elimu Connect Ltd Logo" class="logo"/>
-  <h1>Smart Elimu Connect</h1>
-  <p>Your centralized education hub. From attendance, competency tracking, and STEM learning, to lesson planning and communication — everything in one place.</p>
-  <p>Access teaching resources, math & science tools, language aids, educational games, and external learning platforms — all organized for easy use.</p>
-</header>
 
+<div id="accessCountdown">Loading…</div>
 
-
+<div id="lockOverlay">
+  <div>
+    <h2>Premium Access Required</h2>
+    <p id="lockMsg"></p>
+    <button id="unlockBtn">Unlock Access</button>
+  </div>
 </div>
 
-	
-<!-- Main Content -->
-<div class="container">
-
-  <!-- ELIMU CONNECT -->
+<!-- YOUR ACTUAL WEBSITE CONTENT -->
+<div id="content">
+  
+  
+   <!-- ELIMU CONNECT -->
   <div class="categories">
     <div class="category">
       <div class="category-header">General Tools</div>
@@ -190,9 +100,9 @@
   <li><a href="https://wisdomappweb.site/mappingteachers" target="_blank" title="Map teacher-student physical locations for classroom planning and management.">Teacher-student Physical Mapping</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/club" target="_blank" title="Manage STEM clubs, track activities, and engage students in science, tech, and innovation.">STEMLa Club</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/parentengagement" target="_blank" title="Connect with parents for updates, notifications, and student progress tracking.">Parent Connect</a></li>
-
+  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/aitest" target="_blank" title="Test and explore ElimuConnect AI tools for teaching, quizzes, and learning support.">ElimuConnect A.I</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/game" target="_blank" title="Engage students with competitive quizzes and interactive games.">Compete & Win</a></li>
-  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/aG6V9oQ2Z1p8XyR3T" target="_blank" title="Learn coding and programming skills through interactive lessons and projects.">Learn to Code</a></li>
+  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/adverts" target="_blank" title="Learn coding and programming skills through interactive lessons and projects.">Learn to Code</a></li>
 
 
 	 </div>
@@ -387,9 +297,107 @@
 
 
 <footer>
-  © 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
+  &copy; 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
 </footer>
+  
+  
+
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const PAYMENT_LINK = "https://paystack.shop/pay/zdqd4urkta";
+
+const FIRST_TRIAL_MS = 1 * 60 * 1000;          // 8 hours
+const PAID_DURATION_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
+const KEY = "elimu_student_simple7_";
+
+/* --------------- STORAGE ---------------- */
+let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
+let paidRef = localStorage.getItem(KEY+"paidReference") || "";
+let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+
+/* --------------- ELEMENTS --------------- */
+const countdownEl = document.getElementById("accessCountdown");
+const overlay = document.getElementById("lockOverlay");
+const lockMsg = document.getElementById("lockMsg");
+const unlockBtn = document.getElementById("unlockBtn");
+const content = document.getElementById("content");
+
+/* ------------- HELPERS ------------------ */
+function now(){ return Date.now(); }
+
+function format(ms){
+  if(ms<=0) return "00:00:00";
+  let s=Math.floor(ms/1000);
+  let d=Math.floor(s/86400);
+  s%=86400;
+  let h=Math.floor(s/3600);
+  s%=3600;
+  let m=Math.floor(s/60);
+  s%=60;
+  return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* --------- HANDLE RETURN FROM PAYMENT --------- */
+const ref = new URLSearchParams(location.search).get("reference");
+if(ref && ref!==paidRef){
+  paidRef = ref;
+  paidUntil = now()+PAID_DURATION_MS;
+
+  localStorage.setItem(KEY+"paidReference", paidRef);
+  localStorage.setItem(KEY+"paidUntil", paidUntil);
+
+  // remove trial
+  localStorage.removeItem(KEY+"firstTrialEnd");
+  firstTrialEnd = 0;
+}
+
+/* --------- START TRIAL IF NONE -------- */
+if(!firstTrialEnd){
+  firstTrialEnd = now()+FIRST_TRIAL_MS;
+  localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
+}
+
+/* ---------------- ENGINE ---------------- */
+function updateAccess(){
+  const t = now();
+  countdownEl.style.display="block";
+
+  // PAID
+  if(t < paidUntil){
+    countdownEl.textContent = "Paid access remaining: " + format(paidUntil - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
+  // TRIAL
+  if(t < firstTrialEnd){
+    countdownEl.textContent = "Free trial remaining: " + format(firstTrialEnd - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
+  // LOCKED
+  countdownEl.style.display="none";
+  overlay.style.display="flex";
+  content.style.filter="blur(6px)";
+  content.style.pointerEvents="none";
+
+  lockMsg.innerHTML =
+    "🚀 Your trial has ended.<br>Unlock 7-day full access, AI tutor, tools and past papers.";
+
+  unlockBtn.onclick = ()=> location.href = PAYMENT_LINK;
+}
+
+setInterval(updateAccess, 700);
+updateAccess();
+</script>
 
 </body>
 </html>
+
