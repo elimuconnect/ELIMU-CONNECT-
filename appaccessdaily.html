@@ -358,18 +358,17 @@ body{
   
 
 
-	
-  <script>
+	<script>
 /* ---------------- CONFIG ---------------- */
 const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
 
 // --- Timing Controls (all at top)
-const FIRST_TRIAL_MS = 1 * 60 * 1000;       // 6 minutes free trial
-const DAILY_FREE_MS = 1 * 60 * 1000;        // 3 minutes daily free
-const DAILY_INTERVAL = 0 * 4 * 60 * 1000; // 24 hours interval for daily free
-const PAID_DURATION_MS = 0 * 2 * 60 * 1000; // 24 hours paid access
+const FIRST_TRIAL_MS = 1 * 60 * 1000;       // 1 min free trial (for testing)
+const DAILY_FREE_MS = 1 * 60 * 1000;        // 1 min daily free
+const DAILY_INTERVAL = 4 * 60 * 1000;       // 4 minutes interval for testing
+const PAID_DURATION_MS = 2 * 60 * 1000;     // 2 minutes paid access (testing)
 
-const KEY = "elimu_student_simple19_";
+const KEY = "elimu_student_simple20_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
@@ -406,15 +405,16 @@ if(ref && ref !== paidRef){
   localStorage.setItem(KEY+"paidReference", paidRef);
   localStorage.setItem(KEY+"paidUntil", paidUntil);
 
-  // remove trial/free
+  // remove trial/free timers after payment
   localStorage.removeItem(KEY+"firstTrialEnd");
   localStorage.removeItem(KEY+"dailyFreeEnd");
+  localStorage.removeItem(KEY+"dailyFreeStart");
   firstTrialEnd = 0;
   dailyFreeEnd = 0;
 }
 
-/* --------- START TRIAL IF NONE -------- */
-if(!firstTrialEnd){
+/* --------- START TRIAL IF NONE AND NO PAID -------- */
+if(!firstTrialEnd && now() > paidUntil){
   firstTrialEnd = now() + FIRST_TRIAL_MS;
   localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
 }
@@ -423,8 +423,8 @@ if(!firstTrialEnd){
 let lastDailyStart = parseInt(localStorage.getItem(KEY+"dailyFreeStart")) || 0;
 const tNow = now();
 
-// Only give daily free if trial is over and interval passed
-if(tNow > firstTrialEnd && tNow - lastDailyStart >= DAILY_INTERVAL){
+// Only give daily free if trial is over and interval passed, and no paid access
+if(tNow > firstTrialEnd && tNow - lastDailyStart >= DAILY_INTERVAL && tNow > paidUntil){
   dailyFreeEnd = tNow + DAILY_FREE_MS;
   localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
   localStorage.setItem(KEY+"dailyFreeStart", tNow);
@@ -435,7 +435,7 @@ function updateAccess(){
   const t = now();
   countdownEl.style.display = "block";
 
-  // PAID
+  // PAID first!
   if(t < paidUntil){
     countdownEl.textContent = "Paid access remaining: " + format(paidUntil - t);
     content.style.filter="none";
@@ -444,7 +444,7 @@ function updateAccess(){
     return;
   }
 
-  // TRIAL
+  // TRIAL next
   if(t < firstTrialEnd){
     countdownEl.textContent = "Free trial remaining: " + format(firstTrialEnd - t);
     content.style.filter="none";
@@ -463,10 +463,10 @@ function updateAccess(){
   }
 
   // LOCKED
-  countdownEl.style.display="none";
-  overlay.style.display="flex";
-  content.style.filter="blur(6px)";
-  content.style.pointerEvents="none";
+  countdownEl.style.display = "none";
+  overlay.style.display = "flex";
+  content.style.filter = "blur(6px)";
+  content.style.pointerEvents = "none";
 
   lockMsg.innerHTML =
     "🚀 Your trial has ended.<br>Unlock 1-day full access, AI tutor, tools and past papers.";
