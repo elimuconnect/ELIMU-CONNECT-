@@ -356,21 +356,23 @@ body{
   
 </footer>
   
-  
+
 
 
 <script>
 /* ---------------- CONFIG ---------------- */
 const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
 
-const FIRST_TRIAL_MS = 1 * 60 * 1000;          // 8 hours
-const PAID_DURATION_MS = 7 * 24 * 60 * 60 * 1000;   // 7 days
-const KEY = "elimu_student_simple9_";
+const DAILY_FREE_MS = 1 * 60 * 1000;          // 3 minutes daily free
+const FIRST_TRIAL_MS = 0 * 1 * 60 * 1000;    // 6 hours free trial
+const PAID_DURATION_MS = 0 * 0 * 1 * 60 * 1000;   // 1 day paid access
+const KEY = "elimu_student_simple10_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
 let paidRef = localStorage.getItem(KEY+"paidReference") || "";
 let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
 
 /* --------------- ELEMENTS --------------- */
 const countdownEl = document.getElementById("accessCountdown");
@@ -403,15 +405,26 @@ if(ref && ref!==paidRef){
   localStorage.setItem(KEY+"paidReference", paidRef);
   localStorage.setItem(KEY+"paidUntil", paidUntil);
 
-  // remove trial
+  // remove trial/free
   localStorage.removeItem(KEY+"firstTrialEnd");
+  localStorage.removeItem(KEY+"dailyFreeEnd");
   firstTrialEnd = 0;
+  dailyFreeEnd = 0;
 }
 
 /* --------- START TRIAL IF NONE -------- */
 if(!firstTrialEnd){
   firstTrialEnd = now()+FIRST_TRIAL_MS;
   localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
+}
+
+/* --------- DAILY FREE ACCESS -------- */
+const today = new Date().toDateString();
+const lastFreeDate = localStorage.getItem(KEY+"dailyFreeDate") || "";
+if(today !== lastFreeDate){
+  dailyFreeEnd = now() + DAILY_FREE_MS;
+  localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
+  localStorage.setItem(KEY+"dailyFreeDate", today);
 }
 
 /* ---------------- ENGINE ---------------- */
@@ -437,6 +450,15 @@ function updateAccess(){
     return;
   }
 
+  // DAILY FREE
+  if(t < dailyFreeEnd){
+    countdownEl.textContent = "Daily free access remaining: " + format(dailyFreeEnd - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
   // LOCKED
   countdownEl.style.display="none";
   overlay.style.display="flex";
@@ -444,7 +466,7 @@ function updateAccess(){
   content.style.pointerEvents="none";
 
   lockMsg.innerHTML =
-    "🚀 Your trial has ended.<br>Unlock 7-day full access, AI tutor, tools and past papers.";
+    "🚀 Your trial has ended.<br>Unlock 1-day full access, AI tutor, tools and past papers.";
 
   unlockBtn.onclick = ()=> location.href = PAYMENT_LINK;
 }
@@ -453,6 +475,6 @@ setInterval(updateAccess, 700);
 updateAccess();
 </script>
 
+
 </body>
 </html>
-
