@@ -154,9 +154,9 @@ body{
 
 <div id="lockOverlay">
   <div>
-    <h2>Premium Access Required</h2>
+   
     <p id="lockMsg"></p>
-    <button id="unlockBtn">Unlock Access</button>
+    <button id="unlockBtn">Unlock Daily Pass — $0.2/KSh 25</button>
   </div>
 </div>
 
@@ -368,7 +368,7 @@ const DAILY_FREE_MS = 3 * 60 * 1000
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
 const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
 
-const KEY = "elimu_student_simple25_";
+const KEY = "elimu_student_simple26_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
@@ -473,8 +473,8 @@ function updateAccess(){
   content.style.pointerEvents = "none";
 
   lockMsg.innerHTML =
-    "Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.15/KSh 20.";
-    "Unlock Daily Pass — KSh 20 "
+    "Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.2/KSh 25.";
+   
   unlockBtn.onclick = () => location.href = PAYMENT_LINK;
 }
 
