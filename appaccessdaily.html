@@ -362,12 +362,12 @@ body{
 const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
 
 // --- Timing Controls (all at top)
-const FIRST_TRIAL_MS = 1 * 60 * 1000;       // 1 min free trial (for testing)
-const DAILY_FREE_MS = 1 * 60 * 1000;        // 1 min daily free
-const DAILY_INTERVAL = 4 * 60 * 1000;       // 4 minutes interval (testing)
-const PAID_DURATION_MS = 2 * 60 * 1000;     // 2 minutes paid access (testing)
+const FIRST_TRIAL_MS =  6 * 60 * 60 * 1000    
+const DAILY_FREE_MS = 3 * 60 * 1000     
+const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
+const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
 
-const KEY = "elimu_student_simple23_";
+const KEY = "elimu_student_simple24_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
