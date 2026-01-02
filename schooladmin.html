@@ -594,7 +594,7 @@ async function saveAccess(user, reference) {
 		
 // ===== ADMINS & TEACHERS =====
 const adminEmails = ["wamithisolomon@gmail.com"];
-const MAX_TEACHERS = 30;
+const MAX_TEACHERS = 20;
 
 function showAdminAccess(){
     document.getElementById("adminAccess").style.display = "block";
@@ -608,7 +608,7 @@ async function addTeacher(email){
     const snap = await teachersRef.get();
     const currentTeachers = snap.exists() ? Object.keys(snap.val()) : [];
     if(currentTeachers.length >= MAX_TEACHERS){
-        alert("Maximum of 30 teachers reached!");
+        alert("Maximum of 20 teachers reached!");
         return false;
     }
 
