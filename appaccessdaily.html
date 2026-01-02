@@ -357,24 +357,24 @@ body{
 </footer>
   
 
-
-	<script>
+<script>
 /* ---------------- CONFIG ---------------- */
 const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
 
 // --- Timing Controls (all at top)
 const FIRST_TRIAL_MS = 1 * 60 * 1000;       // 1 min free trial (for testing)
 const DAILY_FREE_MS = 1 * 60 * 1000;        // 1 min daily free
-const DAILY_INTERVAL = 4 * 60 * 1000;       // 4 minutes interval for testing
+const DAILY_INTERVAL = 4 * 60 * 1000;       // 4 minutes interval (testing)
 const PAID_DURATION_MS = 2 * 60 * 1000;     // 2 minutes paid access (testing)
 
-const KEY = "elimu_student_simple20_";
+const KEY = "elimu_student_simple22_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
 let paidRef = localStorage.getItem(KEY+"paidReference") || "";
 let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
 let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
+let trialUsed = localStorage.getItem(KEY+"trialUsed") === "true";
 
 /* --------------- ELEMENTS --------------- */
 const countdownEl = document.getElementById("accessCountdown");
@@ -401,9 +401,12 @@ const ref = new URLSearchParams(location.search).get("reference");
 if(ref && ref !== paidRef){
   paidRef = ref;
   paidUntil = now() + PAID_DURATION_MS;
-
   localStorage.setItem(KEY+"paidReference", paidRef);
   localStorage.setItem(KEY+"paidUntil", paidUntil);
+
+  // mark trial as used after payment
+  trialUsed = true;
+  localStorage.setItem(KEY+"trialUsed", "true");
 
   // remove trial/free timers after payment
   localStorage.removeItem(KEY+"firstTrialEnd");
@@ -413,8 +416,8 @@ if(ref && ref !== paidRef){
   dailyFreeEnd = 0;
 }
 
-/* --------- START TRIAL IF NONE AND NO PAID -------- */
-if(!firstTrialEnd && now() > paidUntil){
+/* --------- START TRIAL ONLY IF NEVER USED -------- */
+if(!trialUsed && !firstTrialEnd){
   firstTrialEnd = now() + FIRST_TRIAL_MS;
   localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
 }
@@ -435,7 +438,7 @@ function updateAccess(){
   const t = now();
   countdownEl.style.display = "block";
 
-  // PAID first!
+  // PAID first
   if(t < paidUntil){
     countdownEl.textContent = "Paid access remaining: " + format(paidUntil - t);
     content.style.filter="none";
@@ -444,7 +447,7 @@ function updateAccess(){
     return;
   }
 
-  // TRIAL next
+  // TRIAL (only if never used before)
   if(t < firstTrialEnd){
     countdownEl.textContent = "Free trial remaining: " + format(firstTrialEnd - t);
     content.style.filter="none";
