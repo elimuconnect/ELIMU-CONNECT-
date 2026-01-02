@@ -403,7 +403,7 @@ const PAYMENT_LINK = "https://paystack.shop/pay/uakeb-48iv"
 const FIRST_TRIAL_MS   = 0 * 2 * 60 * 1000;          // 24 hours free trial
 const PAID_DURATION_MS = 7  * 24 * 60 * 60 * 1000;     // 7 days paid access
 
-const KEY = "elimu_student_simple32_";
+const KEY = "elimu_students_simple1_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
@@ -485,7 +485,7 @@ function updateAccess(){
   content.style.pointerEvents = "none";
 
   lockMsg.innerHTML =
-    "Empower your teaching — unlock 7 days of Smart ICT tools, AI tools, lessons support,STEM labs/Simula7ions,schemes of work, lesson plans, notes, activities generator etc for only $1.3 / KSh 165.";
+    "Empower your teaching — unlock 7 days of Smart ICT tools, AI tools, lessons support,STEM labs/Simulations,schemes of work, lesson plans, notes, activities generator etc for only $1.3 / KSh 165.";
 
   unlockBtn.onclick = () => location.href = PAYMENT_LINK;
 }
