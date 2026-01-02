@@ -300,7 +300,7 @@ body{
       <div class="tools">
 
    
-  <li><a href="https://wisdomappweb.site" target="_blank" title="Get affordable websites for schools and educational institutions.">Affordable Schools Websites</a></li>
+ 
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/register4" target="_blank" title="Manage and track student attendance easily with a smart digital register.">Smart Register</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/acbl.html" target="_blank" title="Record, track, and showcase student projects and competency-based learning portfolios.">Projects & CBL Portfolio</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/projects" target="_blank" title="Generate activities and projects automatically for classroom use.">Activities/Projects Generator</a></li>
@@ -312,8 +312,8 @@ body{
   <li><a href="https://wisdomappweb.site/mappingteachers" target="_blank" title="Map teacher-student physical locations for classroom planning and management.">Teacher-student Physical Mapping</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/club" target="_blank" title="Manage STEM clubs, track activities, and engage students in science, tech, and innovation.">STEMLa Club</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/parentengagement" target="_blank" title="Connect with parents for updates, notifications, and student progress tracking.">Parent Connect</a></li>
-  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/aitest" target="_blank" title="Test and explore ElimuConnect AI tools for teaching, quizzes, and learning support.">ElimuConnect A.I</a></li>
-  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/game" target="_blank" title="Engage students with competitive quizzes and interactive games.">Compete & Win</a></li>
+
+  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/game" target="_blank" title="Engage students with competitive quizzes and interactive games.">Compete</a></li>
   	  
   <li><a href="https://elimuconnect.github.io/smartelimuconnect/coding" target="_blank" title="Learn coding and programming skills through interactive lessons and projects.">Learn to Code</a></li>
 
@@ -396,24 +396,20 @@ body{
   
 </footer>
   
-
 <script>
 /* ---------------- CONFIG ---------------- */
 const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
 
 // --- Timing Controls (all at top)
-const FIRST_TRIAL_MS = 6 * 60 * 60 * 1000    
-const DAILY_FREE_MS = 3 * 60 * 1000     
-const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
-const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
+const FIRST_TRIAL_MS   = 24 * 60 * 60 * 1000;          // 24 hours free trial
+const PAID_DURATION_MS = 7  * 24 * 60 * 60 * 1000;     // 7 days paid access
 
-const KEY = "elimu_student_simple28_";
+const KEY = "elimu_student_simple30_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
 let paidRef = localStorage.getItem(KEY+"paidReference") || "";
 let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
-let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
 let trialUsed = localStorage.getItem(KEY+"trialUsed") === "true";
 
 /* --------------- ELEMENTS --------------- */
@@ -441,6 +437,7 @@ const ref = new URLSearchParams(location.search).get("reference");
 if(ref && ref !== paidRef){
   paidRef = ref;
   paidUntil = now() + PAID_DURATION_MS;
+
   localStorage.setItem(KEY+"paidReference", paidRef);
   localStorage.setItem(KEY+"paidUntil", paidUntil);
 
@@ -448,12 +445,9 @@ if(ref && ref !== paidRef){
   trialUsed = true;
   localStorage.setItem(KEY+"trialUsed", "true");
 
-  // remove trial/free timers after payment
+  // remove trial timer
   localStorage.removeItem(KEY+"firstTrialEnd");
-  localStorage.removeItem(KEY+"dailyFreeEnd");
-  localStorage.removeItem(KEY+"dailyFreeStart");
   firstTrialEnd = 0;
-  dailyFreeEnd = 0;
 }
 
 /* --------- START TRIAL ONLY IF NEVER USED -------- */
@@ -462,23 +456,12 @@ if(!trialUsed && !firstTrialEnd){
   localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
 }
 
-/* --------- DAILY FREE ACCESS -------- */
-let lastDailyStart = parseInt(localStorage.getItem(KEY+"dailyFreeStart")) || 0;
-const tNow = now();
-
-// Only give daily free if trial is over and interval passed, and no paid access
-if(tNow > firstTrialEnd && tNow - lastDailyStart >= DAILY_INTERVAL && tNow > paidUntil){
-  dailyFreeEnd = tNow + DAILY_FREE_MS;
-  localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
-  localStorage.setItem(KEY+"dailyFreeStart", tNow);
-}
-
 /* ---------------- ENGINE ---------------- */
 function updateAccess(){
   const t = now();
   countdownEl.style.display = "block";
 
-  // PAID first
+  // PAID
   if(t < paidUntil){
     countdownEl.textContent = "Paid access remaining: " + format(paidUntil - t);
     content.style.filter="none";
@@ -487,18 +470,9 @@ function updateAccess(){
     return;
   }
 
-  // TRIAL (only if never used before)
+  // TRIAL
   if(t < firstTrialEnd){
     countdownEl.textContent = "Free trial remaining: " + format(firstTrialEnd - t);
-    content.style.filter="none";
-    content.style.pointerEvents="auto";
-    overlay.style.display="none";
-    return;
-  }
-
-  // DAILY FREE
-  if(t < dailyFreeEnd){
-    countdownEl.textContent = "Daily free access remaining: " + format(dailyFreeEnd - t);
     content.style.filter="none";
     content.style.pointerEvents="auto";
     overlay.style.display="none";
@@ -512,15 +486,14 @@ function updateAccess(){
   content.style.pointerEvents = "none";
 
   lockMsg.innerHTML =
-    "Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.2/KSh 25.";
-   
+    "Your journey to success shouldn't stop here! Unlock 7 days of AI tutor, exam prep, quizzes and STEM labs for just $0.2 / KSh 25.";
+
   unlockBtn.onclick = () => location.href = PAYMENT_LINK;
 }
 
 setInterval(updateAccess, 700);
 updateAccess();
 </script>
-
 
 
 </body>
