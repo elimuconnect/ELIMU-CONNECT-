@@ -497,7 +497,14 @@ function startCountdown(expiresAt){
             showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
             countdownEl.style.display="none";
         } else {
-            countdownEl.textContent = `Paid access: ${Math.floor(remaining/3600000)}h ${Math.floor((remaining%3600000)/60000)}m`;
+           const days = Math.floor(remaining / (24*60*60*1000));
+const hours = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
+const minutes = Math.floor((remaining % (60*60*1000)) / (60*1000));
+const seconds = Math.floor((remaining % (60*1000)) / 1000);
+
+countdownEl.textContent =
+  `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
         }
     },1000);
 }
