@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Driver – School Bus Tracker</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { font-family: sans-serif; padding: 10px; background: #f0f0f0; }
+    h2 { text-align: center; }
+    #map { height: 60vh; border-radius: 10px; margin-top: 10px; }
+    input, button {
+      width: 100%; margin: 5px 0; padding: 12px; font-size: 16px;
+      border-radius: 8px; border: 1px solid #ccc;
+    }
+    button { background-color: #4CAF50; color: white; border: none; }
+    button.end { background-color: #f44336; }
+  </style>
+</head>
+<body>
+  <h2>🚌 School Bus Driver</h2>
+  <input type="text" id="driverName" placeholder="Driver Name (optional)">
+  <input type="text" id="driverPhone" placeholder="Driver Phone Number">
+  <input type="text" id="schoolName" placeholder="School Name (e.g., St. Mary's)">
+  <button onclick="startJourney()">🚀 Start Journey</button>
+  <button class="end" onclick="endJourney()">🛑 End Journey</button>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getDatabase, ref, set, remove } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAc8JIey-v5R3v6QG73JOH8LBOMixg0VRQ",
+      authDomain: "schooltransports-34fd7.firebaseapp.com",
+      databaseURL: "https://schooltransports-34fd7-default-rtdb.firebaseio.com",
+      projectId: "schooltransports-34fd7",
+      storageBucket: "schooltransports-34fd7.appspot.com",
+      messagingSenderId: "125561731802",
+      appId: "1:125561731802:web:745a6ce91863118a4f03e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+
+
+
+
+const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/schooladmin2";
+
+// Helper: get base URL without query string
+function getBaseURL(url){
+    return url.split('?')[0];
+}
+
+// Check if this is main link access (ignore query parameters)
+const isMainLink = getBaseURL(window.location.href) === MAIN_LINK;
+
+// Check if we came from main link redirect (ignore query)
+const fromMainLink = getBaseURL(document.referrer) === MAIN_LINK;
+
+if(isMainLink || fromMainLink){
+    // ✅ Access allowed – do nothing
+} else {
+    // ❌ Block access
+    document.body.innerHTML = `
+        <div style="text-align:center; padding:50px; font-family:sans-serif;">
+            <h2>Access Restricted</h2>
+            <p>You cannot open this tool directly.</p>
+            <p>Please open it from the main link(school Tools).</p>
+
+            <a href="${MAIN_LINK}"
+               style="font-size:1.2rem; color:#0078D7;">
+               Open from Main School Tools
+            </a>
+        </div>
+    `;
+    throw new Error("Access blocked until opened from main link.");
+}
+
+
+
+
+    
+
+
+
+
+
+
+
+
+    
+    let map = L.map('map').setView([-1.29, 36.82], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    let watchId = null;
+    const today = new Date().toISOString().split('T')[0];
+
+    window.startJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      const name = document.getElementById("driverName").value.trim();
+      const school = document.getElementById("schoolName").value.trim();
+
+      if (!phone || !school) {
+        return alert("Please enter both phone number and school name.");
+      }
+
+      watchId = navigator.geolocation.watchPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        set(ref(db, `drivers/${today}/${phone}`), {
+          name,
+          phone,
+          school,
+          lat,
+          lng,
+          timestamp: Date.now()
+        });
+
+      }, () => alert("❌ Cannot track location."), {
+        enableHighAccuracy: true
+      });
+
+      alert("📍 Tracking started.");
+    };
+
+    window.endJourney = () => {
+      const phone = document.getElementById("driverPhone").value.trim();
+      if (!phone) return alert("Enter your phone number.");
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+      remove(ref(db, `drivers/${today}/${phone}`));
+      alert("🛑 Journey ended.");
+    };
+  </script>
+</body>
+</html>
