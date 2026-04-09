@@ -6729,12 +6729,12 @@ function saveLessonRequest() {
 const PAYMENT_LINK = "https://paystack.shop/pay/txutbtubyo";
 
 // --- Timing Controls (all at top)
-const FIRST_TRIAL_MS = 10 * 60 * 1000       
-const DAILY_FREE_MS =  3 * 60 * 1000  
+const FIRST_TRIAL_MS = 1 * 60 * 1000       
+const DAILY_FREE_MS =  1 * 60 * 1000  
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
 const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
 
-const KEY = "elimu_student_simple32_";
+const KEY = "elimu_student_simple33_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
@@ -6781,6 +6781,9 @@ if(ref && ref !== paidRef){
   localStorage.removeItem(KEY+"dailyFreeStart");
   firstTrialEnd = 0;
   dailyFreeEnd = 0;
+  
+  // ✅ REMOVE the reference from the URL
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 /* --------- START TRIAL ONLY IF NEVER USED -------- */
