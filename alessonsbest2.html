@@ -322,10 +322,101 @@ html, body {
   background: #f1f6fb;
 }
 
+
+
+/* Countdown top bar */
+#accessCountdown{
+  position:fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#ffb347,#ffcc33);
+  padding:10px 20px;
+  border-radius:12px;
+  box-shadow:0 6px 15px rgba(0,0,0,.25);
+  font-weight:bold;
+  display:none;
+}
+/* Lock Overlay */
+#lockOverlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  color:white;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:25px;
+  backdrop-filter:blur(4px);
+  z-index:9999;
+}
+
+#lockOverlay div{
+  background:rgba(255,255,255,0.05);
+  padding:30px 25px;
+  border-radius:20px;
+  max-width:500px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
+}
+
+#lockOverlay h2{
+  font-size:2.2em; /* larger heading */
+  font-weight:900;
+  margin-bottom:15px;
+  color:#ffdd57;
+}
+
+#lockOverlay p{
+  font-size:1.4em; /* larger text */
+  font-weight:bold;
+  line-height:1.5;
+  margin-bottom:25px;
+  color:#ffffffcc;
+}
+
+#unlockBtn{
+  padding:18px 28px;
+  font-size:1.3em;
+  font-weight:bold;
+  border:none;
+  border-radius:15px;
+  background:linear-gradient(135deg,#ff6a00,#ffb347);
+  color:white;
+  cursor:pointer;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+
+#unlockBtn:hover{
+  transform:scale(1.05);
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+}
+
+
+    
 </style>
 </head>
   <body>
 
+
+
+<div id="accessCountdown">Loading…</div>
+
+<div id="lockOverlay">
+  <div>
+   
+    <p id="lockMsg"></p>
+    <button id="unlockBtn">Unlock Daily Pass — $0.2/KSh 25</button>
+  </div>
+</div>
+
+
+
+
+
+
+
+    
 <div id="app">
 
 <!-- Welcome / Hero Section -->
@@ -6572,7 +6663,133 @@ function saveLessonRequest() {
     statusEl.style.color = "red";
   });
 }
-    
+
+
+
+
+/* ---------------- CONFIG ---------------- */
+const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
+
+// --- Timing Controls (all at top)
+const FIRST_TRIAL_MS = 6 * 60 * 60 * 1000    
+const DAILY_FREE_MS = 5 * 60 * 1000     
+const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
+const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
+
+const KEY = "elimu_student_simple30_";
+
+/* --------------- STORAGE ---------------- */
+let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
+let paidRef = localStorage.getItem(KEY+"paidReference") || "";
+let firstTrialEnd = parseInt(localStorage.getItem(KEY+"firstTrialEnd")) || 0;
+let dailyFreeEnd = parseInt(localStorage.getItem(KEY+"dailyFreeEnd")) || 0;
+let trialUsed = localStorage.getItem(KEY+"trialUsed") === "true";
+
+/* --------------- ELEMENTS --------------- */
+const countdownEl = document.getElementById("accessCountdown");
+const overlay = document.getElementById("lockOverlay");
+const lockMsg = document.getElementById("lockMsg");
+const unlockBtn = document.getElementById("unlockBtn");
+const content = document.getElementById("content");
+
+/* ------------- HELPERS ------------------ */
+function now(){ return Date.now(); }
+
+function format(ms){
+  if(ms <= 0) return "00:00:00";
+  let s = Math.floor(ms/1000);
+  let h = Math.floor(s/3600);
+  s %= 3600;
+  let m = Math.floor(s/60);
+  s %= 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* --------- HANDLE RETURN FROM PAYMENT --------- */
+const ref = new URLSearchParams(location.search).get("reference");
+if(ref && ref !== paidRef){
+  paidRef = ref;
+  paidUntil = now() + PAID_DURATION_MS;
+  localStorage.setItem(KEY+"paidReference", paidRef);
+  localStorage.setItem(KEY+"paidUntil", paidUntil);
+
+  // mark trial as used after payment
+  trialUsed = true;
+  localStorage.setItem(KEY+"trialUsed", "true");
+
+  // remove trial/free timers after payment
+  localStorage.removeItem(KEY+"firstTrialEnd");
+  localStorage.removeItem(KEY+"dailyFreeEnd");
+  localStorage.removeItem(KEY+"dailyFreeStart");
+  firstTrialEnd = 0;
+  dailyFreeEnd = 0;
+}
+
+/* --------- START TRIAL ONLY IF NEVER USED -------- */
+if(!trialUsed && !firstTrialEnd){
+  firstTrialEnd = now() + FIRST_TRIAL_MS;
+  localStorage.setItem(KEY+"firstTrialEnd", firstTrialEnd);
+}
+
+/* --------- DAILY FREE ACCESS -------- */
+let lastDailyStart = parseInt(localStorage.getItem(KEY+"dailyFreeStart")) || 0;
+const tNow = now();
+
+// Only give daily free if trial is over and interval passed, and no paid access
+if(tNow > firstTrialEnd && tNow - lastDailyStart >= DAILY_INTERVAL && tNow > paidUntil){
+  dailyFreeEnd = tNow + DAILY_FREE_MS;
+  localStorage.setItem(KEY+"dailyFreeEnd", dailyFreeEnd);
+  localStorage.setItem(KEY+"dailyFreeStart", tNow);
+}
+
+/* ---------------- ENGINE ---------------- */
+function updateAccess(){
+  const t = now();
+  countdownEl.style.display = "block";
+
+  // PAID first
+  if(t < paidUntil){
+    countdownEl.textContent = "Paid access remaining: " + format(paidUntil - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
+  // TRIAL (only if never used before)
+  if(t < firstTrialEnd){
+    countdownEl.textContent = "Free trial remaining: " + format(firstTrialEnd - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
+  // DAILY FREE
+  if(t < dailyFreeEnd){
+    countdownEl.textContent = "Daily free access remaining: " + format(dailyFreeEnd - t);
+    content.style.filter="none";
+    content.style.pointerEvents="auto";
+    overlay.style.display="none";
+    return;
+  }
+
+  // LOCKED
+  countdownEl.style.display = "none";
+  overlay.style.display = "flex";
+  content.style.filter = "blur(6px)";
+  content.style.pointerEvents = "none";
+
+  lockMsg.innerHTML =
+    "Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.2/KSh 25.";
+   
+  unlockBtn.onclick = () => location.href = PAYMENT_LINK;
+}
+
+setInterval(updateAccess, 700);
+updateAccess();
+
+  
 </script>
 </body>
 </html>
