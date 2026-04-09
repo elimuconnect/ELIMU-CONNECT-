@@ -6411,18 +6411,18 @@ function startTutor() {
       document.getElementById("editor").appendChild(lessonSection);
     }
 
-    // Lesson time: 16:00 – 21:00
+    // Lesson time: 04:00 – 24:00
     const lessonStart = new Date();
-    lessonStart.setHours(16, 0, 0, 0);
+    lessonStart.setHours(04, 0, 0, 0);
     const lessonEnd = new Date();
-    lessonEnd.setHours(25, 0, 0, 0);
+    lessonEnd.setHours(23, 0, 0, 0);
     const inLesson = now >= lessonStart && now <= lessonEnd;
 
     if (!inLesson) {
       lessonSection.innerHTML = `
         <div class="card" style="text-align:center; color:#d32f2f;">
           <h2>⏰ No active Math lesson right now.</h2>
-          <p>Next lesson: 16:00 – 25:00 local time</p>
+          <p>Next lesson: 04:00 – 23:00 local time</p>
         </div>`;
       status.textContent = "🕓 Waiting for next lesson...";
       return;
@@ -6726,15 +6726,15 @@ function saveLessonRequest() {
 
 
 /* ---------------- CONFIG ---------------- */
-const PAYMENT_LINK = "https://paystack.shop/pay/r8s59b4g-n";
+const PAYMENT_LINK = "https://paystack.shop/pay/txutbtubyo";
 
 // --- Timing Controls (all at top)
-const FIRST_TRIAL_MS = 2 * 60 * 1000    
-const DAILY_FREE_MS =  2 * 60 * 1000  
+const FIRST_TRIAL_MS = 10 * 60 * 1000       
+const DAILY_FREE_MS =  3 * 60 * 1000  
 const DAILY_INTERVAL = 24 * 60 * 60 * 1000      
 const PAID_DURATION_MS = 24 * 60 * 60 * 1000   
 
-const KEY = "elimu_student_simple31_";
+const KEY = "elimu_student_simple32_";
 
 /* --------------- STORAGE ---------------- */
 let paidUntil = parseInt(localStorage.getItem(KEY+"paidUntil")) || 0;
@@ -6839,7 +6839,8 @@ function updateAccess(){
   content.style.pointerEvents = "none";
 
   lockMsg.innerHTML =
-    "Your journey to success shouldn't stop here! Unlock 24 hours of AI tutor for exam prep, homework help, quizzes past papers, and STEM labs for just $0.2/KSh 25.";
+  lockMsg.innerHTML =
+  "Unlock 24 hours of AI Live Math Tutor for instant help with math problems, homework, quizzes, and exam preparation for only $0.4 / KSh 50."; 
    
   unlockBtn.onclick = () => location.href = PAYMENT_LINK;
 }
