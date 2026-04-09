@@ -6131,13 +6131,51 @@ A=1000×1.05³ = 1157.63.<br>`,
 };
 
 
-/* ---------- Voice ---------- */
+
 function getVoice() {
+
   const voices = speechSynthesis.getVoices();
-  return voices.find(v => v.lang.startsWith("en-ke") && v.name.toLowerCase().includes("female"))
-      || voices.find(v => v.lang.startsWith("en-gb"))
-      || voices[0];
+
+  // 1️⃣ Kenyan English female
+  let kenyanFemale =
+    voices.find(v =>
+      v.lang.toLowerCase().startsWith("en-ke") &&
+      v.name.toLowerCase().includes("female")
+    );
+
+  if (kenyanFemale) return kenyanFemale;
+
+  // 2️⃣ Any African English female
+  const africanCodes = ["en-ng","en-za","en-gh","en-tz","en-ug","en-rw","en-et"];
+
+  let africanFemale = voices.find(v =>
+    africanCodes.some(code => v.lang.toLowerCase().startsWith(code)) &&
+    v.name.toLowerCase().includes("female")
+  );
+
+  if (africanFemale) return africanFemale;
+
+  // 3️⃣ Any English female
+  let englishFemale = voices.find(v =>
+    v.lang.toLowerCase().startsWith("en") &&
+    v.name.toLowerCase().includes("female")
+  );
+
+  if (englishFemale) return englishFemale;
+
+  // 4️⃣ Any English male
+  let englishMale = voices.find(v =>
+    v.lang.toLowerCase().startsWith("en")
+  );
+
+  if (englishMale) return englishMale;
+
+  // 5️⃣ Final fallback
+  return voices[0] || null;
 }
+
+
+  
 
 function speak(html) {
   const text = new DOMParser().parseFromString(html, "text/html").body.textContent;
