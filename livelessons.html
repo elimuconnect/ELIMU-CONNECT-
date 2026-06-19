@@ -274,6 +274,25 @@ document.querySelector(".lesson-info").innerHTML = `
 
 }
 
+function notifyWhatsApp(reference){
+    const phone = "254769255782";
+
+    const message =
+`🚀 NEW LIVE LESSON PAYMENT
+
+A student has just paid for live maths lesson.
+
+📌 Reference: ${reference}
+📅 Date: ${new Date().toLocaleString()}
+📚 Platform: Elimu Connect Live Lesson
+
+Please confirm access.`;
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+}
+
 // ================= PAYMENT SYSTEM =================
 let paid = localStorage.getItem(LESSON_KEY + "_paid") || "false";
 let paidRef = localStorage.getItem(LESSON_KEY + "_ref") || "";
@@ -282,17 +301,22 @@ const reference = new URLSearchParams(location.search).get("reference");
 
 if(reference && reference !== paidRef){
 
-paid = "true";
-paidRef = reference;
+    paid = "true";
+    paidRef = reference;
 
-localStorage.setItem(LESSON_KEY + "_paid", "true");
-localStorage.setItem(LESSON_KEY + "_ref", reference);
+    localStorage.setItem(LESSON_KEY + "_paid", "true");
+    localStorage.setItem(LESSON_KEY + "_ref", reference);
 
-showModal(
-"✅ Payment successful.<br><br>You can now join today's live lesson.",
-"Continue"
-);
+    // 🔥 PREVENT DUPLICATE WHATSAPP MESSAGES
+    if(!localStorage.getItem(LESSON_KEY + "_wa_sent")){
+        notifyWhatsApp(reference);
+        localStorage.setItem(LESSON_KEY + "_wa_sent", "true");
+    }
 
+    showModal(
+        "✅ Payment successful.<br><br>You can now join today's live lesson.",
+        "Continue"
+    );
 }
 
 // ================= ACCESS =================
@@ -307,8 +331,8 @@ mainBtn.onclick = ()=>{
 
 if(paid === "true"){
 
-location.href = "https://meet.google.com/cny-ctij-duf";
-return;
+    location.href = "https://meet.google.com/cny-ctij-duf";
+    return;
 
 }
 
@@ -324,6 +348,7 @@ showModal(
 );
 
 };
+
 </script>
 
 </body>
