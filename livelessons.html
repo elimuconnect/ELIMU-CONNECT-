@@ -113,14 +113,12 @@ button:disabled{
         <button id="accessBtn">OK</button>
     </div>
 </div>
+
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/xqvo89sfbv";
-
-// Lesson Key (daily auto system)
 const LESSON_KEY = "19_6_2026";
 
-// ================= CURRICULUM DATA =================
-
+// ================= FORM 3 =================
 const form3Topics = [
 "Quadratic Expressions and Equations",
 "Approximation and Errors",
@@ -139,9 +137,8 @@ const form3Topics = [
 "Graphical Methods"
 ];
 
-
+// ================= FORM 4 =================
 const form4Topics = [
-
 "Matrices and Transformations",
 "Statistics 2",
 "Trigonometry 3",
@@ -154,19 +151,24 @@ const form4Topics = [
 "Integration"
 ];
 
-// GRADE 10 CORE (KICD STRANDS)
+// ================= CORE / ESSENTIAL =================
 const coreTopics = [
 "Numbers and Algebra",
 "Measurements and Geometry",
 "Statistics and Probability"
 ];
 
-// GRADE 10 ESSENTIAL (KICD STRANDS)
 const essentialTopics = [
 "Numbers and Algebra",
 "Measurements and Geometry",
 "Statistics and Probability"
 ];
+
+// ================= PROGRESS LOAD =================
+let form3Index = parseInt(localStorage.getItem("form3_index") || "0");
+let form4Index = parseInt(localStorage.getItem("form4_index") || "0");
+let coreIndex = parseInt(localStorage.getItem("core_index") || "0");
+let essentialIndex = parseInt(localStorage.getItem("essential_index") || "0");
 
 // ================= UI =================
 const mainBtn = document.getElementById("studentBtn");
@@ -186,8 +188,27 @@ function showModal(msg, btn="OK", cb=null){
     };
 }
 
-// ================= CALENDAR SYSTEM =================
-const day = new Date().getDay(); // 0 Sunday
+// ================= GET NEXT TOPIC =================
+function getNextTopic(list, indexKey, storageKey){
+
+    let index = parseInt(localStorage.getItem(indexKey) || "0");
+
+    let topic = list[index];
+
+    index++;
+
+    // RESET ONLY AFTER FULL SYLLABUS COMPLETION
+    if(index >= list.length){
+        index = 0;
+    }
+
+    localStorage.setItem(indexKey, index);
+
+    return topic;
+}
+
+// ================= DAILY LESSON ENGINE =================
+const day = new Date().getDay();
 
 let formClass = "";
 let formTopic = "";
@@ -203,27 +224,21 @@ document.querySelector(".lesson-info").innerHTML = `
 
 }else{
 
-const index = day - 1;
+// ALWAYS NEXT TOPIC IN SEQUENCE
+formClass = (day % 2 === 1) ? "Form 3" : "Form 4";
 
-// FORM 3 / FORM 4 ALTERNATION
-const isForm3 = index % 2 === 0;
+formTopic = (day % 2 === 1)
+? getNextTopic(form3Topics, "form3_index", LESSON_KEY)
+: getNextTopic(form4Topics, "form4_index", LESSON_KEY);
 
-formClass = isForm3 ? "Form 3" : "Form 4";
+// CORE / ESSENTIAL
+seniorClass = (day % 2 === 1) ? "Grade 10 Core" : "Grade 10 Essential";
 
-formTopic = isForm3
-? form3Topics[Math.floor(index/2) % form3Topics.length]
-: form4Topics[Math.floor(index/2) % form4Topics.length];
+seniorTopic = (day % 2 === 1)
+? getNextTopic(coreTopics, "core_index", LESSON_KEY)
+: getNextTopic(essentialTopics, "essential_index", LESSON_KEY);
 
-// CORE / ESSENTIAL ALTERNATION
-const isCore = index % 2 === 0;
-
-seniorClass = isCore ? "Grade 10 Core" : "Grade 10 Essential";
-
-seniorTopic = isCore
-? coreTopics[Math.floor(index/2) % coreTopics.length]
-: essentialTopics[Math.floor(index/2) % essentialTopics.length];
-
-// SHOW LESSONS
+// DISPLAY
 document.querySelector(".lesson-info").innerHTML = `
 <h3>📅 Today's Live Lessons</h3>
 
@@ -248,51 +263,50 @@ document.querySelector(".lesson-info").innerHTML = `
 let paid = localStorage.getItem(LESSON_KEY + "_paid") || "false";
 let paidRef = localStorage.getItem(LESSON_KEY + "_ref") || "";
 
-const reference =
-new URLSearchParams(location.search).get("reference");
+const reference = new URLSearchParams(location.search).get("reference");
 
 if(reference && reference !== paidRef){
 
-    paid = "true";
-    paidRef = reference;
+paid = "true";
+paidRef = reference;
 
-    localStorage.setItem(LESSON_KEY + "_paid", "true");
-    localStorage.setItem(LESSON_KEY + "_ref", reference);
+localStorage.setItem(LESSON_KEY + "_paid", "true");
+localStorage.setItem(LESSON_KEY + "_ref", reference);
 
-    showModal(
-        "✅ Payment successful.<br><br>You can now join today's live lesson.",
-        "Continue"
-    );
+showModal(
+"✅ Payment successful.<br><br>You can now join today's live lesson.",
+"Continue"
+);
+
 }
 
-// ================= ACCESS DISPLAY =================
+// ================= ACCESS =================
 if(paid === "true"){
     countdownEl.innerHTML = "✅ Access Granted";
 }else{
     countdownEl.innerHTML = "🔒 Payment Required";
 }
 
-// ================= BUTTON ACTION =================
+// ================= BUTTON =================
 mainBtn.onclick = ()=>{
 
-    if(paid === "true"){
+if(paid === "true"){
 
-        location.href = "https://meet.google.com/cny-ctij-duf";
-        return;
-    }
+location.href = "https://meet.google.com/cny-ctij-duf";
+return;
 
-    showModal(
-        `
-        <h3>📚 Live Mathematics Lesson</h3>
+}
 
-        <p><b>${formClass}</b> → ${formTopic}</p>
-        <p><b>${seniorClass}</b> → ${seniorTopic}</p>
-
-        <p><strong>Fee: KSh 100</strong></p>
-        `,
-        "Pay KSh 100",
-        ()=> location.href = PAYMENT_LINK
-    );
+showModal(
+`
+<h3>📚 Live Mathematics Lesson</h3>
+<p><b>${formClass}</b> → ${formTopic}</p>
+<p><b>${seniorClass}</b> → ${seniorTopic}</p>
+<p><strong>Fee: KSh 100</strong></p>
+`,
+"Pay KSh 100",
+()=> location.href = PAYMENT_LINK
+);
 
 };
 </script>
