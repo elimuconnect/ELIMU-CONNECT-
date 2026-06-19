@@ -116,8 +116,53 @@ button:disabled{
 
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/xqvo89sfbv";
+
+// Lesson Key (daily auto system)
 const LESSON_KEY = "19_6_2026";
 
+// ================= CURRICULUM DATA =================
+
+// FORM 3 (KCSE REAL ORDER)
+const form3Topics = [
+"Real Numbers",
+"Indices & Logarithms",
+"Quadratic Equations",
+"Surds",
+"Trigonometry II",
+"Sequences & Series",
+"Matrices",
+"Vectors",
+"Probability",
+"Statistics"
+];
+
+// FORM 4 (KCSE REAL ORDER)
+const form4Topics = [
+"Loci",
+"Linear Programming",
+"Differentiation",
+"Integration",
+"Trigonometry III",
+"Three Dimensional Geometry",
+"Statistics II",
+"Transformations"
+];
+
+// GRADE 10 CORE (KICD STRANDS)
+const coreTopics = [
+"Numbers and Algebra",
+"Measurements and Geometry",
+"Statistics and Probability"
+];
+
+// GRADE 10 ESSENTIAL (KICD STRANDS)
+const essentialTopics = [
+"Numbers and Algebra",
+"Measurements and Geometry",
+"Statistics and Probability"
+];
+
+// ================= UI =================
 const mainBtn = document.getElementById("studentBtn");
 const countdownEl = document.getElementById("accessCountdown");
 const modal = document.getElementById("accessModal");
@@ -135,6 +180,65 @@ function showModal(msg, btn="OK", cb=null){
     };
 }
 
+// ================= CALENDAR SYSTEM =================
+const day = new Date().getDay(); // 0 Sunday
+
+let formClass = "";
+let formTopic = "";
+let seniorClass = "";
+let seniorTopic = "";
+
+if(day === 0){
+
+document.querySelector(".lesson-info").innerHTML = `
+<h3>📌 Sunday Revision Day</h3>
+<p>No live lessons today.</p>
+`;
+
+}else{
+
+const index = day - 1;
+
+// FORM 3 / FORM 4 ALTERNATION
+const isForm3 = index % 2 === 0;
+
+formClass = isForm3 ? "Form 3" : "Form 4";
+
+formTopic = isForm3
+? form3Topics[Math.floor(index/2) % form3Topics.length]
+: form4Topics[Math.floor(index/2) % form4Topics.length];
+
+// CORE / ESSENTIAL ALTERNATION
+const isCore = index % 2 === 0;
+
+seniorClass = isCore ? "Grade 10 Core" : "Grade 10 Essential";
+
+seniorTopic = isCore
+? coreTopics[Math.floor(index/2) % coreTopics.length]
+: essentialTopics[Math.floor(index/2) % essentialTopics.length];
+
+// SHOW LESSONS
+document.querySelector(".lesson-info").innerHTML = `
+<h3>📅 Today's Live Lessons</h3>
+
+<div style="background:#eef5ff;padding:12px;margin:10px 0;border-radius:10px;">
+<h4>🕓 4:00 PM</h4>
+<p><b>${formClass}</b></p>
+<p>${formTopic}</p>
+<p><b>KCSE Mathematics</b></p>
+</div>
+
+<div style="background:#f0fff0;padding:12px;margin:10px 0;border-radius:10px;">
+<h4>🕖 7:00 PM</h4>
+<p><b>${seniorClass}</b></p>
+<p>${seniorTopic}</p>
+<p><b>Grade 10 Mathematics (CBC)</b></p>
+</div>
+`;
+
+}
+
+// ================= PAYMENT SYSTEM =================
 let paid = localStorage.getItem(LESSON_KEY + "_paid") || "false";
 let paidRef = localStorage.getItem(LESSON_KEY + "_ref") || "";
 
@@ -146,15 +250,8 @@ if(reference && reference !== paidRef){
     paid = "true";
     paidRef = reference;
 
-    localStorage.setItem(
-        LESSON_KEY + "_paid",
-        "true"
-    );
-
-    localStorage.setItem(
-        LESSON_KEY + "_ref",
-        reference
-    );
+    localStorage.setItem(LESSON_KEY + "_paid", "true");
+    localStorage.setItem(LESSON_KEY + "_ref", reference);
 
     showModal(
         "✅ Payment successful.<br><br>You can now join today's live lesson.",
@@ -162,21 +259,19 @@ if(reference && reference !== paidRef){
     );
 }
 
+// ================= ACCESS DISPLAY =================
 if(paid === "true"){
-    countdownEl.innerHTML =
-    "✅ Access Granted";
+    countdownEl.innerHTML = "✅ Access Granted";
 }else{
-    countdownEl.innerHTML =
-    "🔒 Payment Required";
+    countdownEl.innerHTML = "🔒 Payment Required";
 }
 
+// ================= BUTTON ACTION =================
 mainBtn.onclick = ()=>{
 
     if(paid === "true"){
 
-        location.href =
-        "https://meet.google.com/boz-xrpc-uee";
-
+        location.href = "https://meet.google.com/boz-xrpc-uee";
         return;
     }
 
@@ -184,13 +279,10 @@ mainBtn.onclick = ()=>{
         `
         <h3>📚 Live Mathematics Lesson</h3>
 
-        <p>
-        Join today's premium live lesson on Google Meet.
-        </p>
+        <p><b>${formClass}</b> → ${formTopic}</p>
+        <p><b>${seniorClass}</b> → ${seniorTopic}</p>
 
-        <p>
-        <strong>Fee: KSh 100</strong>
-        </p>
+        <p><strong>Fee: KSh 100</strong></p>
         `,
         "Pay KSh 100",
         ()=> location.href = PAYMENT_LINK
