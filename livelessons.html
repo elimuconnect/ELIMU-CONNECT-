@@ -90,11 +90,10 @@ button:disabled{
 
         <h1>📚 Elimu Connect Live Maths Lesson</h1>
 
+        <!-- DYNAMIC LESSON DISPLAY -->
         <div class="lesson-info">
-            <h3>Topic: Vectors</h3>
-            <p>Date: Today</p>
-            <p>Time: 7:00 PM</p>
-            <p><strong>Fee: KSh 100</strong></p>
+            <h3>Loading today's lessons...</h3>
+            <p>Please wait while we prepare your schedule.</p>
         </div>
 
         <button id="studentBtn">
@@ -107,13 +106,13 @@ button:disabled{
 
 </div>
 
+<!-- PAYMENT / ACCESS MODAL -->
 <div id="accessModal" class="modal">
     <div class="modal-content">
         <div id="accessMessage"></div>
         <button id="accessBtn">OK</button>
     </div>
 </div>
-
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/xqvo89sfbv";
 
