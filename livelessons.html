@@ -188,21 +188,35 @@ function showModal(msg, btn="OK", cb=null){
     };
 }
 
-// ================= GET NEXT TOPIC =================
-function getNextTopic(list, indexKey, storageKey){
+function getTopicByDay(list, storageKey){
 
-    let index = parseInt(localStorage.getItem(indexKey) || "0");
+    const today = new Date().toISOString().split("T")[0]; 
+    // e.g. "2026-06-19"
 
-    let topic = list[index];
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+
+    // if already generated today → reuse SAME topic
+    if(saved.date === today){
+        return saved.topic;
+    }
+
+    // otherwise move to next topic
+    let index = saved.index || 0;
+
+    const topic = list[index];
 
     index++;
 
-    // RESET ONLY AFTER FULL SYLLABUS COMPLETION
     if(index >= list.length){
         index = 0;
     }
 
-    localStorage.setItem(indexKey, index);
+    // save new state
+    localStorage.setItem(storageKey, JSON.stringify({
+        date: today,
+        index: index,
+        topic: topic
+    }));
 
     return topic;
 }
@@ -228,15 +242,16 @@ document.querySelector(".lesson-info").innerHTML = `
 formClass = (day % 2 === 1) ? "Form 3" : "Form 4";
 
 formTopic = (day % 2 === 1)
-? getNextTopic(form3Topics, "form3_index", LESSON_KEY)
-: getNextTopic(form4Topics, "form4_index", LESSON_KEY);
+? getTopicByDay(form3Topics, "form3_progress_form3")
+: getTopicByDay(form4Topics, "form4_progress_form4");
+
 
 // CORE / ESSENTIAL
 seniorClass = (day % 2 === 1) ? "Grade 10 Core" : "Grade 10 Essential";
 
 seniorTopic = (day % 2 === 1)
-? getNextTopic(coreTopics, "core_index", LESSON_KEY)
-: getNextTopic(essentialTopics, "essential_index", LESSON_KEY);
+? getTopicByDay(coreTopics, "form3_progress_core")
+: getTopicByDay(essentialTopics, "form3_progress_essential");
 
 // DISPLAY
 document.querySelector(".lesson-info").innerHTML = `
