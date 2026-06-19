@@ -177,6 +177,32 @@ const modal = document.getElementById("accessModal");
 const modalMsg = document.getElementById("accessMessage");
 const modalBtn = document.getElementById("accessBtn");
 
+
+
+window.addEventListener("DOMContentLoaded", ()=>{
+    const whatsappBtn = document.createElement("button");
+    whatsappBtn.innerText = "📲 Notify Teacher on WhatsApp";
+    whatsappBtn.style.display = "none";
+    whatsappBtn.style.marginTop = "10px";
+    whatsappBtn.style.background = "#25D366";
+    whatsappBtn.style.color = "white";
+    whatsappBtn.style.border = "none";
+    whatsappBtn.style.padding = "12px 20px";
+    whatsappBtn.style.borderRadius = "8px";
+    whatsappBtn.style.cursor = "pointer";
+
+    document.querySelector(".card").appendChild(whatsappBtn);
+
+    whatsappBtn.onclick = ()=>{
+        notifyWhatsApp(localStorage.getItem(LESSON_KEY + "_ref"));
+    };
+
+    // expose globally so your payment system can access it
+    window.whatsappBtn = whatsappBtn;
+});
+
+    
+
 function showModal(msg, btn="OK", cb=null){
     modalMsg.innerHTML = msg;
     modalBtn.textContent = btn;
@@ -274,6 +300,7 @@ document.querySelector(".lesson-info").innerHTML = `
 
 }
 
+
 function notifyWhatsApp(reference){
     const phone = "254769255782";
 
@@ -284,15 +311,14 @@ A student has just paid for live maths lesson.
 
 📌 Reference: ${reference}
 📅 Date: ${new Date().toLocaleString()}
-📚 Platform: Elimu Connect Live Lesson
-
-Please confirm access.`;
+📚 Platform: Elimu Connect Live Lesson`;
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-    window.open(url, "_blank");
+    // SAFE navigation (no popup block)
+    window.location.href = url;
 }
-
+    
 // ================= PAYMENT SYSTEM =================
 let paid = localStorage.getItem(LESSON_KEY + "_paid") || "false";
 let paidRef = localStorage.getItem(LESSON_KEY + "_ref") || "";
@@ -307,16 +333,16 @@ if(reference && reference !== paidRef){
     localStorage.setItem(LESSON_KEY + "_paid", "true");
     localStorage.setItem(LESSON_KEY + "_ref", reference);
 
-    // 🔥 PREVENT DUPLICATE WHATSAPP MESSAGES
-    if(!localStorage.getItem(LESSON_KEY + "_wa_sent")){
-        notifyWhatsApp(reference);
-        localStorage.setItem(LESSON_KEY + "_wa_sent", "true");
-    }
 
     showModal(
         "✅ Payment successful.<br><br>You can now join today's live lesson.",
         "Continue"
     );
+   // 🔥 SHOW BUTTON ONLY AFTER ACCESS
+   if(window.whatsappBtn){
+    window.whatsappBtn.style.display = "block";
+}
+ 
 }
 
 // ================= ACCESS =================
