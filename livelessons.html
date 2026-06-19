@@ -116,7 +116,7 @@ button:disabled{
 
 <script>
 const PAYMENT_LINK = "https://paystack.shop/pay/xqvo89sfbv";
-const LESSON_KEY = "12_6_2026";
+const LESSON_KEY = "f";
 
 // ================= FORM 3 =================
 const form3Topics = [
@@ -179,7 +179,8 @@ const modalBtn = document.getElementById("accessBtn");
 
 
 
-window.addEventListener("DOMContentLoaded", ()=>{
+
+    window.addEventListener("DOMContentLoaded", ()=>{
     const whatsappBtn = document.createElement("button");
     whatsappBtn.innerText = "📲 Notify Teacher on WhatsApp";
     whatsappBtn.style.display = "none";
@@ -197,10 +198,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
         notifyWhatsApp(localStorage.getItem(LESSON_KEY + "_ref"));
     };
 
-    // expose globally so your payment system can access it
     window.whatsappBtn = whatsappBtn;
-});
 
+    // 🔥 IMPORTANT: if already paid, show immediately
+    const paid = localStorage.getItem(LESSON_KEY + "_paid");
+    if(paid === "true"){
+        whatsappBtn.style.display = "block";
+    }
+});
     
 
 function showModal(msg, btn="OK", cb=null){
@@ -214,6 +219,12 @@ function showModal(msg, btn="OK", cb=null){
     };
 }
 
+function showWhatsAppButton(){
+    if(window.whatsappBtn){
+        window.whatsappBtn.style.display = "block";
+    }
+}
+    
 function getTopicByDay(list, storageKey){
 
     const today = new Date().toISOString().split("T")[0]; 
@@ -338,10 +349,8 @@ if(reference && reference !== paidRef){
         "✅ Payment successful.<br><br>You can now join today's live lesson.",
         "Continue"
     );
-   // 🔥 SHOW BUTTON ONLY AFTER ACCESS
-   if(window.whatsappBtn){
-    window.whatsappBtn.style.display = "block";
-}
+  // 🔥 SHOW BUTTON SAFELY
+    showWhatsAppButton();
  
 }
 
