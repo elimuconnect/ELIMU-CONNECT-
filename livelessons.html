@@ -1,0 +1,204 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elimu Connect Live Maths Lesson</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f7fb;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
+    text-align:center;
+}
+
+h1{
+    color:#1565c0;
+}
+
+.lesson-info{
+    margin:20px 0;
+    padding:15px;
+    background:#eef5ff;
+    border-radius:10px;
+}
+
+button{
+    background:#1565c0;
+    color:white;
+    border:none;
+    padding:15px 25px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:disabled{
+    opacity:.6;
+}
+
+#accessCountdown{
+    margin-top:15px;
+    font-weight:bold;
+    color:#1565c0;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.modal-content{
+    background:white;
+    width:90%;
+    max-width:450px;
+    border-radius:15px;
+    padding:25px;
+    text-align:center;
+}
+
+.modal-content button{
+    margin-top:15px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>📚 Elimu Connect Live Maths Lesson</h1>
+
+        <div class="lesson-info">
+            <h3>Topic: Vectors</h3>
+            <p>Date: Today</p>
+            <p>Time: 7:00 PM</p>
+            <p><strong>Fee: KSh 100</strong></p>
+        </div>
+
+        <button id="studentBtn">
+            Join Live Lesson
+        </button>
+
+        <div id="accessCountdown"></div>
+
+    </div>
+
+</div>
+
+<div id="accessModal" class="modal">
+    <div class="modal-content">
+        <div id="accessMessage"></div>
+        <button id="accessBtn">OK</button>
+    </div>
+</div>
+
+<script>
+const PAYMENT_LINK = "https://paystack.shop/pay/2i-azr3wzx";
+const LESSON_KEY = "live_maths_vectors_2026";
+
+const mainBtn = document.getElementById("studentBtn");
+const countdownEl = document.getElementById("accessCountdown");
+const modal = document.getElementById("accessModal");
+const modalMsg = document.getElementById("accessMessage");
+const modalBtn = document.getElementById("accessBtn");
+
+function showModal(msg, btn="OK", cb=null){
+    modalMsg.innerHTML = msg;
+    modalBtn.textContent = btn;
+    modal.style.display = "flex";
+
+    modalBtn.onclick = ()=>{
+        modal.style.display = "none";
+        if(cb) cb();
+    };
+}
+
+let paid = localStorage.getItem(LESSON_KEY + "_paid") || "false";
+let paidRef = localStorage.getItem(LESSON_KEY + "_ref") || "";
+
+const reference =
+new URLSearchParams(location.search).get("reference");
+
+if(reference && reference !== paidRef){
+
+    paid = "true";
+    paidRef = reference;
+
+    localStorage.setItem(
+        LESSON_KEY + "_paid",
+        "true"
+    );
+
+    localStorage.setItem(
+        LESSON_KEY + "_ref",
+        reference
+    );
+
+    showModal(
+        "✅ Payment successful.<br><br>You can now join today's live lesson.",
+        "Continue"
+    );
+}
+
+if(paid === "true"){
+    countdownEl.innerHTML =
+    "✅ Access Granted";
+}else{
+    countdownEl.innerHTML =
+    "🔒 Payment Required";
+}
+
+mainBtn.onclick = ()=>{
+
+    if(paid === "true"){
+
+        location.href =
+        "https://meet.google.com/abc-defg-hij";
+
+        return;
+    }
+
+    showModal(
+        `
+        <h3>📚 Live Mathematics Lesson</h3>
+
+        <p>
+        Join today's premium live lesson on Google Meet.
+        </p>
+
+        <p>
+        <strong>Fee: KSh 100</strong>
+        </p>
+        `,
+        "Pay KSh 100",
+        ()=> location.href = PAYMENT_LINK
+    );
+
+};
+</script>
+
+</body>
+</html>
+```
