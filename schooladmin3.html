@@ -450,7 +450,6 @@
 
 
 
-
 <div id="accessModal" style="
 position:fixed;
 top:0;
@@ -474,6 +473,27 @@ box-shadow:0 6px 20px rgba(0,0,0,.3);
 ">
 
 <p id="accessMessage"></p>
+
+<button
+id="accessBtn"
+style="
+display:none;
+width:100%;
+padding:12px;
+margin-top:15px;
+background:#0078D7;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+">
+Pay Now
+</button>
+
+
+
+
 
 <h2>School Tools Login</h2>
 
@@ -694,12 +714,39 @@ if(paystackReference){
     );
 }
 
-function showAccessModal(msg){
+
+
+
+
+
+
+function showAccessModal(msg, showPayButton = false){
 
     document.getElementById("accessMessage").textContent = msg;
 
     document.getElementById("accessModal").style.display = "flex";
+
+    const btn = document.getElementById("accessBtn");
+
+    if(showPayButton){
+
+        btn.style.display = "block";
+        btn.textContent = "Pay Now";
+
+        btn.onclick = () => {
+
+            location.href = PAYMENT_LINK;
+
+        };
+
+    }else{
+
+        btn.style.display = "none";
+
+    }
+
 }
+
 
 
 
@@ -792,7 +839,7 @@ async function adminLogin(){
 localStorage.removeItem("teacher_email");		
 
     await handleAdminAccess(admin.email);
-	hideAccessModal();
+	
 }
 
 
@@ -832,7 +879,7 @@ localStorage.setItem("teacher_email", email);
 localStorage.removeItem("admin_email");
    
     await handleTeacherAccess(teacher.email);
-	hideAccessModal();
+	
 }
 
 
@@ -862,59 +909,60 @@ function getDeviceId(){
 
 
 
+
 async function registerSchool(){
 
-    const school=document.getElementById("regSchool").value.trim();
+    const school = document.getElementById("regSchool").value.trim();
 
-    const admin=document.getElementById("regAdmin").value.trim();
+    const admin = document.getElementById("regAdmin").value.trim();
 
-    const email=document.getElementById("regEmail").value.trim().toLowerCase();
+    const email = document.getElementById("regEmail").value.trim().toLowerCase();
 
-    const phone=document.getElementById("regPhone").value.trim();
+    const phone = document.getElementById("regPhone").value.trim();
 
-    const county=document.getElementById("regCounty").value.trim();
+    const county = document.getElementById("regCounty").value.trim();
 
-    if(!school||!admin||!email){
+    if(!school || !admin || !email){
 
-        alert("Fill all required fields.");
+        alert("Please fill all required fields.");
 
         return;
 
     }
 
-    // already exists?
-    const {data:existing}=await client
-    .from("school_tools_users")
-    .select("id")
-    .eq("email",email)
-    .maybeSingle();
+    // Check if admin already exists
+    const { data: existing, error: existingError } = await client
+        .from("school_tools_users")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+
+    if(existingError){
+
+        alert(existingError.message);
+
+        return;
+
+    }
 
     if(existing){
 
-        alert("Email already registered.");
+        alert("Administrator email already registered.");
 
         return;
 
     }
 
     // Create school account
-    const {data:account,error:accountError}=await client
-    .from("school_tool_accounts")
-    .insert({
-
-        school_name:school,
-
-        admin_name:admin,
-
-        email,
-
-        phone,
-
-        county
-
-    })
-    .select()
-    .single();
+    const { error: accountError } = await client
+        .from("school_tool_accounts")
+        .insert({
+            school_name: school,
+            admin_name: admin,
+            email: email,
+            phone: phone,
+            county: county
+        });
 
     if(accountError){
 
@@ -924,18 +972,13 @@ async function registerSchool(){
 
     }
 
-    // Create admin
-    const {error:userError}=await client
-    .from("school_tools_users")
-    .insert({
-
-        account_id:account.id,
-
-        email,
-
-        role:"admin"
-
-    });
+    // Create admin user
+    const { error: userError } = await client
+        .from("school_tools_users")
+        .insert({
+            email: email,
+            role: "admin"
+        });
 
     if(userError){
 
@@ -945,18 +988,29 @@ async function registerSchool(){
 
     }
 
-    alert("School registered successfully.");
+   // Registration successful
+alert("School registered successfully.");
 
-   localStorage.setItem("admin_email", email);
+localStorage.setItem("admin_email", email);
 localStorage.removeItem("teacher_email");
 
+// Close registration form
 document.getElementById("registerModal").style.display = "none";
 
-hideAccessModal();
+// Clear the form
+document.getElementById("regSchool").value = "";
+document.getElementById("regAdmin").value = "";
+document.getElementById("regEmail").value = "";
+document.getElementById("regPhone").value = "";
+document.getElementById("regCounty").value = "";
 
-await handleAdminAccess(email);
+// Show payment screen
+showAccessModal(
+    "School registered successfully.\n\nPlease pay to activate your administrator account.",
+    true
+);
 }
-	
+
 
 function showRegistrationForm(){
 
@@ -968,33 +1022,34 @@ function showRegistrationForm(){
 
 async function saveAccess(user, reference){
 
-    // No Paystack reference
     if(!reference) return false;
 
     const email = user.email.toLowerCase().trim();
 
-    // Has this reference already been saved?
-    const { data: existing, error: checkError } = await client
+    // Has this reference already been used?
+    const { data: existing, error: existingError } = await client
         .from("school_tools_payments")
         .select("id,email,reference,expires_at")
         .eq("reference", reference)
         .maybeSingle();
 
-    if(checkError){
-        console.error(checkError);
+    if(existingError){
+        console.error(existingError);
         return false;
     }
 
     // Reference already exists
     if(existing){
 
-        // Prevent another account using the same payment
-        if(existing.email !== email){
+        if(existing.email.toLowerCase() !== email){
+
             alert("This payment reference has already been used.");
+
             return false;
+
         }
 
-        // Same user and still active
+        // Existing active payment
         if(existing.expires_at > Date.now()){
 
             hideAccessModal();
@@ -1006,25 +1061,20 @@ async function saveAccess(user, reference){
             label.style.background = "#0078D7";
             label.textContent = "Access type: Paid (Admin)";
 
-            // Remove ?reference=... from URL
-           sessionStorage.removeItem("paystack_reference");
-			history.replaceState(
-                {},
-                "",
-                window.location.pathname
-            );
+            sessionStorage.removeItem("paystack_reference");
+
+            history.replaceState({}, "", window.location.pathname);
 
             return true;
+
         }
 
-        // Same user but payment expired
-        return false;
     }
 
     // Save new payment
     const expiresAt = Date.now() + ACCESS_DURATION;
 
-    const { error } = await client
+    const { error: insertError } = await client
         .from("school_tools_payments")
         .insert({
             email: email,
@@ -1032,9 +1082,14 @@ async function saveAccess(user, reference){
             expires_at: expiresAt
         });
 
-    if(error){
-        console.error(error);
+    if(insertError){
+
+        console.error(insertError);
+
+        alert(insertError.message);
+
         return false;
+
     }
 
     hideAccessModal();
@@ -1046,17 +1101,17 @@ async function saveAccess(user, reference){
     label.style.background = "#0078D7";
     label.textContent = "Access type: Paid (Admin)";
 
-    // Remove Paystack reference from URL
-   sessionStorage.removeItem("paystack_reference");
-	history.replaceState(
-        {},
-        "",
-        window.location.pathname
-    );
+    sessionStorage.removeItem("paystack_reference");
+
+    history.replaceState({}, "", window.location.pathname);
 
     return true;
 }
-		
+
+
+
+
+
 // ===== ADMINS & TEACHERS =====
 
 const MAX_TEACHERS = 20;
@@ -1121,39 +1176,58 @@ alert("Teacher deleted successfully.");
 
 async function checkAdminAccess(adminId){
 
-    const { data: admin } = await client
+    // Get admin email
+    const { data: admin, error: adminError } = await client
         .from("school_tools_users")
         .select("email")
         .eq("id", adminId)
         .single();
 
-    if(!admin) return false;
+    if(adminError || !admin){
+        console.log("Admin not found", adminError);
+        return false;
+    }
 
-    const { data, error } = await client
+    const email = admin.email.toLowerCase().trim();
+
+    // Find latest active payment
+    const { data: payment, error: paymentError } = await client
         .from("school_tools_payments")
         .select("*")
-       .eq("email", (admin.email || "").toLowerCase())
-        .order("expires_at", { ascending:false })
+        .eq("email", email)
+        .gt("expires_at", Date.now())
+        .order("expires_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
-    if(error || !data)
+    if(paymentError){
+        console.log(paymentError);
         return false;
+    }
 
-    if(Date.now() > data.expires_at)
+    // No valid payment
+    if(!payment){
+
+        document.getElementById("accessCountdown").style.display = "none";
+        document.getElementById("accessType").style.display = "none";
+
         return false;
+    }
 
-    startCountdown(data.expires_at);
+    // Active payment found
+    startCountdown(payment.expires_at);
 
-const label = document.getElementById("accessType");
-label.style.display = "block";
-label.style.background = "#0078D7";
-label.textContent = "Access type: Paid (Admin)";
-	
+    const label = document.getElementById("accessType");
+    label.style.display = "block";
+    label.style.background = "#0078D7";
+    label.textContent = "Access type: Paid (Admin)";
 
     return true;
 }
-	
+
+
+
+
 async function checkAdmin(email){
 
     email = email.toLowerCase().trim();
@@ -1168,37 +1242,28 @@ async function checkAdmin(email){
 
     if(data.role !== "admin") return false;
 
-    showAdminAccess();
-
     return data;
+
 }
+
+
 
 
 async function checkTeacherAccess(email){
 
-    email=email.toLowerCase().trim();
-
-    const {data,error}=await client
-
+    const {data:teacher}=await client
     .from("school_tools_teachers")
-
     .select("added_by")
-
     .eq("email",email)
+    .maybeSingle();
 
-    .single();
+    if(!teacher) return false;
 
-    if(error||!data)
-
-        return false;
-
-    return await checkAdminAccess(
-
-        data.added_by
-
-    );
+    return await checkAdminAccess(teacher.added_by);
 
 }
+
+
 
 
 async function adminAddTeacher(){
@@ -1291,14 +1356,37 @@ return true;
 
 }
 
+
 async function handleAdminAccess(email){
 
     const admin = await checkAdmin(email);
 
-    if(!admin || !admin.id){
-        alert("Not an admin.");
+    if(!admin){
+        alert("Administrator not found.");
         return;
     }
+
+    // Check if user has just returned from Paystack
+    const reference = sessionStorage.getItem("paystack_reference");
+
+    
+	
+	
+	if(reference){
+
+    const paid = await saveAccess(
+        { email },
+        reference
+    );
+
+    if(!paid){
+        return;
+    }
+
+}
+	
+	
+	
 
     const allowed = await checkAdminAccess(admin.id);
 
@@ -1306,23 +1394,21 @@ async function handleAdminAccess(email){
 
         showAccessModal(
             "Admin subscription required.",
-            true,
-            "Pay Now"
+            true
         );
-
-        const btn = document.getElementById("accessBtn");
-        if(btn){
-            btn.onclick = () => location.href = PAYMENT_LINK;
-        }
 
         return;
     }
 
     hideAccessModal();
+
     showAdminAccess();
+
 }
 
-	
+
+
+
 
 async function handleTeacherAccess(email){
 
@@ -1347,21 +1433,20 @@ async function handleTeacherAccess(email){
     if(adminEmail){
 
         await handleAdminAccess(adminEmail);
-
         return;
+
     }
 
     if(teacherEmail){
 
         await handleTeacherAccess(teacherEmail);
-
         return;
+
     }
 
     showAccessModal("Please login to continue.");
 
 })();
-
 
 
 	
