@@ -660,18 +660,60 @@ Cancel
 </div>
 
 
-<div id="adminTools" style="display:none; position:fixed; top:50px; left:50%; transform:translateX(-50%);
- background:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:99999;">
-  
-  <input type="email" id="newTeacherEmail" placeholder="Teacher Email" style="padding:6px 10px;">
+<div id="adminTools" style="
+display:none;
+position:fixed;
+top:50px;
+left:50%;
+transform:translateX(-50%);
+background:#fff;
+padding:12px 20px;
+border-radius:8px;
+box-shadow:0 4px 12px rgba(0,0,0,.2);
+z-index:99999;
+width:95%;
+max-width:500px;
+box-sizing:border-box;
+">
 
-  <button onclick="adminAddTeacher()" style="margin-left:6px;">
-    Add Teacher
-  </button><br><br>
+    <input
+        type="email"
+        id="newTeacherEmail"
+        placeholder="Teacher Email"
+        style="
+        width:100%;
+        padding:10px;
+        margin-bottom:12px;
+        box-sizing:border-box;
+        ">
 
-  <button onclick="adminDeleteTeacher()" style="margin-left:6px; background:#e63946; color:#fff;">
-    Delete Teacher
-  </button>
+    <div style="
+        display:flex;
+        gap:10px;
+    ">
+
+        <button
+            onclick="adminAddTeacher()"
+            style="
+            flex:1;
+            padding:10px;
+            ">
+            Add Teacher
+        </button>
+
+        <button
+            onclick="adminDeleteTeacher()"
+            style="
+            flex:1;
+            padding:10px;
+            background:#e63946;
+            color:#fff;
+            border:none;
+            ">
+            Delete Teacher
+        </button>
+
+    </div>
 
 </div>
 
