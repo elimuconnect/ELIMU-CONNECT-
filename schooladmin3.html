@@ -636,86 +636,89 @@ Cancel
 </div>
 
 
-<p id="accessCountdown" style="
-display:none;
-position:fixed;
-top:56px;
-right:10px;
-background:#0078D7;
-color:#fff;
-padding:8px 14px;
-border-radius:8px;
-font-family:'Segoe UI',sans-serif;
-font-size:13px;
-font-weight:600;
-box-shadow:0 3px 10px rgba(0,0,0,.2);
-z-index:99999;
-">
-</p>
 
 
-<p id="accessType" style="
-display:none;
-position:fixed;
-top:102px;
-right:10px;
-background:#444;
-color:#fff;
-padding:8px 14px;
-border-radius:8px;
-font-family:'Segoe UI',sans-serif;
-font-size:13px;
-font-weight:600;
-box-shadow:0 3px 10px rgba(0,0,0,.2);
-z-index:99999;
-">
-</p>
-
-	
-
-<div id="adminAccess" style="
+<!-- Status Bar -->
+<div id="statusBar" style="
 display:none;
 position:fixed;
 top:10px;
 right:10px;
+display:flex;
+gap:8px;
+align-items:center;
+flex-wrap:wrap;
+justify-content:flex-end;
+z-index:100002;
+max-width:95%;
+">
+
+<div id="adminAccess" style="
+display:none;
 background:#2a9d8f;
 color:#fff;
-padding:8px 14px;
-border-radius:8px;
-font-family:'Segoe UI',sans-serif;
-font-size:14px;
-font-weight:600;
-box-shadow:0 3px 10px rgba(0,0,0,.2);
-z-index:99999;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
 ">
-🟢 Administrator
+🟢 Admin
 </div>
 
+<div id="accessType" style="
+display:none;
+background:#555;
+color:#fff;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
+">
+Paid
+</div>
+
+<div id="accessCountdown" style="
+display:none;
+background:#0078D7;
+color:#fff;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
+">
+120d
+</div>
+
+</div>
+
+	
 
 <div id="adminTools" style="
 display:none;
 position:fixed;
-top:50px;
+top:55px;
 left:50%;
 transform:translateX(-50%);
 background:#fff;
-padding:12px 20px;
-border-radius:8px;
-box-shadow:0 4px 12px rgba(0,0,0,.2);
-z-index:99999;
+padding:15px;
+border-radius:12px;
+box-shadow:0 5px 16px rgba(0,0,0,.2);
 width:95%;
 max-width:500px;
 box-sizing:border-box;
+z-index:100001;
 ">
-
+	
     <input
-        type="email"
         id="newTeacherEmail"
+        type="email"
         placeholder="Teacher Email"
         style="
         width:100%;
-        padding:10px;
+        padding:11px;
         margin-bottom:12px;
+        border:1px solid #ccc;
+        border-radius:8px;
         box-sizing:border-box;
         ">
 
@@ -728,7 +731,13 @@ box-sizing:border-box;
             onclick="adminAddTeacher()"
             style="
             flex:1;
-            padding:10px;
+            padding:11px;
+            background:#0078D7;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
             ">
             Add Teacher
         </button>
@@ -737,10 +746,13 @@ box-sizing:border-box;
             onclick="adminDeleteTeacher()"
             style="
             flex:1;
-            padding:10px;
+            padding:11px;
             background:#e63946;
-            color:#fff;
+            color:white;
             border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
             ">
             Delete Teacher
         </button>
@@ -748,7 +760,6 @@ box-sizing:border-box;
     </div>
 
 </div>
-
 
 	
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1191,11 +1202,29 @@ async function saveAccess(user, reference){
 const MAX_TEACHERS = 20;
 
 function showAdminAccess(){
+
+    document.getElementById("statusBar").style.display = "flex";
+
     document.getElementById("adminAccess").style.display = "block";
+
     document.getElementById("adminTools").style.display = "block";
+
 }
 
 
+
+function hideAdminAccess(){
+
+    document.getElementById("statusBar").style.display = "none";
+
+    document.getElementById("adminAccess").style.display = "none";
+
+    document.getElementById("adminTools").style.display = "none";
+
+}
+
+
+	
 
 async function adminDeleteTeacher(){
 
@@ -1482,9 +1511,9 @@ async function handleAdminAccess(email){
 
 
 
-
-
 async function handleTeacherAccess(email){
+
+    hideAdminAccess();
 
     const allowed = await checkTeacherAccess(email);
 
@@ -1494,8 +1523,8 @@ async function handleTeacherAccess(email){
     }
 
     hideAccessModal();
-}
 
+}
 
 
 
