@@ -662,8 +662,8 @@ async function adminLogin(){
         return;
     }
 
-    localStorage.setItem("admin_email", email
-	localStorage.removeItem("teacher_email");					
+   		localStorage.setItem("admin_email", email);
+localStorage.removeItem("teacher_email");		
 
     await handleAdminAccess(admin.email);
 }
@@ -701,10 +701,9 @@ async function teacherLogin(){
         alert("This account is already used on another device.");
         return;
     }
-
-    localStorage.setItem("teacher_email", email");
-	localStorage.removeItem("admin_email");				
-
+localStorage.setItem("teacher_email", email);
+localStorage.removeItem("admin_email");
+   
     await handleTeacherAccess(teacher.email);
 }
 
@@ -1024,21 +1023,19 @@ async function adminAddTeacher(){
     return true;
 }
 
+
+
+
 async function handleAdminAccess(email){
 
     const admin = await checkAdmin(email);
-    if(!admin){
+
+    if(!admin || !admin.id){
         alert("Not an admin.");
         return;
     }
 
     const allowed = await checkAdminAccess(admin.id);
-if(!admin || !admin.id){
-    alert("Invalid admin data.");
-    return;
-}
-
-	
 
     if(!allowed){
 
@@ -1060,6 +1057,7 @@ if(!admin || !admin.id){
     showAdminAccess();
 }
 
+	
 
 async function handleTeacherAccess(email){
 
