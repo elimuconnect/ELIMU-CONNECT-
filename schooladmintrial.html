@@ -615,14 +615,26 @@ if(paystackReference){
 function emailToKey(email){
     return email.toLowerCase().trim();
 }
-function showAccessModal(msg, showButton=true, btnText="Login"){
-    const modal = document.getElementById('accessModal');
-    const btn = document.getElementById('accessBtn');
-    document.getElementById('accessMessage').innerHTML = msg;
+
+
+function showAccessModal(msg, showButton = true, btnText = "Login"){
+
+    const modal = document.getElementById("accessModal");
+    const btn = document.getElementById("accessBtn");
+
     modal.style.display = "flex";
+
+    document.getElementById("accessMessage").innerHTML = msg;
+
     btn.style.display = showButton ? "inline-block" : "none";
     btn.textContent = btnText;
+    btn.disabled = false;
 }
+
+
+
+
+	
 function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
 
 function startCountdown(expiresAt){
@@ -649,117 +661,96 @@ countdownEl.textContent =
 
 
 
-
 async function login(){
 
-const email=
-document
-.getElementById("loginEmail")
-.value
-.trim()
-.toLowerCase();
+    const email = document
+        .getElementById("loginEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-const password=
-document
-.getElementById("loginPassword")
-.value;
+    const password = document
+        .getElementById("loginPassword")
+        .value;
 
-if(!email||!password){
+    if(!email || !password){
+        alert("Enter email and password.");
+        return;
+    }
 
-return alert(
-"Enter email and password."
-);
+    const btn = document.getElementById("accessBtn");
+    btn.disabled = true;
+    btn.textContent = "Logging in...";
 
-}
+    const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+    });
 
-const {data,error}=
-await client.auth.signInWithPassword({
+    btn.disabled = false;
+    btn.textContent = "Login";
 
-email,
+    if(error){
+        alert(error.message);
+        return;
+    }
 
-password
-
-});
-
-if(error){
-
-alert(error.message);
-
-return;
-
-}
-
-
-await handleAccess(
-    data.user,
-    sessionStorage.getItem("paystack_reference")
-
-);
-
+    // onAuthStateChange() will automatically call handleAccess()
 }
 
 
-document
-.getElementById("forgotPassword")
-.onclick=async function(e){
+document.getElementById("forgotPassword").onclick = async function(e){
 
-e.preventDefault();
+    e.preventDefault();
 
-const email=
-document
-.getElementById("loginEmail")
-.value
-.trim();
+    const email = document
+        .getElementById("loginEmail")
+        .value
+        .trim();
 
-if(!email){
+    if(!email){
+        alert("Enter your email first.");
+        return;
+    }
 
-return alert(
-"Enter your email first."
-);
+    const { error } = await client.auth.resetPasswordForEmail(email);
 
-}
-
-const {error}=
-await client.auth.resetPasswordForEmail(
-email
-);
-
-if(error){
-
-alert(error.message);
-
-}else{
-
-alert(
-"Password reset email sent."
-);
-
-}
+    if(error){
+        alert(error.message);
+    }else{
+        alert("Password reset email sent.");
+    }
 
 };
 
-
-
-
+	
 
 client.auth.onAuthStateChange(async (event, session) => {
 
-    if(event === "SIGNED_IN"){
+    switch(event){
 
-        await handleAccess(
-            session.user,
-            sessionStorage.getItem("paystack_reference")
-        );
+        case "SIGNED_IN":
 
-    }
+            if(session){
 
-    if(event === "SIGNED_OUT"){
-        location.reload();
+                await handleAccess(
+                    session.user,
+                    sessionStorage.getItem("paystack_reference")
+                );
+
+            }
+
+            break;
+
+        case "SIGNED_OUT":
+
+            location.reload();
+
+            break;
+
     }
 
 });
-
-
 	
 
 
@@ -1130,8 +1121,6 @@ async function adminAddTeacher(){
 
 
 
-
-
 async function handleAccess(user, reference){
 
     if(handlingAccess) return;
@@ -1140,25 +1129,22 @@ async function handleAccess(user, reference){
 
     try{
 
-        await new Promise(resolve => setTimeout(resolve,300));
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const email = user.email.toLowerCase().trim();
 
         const admin = await checkAdmin(email);
 
-        const isAdmin = !!admin;
-
-        let allowed = false;
-
         const btn = document.getElementById("accessBtn");
 
-        if(isAdmin){
+        if(admin){
 
+            // Save new Paystack payment if returning from Paystack
             if(reference){
                 await saveAccess(user, reference);
             }
 
-            allowed = await checkAdminAccess(admin.id);
+            const allowed = await checkAdminAccess(admin.id);
 
             if(allowed){
 
@@ -1182,7 +1168,7 @@ async function handleAccess(user, reference){
 
         }else{
 
-            allowed = await checkTeacherAccess(email);
+            const allowed = await checkTeacherAccess(email);
 
             if(allowed){
 
@@ -1191,7 +1177,7 @@ async function handleAccess(user, reference){
             }else{
 
                 showAccessModal(
-                    "Access denied. Ask your admin to pay for access.",
+                    "Access denied. Ask your administrator to activate access.",
                     true,
                     "Ask Admin"
                 );
@@ -1203,12 +1189,21 @@ async function handleAccess(user, reference){
                 btn.disabled = false;
             }
 
-        }   // <-- THIS WAS MISSING
+        }
 
     }catch(err){
 
         console.error(err);
         alert("Error checking access. Please try again.");
+
+        // Return to login screen if access check fails
+        showAccessModal(
+            "Please login to continue.",
+            true,
+            "Login"
+        );
+
+        document.getElementById("accessBtn").onclick = login;
 
     }finally{
 
@@ -1218,8 +1213,6 @@ async function handleAccess(user, reference){
 
 }
 
-
-	
 
 
 (async()=>{
