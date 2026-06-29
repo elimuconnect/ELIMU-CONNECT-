@@ -724,35 +724,24 @@ document.getElementById("forgotPassword").onclick = async function(e){
 
 	
 
-client.auth.onAuthStateChange(async (event, session) => {
+client.auth.onAuthStateChange((event, session) => {
 
-    switch(event){
+    if(event === "SIGNED_IN"){
+        handleAccess(
+            session.user,
+            sessionStorage.getItem("paystack_reference")
+        );
+    }
 
-        case "SIGNED_IN":
-
-            if(session){
-
-                await handleAccess(
-                    session.user,
-                    sessionStorage.getItem("paystack_reference")
-                );
-
-            }
-
-            break;
-
-        case "SIGNED_OUT":
-
-            location.reload();
-
-            break;
-
+    if(event === "SIGNED_OUT"){
+        location.reload();
     }
 
 });
+
+
+
 	
-
-
 async function logout(){
 
     await client.auth.signOut();
