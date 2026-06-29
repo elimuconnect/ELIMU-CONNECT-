@@ -581,7 +581,6 @@ function emailToKey(email){
     return email.toLowerCase().trim();
 }
 
-
 function showAccessModal(msg, showButton = true, btnText = "Login"){
 
     const modal = document.getElementById("accessModal");
@@ -590,7 +589,7 @@ function showAccessModal(msg, showButton = true, btnText = "Login"){
     modal.style.display = "flex";
 
     const msgEl = document.getElementById("accessMessage");
-    if(msgEl) msgEl.innerHTML = msg;
+    if(msgEl) msgEl.textContent = msg;
 
     const btn = document.getElementById("accessBtn");
 
@@ -623,7 +622,6 @@ const seconds = Math.floor((remaining % (60*1000)) / 1000);
 
 countdownEl.textContent =
   `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-
         }
     },1000);
 }
@@ -664,7 +662,8 @@ async function adminLogin(){
         return;
     }
 
-    localStorage.setItem("admin_email", email);
+    localStorage.setItem("admin_email", email
+	localStorage.removeItem("teacher_email");					
 
     await handleAdminAccess(admin.email);
 }
@@ -703,7 +702,8 @@ async function teacherLogin(){
         return;
     }
 
-    localStorage.setItem("teacher_email", email);
+    localStorage.setItem("teacher_email", email");
+	localStorage.removeItem("admin_email");				
 
     await handleTeacherAccess(teacher.email);
 }
@@ -826,75 +826,53 @@ function showAdminAccess(){
 
 async function adminDeleteTeacher(){
 
-    const email=document
+    const email = document
+        .getElementById("newTeacherEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-    .getElementById("newTeacherEmail")
-
-    .value
-
-    .trim()
-
-    .toLowerCase();
-
-    if(!email)
-
+    if(!email){
         return alert("Enter teacher email");
+    }
 
-    const {
+    // ✅ Get admin from localStorage (NO Supabase Auth)
+    const adminEmail = localStorage.getItem("admin_email");
 
-        data:{user}
+    if(!adminEmail){
+        return alert("Admin not logged in");
+    }
 
-    }=await client.auth.getUser();
+    const { data: admin, error: adminError } = await client
+        .from("school_tools_users")
+        .select("id")
+        .eq("email", adminEmail)
+        .single();
 
-    const {data:admin}=await client
-
-    .from("school_tools_users")
-
-    .select("id")
-
-    .eq("email",user.email)
-
-    .single();
-
-    if(!admin)
-
+    if(adminError || !admin){
+        alert("Admin account not found.");
         return;
+    }
 
-    const confirmDelete=
+    const confirmDelete = confirm(`Delete teacher ${email}?`);
 
-    confirm(
+    if(!confirmDelete) return;
 
-        `Delete teacher ${email}?`
-
-    );
-
-    if(!confirmDelete)
-
-        return;
-
-    const {error}=await client
-
-    .from("school_tools_teachers")
-
-    .delete()
-
-    .eq("email",email)
-
-    .eq("added_by",admin.id);
+    const { error } = await client
+        .from("school_tools_teachers")
+        .delete()
+        .eq("email", email)
+        .eq("added_by", admin.id);
 
     if(error){
-
         alert(error.message);
-
         return;
-
     }
 
     alert("Teacher deleted successfully.");
-
 }
 
-
+	
 
 async function checkAdminAccess(adminId){
 
@@ -909,7 +887,7 @@ async function checkAdminAccess(adminId){
     const { data, error } = await client
         .from("school_tools_payments")
         .select("*")
-        .eq("email", admin.email.toLowerCase())
+       .eq("email", (admin.email || "").toLowerCase())
         .order("expires_at", { ascending:false })
         .limit(1)
         .maybeSingle();
@@ -978,7 +956,6 @@ async function checkTeacherAccess(email){
 }
 
 
-
 async function adminAddTeacher(){
 
     const email = document
@@ -988,97 +965,64 @@ async function adminAddTeacher(){
         .toLowerCase();
 
     if(!email){
-
         alert("Enter teacher email.");
-
         return false;
-
     }
 
-    const {
-        data:{user}
-    } = await client.auth.getUser();
+    // ✅ Get admin email from localStorage (NO AUTH)
+    const adminEmail = localStorage.getItem("admin_email");
 
-    if(!user){
-
-        alert("Admin not signed in");
-
+    if(!adminEmail){
+        alert("Admin not signed in.");
         return false;
-
     }
 
-    // Get admin UUID
-    const {data:admin,error:adminError} = await client
-
+    // Get admin ID
+    const { data: admin, error: adminError } = await client
         .from("school_tools_users")
-
         .select("id")
-
-        .eq("email",user.email)
-
+        .eq("email", adminEmail)
         .single();
 
     if(adminError || !admin){
-
         alert("Admin account not found.");
-
         return false;
-
     }
 
-    // Count teachers
-    const {count,error:countError} = await client
-
+    // Count teachers added by this admin
+    const { count, error: countError } = await client
         .from("school_tools_teachers")
-
-        .select("*",{count:"exact",head:true})
-
-        .eq("added_by",admin.id);
+        .select("*", { count: "exact", head: true })
+        .eq("added_by", admin.id);
 
     if(countError){
-
         alert(countError.message);
-
         return false;
-
     }
 
     if(count >= MAX_TEACHERS){
-
         alert("Maximum of 20 teachers reached!");
-
         return false;
-
     }
 
-    const {error} = await client
-
+    // Insert teacher
+    const { error } = await client
         .from("school_tools_teachers")
-
         .insert({
-
             email,
-
             added_by: admin.id
-
         });
 
     if(error){
-
         alert(error.message);
-
         return false;
-
     }
 
     document.getElementById("newTeacherEmail").value = "";
 
     alert("Teacher added successfully.");
-
     return true;
-
 }
-
 
 async function handleAdminAccess(email){
 
@@ -1089,6 +1033,12 @@ async function handleAdminAccess(email){
     }
 
     const allowed = await checkAdminAccess(admin.id);
+if(!admin || !admin.id){
+    alert("Invalid admin data.");
+    return;
+}
+
+	
 
     if(!allowed){
 
