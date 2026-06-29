@@ -594,11 +594,24 @@ const ACCESS_DURATION =
 120*24*60*60*1000;
 
 let handlingAccess = false;
+	// Save Paystack reference immediately
 
 // ===== HELPERS =====
-function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
+function getQueryParam(name){
+    return new URLSearchParams(window.location.search).get(name);
+}
 
+// Save Paystack reference immediately
+const paystackReference = getQueryParam("reference");
 
+if(paystackReference){
+    sessionStorage.setItem(
+        "paystack_reference",
+        paystackReference
+    );
+}
+
+	
 function emailToKey(email){
     return email.toLowerCase().trim();
 }
@@ -676,9 +689,11 @@ return;
 
 }
 
+
 await handleAccess(
-data.user,
-getQueryParam("reference")
+    data.user,
+    sessionStorage.getItem("paystack_reference")
+
 );
 
 }
@@ -727,29 +742,25 @@ alert(
 
 
 
-client.auth.onAuthStateChange(
+client.auth.onAuthStateChange(async (event, session) => {
 
-async(event,session)=>{
-
-    if(event==="SIGNED_IN"){
+    if(event === "SIGNED_IN"){
 
         await handleAccess(
-
             session.user,
-
-            getQueryParam("reference")
-
+            sessionStorage.getItem("paystack_reference")
         );
 
     }
 
-    if(event==="SIGNED_OUT"){
-
+    if(event === "SIGNED_OUT"){
         location.reload();
-
     }
 
 });
+
+
+	
 
 
 async function logout(){
@@ -759,92 +770,96 @@ async function logout(){
 }
 
 
-
 async function saveAccess(user, reference){
 
+    // No Paystack reference
     if(!reference) return false;
 
-    // Prevent reuse of Paystack reference
-    const {data:existing}=await client
+    const email = user.email.toLowerCase().trim();
 
-    .from("school_tools_payments")
+    // Has this reference already been saved?
+    const { data: existing, error: checkError } = await client
+        .from("school_tools_payments")
+        .select("id,email,reference,expires_at")
+        .eq("reference", reference)
+        .maybeSingle();
 
-    .select("id")
+    if(checkError){
+        console.error(checkError);
+        return false;
+    }
 
-    .eq("reference",reference)
-
-    .maybeSingle();
-
+    // Reference already exists
     if(existing){
 
-        return false;
+        // Prevent another account using the same payment
+        if(existing.email !== email){
+            alert("This payment reference has already been used.");
+            return false;
+        }
 
+        // Same user and still active
+        if(existing.expires_at > Date.now()){
+
+            hideAccessModal();
+
+            startCountdown(existing.expires_at);
+
+            const label = document.getElementById("accessType");
+            label.style.display = "block";
+            label.style.background = "#0078D7";
+            label.textContent = "Access type: Paid (Admin)";
+
+            // Remove ?reference=... from URL
+           sessionStorage.removeItem("paystack_reference");
+			history.replaceState(
+                {},
+                "",
+                window.location.pathname
+            );
+
+            return true;
+        }
+
+        // Same user but payment expired
+        return false;
     }
 
-    const expiresAt=Date.now()+ACCESS_DURATION;
+    // Save new payment
+    const expiresAt = Date.now() + ACCESS_DURATION;
 
-    const {error}=await client
-
-    .from("school_tools_payments")
-
-    .insert({
-
-        email:user.email,
-
-        reference,
-
-        expires_at:expiresAt
-
-    });
+    const { error } = await client
+        .from("school_tools_payments")
+        .insert({
+            email: email,
+            reference: reference,
+            expires_at: expiresAt
+        });
 
     if(error){
-
         console.error(error);
-
         return false;
-
-    }
-
-    if(window.history.replaceState){
-
-        const cleanUrl=
-
-        window.location.origin+
-
-        window.location.pathname;
-
-        window.history.replaceState(
-
-            null,
-
-            "",
-
-            cleanUrl
-
-        );
-
     }
 
     hideAccessModal();
 
     startCountdown(expiresAt);
 
-    const label=
+    const label = document.getElementById("accessType");
+    label.style.display = "block";
+    label.style.background = "#0078D7";
+    label.textContent = "Access type: Paid (Admin)";
 
-    document.getElementById("accessType");
-
-    label.style.display="block";
-
-    label.style.background="#0078D7";
-
-    label.textContent="Access type: Paid (Admin)";
+    // Remove Paystack reference from URL
+   sessionStorage.removeItem("paystack_reference");
+	history.replaceState(
+        {},
+        "",
+        window.location.pathname
+    );
 
     return true;
-
 }
-
-
-
 		
 // ===== ADMINS & TEACHERS =====
 
@@ -928,62 +943,42 @@ async function adminDeleteTeacher(){
 }
 
 
+
 async function checkAdminAccess(adminId){
 
-    const {data:admin}=await client
-
-    .from("school_tools_users")
-
-    .select("email")
-
-    .eq("id",adminId)
-
-    .single();
+    const { data: admin } = await client
+        .from("school_tools_users")
+        .select("email")
+        .eq("id", adminId)
+        .single();
 
     if(!admin) return false;
 
-    const {data}=await client
+    const { data, error } = await client
+        .from("school_tools_payments")
+        .select("*")
+        .eq("email", admin.email.toLowerCase())
+        .order("expires_at", { ascending:false })
+        .limit(1)
+        .maybeSingle();
 
-    .from("school_tools_payments")
-
-    .select("expires_at")
-
-    .eq("email",admin.email)
-
-    .order("expires_at",{
-
-        ascending:false
-
-    })
-
-    .limit(1);
-
-    if(!data.length)
-
+    if(error || !data)
         return false;
 
-    if(Date.now()>data[0].expires_at)
-
+    if(Date.now() > data.expires_at)
         return false;
 
-    startCountdown(data[0].expires_at);
+    startCountdown(data.expires_at);
 
-    const label=
-
-    document.getElementById("accessType");
-
-    label.style.display="block";
-
-    label.style.background="#0078D7";
-
-    label.textContent="Access type: Paid Admin";
+const label = document.getElementById("accessType");
+label.style.display = "block";
+label.style.background = "#0078D7";
+label.textContent = "Access type: Paid (Admin)";
+	
 
     return true;
-
 }
-
-
-
+	
 async function checkAdmin(email){
 
     email = email.toLowerCase().trim();
@@ -1134,6 +1129,9 @@ async function adminAddTeacher(){
 
 
 
+
+
+
 async function handleAccess(user, reference){
 
     if(handlingAccess) return;
@@ -1142,7 +1140,6 @@ async function handleAccess(user, reference){
 
     try{
 
-        // Small delay to ensure authentication state is ready
         await new Promise(resolve => setTimeout(resolve,300));
 
         const email = user.email.toLowerCase().trim();
@@ -1157,47 +1154,34 @@ async function handleAccess(user, reference){
 
         if(isAdmin){
 
-            // Check whether the admin already has an active subscription
-            allowed = await checkAdminAccess(admin.id);
-
-            // Save new payment if Paystack redirected with a reference
-            if(reference && !allowed){
-
-                allowed = await saveAccess(user, reference);
-
+            if(reference){
+                await saveAccess(user, reference);
             }
+
+            allowed = await checkAdminAccess(admin.id);
 
             if(allowed){
 
                 showAdminAccess();
-
                 hideAccessModal();
 
             }else{
 
                 showAccessModal(
-
                     "Admin access required. Please pay to unlock features.",
-
                     true,
-
                     "Pay Now"
-
                 );
 
                 btn.onclick = () => {
-
                     window.location.href = PAYMENT_LINK;
-
                 };
 
                 btn.disabled = false;
-
             }
 
         }else{
 
-            // Teacher access depends on the admin's subscription
             allowed = await checkTeacherAccess(email);
 
             if(allowed){
@@ -1207,31 +1191,23 @@ async function handleAccess(user, reference){
             }else{
 
                 showAccessModal(
-
                     "Access denied. Ask your admin to pay for access.",
-
                     true,
-
                     "Ask Admin"
-
                 );
 
                 btn.onclick = () => {
-
                     alert("Ask your administrator to activate access.");
-
                 };
 
                 btn.disabled = false;
-
             }
 
-        }
+        }   // <-- THIS WAS MISSING
 
     }catch(err){
 
         console.error(err);
-
         alert("Error checking access. Please try again.");
 
     }finally{
@@ -1243,9 +1219,13 @@ async function handleAccess(user, reference){
 }
 
 
+	
+
+
 (async()=>{
 
-    const reference = getQueryParam("reference");
+    const reference =
+sessionStorage.getItem("paystack_reference");
 
     const {
         data:{session}
