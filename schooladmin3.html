@@ -558,7 +558,7 @@ const PAYMENT_LINK =
 const ACCESS_DURATION =
 120*24*60*60*1000;
 
-let handlingAccess = false;
+
 	// Save Paystack reference immediately
 
 // ===== HELPERS =====
@@ -576,10 +576,6 @@ if(paystackReference){
     );
 }
 
-	
-function emailToKey(email){
-    return email.toLowerCase().trim();
-}
 
 function showAccessModal(msg, showButton = true, btnText = "Login"){
 
@@ -605,24 +601,49 @@ function showAccessModal(msg, showButton = true, btnText = "Login"){
 	
 function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
 
-function startCountdown(expiresAt){
-    const countdownEl = document.getElementById('accessCountdown');
-    countdownEl.style.display="block";
-    const interval = setInterval(()=>{
-        const remaining = expiresAt - Date.now();
-        if(remaining <= 0){
-            clearInterval(interval);
-            showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
-            countdownEl.style.display="none";
-        } else {
-           const days = Math.floor(remaining / (24*60*60*1000));
-const hours = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
-const minutes = Math.floor((remaining % (60*60*1000)) / (60*1000));
-const seconds = Math.floor((remaining % (60*1000)) / 1000);
 
-countdownEl.textContent =
-  `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+
+
+	let countdownInterval = null;
+
+function startCountdown(expiresAt){
+
+    const countdownEl = document.getElementById("accessCountdown");
+    countdownEl.style.display = "block";
+
+    if(countdownInterval){
+        clearInterval(countdownInterval);
+    }
+
+    countdownInterval = setInterval(()=>{
+
+        const remaining = expiresAt - Date.now();
+
+        if(remaining <= 0){
+
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+
+            countdownEl.style.display = "none";
+
+            showAccessModal(
+                "Access expired. Please pay to continue.",
+                true,
+                "Pay Now"
+            );
+
+            return;
         }
+
+        const days = Math.floor(remaining / 86400000);
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+
+        countdownEl.textContent =
+            `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
     },1000);
 }
 
@@ -868,7 +889,8 @@ async function adminDeleteTeacher(){
         return;
     }
 
-    alert("Teacher deleted successfully.");
+   document.getElementById("newTeacherEmail").value = "";
+alert("Teacher deleted successfully.");
 }
 
 	
@@ -988,43 +1010,62 @@ async function adminAddTeacher(){
         return false;
     }
 
-    // Count teachers added by this admin
-    const { count, error: countError } = await client
-        .from("school_tools_teachers")
-        .select("*", { count: "exact", head: true })
-        .eq("added_by", admin.id);
+   // Count teachers added by this admin
+const { count, error: countError } = await client
+    .from("school_tools_teachers")
+    .select("*", { count: "exact", head: true })
+    .eq("added_by", admin.id);
 
-    if(countError){
-        alert(countError.message);
-        return false;
-    }
-
-    if(count >= MAX_TEACHERS){
-        alert("Maximum of 20 teachers reached!");
-        return false;
-    }
-
-    // Insert teacher
-    const { error } = await client
-        .from("school_tools_teachers")
-        .insert({
-            email,
-            added_by: admin.id
-        });
-
-    if(error){
-        alert(error.message);
-        return false;
-    }
-
-    document.getElementById("newTeacherEmail").value = "";
-
-    alert("Teacher added successfully.");
-    return true;
+if (countError) {
+    alert(countError.message);
+    return false;
 }
 
+// Check if teacher already exists
+const { data: existingTeacher, error: existingError } = await client
+    .from("school_tools_teachers")
+    .select("id")
+    .eq("email", email)
+    .eq("added_by", admin.id)
+    .maybeSingle();
 
+if (existingError) {
+    alert(existingError.message);
+    return false;
+}
 
+if (existingTeacher) {
+    alert("This teacher has already been added.");
+    return false;
+}
+
+// Maximum teachers reached
+if (count >= MAX_TEACHERS) {
+    alert(`Maximum of ${MAX_TEACHERS} teachers reached!`);
+    return false;
+}
+
+// Insert teacher
+const { error } = await client
+    .from("school_tools_teachers")
+    .insert({
+        email,
+        added_by: admin.id
+    });
+	
+
+if (error) {
+    alert(error.message);
+    return false;
+}
+
+document.getElementById("newTeacherEmail").value = "";
+
+alert("Teacher added successfully.");
+
+return true;
+
+}
 
 async function handleAdminAccess(email){
 
