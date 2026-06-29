@@ -519,7 +519,99 @@ cursor:pointer;
 ">
 Teacher Login
 </button>
+<hr style="margin:20px 0;">
 
+<p style="text-align:center;font-weight:bold;">
+New School?
+</p>
+
+<button
+onclick="showRegistrationForm()"
+style="
+width:100%;
+padding:12px;
+background:#f39c12;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;">
+Register School
+</button>
+
+
+
+<div id="registerModal" style="display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+justify-content:center;
+align-items:center;
+z-index:100000;">
+
+<div style="
+background:white;
+padding:25px;
+border-radius:12px;
+width:420px;
+max-width:95%;">
+
+<h2>Register School</h2>
+
+<input id="regSchool"
+placeholder="School Name"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regAdmin"
+placeholder="Administrator Name"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regEmail"
+type="email"
+placeholder="Administrator Email"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regPhone"
+placeholder="Phone"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regCounty"
+placeholder="County"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<button
+onclick="registerSchool()"
+style="
+width:100%;
+padding:12px;
+background:#2a9d8f;
+color:white;
+border:none;
+margin-top:10px;">
+Create Account
+</button>
+
+	<button
+onclick="document.getElementById('registerModal').style.display='none'"
+style="
+width:100%;
+padding:12px;
+margin-top:10px;
+background:#777;
+color:white;
+border:none;
+cursor:pointer;">
+Cancel
+</button>
+
+</div>
+
+</div>
+
+
+
+	
+	
 </div>
 </div>
 
@@ -744,6 +836,18 @@ localStorage.removeItem("admin_email");
 }
 
 
+
+document.getElementById("registerModal").addEventListener("click", function(e){
+
+    if(e.target === this){
+        this.style.display = "none";
+    }
+
+});
+
+
+
+	
 	
 function getDeviceId(){
     let id = localStorage.getItem("device_id");
@@ -758,6 +862,109 @@ function getDeviceId(){
 
 
 
+async function registerSchool(){
+
+    const school=document.getElementById("regSchool").value.trim();
+
+    const admin=document.getElementById("regAdmin").value.trim();
+
+    const email=document.getElementById("regEmail").value.trim().toLowerCase();
+
+    const phone=document.getElementById("regPhone").value.trim();
+
+    const county=document.getElementById("regCounty").value.trim();
+
+    if(!school||!admin||!email){
+
+        alert("Fill all required fields.");
+
+        return;
+
+    }
+
+    // already exists?
+    const {data:existing}=await client
+    .from("school_tools_users")
+    .select("id")
+    .eq("email",email)
+    .maybeSingle();
+
+    if(existing){
+
+        alert("Email already registered.");
+
+        return;
+
+    }
+
+    // Create school account
+    const {data:account,error:accountError}=await client
+    .from("school_tool_accounts")
+    .insert({
+
+        school_name:school,
+
+        admin_name:admin,
+
+        email,
+
+        phone,
+
+        county
+
+    })
+    .select()
+    .single();
+
+    if(accountError){
+
+        alert(accountError.message);
+
+        return;
+
+    }
+
+    // Create admin
+    const {error:userError}=await client
+    .from("school_tools_users")
+    .insert({
+
+        account_id:account.id,
+
+        email,
+
+        role:"admin"
+
+    });
+
+    if(userError){
+
+        alert(userError.message);
+
+        return;
+
+    }
+
+    alert("School registered successfully.");
+
+   localStorage.setItem("admin_email", email);
+localStorage.removeItem("teacher_email");
+
+document.getElementById("registerModal").style.display = "none";
+
+hideAccessModal();
+
+await handleAdminAccess(email);
+}
+	
+
+function showRegistrationForm(){
+
+    document.getElementById("registerModal").style.display="flex";
+
+}
+
+	
 
 async function saveAccess(user, reference){
 
