@@ -2919,6 +2919,14 @@ checkSession();
 // Listen for login/logout
 supabase.auth.onAuthStateChange(() => {
   checkSession();
+  (async()=>{
+     await seedSchools();
+
+    await loadSchools();
+
+    await checkSession();
+
+})();
 });
 
 // ------------------ Logout ------------------
@@ -2971,41 +2979,38 @@ async function seedSchools(){
 
 }
 
-// ------------------ Load Schools ------------------
+
 async function loadSchools(){
 
-  const { data: schools, error } = await supabase
-    .from("homework_schools")
-    .select("*")
-    .order("name");
+    console.log("Loading schools...");
 
-  if(error){
-    console.error(error);
-    return;
-  }
+    const { data: schools, error } = await supabase
+        .from("homework_schools")
+        .select("*")
+        .order("name");
 
-  const teacherSel = document.getElementById("teacherSchoolSelect");
-  const studentSel = document.getElementById("studentSchoolSelect");
+    console.log("Schools:", schools);
+    console.log("Error:", error);
 
-  if(teacherSel)
-    teacherSel.innerHTML = "<option value=''>Select School</option>";
+    const signupSel = document.getElementById("school");
 
-  if(studentSel)
-    studentSel.innerHTML = "<option value=''>Select School</option>";
+    console.log("Select:", signupSel);
 
-  schools.forEach(s => {
+    if(!signupSel) return;
 
-    if(teacherSel)
-      teacherSel.add(new Option(s.name, s.name));
+    signupSel.innerHTML="<option value=''>Select School</option>";
 
-    if(studentSel)
-      studentSel.add(new Option(s.name, s.name));
+    if(schools){
 
-  });
+        schools.forEach(s=>{
+            signupSel.add(new Option(s.name,s.name));
+        });
+
+    }
 
 }
 
-
+   
 // ------------------ Teacher: Add Questions ------------------
 window.addTypedQuestion = function(){
 
