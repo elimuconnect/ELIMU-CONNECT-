@@ -3194,14 +3194,16 @@ window.submitAnswers = async function(){
   }));
 
   const { error } = await supabase
-    .from("homework_submissions")
-    .upsert({
-      assignment_id: currentAssignmentKey,
-      user_id: user.id,
-      name1,
-      name2,
-      answers
-    });
+  .from("homework_submissions")
+  .upsert({
+    assignment_id: currentAssignmentKey,
+    user_id: user.id,
+    name1,
+    name2,
+    answers
+  },{
+    onConflict:"assignment_id,user_id"
+  });
 
   if(error){
     alert(error.message);
@@ -3244,6 +3246,13 @@ async function fillTeacherFilters(){
 
   const filterGrade = document.getElementById("filterGrade");
   const filterSubject = document.getElementById("filterSubject");
+
+filterGrade.innerHTML =
+'<option value="">All Grades</option>';
+
+filterSubject.innerHTML =
+'<option value="">All Subjects</option>';
+  
 
   filterGrade.innerHTML =
     '<option value="">All Grades</option>';
@@ -3327,8 +3336,7 @@ async function loadFilteredSubmissions(){
     return;
   }
 
-  if(submissions.length){
-
+ if(submissions && submissions.length){
     submissions.forEach(stud=>{
 
       const student1 = stud.name1 || "Unknown";
@@ -3457,25 +3465,26 @@ window.submitMarks = async function(){
 
     for(const uid in marksByAssign[assignKey]){
 
-      await supabase
-        .from("homework_results")
-        .upsert({
+     await supabase
+  .from("homework_results")
+  .upsert({
 
-          assignment_id:assignKey,
+    assignment_id:assignKey,
 
-          user_id:uid,
+    user_id:uid,
 
-          answers:marksByAssign[assignKey][uid],
+    answers:marksByAssign[assignKey][uid],
 
-          graded:true
+    graded:true
 
-        });
+  },{
+    onConflict:"assignment_id,user_id"
+  });
 
+      if(submissions && submissions.length){
     }
 
   }
-
-  alert("Marks returned!");
 
 };
 
