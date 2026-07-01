@@ -94,42 +94,30 @@
   <h4>Results(filter assignement again to view your results-If results are sent, you will see them)</h4>
   <div id="studentResults"></div>
 </div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, set, push, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  onAuthStateChanged, 
-  signOut 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDR5lDNlf5yiP57BcgwlD8mZTyugD7SSng",
-  authDomain: "homework-2e4cf.firebaseapp.com",
-  databaseURL: "https://homework-2e4cf-default-rtdb.firebaseio.com",
-  projectId: "homework-2e4cf",
-  storageBucket: "homework-2e4cf.appspot.com",
-  messagingSenderId: "352776491020",
-  appId: "1:352776491020:web:65f9b37fbe5c1b0f96de29"
-};
+ <script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+// ==============================
+// SUPABASE CONFIG
+// ==============================
+const SUPABASE_URL = "https://hhtplinfcdwgahlhurhx.supabase.co";
 
+const SUPABASE_ANON_KEY = "sb_publishable_cOXipkG4wSKIkIHwkP04JA_KunvG7T5";
 
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
-
-
-
-
+// ==============================
+// ACCESS CONTROL
+// ==============================
 const MAIN_LINK = "https://elimuconnect.github.io/ELIMU-CONNECT-/schooladmin";
 
 // Helper: get base URL without query string
 function getBaseURL(url){
-    return url.split('?')[0];
+    return url.split("?")[0];
 }
 
 // Check if this is main link access (ignore query parameters)
@@ -138,15 +126,14 @@ const isMainLink = getBaseURL(window.location.href) === MAIN_LINK;
 // Check if we came from main link redirect (ignore query)
 const fromMainLink = getBaseURL(document.referrer) === MAIN_LINK;
 
-if(isMainLink || fromMainLink){
-    // ✅ Access allowed – do nothing
+if (isMainLink || fromMainLink) {
+    // ✅ Access allowed
 } else {
-    // ❌ Block access
     document.body.innerHTML = `
         <div style="text-align:center; padding:50px; font-family:sans-serif;">
             <h2>Access Restricted</h2>
             <p>You cannot open this tool directly.</p>
-            <p>Please open it from the main link(school Tools).</p>
+            <p>Please open it from the main link (School Tools).</p>
 
             <a href="${MAIN_LINK}"
                style="font-size:1.2rem; color:#0078D7;">
@@ -154,28 +141,16 @@ if(isMainLink || fromMainLink){
             </a>
         </div>
     `;
+
     throw new Error("Access blocked until opened from main link.");
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
+// ==============================
+// GLOBAL VARIABLES
+// ==============================
 let currentUserRole = null;
 let assignmentQuestions = [];
-let currentAssignmentKey = null;
+let currentAssignmentKey = null; 
 
 
 const questionBankBySubject = {
@@ -2818,65 +2793,125 @@ const questionBankBySubject = {
 
 
 // ------------------ Sign up ------------------
-window.signup = async function() {
-  const email = document.getElementById("email").value;
+window.signup = async function () {
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const role = document.getElementById("role").value;
-  try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    await set(ref(db, "users/" + userCred.user.uid), { email, role });
-    alert("Signed up! Now login.");
-  } catch(err) { alert(err.message); }
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from("homework_users")
+      .insert({
+        id: data.user.id,
+        email: email,
+        role: role
+      });
+
+    if (profileError) {
+      alert(profileError.message);
+      return;
+    }
+  }
+
+  alert("Signed up successfully! You can now log in.");
 };
 
 // ------------------ Login ------------------
-window.login = async function() {
-  const email = document.getElementById("email").value;
+window.login = async function () {
+
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    // no need to manually show panels, handled by onAuthStateChanged
-  } catch(err) { alert("Login failed: "+err.message); }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Login failed: " + error.message);
+  }
+
 };
 
 // ------------------ Auto Login (Persistent Session) ------------------
-onAuthStateChanged(auth, async (user) => {
-  if(user){
-    // user is signed in, detect role
-    const snap = await get(child(ref(db), "users/" + user.uid));
-    if(snap.exists()){
-      currentUserRole = snap.val().role;
+async function checkSession() {
 
-      // Hide login/signup
-      document.getElementById("authDiv").style.display="none";
+  const { data: { session } } = await supabase.auth.getSession();
 
-      // Seed schools if needed
+  if (session) {
+
+    const user = session.user;
+
+    const { data: profile, error } = await supabase
+      .from("homework_users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!error && profile) {
+
+      currentUserRole = profile.role;
+
+      document.getElementById("authDiv").style.display = "none";
+
       await seedSchools();
 
-      if(currentUserRole==="teacher"){
-        document.getElementById("teacherPhase").style.display="block";
-        document.getElementById("studentPhase").style.display="none";
+      if (currentUserRole === "teacher") {
+
+        document.getElementById("teacherPhase").style.display = "block";
+        document.getElementById("studentPhase").style.display = "none";
+
         loadSchools();
         fillTeacherFilters();
+
       } else {
-        document.getElementById("studentPhase").style.display="block";
-        document.getElementById("teacherPhase").style.display="none";
+
+        document.getElementById("studentPhase").style.display = "block";
+        document.getElementById("teacherPhase").style.display = "none";
+
         loadSchools();
         loadStudentFilters();
+
       }
+
     }
+
   } else {
-    // user logged out
-    document.getElementById("authDiv").style.display="block";
-    document.getElementById("teacherPhase").style.display="none";
-    document.getElementById("studentPhase").style.display="none";
+
+    document.getElementById("authDiv").style.display = "block";
+    document.getElementById("teacherPhase").style.display = "none";
+    document.getElementById("studentPhase").style.display = "none";
+
   }
+
+}
+
+// Run on page load
+checkSession();
+
+// Listen for login/logout
+supabase.auth.onAuthStateChange(() => {
+  checkSession();
 });
 
 // ------------------ Logout ------------------
-window.logout = async function(){
-  await signOut(auth);
+window.logout = async function () {
+
+  await supabase.auth.signOut();
+
   alert("Logged out!");
+
 };
 
 // ------------------ Default Schools ------------------
@@ -2888,297 +2923,646 @@ const defaultSchools = [
   "Bright Future School"
 ];
 
+
+
+
+// ------------------ Default Schools ------------------
 async function seedSchools(){
-  const schoolRef = ref(db, "schools");
-  const snap = await get(schoolRef);
-  if(!snap.exists()){
-    defaultSchools.forEach((s,idx)=>{
-      set(ref(db,"schools/"+idx), { name: s });
-    });
+
+  const { data, error } = await supabase
+    .from("homework_schools")
+    .select("id")
+    .limit(1);
+
+  if(error){
+    console.error(error);
+    return;
   }
+
+  if(data.length === 0){
+
+    const schools = defaultSchools.map(name => ({ name }));
+
+    const { error: insertError } = await supabase
+      .from("homework_schools")
+      .insert(schools);
+
+    if(insertError){
+      console.error(insertError);
+    }
+
+  }
+
 }
 
 // ------------------ Load Schools ------------------
 async function loadSchools(){
-  const schoolSnap = await get(child(ref(db),"schools"));
-  if(schoolSnap.exists()){
-    const teacherSel = document.getElementById("teacherSchoolSelect");
-    const studentSel = document.getElementById("studentSchoolSelect");
-    if(teacherSel) teacherSel.innerHTML = "<option value=''>Select School</option>";
-    if(studentSel) studentSel.innerHTML = "<option value=''>Select School</option>";
-    schoolSnap.forEach(s=>{
-      const school = s.val().name;
-      if(teacherSel) teacherSel.add(new Option(school, school));
-      if(studentSel) studentSel.add(new Option(school, school));
-    });
+
+  const { data: schools, error } = await supabase
+    .from("homework_schools")
+    .select("*")
+    .order("name");
+
+  if(error){
+    console.error(error);
+    return;
   }
+
+  const teacherSel = document.getElementById("teacherSchoolSelect");
+  const studentSel = document.getElementById("studentSchoolSelect");
+
+  if(teacherSel)
+    teacherSel.innerHTML = "<option value=''>Select School</option>";
+
+  if(studentSel)
+    studentSel.innerHTML = "<option value=''>Select School</option>";
+
+  schools.forEach(s => {
+
+    if(teacherSel)
+      teacherSel.add(new Option(s.name, s.name));
+
+    if(studentSel)
+      studentSel.add(new Option(s.name, s.name));
+
+  });
+
 }
 
 
 // ------------------ Teacher: Add Questions ------------------
 window.addTypedQuestion = function(){
+
   let q = document.getElementById("newQuestion").value.trim();
-  if(q){ 
-    assignmentQuestions.push(q); 
-    updatePreview(); 
-    document.getElementById("newQuestion").value=""; 
+
+  if(q){
+
+    assignmentQuestions.push(q);
+
+    updatePreview();
+
+    document.getElementById("newQuestion").value="";
+
   }
+
 };
 
 window.addBankQuestion = function(){
+
   let q = document.getElementById("bankSelect").value;
-  if(q){ 
-    assignmentQuestions.push(q); 
-    updatePreview(); 
+
+  if(q){
+
+    assignmentQuestions.push(q);
+
+    updatePreview();
+
   }
+
 };
 
-// ✅ New delete function
+// ✅ Delete question
 window.deleteQuestion = function(index){
-  assignmentQuestions.splice(index, 1); // remove from array
-  updatePreview(); // re-render
+
+  assignmentQuestions.splice(index,1);
+
+  updatePreview();
+
 };
 
 function updatePreview(){
-  document.getElementById("assignmentPreview").innerHTML = 
+
+  document.getElementById("assignmentPreview").innerHTML =
     assignmentQuestions.map((q,i)=>
       `<div class='question'>
-         ${q} 
-         <button onclick="deleteQuestion(${i})" style="margin-left:10px; color:red;">Delete</button>
-       </div>`
+        ${q}
+        <button onclick="deleteQuestion(${i})"
+                style="margin-left:10px;color:red;">
+          Delete
+        </button>
+      </div>`
     ).join("");
+
 }
 
-
 // ------------------ Save Assignment ------------------
-window.saveAssignment = function(){
+window.saveAssignment = async function(){
+
   const school = document.getElementById("teacherSchoolSelect").value;
   const grade = document.getElementById("grade").value.trim();
   const subject = document.getElementById("subject").value.trim();
-  if(!school || !grade || !subject || assignmentQuestions.length===0){ alert("Fill all fields and add questions."); return; }
-  const newAssignRef = push(ref(db,"assignments/"));
-  set(newAssignRef, { school, grade, subject, questions: assignmentQuestions });
+
+  if(!school || !grade || !subject || assignmentQuestions.length===0){
+    alert("Fill all fields and add questions.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("homework_assignments")
+    .insert({
+      school,
+      grade,
+      subject,
+      questions: assignmentQuestions
+    });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
   assignmentQuestions = [];
   updatePreview();
+
   alert("Homework Saved!");
+
 };
 
 // ------------------ Student Filters ------------------
-async function loadStudentFilters() {
-  const snap = await get(child(ref(db),"assignments/"));
-  if(!snap.exists()) return;
-  const grades = new Set(), subjects = new Set();
-  snap.forEach(a => {
-    const d = a.val();
-    grades.add(d.grade); subjects.add(d.subject);
+async function loadStudentFilters(){
+
+  const { data, error } = await supabase
+    .from("homework_assignments")
+    .select("*");
+
+  if(error || !data) return;
+
+  const grades = new Set();
+  const subjects = new Set();
+
+  data.forEach(a=>{
+    grades.add(a.grade);
+    subjects.add(a.subject);
   });
+
   const gradeSel = document.getElementById("studentGradeSelect");
   const subjectSel = document.getElementById("studentSubjectSelect");
-  grades.forEach(g => gradeSel.add(new Option(g,g)));
-  subjects.forEach(sub => subjectSel.add(new Option(sub,sub)));
+
+  gradeSel.innerHTML = "<option value=''>Select Grade</option>";
+  subjectSel.innerHTML = "<option value=''>Select Subject</option>";
+
+  grades.forEach(g=>gradeSel.add(new Option(g,g)));
+  subjects.forEach(s=>subjectSel.add(new Option(s,s)));
+
   gradeSel.onchange = filterAssignments;
   subjectSel.onchange = filterAssignments;
+
 }
 
 // ------------------ Student: Filter Assignments ------------------
-async function filterAssignments() {
+async function filterAssignments(){
+
   const school = document.getElementById("studentSchoolSelect").value;
   const grade = document.getElementById("studentGradeSelect").value;
   const subject = document.getElementById("studentSubjectSelect").value;
-  if (!school || !grade || !subject) {
-    document.getElementById("studentAssignment").innerHTML = "<p>Select school, grade, and subject.</p>";
+
+  if(!school || !grade || !subject){
+
+    document.getElementById("studentAssignment").innerHTML =
+      "<p>Select school, grade, and subject.</p>";
+
     return;
+
   }
-  const snap = await get(child(ref(db), "assignments/"));
+
+  const { data, error } = await supabase
+    .from("homework_assignments")
+    .select("*")
+    .eq("school", school)
+    .eq("grade", grade)
+    .eq("subject", subject);
+
   const container = document.getElementById("studentAssignment");
+
   container.innerHTML = "";
+
   assignmentQuestions = [];
-  if (snap.exists()) {
-    snap.forEach(assign => {
-      const d = assign.val();
-      if (d.school === school && d.grade === grade && d.subject === subject) {
-        assignmentQuestions = d.questions || [];
-        currentAssignmentKey = assign.key;
-        container.innerHTML += `<b>School:</b> ${d.school}<br>
-                                <b>Grade:</b> ${d.grade}<br>
-                                <b>Subject:</b> ${d.subject}<br>` +
-          assignmentQuestions.map((q, i) =>
-            `<div>${q}<br><input id='ans${i}' placeholder='Your Answer'></div>`
-          ).join("");
-        showResults(auth.currentUser.uid, assign.key);
+
+  if(error || !data) return;
+
+  data.forEach(assign=>{
+
+    assignmentQuestions = assign.questions || [];
+
+    currentAssignmentKey = assign.id;
+
+    container.innerHTML +=
+      `<b>School:</b> ${assign.school}<br>
+       <b>Grade:</b> ${assign.grade}<br>
+       <b>Subject:</b> ${assign.subject}<br>` +
+
+      assignmentQuestions.map((q,i)=>
+
+        `<div>
+            ${q}<br>
+            <input id="ans${i}" placeholder="Your Answer">
+        </div>`
+
+      ).join("");
+
+    supabase.auth.getUser().then(({data})=>{
+      if(data.user){
+        showResults(data.user.id, assign.id);
       }
     });
-  }
+
+  });
+
 }
 
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
+
   const name1 = document.getElementById("studentName1").value.trim();
   const name2 = document.getElementById("studentName2").value.trim();
-  if(!name1 || !name2){ alert("Enter both names."); return; }
-  if(!currentAssignmentKey){ alert("No assignment selected."); return; }
+
+  if(!name1 || !name2){
+    alert("Enter both names.");
+    return;
+  }
+
+  if(!currentAssignmentKey){
+    alert("No assignment selected.");
+    return;
+  }
+
+  const { data:{user} } = await supabase.auth.getUser();
+
   const answers = assignmentQuestions.map((q,i)=>({
-    question: q,
-    answer: document.getElementById(`ans${i}`).value || ""
+    question:q,
+    answer:document.getElementById(`ans${i}`).value || ""
   }));
-  await set(ref(db,"submissions/"+currentAssignmentKey+"/"+auth.currentUser.uid), {
-    name1, name2, answers
-  });
+
+  const { error } = await supabase
+    .from("homework_submissions")
+    .upsert({
+      assignment_id: currentAssignmentKey,
+      user_id: user.id,
+      name1,
+      name2,
+      answers
+    });
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
   alert("Answers Submitted!");
-  showResults(auth.currentUser.uid);
+
+  showResults(user.id,currentAssignmentKey);
+
 };
 
 // ------------------ Teacher Filters + Marking ------------------
 async function fillTeacherFilters(){
-  const snap = await get(child(ref(db), "assignments/"));
-  const gradeSet = new Set(); const subjectSet = {};
-  if(snap.exists()){
-    snap.forEach(assign=>{
-      const data = assign.val();
-      if(data.grade) gradeSet.add(data.grade);
-      if(data.grade && data.subject){
-        if(!subjectSet[data.grade]) subjectSet[data.grade] = new Set();
-        subjectSet[data.grade].add(data.subject);
-      }
-    });
-  }
+
+  const { data, error } = await supabase
+    .from("homework_assignments")
+    .select("*");
+
+  if(error || !data) return;
+
+  const gradeSet = new Set();
+  const subjectSet = {};
+
+  data.forEach(assign=>{
+
+    if(assign.grade)
+      gradeSet.add(assign.grade);
+
+    if(assign.grade && assign.subject){
+
+      if(!subjectSet[assign.grade])
+        subjectSet[assign.grade] = new Set();
+
+      subjectSet[assign.grade].add(assign.subject);
+
+    }
+
+  });
+
   const filterGrade = document.getElementById("filterGrade");
   const filterSubject = document.getElementById("filterSubject");
-  gradeSet.forEach(g => filterGrade.add(new Option(g,g)));
+
+  filterGrade.innerHTML =
+    '<option value="">All Grades</option>';
+
+  filterSubject.innerHTML =
+    '<option value="">All Subjects</option>';
+
+  gradeSet.forEach(g=>filterGrade.add(new Option(g,g)));
+
   filterGrade.onchange = ()=>{
-    const selectedGrade = filterGrade.value;
-    filterSubject.innerHTML = '<option value="">All Subjects</option>';
-    if(subjectSet[selectedGrade]){
-      subjectSet[selectedGrade].forEach(sub => filterSubject.add(new Option(sub, sub)));
+
+    filterSubject.innerHTML =
+      '<option value="">All Subjects</option>';
+
+    if(subjectSet[filterGrade.value]){
+
+      subjectSet[filterGrade.value].forEach(sub=>{
+
+        filterSubject.add(new Option(sub,sub));
+
+      });
+
     }
+
     loadFilteredSubmissions();
+
   };
+
   filterSubject.onchange = loadFilteredSubmissions;
+
 }
 
 async function loadFilteredSubmissions(){
+
   const grade = document.getElementById("filterGrade").value;
   const subject = document.getElementById("filterSubject").value;
-  const snap = await get(child(ref(db), "assignments/"));
+
+  let query = supabase
+      .from("homework_assignments")
+      .select("*");
+
+  if(grade)
+      query = query.eq("grade",grade);
+
+  if(subject)
+      query = query.eq("subject",subject);
+
+  const { data, error } = await query;
+
   const area = document.getElementById("markingArea");
+
   area.innerHTML = "";
-  if(snap.exists()){
-    snap.forEach(assign=>{
-      const d = assign.val(); const key = assign.key;
-      if((grade===""||d.grade===grade) && (subject===""||d.subject===subject)){
-        area.innerHTML += `<h4>${d.school} - Grade: ${d.grade} | Subject: ${d.subject}</h4>
-                           <div id="markingArea_${key}"></div>`;
-        loadSubmissionsForAssignment(key, d.questions);
-      }
-    });
-  }
+
+  if(error || !data) return;
+
+  data.forEach(assign=>{
+
+    area.innerHTML +=
+      `<h4>${assign.school} - Grade: ${assign.grade} | Subject: ${assign.subject}</h4>
+       <div id="markingArea_${assign.id}"></div>`;
+
+    loadSubmissionsForAssignment(assign.id, assign.questions);
+
+  });
+
 }
 
-async function loadSubmissionsForAssignment(assignKey, questions){
-  const snap = await get(child(ref(db), "submissions/" + assignKey));
+ async function loadSubmissionsForAssignment(assignKey, questions){
+
+  const { data: submissions, error } = await supabase
+    .from("homework_submissions")
+    .select("*")
+    .eq("assignment_id", assignKey);
+
   let html = "";
-  if(snap.exists()){
-    snap.forEach(stud=>{
-      const student1 = stud.val().name1 || "Unknown";
-      const student2 = stud.val().name2 || "Unknown";
-      const answers = stud.val().answers || [];
-      html += `<div class="student-block"><b>Students:</b> ${student1} & ${student2}<br>`;
+
+  if(error){
+    console.error(error);
+    document.getElementById("markingArea_" + assignKey).innerHTML =
+      "<p>Error loading submissions.</p>";
+    return;
+  }
+
+  if(submissions.length){
+
+    submissions.forEach(stud=>{
+
+      const student1 = stud.name1 || "Unknown";
+      const student2 = stud.name2 || "Unknown";
+      const answers = stud.answers || [];
+
+      html += `<div class="student-block">
+                <b>Students:</b> ${student1} & ${student2}<br>`;
+
       answers.forEach((a,i)=>{
-        html += `<div>
-          <b>Q${i+1}:</b> <span id="qtext_${i}_${assignKey}">${questions[i]}</span><br>
-          <b>Student Answer:</b> <span>${a.answer}</span><br>
+
+        html += `
+        <div>
+
+          <b>Q${i+1}:</b>
+          <span id="qtext_${i}_${assignKey}">
+            ${questions[i]}
+          </span><br>
+
+          <b>Student Answer:</b>
+          <span>${a.answer}</span><br>
+
           <b>Mark:</b>
-          <select id='mark_${stud.key}_${i}_${assignKey}' onchange="toggleCorrectInput('${stud.key}',${i},'${assignKey}','${a.answer}')">
+
+          <select
+            id="mark_${stud.user_id}_${i}_${assignKey}"
+            onchange="toggleCorrectInput('${stud.user_id}',${i},'${assignKey}','${a.answer}')">
+
             <option value="correct">✔ Correct</option>
             <option value="wrong">✘ Wrong</option>
+
           </select><br>
-          <input type="text" id='correct_${stud.key}_${i}_${assignKey}' placeholder="Type correct answer" style="display:none; margin-top:3px;" data-student-answer="${a.answer}">
+
+          <input
+            type="text"
+            id="correct_${stud.user_id}_${i}_${assignKey}"
+            placeholder="Type correct answer"
+            style="display:none;margin-top:3px;"
+            data-student-answer="${a.answer}">
+
         </div>`;
+
       });
+
       html += `</div>`;
+
     });
-  } else { html = "<p>No submissions yet for this assignment.</p>"; }
+
+  }else{
+
+    html = "<p>No submissions yet for this assignment.</p>";
+
+  }
+
   document.getElementById("markingArea_" + assignKey).innerHTML = html;
+
 }
 
+
 window.toggleCorrectInput = function(uid,index,assignKey,studAns){
-  const sel = document.getElementById(`mark_${uid}_${index}_${assignKey}`);
-  const input = document.getElementById(`correct_${uid}_${index}_${assignKey}`);
-  input.style.display = sel.value==="wrong" ? "inline-block" : "none";
-  if(sel.value==="wrong") input.value = studAns;
+
+  const sel =
+    document.getElementById(`mark_${uid}_${index}_${assignKey}`);
+
+  const input =
+    document.getElementById(`correct_${uid}_${index}_${assignKey}`);
+
+  input.style.display =
+    sel.value==="wrong" ? "inline-block" : "none";
+
+  if(sel.value==="wrong")
+    input.value = studAns;
+
 };
+
 
 window.submitMarks = async function(){
-  const allSelects = document.querySelectorAll("[id^='mark_']");
+
+  const allSelects =
+    document.querySelectorAll("[id^='mark_']");
+
   const marksByAssign = {};
+
   allSelects.forEach(sel=>{
-    const [_, uid, idx, assignKey] = sel.id.split("_");
+
+    const [_,uid,idx,assignKey] = sel.id.split("_");
+
     const index = parseInt(idx);
-    const correctInput = document.getElementById(`correct_${uid}_${index}_${assignKey}`);
-    if(!marksByAssign[assignKey]) marksByAssign[assignKey] = {};
-    if(!marksByAssign[assignKey][uid]) marksByAssign[assignKey][uid] = [];
-    const questionText = document.getElementById(`qtext_${index}_${assignKey}`).innerText;
+
+    const correctInput =
+      document.getElementById(
+        `correct_${uid}_${index}_${assignKey}`
+      );
+
+    if(!marksByAssign[assignKey])
+      marksByAssign[assignKey] = {};
+
+    if(!marksByAssign[assignKey][uid])
+      marksByAssign[assignKey][uid] = [];
+
+    const questionText =
+      document.getElementById(
+        `qtext_${index}_${assignKey}`
+      ).innerText;
+
     const isCorrect = sel.value==="correct";
+
     marksByAssign[assignKey][uid].push({
-      question: questionText,
-      answer: correctInput?.dataset.studentAnswer || "",
-      correct: isCorrect,
-      correctAnswer: isCorrect ? correctInput?.dataset.studentAnswer || "" : (correctInput?.value || "")
+
+      question:questionText,
+
+      answer:correctInput?.dataset.studentAnswer || "",
+
+      correct:isCorrect,
+
+      correctAnswer:isCorrect
+        ? correctInput?.dataset.studentAnswer || ""
+        : (correctInput?.value || "")
+
     });
+
   });
+
+
   for(const assignKey in marksByAssign){
+
     for(const uid in marksByAssign[assignKey]){
-      await set(ref(db,"results/"+assignKey+"/"+uid), {
-        answers: marksByAssign[assignKey][uid],
-        graded:true
-      });
+
+      await supabase
+        .from("homework_results")
+        .upsert({
+
+          assignment_id:assignKey,
+
+          user_id:uid,
+
+          answers:marksByAssign[assignKey][uid],
+
+          graded:true
+
+        });
+
     }
+
   }
+
   alert("Marks returned!");
+
 };
 
-async function showResults(uid, assignmentKey){
+
+async function showResults(uid,assignmentKey){
+
   if(!uid || !assignmentKey) return;
-  const resSnap = await get(child(ref(db),"results/"+assignmentKey+"/"+uid));
-  const container = document.getElementById("studentResults");
+
+  const { data, error } = await supabase
+    .from("homework_results")
+    .select("*")
+    .eq("assignment_id",assignmentKey)
+    .eq("user_id",uid)
+    .single();
+
+  const container =
+    document.getElementById("studentResults");
+
   container.innerHTML="";
-  if(resSnap.exists()){
-    resSnap.val().answers.forEach((ans,i)=>{
-      container.innerHTML += `<div style="border:1px solid #ccc; padding:5px; margin:5px;">
+
+  if(!error && data){
+
+    data.answers.forEach((ans,i)=>{
+
+      container.innerHTML += `
+
+      <div style="border:1px solid #ccc;padding:5px;margin:5px;">
+
         <p><b>Q${i+1}:</b> ${ans.question}</p>
+
         <p><b>Your Answer:</b> ${ans.answer}</p>
-        <p><b>Marked:</b> ${ans.correct ? "<span class='correct'>✔ Correct</span>" : "<span class='wrong'>✘ Wrong</span>"}</p>
+
+        <p><b>Marked:</b>
+
+        ${
+          ans.correct
+          ? "<span class='correct'>✔ Correct</span>"
+          : "<span class='wrong'>✘ Wrong</span>"
+        }
+
+        </p>
+
         <p><b>Correct Answer:</b> ${ans.correctAnswer}</p>
+
       </div>`;
+
     });
-  
 
+  }else{
 
+    container.innerHTML =
+      "<p>No results yet for this assignment.</p>";
 
-
-
-
-      } else {
-        container.innerHTML = "<p>No results yet for this assignment.</p>";
-      }
-    }
-
-    const subjectSelectBank = document.getElementById("subjectSelectBank");
-const bankSelect = document.getElementById("bankSelect");
-
-// When teacher selects a subject, populate questions
-subjectSelectBank.addEventListener("change", () => {
-  const subject = subjectSelectBank.value;
-  bankSelect.innerHTML = ""; // clear previous questions
-  if(subject && questionBankBySubject[subject]){
-    questionBankBySubject[subject].forEach(q => {
-      let opt = document.createElement("option");
-      opt.value = q;
-      opt.text = q;
-      bankSelect.add(opt);
-    });
   }
-});
+
+}
+
+
+const subjectSelectBank =
+document.getElementById("subjectSelectBank");
+
+const bankSelect =
+document.getElementById("bankSelect");
+
+subjectSelectBank.addEventListener("change",()=>{
+
+  const subject = subjectSelectBank.value;
+
+  bankSelect.innerHTML="";
+
+  if(subject && questionBankBySubject[subject]){
+
+    questionBankBySubject[subject].forEach(q=>{
+
+      let opt=document.createElement("option");
+
+      opt.value=q;
+
+      opt.text=q;
+
+      bankSelect.add(opt);
+
+    });
+
+  }
+
+});  
 
   </script>
 </body>
