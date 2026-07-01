@@ -3144,8 +3144,8 @@ async function filterAssignments(){
   const { data, error } = await supabase
    .from("homework_assignments")
 .select("*")
-.eq("school",currentSchool);
-    .eq("school", school)
+.eq("school",currentSchool)
+  
     .eq("grade", grade)
     .eq("subject", subject);
 
