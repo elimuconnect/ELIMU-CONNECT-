@@ -3186,8 +3186,13 @@ window.submitAnswers = async function(){
     return;
   }
 
-  const { data:{user} } = await supabase.auth.getUser();
 
+const { data:{user} } = await supabase.auth.getUser();
+
+  if(!user){
+    alert("Please login first.");
+    return;
+  }
   const answers = assignmentQuestions.map((q,i)=>({
     question:q,
     answer:document.getElementById(`ans${i}`).value || ""
