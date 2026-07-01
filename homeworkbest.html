@@ -2879,23 +2879,23 @@ async function checkSession() {
       document.getElementById("authDiv").style.display = "none";
 
       await seedSchools();
+if (currentUserRole === "teacher") {
 
-      if (currentUserRole === "teacher") {
+    document.getElementById("teacherPhase").style.display = "block";
+    document.getElementById("studentPhase").style.display = "none";
 
-        document.getElementById("teacherPhase").style.display = "block";
-        document.getElementById("studentPhase").style.display = "none";
+    document.getElementById("teacherSchoolName").textContent = currentSchool;
+  await fillTeacherFilters();
 
-        await loadSchools();
-document.getElementById("studentSchoolName").textContent = currentSchool;
+} else {
 
-      } else {
+    document.getElementById("studentPhase").style.display = "block";
+    document.getElementById("teacherPhase").style.display = "none";
 
-        document.getElementById("studentPhase").style.display = "block";
-        document.getElementById("teacherPhase").style.display = "none";
+    document.getElementById("studentSchoolName").textContent = currentSchool;
+  await loadStudentFilters();
 
-      document.getElementById("teacherSchoolName").textContent = currentSchool;
-
-      }
+}
 
     }
 
@@ -2912,17 +2912,12 @@ document.getElementById("studentSchoolName").textContent = currentSchool;
 // Run on page load
 checkSession();
 
-// Listen for login/logout
-supabase.auth.onAuthStateChange(() => {
-  checkSession();
-  (async()=>{
-     await seedSchools();
+supabase.auth.onAuthStateChange(async () => {
 
+    await seedSchools();
     await loadSchools();
-
     await checkSession();
 
-})();
 });
 
 // ------------------ Logout ------------------
@@ -2934,14 +2929,6 @@ window.logout = async function () {
 
 };
 
-// ------------------ Default Schools ------------------
-const defaultSchools = [
-  "Greenwood Academy",
-  "Sunrise Primary",
-  "Riverside High",
-  "Starlight Academy",
-  "Bright Future School"
-];
 
 
 
@@ -3088,19 +3075,23 @@ const school=currentSchool;
     return;
   }
 
-  assignmentQuestions = [];
-  updatePreview();
+ assignmentQuestions = [];
+updatePreview();
 
-  alert("Homework Saved!");
+await loadStudentFilters();
+await fillTeacherFilters();
+
+alert("Homework Saved!");
 
 };
 
 // ------------------ Student Filters ------------------
 async function loadStudentFilters(){
 
-  const { data, error } = await supabase
-    .from("homework_assignments")
-    .select("*");
+ const { data, error } = await supabase
+  .from("homework_assignments")
+  .select("grade,subject")
+  .eq("school", currentSchool); 
 
   if(error || !data) return;
 
@@ -3141,13 +3132,12 @@ async function filterAssignments(){
     return;
 
   }
-
-  const { data, error } = await supabase
-   .from("homework_assignments")
+const { data, error } = await supabase
+.from("homework_assignments")
 .select("*")
-.eq("school",currentSchool)
-  .eq("grade", grade)
-    .eq("subject", subject);
+.eq("school", currentSchool)
+.eq("grade", grade)
+.eq("subject", subject);
 
   const container = document.getElementById("studentAssignment");
 
