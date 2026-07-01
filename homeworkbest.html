@@ -3259,12 +3259,6 @@ filterSubject.innerHTML =
 '<option value="">All Subjects</option>';
   
 
-  filterGrade.innerHTML =
-    '<option value="">All Grades</option>';
-
-  filterSubject.innerHTML =
-    '<option value="">All Subjects</option>';
-
   gradeSet.forEach(g=>filterGrade.add(new Option(g,g)));
 
   filterGrade.onchange = ()=>{
@@ -3470,29 +3464,25 @@ window.submitMarks = async function(){
 
     for(const uid in marksByAssign[assignKey]){
 
-     await supabase
+ const { error } = await supabase
   .from("homework_results")
   .upsert({
-
-    assignment_id:assignKey,
-
-    user_id:uid,
-
-    answers:marksByAssign[assignKey][uid],
-
-    graded:true
-
+    assignment_id: assignKey,
+    user_id: uid,
+    answers: marksByAssign[assignKey][uid],
+    graded: true
   },{
-    onConflict:"assignment_id,user_id"
+    onConflict: "assignment_id,user_id"
   });
 
-      if(submissions && submissions.length){
-    }
+if(error){
+  console.error(error);
+  alert(error.message);
+  return;
+}
 
-  }
-
+alert("Marks returned!");
 };
-
 
 async function showResults(uid,assignmentKey){
 
