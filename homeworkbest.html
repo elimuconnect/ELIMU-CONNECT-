@@ -2886,18 +2886,14 @@ async function checkSession() {
         document.getElementById("studentPhase").style.display = "none";
 
         await loadSchools();
+document.getElementById("studentSchoolName").textContent = currentSchool;
 
-document.getElementById("teacherSchoolSelect").value=currentSchool;
-document.getElementById("teacherSchoolSelect").disabled=true;
       } else {
 
         document.getElementById("studentPhase").style.display = "block";
         document.getElementById("teacherPhase").style.display = "none";
 
-       await loadSchools();
-
-document.getElementById("studentSchoolSelect").value=currentSchool;
-document.getElementById("studentSchoolSelect").disabled=true;
+      document.getElementById("teacherSchoolName").textContent = currentSchool;
 
       }
 
