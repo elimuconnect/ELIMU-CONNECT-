@@ -2802,7 +2802,7 @@ window.signup = async function () {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 const role = document.getElementById("role").value;
-const school = document.getElementById("signupSchool").value;
+const school = document.getElementById("school").value;
 
 if(!school){
     alert("Select your school.");
@@ -3145,8 +3145,7 @@ async function filterAssignments(){
    .from("homework_assignments")
 .select("*")
 .eq("school",currentSchool)
-  
-    .eq("grade", grade)
+  .eq("grade", grade)
     .eq("subject", subject);
 
   const container = document.getElementById("studentAssignment");
