@@ -24,10 +24,16 @@
   <h3>Login / Signup</h3>
   <input type="email" id="email" placeholder="Email"><br>
   <input type="password" id="password" placeholder="Password"><br>
-  <select id="role">
+ 
+  <select id="school">
+    <option value="">Select School</option>
+</select><br>
+
+<select id="role">
     <option value="student">Student</option>
     <option value="teacher">Teacher</option>
-  </select><br>
+</select><br>
+  
   <button onclick="signup()">Sign Up</button>
   <button onclick="login()">Login</button>
 </div>
@@ -38,7 +44,7 @@
   <h3>Teacher Panel</h3>
   
   <h4>Create Homework</h4>
-  <select id="teacherSchoolSelect"><option value="">Select School</option></select><br>
+ <p><b>School:</b> <span id="teacherSchoolName"></span></p>
   <input type="text" id="grade" placeholder="Grade"><br>
   <input type="text" id="subject" placeholder="Subject"><br>
   
@@ -82,7 +88,7 @@
   <input type="text" id="studentName2" placeholder="Enter Second Name" required><br>
 
   <h4>Pick Your Homework</h4>
-  <select id="studentSchoolSelect"><option value="">Select School</option></select><br>
+ <p><b>School:</b> <span id="studentSchoolName"></span></p>
   <select id="studentGradeSelect"><option value="">Select Grade</option></select><br>
   <select id="studentSubjectSelect"><option value="">Select Subject</option></select><br>
 
@@ -2788,15 +2794,22 @@ const questionBankBySubject = {
 ]
 };
 
-
+let currentSchool = "";
 
 // ------------------ Sign up ------------------
 window.signup = async function () {
 
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  const role = document.getElementById("role").value;
+const role = document.getElementById("role").value;
+const school = document.getElementById("signupSchool").value;
 
+if(!school){
+    alert("Select your school.");
+    return;
+}
+
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password
@@ -2810,11 +2823,12 @@ window.signup = async function () {
   if (data.user) {
     const { error: profileError } = await supabase
       .from("homework_users")
-      .insert({
-        id: data.user.id,
-        email: email,
-        role: role
-      });
+    .insert({
+    id:data.user.id,
+    email:email,
+    role:role,
+    school:school
+});
 
     if (profileError) {
       alert(profileError.message);
@@ -2853,13 +2867,14 @@ async function checkSession() {
 
     const { data: profile, error } = await supabase
       .from("homework_users")
-      .select("role")
+     .select("role,school")
       .eq("id", user.id)
       .single();
 
     if (!error && profile) {
 
       currentUserRole = profile.role;
+      currentSchool = profile.school;
 
       document.getElementById("authDiv").style.display = "none";
 
@@ -2870,16 +2885,19 @@ async function checkSession() {
         document.getElementById("teacherPhase").style.display = "block";
         document.getElementById("studentPhase").style.display = "none";
 
-        loadSchools();
-        fillTeacherFilters();
+        await loadSchools();
 
+document.getElementById("teacherSchoolSelect").value=currentSchool;
+document.getElementById("teacherSchoolSelect").disabled=true;
       } else {
 
         document.getElementById("studentPhase").style.display = "block";
         document.getElementById("teacherPhase").style.display = "none";
 
-        loadSchools();
-        loadStudentFilters();
+       await loadSchools();
+
+document.getElementById("studentSchoolSelect").value=currentSchool;
+document.getElementById("studentSchoolSelect").disabled=true;
 
       }
 
@@ -3046,7 +3064,7 @@ function updatePreview(){
 // ------------------ Save Assignment ------------------
 window.saveAssignment = async function(){
 
-  const school = document.getElementById("teacherSchoolSelect").value;
+const school=currentSchool;
   const grade = document.getElementById("grade").value.trim();
   const subject = document.getElementById("subject").value.trim();
 
@@ -3110,7 +3128,7 @@ async function loadStudentFilters(){
 // ------------------ Student: Filter Assignments ------------------
 async function filterAssignments(){
 
-  const school = document.getElementById("studentSchoolSelect").value;
+ const school=currentSchool;
   const grade = document.getElementById("studentGradeSelect").value;
   const subject = document.getElementById("studentSubjectSelect").value;
 
@@ -3124,8 +3142,9 @@ async function filterAssignments(){
   }
 
   const { data, error } = await supabase
-    .from("homework_assignments")
-    .select("*")
+   .from("homework_assignments")
+.select("*")
+.eq("school",currentSchool);
     .eq("school", school)
     .eq("grade", grade)
     .eq("subject", subject);
@@ -3223,8 +3242,9 @@ const { data:{user} } = await supabase.auth.getUser();
 async function fillTeacherFilters(){
 
   const { data, error } = await supabase
-    .from("homework_assignments")
-    .select("*");
+   .from("homework_assignments")
+.select("*")
+.eq("school",currentSchool);
 
   if(error || !data) return;
 
@@ -3287,9 +3307,11 @@ async function loadFilteredSubmissions(){
   const grade = document.getElementById("filterGrade").value;
   const subject = document.getElementById("filterSubject").value;
 
-  let query = supabase
-      .from("homework_assignments")
-      .select("*");
+ let query =
+supabase
+.from("homework_assignments")
+.select("*")
+.eq("school",currentSchool);
 
   if(grade)
       query = query.eq("grade",grade);
