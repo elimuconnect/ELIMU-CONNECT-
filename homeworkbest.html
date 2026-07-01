@@ -2911,18 +2911,17 @@ await loadSchools();
   }
 
 }
-
-// Run on page load
 checkSession();
 
-supabase.auth.onAuthStateChange(async () => {
-
+(async () => {
     await seedSchools();
     await loadSchools();
-    await checkSession();
+})();
 
+supabase.auth.onAuthStateChange(() => {
+    checkSession();
 });
-
+   
 // ------------------ Logout ------------------
 window.logout = async function () {
 
