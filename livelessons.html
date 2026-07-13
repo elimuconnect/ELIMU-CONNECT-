@@ -390,7 +390,10 @@ if(reference && reference !== paidRef){
 
     localStorage.setItem(LESSON_KEY + "_paid", "true");
     localStorage.setItem(LESSON_KEY + "_ref", reference);
-
+    
+const url = new URL(window.location.href);
+url.searchParams.delete("reference");
+window.history.replaceState({}, document.title, url.toString());
 
     showModal(
         "✅ Payment successful.<br><br>You can now join today's live lesson.",
