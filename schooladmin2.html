@@ -448,202 +448,747 @@
 </footer>
 
 
-<!-- Full Page Payment Lock -->
+
+
 <div id="accessModal" style="
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: #ffffff; display:flex; justify-content:center; align-items:center;
-    z-index:99999; flex-direction: column;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:99999;
 ">
-  <div style="
-      background:#fff; padding:30px 25px; border-radius:12px; max-width:400px;
-      text-align:center; font-family:Segoe UI, sans-serif; color:#033a63;
-      box-shadow:0 6px 20px rgba(0,0,0,0.3);
-  ">
-    <p id="accessMessage" style="font-size:1rem; margin-bottom:20px;"></p>
-    <button id="accessBtn" style="
-        background:#0078D7; color:#fff; border:none; padding:12px 20px;
-        border-radius:8px; font-weight:600; cursor:pointer;
-        font-size:1em;
-    ">Sign in with Google</button>
-  </div>
-</div>
 
-<!-- Countdown Display (Top Right) -->
-<p id="accessCountdown" style="
-    position: fixed; top:10px; right:10px; 
-    background: #0078D7; color: #fff; padding: 8px 12px;
-    border-radius: 6px; font-family: 'Segoe UI', sans-serif; 
-    font-weight:600; z-index:99999; display:none;
-"></p>
-
-<p id="accessType" style="
-    position: fixed; top:50px; right:10px;
-    padding:6px 10px;
-    border-radius:6px; font-family:'Segoe UI', sans-serif;
-    font-weight:600; z-index:99999; display:none;
-"></p>
-
-<div id="adminAccess" style="
-    display:none; position:fixed; top:10px; left:50%; transform:translateX(-50%);
-    background:#2a9d8f; color:#fff; padding:10px 16px; border-radius:8px; z-index:99999;
-    font-weight:600; font-family:Segoe UI,sans-serif;
+<div style="
+background:#fff;
+padding:30px;
+border-radius:12px;
+max-width:420px;
+width:90%;
+box-shadow:0 6px 20px rgba(0,0,0,.3);
 ">
-  Admin Access Active
+
+<p id="accessMessage"></p>
+
+<button
+id="accessBtn"
+style="
+display:none;
+width:100%;
+padding:12px;
+margin-top:15px;
+background:#0078D7;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+">
+Pay Now
+</button>
+
+
+
+
+
+<h2>School Tools Login</h2>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="Enter Email"
+style="
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border:1px solid #ccc;
+border-radius:8px;
+">
+
+<button
+id="adminLoginBtn"
+onclick="adminLogin()"
+style="
+width:100%;
+padding:12px;
+margin-bottom:10px;
+background:#0078D7;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+">
+Administrator Login
+</button>
+
+<button
+id="teacherLoginBtn"
+onclick="teacherLogin()"
+style="
+width:100%;
+padding:12px;
+background:#2a9d8f;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+">
+Teacher Login
+</button>
+<hr style="margin:20px 0;">
+
+<p style="text-align:center;font-weight:bold;">
+New School?
+</p>
+
+<button
+onclick="showRegistrationForm()"
+style="
+width:100%;
+padding:12px;
+background:#f39c12;
+color:#fff;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;">
+Register School
+</button>
+
+
+
+<div id="registerModal" style="display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+justify-content:center;
+align-items:center;
+z-index:100000;">
+
+<div style="
+background:white;
+padding:25px;
+border-radius:12px;
+width:420px;
+max-width:95%;">
+
+<h2>Register School</h2>
+
+<input id="regSchool"
+placeholder="School Name"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regAdmin"
+placeholder="Administrator Name"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regEmail"
+type="email"
+placeholder="Administrator Email"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regPhone"
+placeholder="Phone"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<input id="regCounty"
+placeholder="County"
+style="width:100%;padding:10px;margin:6px 0;">
+
+<button
+onclick="registerSchool()"
+style="
+width:100%;
+padding:12px;
+background:#2a9d8f;
+color:white;
+border:none;
+margin-top:10px;">
+Create Account
+</button>
+
+	<button
+onclick="document.getElementById('registerModal').style.display='none'"
+style="
+width:100%;
+padding:12px;
+margin-top:10px;
+background:#777;
+color:white;
+border:none;
+cursor:pointer;">
+Cancel
+</button>
+
 </div>
 
-
-<div id="adminTools" style="display:none; position:fixed; top:50px; left:50%; transform:translateX(-50%);
- background:#fff; padding:12px 20px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:99999;">
-  
-  <input type="email" id="newTeacherEmail" placeholder="Teacher Email" style="padding:6px 10px;">
-
-  <button onclick="adminAddTeacher()" style="margin-left:6px;">
-    Add Teacher
-  </button>
-
-  <button onclick="adminDeleteTeacher()" style="margin-left:6px; background:#e63946; color:#fff;">
-    Delete Teacher
-  </button>
-
 </div>
+
 
 
 	
+	
+</div>
+</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+
+
+<!-- Status Bar -->
+<div id="statusBar" style="
+display:none;
+position:fixed;
+top:10px;
+right:10px;
+display:flex;
+gap:8px;
+align-items:center;
+flex-wrap:wrap;
+justify-content:flex-end;
+z-index:100002;
+max-width:95%;
+">
+
+<div id="adminAccess" style="
+display:none;
+background:#2a9d8f;
+color:#fff;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
+">
+🟢 Admin
+</div>
+
+<div id="accessType" style="
+display:none;
+background:#555;
+color:#fff;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
+">
+Paid
+</div>
+
+<div id="accessCountdown" style="
+display:none;
+background:#0078D7;
+color:#fff;
+padding:6px 10px;
+border-radius:20px;
+font:600 13px Segoe UI,sans-serif;
+white-space:nowrap;
+">
+120d
+</div>
+
+</div>
+
+	
+
+<div id="adminTools" style="
+display:none;
+position:fixed;
+top:55px;
+left:50%;
+transform:translateX(-50%);
+background:#fff;
+padding:15px;
+border-radius:12px;
+box-shadow:0 5px 16px rgba(0,0,0,.2);
+width:95%;
+max-width:500px;
+box-sizing:border-box;
+z-index:100001;
+">
+	
+    <input
+        id="newTeacherEmail"
+        type="email"
+        placeholder="Teacher Email"
+        style="
+        width:100%;
+        padding:11px;
+        margin-bottom:12px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        box-sizing:border-box;
+        ">
+
+    <div style="
+        display:flex;
+        gap:10px;
+    ">
+
+        <button
+            onclick="adminAddTeacher()"
+            style="
+            flex:1;
+            padding:11px;
+            background:#0078D7;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
+            ">
+            Add Teacher
+        </button>
+
+        <button
+            onclick="adminDeleteTeacher()"
+            style="
+            flex:1;
+            padding:11px;
+            background:#e63946;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:600;
+            ">
+            Delete Teacher
+        </button>
+
+    </div>
+
+</div>
+
+	
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-// ================= FIREBASE =================
-firebase.initializeApp({
-  apiKey: "AIzaSyCAiOSHmURDyAAYm5EmoomLkZ_Aud7iXIQ",
-  authDomain: "cbc-general.firebaseapp.com",
-  databaseURL: "https://cbc-general-default-rtdb.firebaseio.com",
-  projectId: "cbc-general",
-  storageBucket: "cbc-general.firebasestorage.app",
-  messagingSenderId: "764732839741",
-  appId: "1:764732839741:web:ab829af54839de91359754"
-});
+const SUPABASE_URL = "https://hhtplinfcdwgahlhurhx.supabase.co"; 
+	
+	const SUPABASE_KEY = "sb_publishable_cOXipkG4wSKIkIHwkP04JA_KunvG7T5";
 
-const db = firebase.database();
-const auth = firebase.auth();
-const PAYMENT_LINK = "https://paystack.shop/pay/eguyty2rwx";
-const ACCESS_DURATION = 120*24*60*60*1000; 
+const client =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+const PAYMENT_LINK =
+"https://paystack.shop/pay/b-fmc6kyut";
+
+const ACCESS_DURATION =
+120*24*60*60*1000;
+
+
+	// Save Paystack reference immediately
 
 // ===== HELPERS =====
-function getQueryParam(name){ return new URLSearchParams(window.location.search).get(name); }
-
-function emailToKey(email){
-    return email.toLowerCase().trim().replace(/\./g, ',');
+function getQueryParam(name){
+    return new URLSearchParams(window.location.search).get(name);
 }
 
-function showAccessModal(msg, showButton=true, btnText="Sign in with Google"){
-    const modal = document.getElementById('accessModal');
-    const btn = document.getElementById('accessBtn');
-    document.getElementById('accessMessage').innerHTML = msg;
-    modal.style.display = "flex";
-    btn.style.display = showButton ? "inline-block" : "none";
-    btn.textContent = btnText;
+// Save Paystack reference immediately
+const paystackReference = getQueryParam("reference");
+
+if(paystackReference){
+    sessionStorage.setItem(
+        "paystack_reference",
+        paystackReference
+    );
 }
+
+
+
+
+
+
+
+function showAccessModal(msg, showPayButton = false){
+
+    document.getElementById("accessMessage").textContent = msg;
+
+    document.getElementById("accessModal").style.display = "flex";
+
+    const btn = document.getElementById("accessBtn");
+
+    if(showPayButton){
+
+        btn.style.display = "block";
+        btn.textContent = "Pay Now";
+
+        btn.onclick = () => {
+
+            location.href = PAYMENT_LINK;
+
+        };
+
+    }else{
+
+        btn.style.display = "none";
+
+    }
+
+}
+
+
+
+
+	
 function hideAccessModal(){ document.getElementById('accessModal').style.display="none"; }
 
+
+
+
+
+	let countdownInterval = null;
+
 function startCountdown(expiresAt){
-    const countdownEl = document.getElementById('accessCountdown');
-    countdownEl.style.display="block";
-    const interval = setInterval(()=>{
+
+    const countdownEl = document.getElementById("accessCountdown");
+    countdownEl.style.display = "block";
+
+    if(countdownInterval){
+        clearInterval(countdownInterval);
+    }
+
+    countdownInterval = setInterval(()=>{
+
         const remaining = expiresAt - Date.now();
+
         if(remaining <= 0){
-            clearInterval(interval);
-            showAccessModal("Access expired. Please pay to continue.", true, "Pay Now");
-            countdownEl.style.display="none";
-        } else {
-           const days = Math.floor(remaining / (24*60*60*1000));
-const hours = Math.floor((remaining % (24*60*60*1000)) / (60*60*1000));
-const minutes = Math.floor((remaining % (60*60*1000)) / (60*1000));
-const seconds = Math.floor((remaining % (60*1000)) / 1000);
 
-countdownEl.textContent =
-  `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            clearInterval(countdownInterval);
+            countdownInterval = null;
 
+            countdownEl.style.display = "none";
+
+            showAccessModal(
+                "Access expired. Please pay to continue.",
+                true,
+                "Pay Now"
+            );
+
+            return;
         }
+
+        const days = Math.floor(remaining / 86400000);
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        const minutes = Math.floor((remaining % 3600000) / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+
+        countdownEl.textContent =
+            `Paid access: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
     },1000);
 }
 
 
 
+async function adminLogin(){
+
+    const email = document.getElementById("loginEmail")
+        .value.trim().toLowerCase();
+
+    if(!email) return alert("Enter administrator email.");
+
+    const deviceId = getDeviceId();
+
+    const { data: admin, error } = await client
+        .from("school_tools_users")
+        .select("*")
+        .eq("email", email)
+        .eq("role", "admin")
+        .single();
+
+    if(error || !admin){
+        alert("Administrator not found.");
+        return;
+    }
+
+    if(!admin.device_id){
+
+        await client
+            .from("school_tools_users")
+            .update({ device_id: deviceId })
+            .eq("id", admin.id);
+
+    } else if(admin.device_id !== deviceId){
+
+        alert("This account is already used on another device.");
+        return;
+    }
+
+   		localStorage.setItem("admin_email", email);
+localStorage.removeItem("teacher_email");		
+
+    await handleAdminAccess(admin.email);
+	
+}
 
 
-// Check if teacher has access via their admin
-async function checkTeacherAccess(email){
-    const key = emailToKey(email);
-    const snap = await db.ref("schooltools/teachers").child(key).get();
-    if(!snap.exists()) return false;
+async function teacherLogin(){
 
-    const adminEmail = snap.val().addedBy;
-    if(!adminEmail) return false;
+    const email = document.getElementById("loginEmail")
+        .value.trim().toLowerCase();
 
-    const activeAdmin = await checkAdminAccess(adminEmail);
-    return !!activeAdmin;
+    if(!email) return alert("Enter teacher email.");
+
+    const deviceId = getDeviceId();
+
+    const { data: teacher, error } = await client
+        .from("school_tools_teachers")
+        .select("*")
+        .eq("email", email)
+        .single();
+
+    if(error || !teacher){
+        alert("Teacher not registered.");
+        return;
+    }
+
+    if(!teacher.device_id){
+
+        await client
+            .from("school_tools_teachers")
+            .update({ device_id: deviceId })
+            .eq("id", teacher.id);
+
+    } else if(teacher.device_id !== deviceId){
+
+        alert("This account is already used on another device.");
+        return;
+    }
+localStorage.setItem("teacher_email", email);
+localStorage.removeItem("admin_email");
+   
+    await handleTeacherAccess(teacher.email);
+	
+}
+
+
+
+document.getElementById("registerModal").addEventListener("click", function(e){
+
+    if(e.target === this){
+        this.style.display = "none";
+    }
+
+});
+
+
+
+	
+	
+function getDeviceId(){
+    let id = localStorage.getItem("device_id");
+
+    if(!id){
+        id = crypto.randomUUID();
+        localStorage.setItem("device_id", id);
+    }
+
+    return id;
 }
 
 
 
 
+async function registerSchool(){
 
+    const school = document.getElementById("regSchool").value.trim();
 
+    const admin = document.getElementById("regAdmin").value.trim();
 
+    const email = document.getElementById("regEmail").value.trim().toLowerCase();
 
-async function saveAccess(user, reference) {
-    if (!reference) return false;
+    const phone = document.getElementById("regPhone").value.trim();
 
-    const refPath = `paystackRefs/${reference}`;
-    const refSnap = await db.ref(refPath).get();
+    const county = document.getElementById("regCounty").value.trim();
 
-    // If the reference already exists, don't allow reuse
-    if (refSnap.exists()) return false;
+    if(!school || !admin || !email){
 
-    const expiresAt = Date.now() + ACCESS_DURATION;
+        alert("Please fill all required fields.");
 
-    // Save reference in the database for admin
-    await db.ref(refPath).set({
-        email: user.email,      // Admin email
-        reference,
-        createdAt: Date.now(),
-        expiresAt
-    });
+        return;
 
-    // Remove reference from URL
-    if (window.history.replaceState) {
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState(null, '', cleanUrl);
     }
 
-    // Hide modal and start countdown for admin
+    // Check if admin already exists
+    const { data: existing, error: existingError } = await client
+        .from("school_tools_users")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+
+    if(existingError){
+
+        alert(existingError.message);
+
+        return;
+
+    }
+
+    if(existing){
+
+        alert("Administrator email already registered.");
+
+        return;
+
+    }
+
+    // Create school account
+    const { error: accountError } = await client
+        .from("school_tool_accounts")
+        .insert({
+            school_name: school,
+            admin_name: admin,
+            email: email,
+            phone: phone,
+            county: county
+        });
+
+    if(accountError){
+
+        alert(accountError.message);
+
+        return;
+
+    }
+
+    // Create admin user
+    const { error: userError } = await client
+        .from("school_tools_users")
+        .insert({
+            email: email,
+            role: "admin"
+        });
+
+    if(userError){
+
+        alert(userError.message);
+
+        return;
+
+    }
+
+   // Registration successful
+alert("School registered successfully.");
+
+localStorage.setItem("admin_email", email);
+localStorage.removeItem("teacher_email");
+
+// Close registration form
+document.getElementById("registerModal").style.display = "none";
+
+// Clear the form
+document.getElementById("regSchool").value = "";
+document.getElementById("regAdmin").value = "";
+document.getElementById("regEmail").value = "";
+document.getElementById("regPhone").value = "";
+document.getElementById("regCounty").value = "";
+
+// Show payment screen
+showAccessModal(
+    "School registered successfully.\n\nPlease pay to activate your administrator account.",
+    true
+);
+}
+
+
+function showRegistrationForm(){
+
+    document.getElementById("registerModal").style.display="flex";
+
+}
+
+	
+
+async function saveAccess(user, reference){
+
+    if(!reference) return false;
+
+    const email = user.email.toLowerCase().trim();
+
+    // Has this reference already been used?
+    const { data: existing, error: existingError } = await client
+        .from("school_tools_payments")
+        .select("id,email,reference,expires_at")
+        .eq("reference", reference)
+        .maybeSingle();
+
+    if(existingError){
+        console.error(existingError);
+        return false;
+    }
+
+    // Reference already exists
+    if(existing){
+
+        if(existing.email.toLowerCase() !== email){
+
+            alert("This payment reference has already been used.");
+
+            return false;
+
+        }
+
+        // Existing active payment
+        if(existing.expires_at > Date.now()){
+
+            hideAccessModal();
+
+            startCountdown(existing.expires_at);
+
+            const label = document.getElementById("accessType");
+            label.style.display = "block";
+            label.style.background = "#0078D7";
+            label.textContent = "Access type: Paid (Admin)";
+
+            sessionStorage.removeItem("paystack_reference");
+
+            history.replaceState({}, "", window.location.pathname);
+
+            return true;
+
+        }
+
+    }
+
+    // Save new payment
+    const expiresAt = Date.now() + ACCESS_DURATION;
+
+    const { error: insertError } = await client
+        .from("school_tools_payments")
+        .insert({
+            email: email,
+            reference: reference,
+            expires_at: expiresAt
+        });
+
+    if(insertError){
+
+        console.error(insertError);
+
+        alert(insertError.message);
+
+        return false;
+
+    }
+
     hideAccessModal();
+
     startCountdown(expiresAt);
 
-    // Show access type label
     const label = document.getElementById("accessType");
     label.style.display = "block";
     label.style.background = "#0078D7";
     label.textContent = "Access type: Paid (Admin)";
 
-    // Grant access to all teachers added by this admin
-    const teachersSnap = await db.ref("schooltools/teachers").get();
-    if (teachersSnap.exists()) {
-        const updates = {};
-        teachersSnap.forEach(snap => {
-            const teacherKey = snap.key;
-            const teacherData = snap.val();
-            if (teacherData.addedBy === user.email) {
-                // Mark teacher as active with same expiration
-                updates[`schooltools/teachers/${teacherKey}/expiresAt`] = expiresAt;
-            }
-        });
-        if (Object.keys(updates).length > 0) {
-            await db.ref().update(updates);
-        }
-    }
+    sessionStorage.removeItem("paystack_reference");
+
+    history.replaceState({}, "", window.location.pathname);
 
     return true;
 }
@@ -651,260 +1196,417 @@ async function saveAccess(user, reference) {
 
 
 
-		
+
 // ===== ADMINS & TEACHERS =====
-const adminEmails = ["wamithisolomon@gmail.com"];
+
 const MAX_TEACHERS = 50;
 
 function showAdminAccess(){
+
+    document.getElementById("statusBar").style.display = "flex";
+
     document.getElementById("adminAccess").style.display = "block";
+
     document.getElementById("adminTools").style.display = "block";
+
 }
 
 
-async function addTeacher(email){
-    const key = emailToKey(email);
-    const teachersRef = db.ref("schooltools/teachers");
-    const snap = await teachersRef.get();
-    const currentTeachers = snap.exists() ? Object.keys(snap.val()) : [];
-    if(currentTeachers.length >= MAX_TEACHERS){
-        alert("Maximum of 50 teachers reached!");
+
+function hideAdminAccess(){
+
+   
+    document.getElementById("adminTools").style.display = "none";
+
+}
+
+
+	
+
+async function adminDeleteTeacher(){
+
+    const email = document
+        .getElementById("newTeacherEmail")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(!email){
+        return alert("Enter teacher email");
+    }
+
+    // ✅ Get admin from localStorage (NO Supabase Auth)
+    const adminEmail = localStorage.getItem("admin_email");
+
+    if(!adminEmail){
+        return alert("Admin not logged in");
+    }
+
+    const { data: admin, error: adminError } = await client
+        .from("school_tools_users")
+        .select("id")
+        .eq("email", adminEmail)
+        .single();
+
+    if(adminError || !admin){
+        alert("Admin account not found.");
+        return;
+    }
+
+    const confirmDelete = confirm(`Delete teacher ${email}?`);
+
+    if(!confirmDelete) return;
+
+    const { error } = await client
+        .from("school_tools_teachers")
+        .delete()
+        .eq("email", email)
+        .eq("added_by", admin.id);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+   document.getElementById("newTeacherEmail").value = "";
+alert("Teacher deleted successfully.");
+}
+
+	
+
+async function checkAdminAccess(adminId){
+
+    // Get admin email
+    const { data: admin, error: adminError } = await client
+        .from("school_tools_users")
+        .select("email")
+        .eq("id", adminId)
+        .single();
+
+    if(adminError || !admin){
+        console.log("Admin not found", adminError);
         return false;
     }
 
-    // Save teacher with admin email as addedBy
-    const currentUser = auth.currentUser;
-    if(!currentUser) return alert("Admin not signed in");
+    const email = admin.email.toLowerCase().trim();
 
-    await teachersRef.child(key).set({
-        addedBy: currentUser.email
-    });
+    // Find latest active payment
+    const { data: payment, error: paymentError } = await client
+        .from("school_tools_payments")
+        .select("*")
+        .eq("email", email)
+        .gt("expires_at", Date.now())
+        .order("expires_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    alert(`Teacher ${email} added successfully`);
+    if(paymentError){
+        console.log(paymentError);
+        return false;
+    }
+
+    // No valid payment
+    if(!payment){
+
+        document.getElementById("accessCountdown").style.display = "none";
+        document.getElementById("accessType").style.display = "none";
+
+        return false;
+    }
+
+    // Active payment found
+    startCountdown(payment.expires_at);
+
+    const label = document.getElementById("accessType");
+    label.style.display = "block";
+    label.style.background = "#0078D7";
+    label.textContent = "Access type: Paid (Admin)";
+
     return true;
 }
 
 
-async function adminDeleteTeacher(){
-    const email = document.getElementById("newTeacherEmail").value;
-    if(!email) return alert("Enter teacher email");
 
-    const key = emailToKey(email);
-    const currentUser = auth.currentUser;
-    if(!currentUser) return alert("Admin not signed in");
 
-    const teacherRef = db.ref("schooltools/teachers").child(key);
-    const snap = await teacherRef.get();
+async function checkAdmin(email){
 
-    if(!snap.exists()){
-        return alert("Teacher not found");
-    }
+    email = email.toLowerCase().trim();
 
-    // 🔐 Security: only allow deleting teachers added by THIS admin
-    if(snap.val().addedBy !== currentUser.email){
-        return alert("You can only delete teachers you added");
-    }
+    const { data, error } = await client
+        .from("school_tools_users")
+        .select("id, role")
+        .eq("email", email)
+        .single();
 
-    const confirmDelete = confirm(`Delete teacher ${email}?`);
-    if(!confirmDelete) return;
+    if(error || !data) return false;
 
-    await teacherRef.remove();
-    alert(`Teacher ${email} deleted successfully`);
+    if(data.role !== "admin") return false;
+
+    return data;
+
 }
 
 
 
-	
-	
-async function checkAdmin(email){
-    email = email.toLowerCase().trim();
-    // Make sure adminEmails are lowercase too
-    const normalizedAdmins = adminEmails.map(e => e.toLowerCase().trim());
-    if(normalizedAdmins.includes(email)){
-        showAdminAccess();
-        return true;
+
+async function checkTeacherAccess(email){
+
+    const {data:teacher}=await client
+    .from("school_tools_teachers")
+    .select("added_by")
+    .eq("email",email)
+    .maybeSingle();
+
+    if(!teacher) return false;
+
+    return await checkAdminAccess(teacher.added_by);
+
+}
+
+
+
+
+async function adminAddTeacher(){
+
+    const email = document
+        .getElementById("newTeacherEmail")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if(!email){
+        alert("Enter teacher email.");
+        return false;
     }
+
+    // ✅ Get admin email from localStorage (NO AUTH)
+    const adminEmail = localStorage.getItem("admin_email");
+
+    if(!adminEmail){
+        alert("Admin not signed in.");
+        return false;
+    }
+
+    // Get admin ID
+    const { data: admin, error: adminError } = await client
+        .from("school_tools_users")
+        .select("id")
+        .eq("email", adminEmail)
+        .single();
+
+    if(adminError || !admin){
+        alert("Admin account not found.");
+        return false;
+    }
+
+   // Count teachers added by this admin
+const { count, error: countError } = await client
+    .from("school_tools_teachers")
+    .select("*", { count: "exact", head: true })
+    .eq("added_by", admin.id);
+
+if (countError) {
+    alert(countError.message);
     return false;
 }
 
+// Check if teacher already exists
+const { data: existingTeacher, error: existingError } = await client
+    .from("school_tools_teachers")
+    .select("id")
+    .eq("email", email)
+    .eq("added_by", admin.id)
+    .maybeSingle();
 
-
-async function checkTeacher(email){
-    const key = emailToKey(email);
-    const snap = await db.ref("schooltools/teachers").child(key).get();
-    return snap.exists();
+if (existingError) {
+    alert(existingError.message);
+    return false;
 }
 
-// ===== ADMIN TOOL FUNCTION =====
-function adminAddTeacher(){
-    const email = document.getElementById("newTeacherEmail").value;
-    if(!email) return alert("Enter teacher email");
-    addTeacher(email);
+if (existingTeacher) {
+    alert("This teacher has already been added.");
+    return false;
+}
+
+// Maximum teachers reached
+if (count >= MAX_TEACHERS) {
+    alert(`Maximum of ${MAX_TEACHERS} teachers reached!`);
+    return false;
+}
+
+// Insert teacher
+const { error } = await client
+    .from("school_tools_teachers")
+    .insert({
+        email,
+        added_by: admin.id
+    });
+	
+
+if (error) {
+    alert(error.message);
+    return false;
+}
+
+document.getElementById("newTeacherEmail").value = "";
+
+alert("Teacher added successfully.");
+
+return true;
+
 }
 
 
-async function checkAdminAccess(email) {
-    const key = emailToKey(email);
-    try {
-        const snap = await db.ref("paystackRefs").get();
-        if (!snap.exists()) return false; // no references yet
+async function handleAdminAccess(email){
 
-        let active = null;
-        snap.forEach(s => {
-            const data = s.val();
-            if (data && data.email && data.expiresAt) {
-                if (emailToKey(data.email) === key && Date.now() <= data.expiresAt) {
-                    active = { expiresAt: data.expiresAt };
-                }
-            }
-        });
+    const admin = await checkAdmin(email);
 
-        if (active) {
-            startCountdown(active.expiresAt);
-            const label = document.getElementById("accessType");
-            label.style.display = "block";
-            label.style.background = "#0078D7";
-            label.textContent = "Access type: Paid Admin";
-            return true;
-        }
-
-        return false;
-    } catch (err) {
-        console.error("checkAdminAccess error:", err);
-        return false;
+    if(!admin){
+        alert("Administrator not found.");
+        return;
     }
+
+    // Check if user has just returned from Paystack
+    const reference = sessionStorage.getItem("paystack_reference");
+
+    
+	
+	
+	if(reference){
+
+    const paid = await saveAccess(
+        { email },
+        reference
+    );
+
+    if(!paid){
+        return;
+    }
+
+}
+	
+	
+	
+
+    const allowed = await checkAdminAccess(admin.id);
+
+    if(!allowed){
+
+        showAccessModal(
+            "Admin subscription required.",
+            true
+        );
+
+        return;
+    }
+
+    hideAccessModal();
+
+    showAdminAccess();
+
 }
 
 
 
-// ===== MAIN FLOW =====
-(async function() {
-    const reference = getQueryParam("reference");
+async function handleTeacherAccess(email){
 
-    auth.onAuthStateChanged(async user => {
-    const reference = getQueryParam("reference");
+    hideAdminAccess();
 
-    if (!user) {
-        // Not signed in → show Google login
-        showAccessModal("Please sign in with Google to continue.", true, "Sign in with Google");
+    const allowed = await checkTeacherAccess(email);
 
-        const btn = document.getElementById("accessBtn");
-        btn.onclick = async () => {
-            btn.disabled = true;
-            btn.textContent = "Signing in...";
-
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const result = await auth.signInWithPopup(provider);
-                if (!result.user) throw "No user";
-                // DO NOTHING ELSE HERE
-                // onAuthStateChanged will handle access
-            } catch (e) {
-                btn.disabled = false;
-                btn.textContent = "Sign in with Google";
-                alert("Sign-in failed. Please try again.");
-                console.error(e);
-            }
-        };
-    } else {
-        // Already signed in → handle access
-        await handleAccess(user, reference);
+    if(!allowed){
+        alert("Access denied. Ask admin.");
+        return;
     }
-});
 
-// Prevent double execution
-let handlingAccess = false;
+    hideAccessModal();
 
-async function handleAccess(user, reference) {
-    if (handlingAccess) return;
-    handlingAccess = true;
-
-    try {
-        // Small delay to ensure Firebase auth state is fully ready
-        await new Promise(r => setTimeout(r, 300));
-
-        const email = user.email.toLowerCase().trim();
-        const normalizedAdmins = adminEmails.map(e => e.toLowerCase().trim());
-        const isAdmin = normalizedAdmins.includes(email);
-        let allowed = false;
-
-        const btn = document.getElementById("accessBtn");
-
-        if (isAdmin) {
-            // Admin: check if already paid
-            allowed = await checkAdminAccess(email);
-
-            // Save access if reference exists in URL
-            if (reference && !allowed) {
-                allowed = await saveAccess(user, reference);
-            }
-
-            if (allowed) {
-                showAdminAccess(); // show admin tools
-                hideAccessModal();
-            } else {
-                showAccessModal("Admin access required. Please pay to unlock features.", true, "Pay Now");
-                btn.onclick = () => window.location.href = PAYMENT_LINK;
-                btn.disabled = false; // ensure button is clickable
-            }
-        } else {
-            // Teacher: check admin's paid access
-            allowed = await checkTeacherAccess(email);
-
-            if (!allowed) {
-                showAccessModal("Access denied. Ask your admin to pay for access.", true, "Ask Admin");
-                btn.onclick = () => alert("Ask your admin to pay for access.");
-                btn.disabled = false; // ensure button is clickable
-            } else {
-                hideAccessModal();
-            }
-        }
-
-    } catch (err) {
-        console.error(err);
-        alert("Error checking access. Please try again.");
-    } finally {
-        handlingAccess = false;
-    }
 }
 
+
+
+(async()=>{
+
+    const adminEmail = localStorage.getItem("admin_email");
+    const teacherEmail = localStorage.getItem("teacher_email");
+
+    if(adminEmail){
+
+        await handleAdminAccess(adminEmail);
+        return;
+
+    }
+
+    if(teacherEmail){
+
+        await handleTeacherAccess(teacherEmail);
+        return;
+
+    }
+
+    showAccessModal("Please login to continue.");
 
 })();
 
-function submitSuggestion() {
-  const school = document.getElementById("schoolName").value.trim();
-  const teacher = document.getElementById("teacherName").value.trim();
-  const tool = document.getElementById("toolName").value.trim();
-  const improvement = document.getElementById("suggestionText").value.trim();
-  const msg = document.getElementById("feedbackMsg");
 
-  if (!school || !teacher || !tool || !improvement) {
-    alert("Please fill in all fields.");
-    return;
-  }
+	
 
-  const newRef = db.ref("school_tool_suggestions").push();
+async function submitSuggestion(){
 
-  newRef
-    .set({
-      school,
-      teacher,
-      tool,
-      improvement,
-      time: new Date().toISOString()
-    })
-    .then(() => {
-      msg.style.display = "block";
+    const school=document.getElementById("schoolName").value.trim();
 
-      document.getElementById("schoolName").value = "";
-      document.getElementById("teacherName").value = "";
-      document.getElementById("toolName").value = "";
-      document.getElementById("suggestionText").value = "";
-    })
-    .catch(err => {
-      alert("Could not send — try again.");
-      console.error(err);
+    const teacher=document.getElementById("teacherName").value.trim();
+
+    const tool=document.getElementById("toolName").value.trim();
+
+    const improvement=document.getElementById("suggestionText").value.trim();
+
+    const msg=document.getElementById("feedbackMsg");
+
+    if(!school||!teacher||!tool||!improvement){
+
+        alert("Please fill in all fields.");
+
+        return;
+
+    }
+
+    const {error}=await client
+
+    .from("school_tools_suggestions")
+
+    .insert({
+
+        school,
+
+        teacher,
+
+        tool,
+
+        improvement
+
     });
+
+    if(error){
+
+        console.error(error);
+
+        alert("Could not send — try again.");
+
+        return;
+
+    }
+
+    msg.style.display="block";
+
+    document.getElementById("schoolName").value="";
+
+    document.getElementById("teacherName").value="";
+
+    document.getElementById("toolName").value="";
+
+    document.getElementById("suggestionText").value="";
+
 }
 </script>
 </body>
