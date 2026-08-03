@@ -42,9 +42,11 @@
 
     /* Top Navigation */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
       padding: 1.25rem 2rem;
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
@@ -293,21 +295,262 @@
       margin-top: 4rem;
     }
 
-    @media (max-width: 768px) {
-      nav ul {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      .tools-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-      .hero { padding-top: 2rem; }
-    }
-	
-	
-	
-	
-	
-	
-	
+    
+
+
+
+	 /*==============================
+MENU BUTTON
+==============================*/
+
+.menu-toggle{
+
+display:none;
+
+background:none;
+
+border:none;
+
+color:white;
+
+font-size:28px;
+
+cursor:pointer;
+
+}
+
+
+/*==============================
+TABLETS
+==============================*/
+
+@media(max-width:900px){
+
+header{
+
+padding:15px;
+
+}
+
+.container{
+
+padding:0 15px;
+
+}
+
+.tools-grid{
+
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+
+}
+
+}
+
+
+/*==============================
+PHONES
+==============================*/
+
+@media(max-width:768px){
+
+header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:15px;
+
+position:relative;
+
+}
+
+.logo{
+
+font-size:1.2rem;
+
+}
+
+.menu-toggle{
+
+display:block;
+
+}
+
+nav{
+
+display:none;
+
+position:absolute;
+
+top:70px;
+
+right:15px;
+
+width:230px;
+
+background:#0f172a;
+
+border:1px solid rgba(255,255,255,.15);
+
+border-radius:12px;
+
+padding:10px;
+
+box-shadow:0 15px 35px rgba(0,0,0,.4);
+
+z-index:999;
+
+}
+
+nav.show{
+
+display:block;
+
+}
+
+nav ul{
+
+display:flex;
+
+flex-direction:column;
+
+gap:8px;
+
+}
+
+nav button{
+
+width:100%;
+
+padding:12px;
+
+font-size:14px;
+
+text-align:left;
+
+}
+
+.hero{
+
+padding:25px 15px;
+
+}
+
+.hero h1{
+
+font-size:2rem;
+
+}
+
+.hero p{
+
+font-size:15px;
+
+}
+
+.category-header{
+
+font-size:20px;
+
+}
+
+/* THREE CARDS PER ROW */
+
+.tools-grid{
+
+grid-template-columns:repeat(3,1fr);
+
+gap:10px;
+
+}
+
+.tool-card{
+
+padding:10px;
+
+min-height:170px;
+
+}
+
+.card-icon{
+
+width:32px;
+
+height:32px;
+
+font-size:14px;
+
+}
+
+.tool-title{
+
+font-size:13px;
+
+}
+
+.tool-desc{
+
+font-size:11px;
+
+}
+
+}
+
+
+/*==============================
+VERY SMALL PHONES
+==============================*/
+
+@media(max-width:480px){
+
+.tools-grid{
+
+grid-template-columns:repeat(3,1fr);
+
+}
+
+.logo{
+
+font-size:1.05rem;
+
+}
+
+.hero h1{
+
+font-size:1.6rem;
+
+}
+
+.hero p{
+
+font-size:13px;
+
+}
+
+.tool-title{
+
+font-size:12px;
+
+}
+
+.tool-desc{
+
+display:none;
+
+}
+
+.card-icon{
+
+width:30px;
+
+height:30px;
+
+}
+
+} 
 	
 	
 	
@@ -437,62 +680,35 @@
 
 }
 
-/* ===============================
-   MOBILE
-=================================*/
-@media(max-width:600px){
 
-#lockOverlay>div{
-
-padding:28px 22px;
-
-}
-
-#lockMsg{
-
-font-size:18px;
-
-}
-
-#unlockBtn{
-
-font-size:17px;
-
-padding:16px;
-
-}
-
-#accessCountdown{
-
-font-size:16px;
-
-}
-
-}
-	
-	
 	
 	
   </style>
 </head>
 <body>
-<!-- Top Header Navigation -->
-  <header>
+<header>
+
     <div class="logo" onclick="showCategory('3d', event)">
-      <i class="fa-solid fa-graduation-cap"></i>
-      <span>STEMX Hub</span>
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>STEMX Hub</span>
     </div>
-    <nav>
-      <ul>
-	   <li><button class="nav-btn" onclick="showCategory('3d', event)">3D</button></li>
-        <li><button class="nav-btn" onclick="showCategory('math', event)">MathX</button></li>
-        <li><button class="nav-btn" onclick="showCategory('chem', event)">ChemX</button></li>
-        <li><button class="nav-btn" onclick="showCategory('bio', event)">BioX, PhysicsX & LangX</button></li>
-        <li><button class="nav-btn" onclick="showCategory('general', event)">Learning Hub</button></li>
-        <li><button class="nav-btn" onclick="showCategory('external', event)">External Tools</button></li>
-      </ul>
+
+    <button class="menu-toggle" onclick="toggleMenu()">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav id="mainNav">
+        <ul>
+            <li><button class="nav-btn" onclick="showCategory('3d', event)">3D</button></li>
+            <li><button class="nav-btn" onclick="showCategory('math', event)">MathX</button></li>
+            <li><button class="nav-btn" onclick="showCategory('chem', event)">ChemX</button></li>
+            <li><button class="nav-btn" onclick="showCategory('bio', event)">Science</button></li>
+            <li><button class="nav-btn" onclick="showCategory('general', event)">Learning Hub</button></li>
+            <li><button class="nav-btn" onclick="showCategory('external', event)">External</button></li>
+        </ul>
     </nav>
-  </header>
+
+</header>
 
   <!-- Hero Section -->
   <section class="hero">
@@ -1636,7 +1852,27 @@ updateAccess();
 	window.addEventListener("DOMContentLoaded", () => {
     showCategory("3d");
 });
-	
+
+
+
+
+function toggleMenu(){
+
+document.getElementById("mainNav").classList.toggle("show");
+
+}
+
+// Close menu after selecting a category
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+document.getElementById("mainNav").classList.remove("show");
+
+});
+
+});
+	  
   </script>
 </body>
 </html>
