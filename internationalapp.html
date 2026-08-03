@@ -1756,17 +1756,30 @@ const unlockBtn = document.getElementById("unlockBtn");
 const content = document.getElementById("content");
 
 /* ------------- HELPERS ------------------ */
-function now(){ return Date.now(); }
 
-function format(ms){
-  if(ms <= 0) return "00:00:00";
-  let s = Math.floor(ms/1000);
-  let h = Math.floor(s/3600);
+function now() {
+  return Date.now();
+}
+
+function format(ms) {
+  if (ms <= 0) return "00:00:00";
+
+  let s = Math.floor(ms / 1000);
+  let d = Math.floor(s / 86400);
+  s %= 86400;
+  let h = Math.floor(s / 3600);
   s %= 3600;
-  let m = Math.floor(s/60);
+  let m = Math.floor(s / 60);
   s %= 60;
+
+  if (d > 0) {
+    return `${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
   return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
+
+	  
 
 /* --------- HANDLE RETURN FROM PAYMENT --------- */
 const ref = new URLSearchParams(location.search).get("reference");
