@@ -122,6 +122,228 @@
     background:#0078D7; color:#fff; padding:12px 16px; border-radius:8px;
     display:none; font-weight:600;
   }
+
+
+
+/* ============================================================
+   SCHOOL TYPE SELECTOR
+============================================================ */
+
+.school-selector {
+
+    max-width: 900px;
+
+    margin: 25px auto;
+
+    padding: 25px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border-radius: 15px;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.10);
+
+}
+
+
+.school-selector h2 {
+
+    margin: 0 0 8px;
+
+    font-size: 26px;
+
+    color: #222;
+
+}
+
+
+.school-selector p {
+
+    margin: 0 0 20px;
+
+    color: #666;
+
+}
+
+
+.school-buttons {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.school-buttons button {
+
+    border: none;
+
+    padding: 14px 35px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+    background: #e9eef5;
+
+    color: #333;
+
+    transition: all 0.25s ease;
+
+}
+
+
+.school-buttons button:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+
+}
+
+
+.school-buttons button.selected {
+
+    background: #0078D7;
+
+    color: white;
+
+}
+
+
+/* ============================================================
+   SCHOOL SECTIONS
+============================================================ */
+
+.school-section {
+
+    display: none;
+
+}
+
+
+.school-section.active {
+
+    display: block;
+
+}
+
+
+/* ============================================================
+   SECTION TITLE
+============================================================ */
+
+.section-title {
+
+    max-width: 1100px;
+
+    margin: 25px auto 20px;
+
+    padding: 18px;
+
+    text-align: center;
+
+    border-radius: 12px;
+
+    background: #0078D7;
+
+    color: white;
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+}
+
+
+/* ============================================================
+   COMPREHENSIVE PLACEHOLDER
+============================================================ */
+
+.coming-soon {
+
+    max-width: 700px;
+
+    margin: 50px auto;
+
+    padding: 40px 25px;
+
+    text-align: center;
+
+    background: #f7f9fc;
+
+    border-radius: 15px;
+
+}
+
+
+.coming-soon h2 {
+
+    margin-bottom: 10px;
+
+}
+
+
+.coming-soon p {
+
+    color: #666;
+
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .school-selector {
+
+        margin: 15px 10px;
+
+        padding: 20px 15px;
+
+    }
+
+
+    .school-buttons {
+
+        flex-direction: column;
+
+    }
+
+
+    .school-buttons button {
+
+        width: 100%;
+
+    }
+
+
+    .section-title {
+
+        margin-left: 10px;
+
+        margin-right: 10px;
+
+        font-size: 20px;
+
+    }
+
+}
+
+
 </style>
 </head>
 <body>
@@ -133,6 +355,79 @@
   <p>Access teaching resources, math & science tools, language aids, educational games, and external learning platforms — all organized for easy use.</p>
 </header>
 
+
+
+
+<!-- ============================================================
+     SCHOOL TYPE SELECTOR
+============================================================ -->
+
+<div class="school-selector">
+
+    <h2>Select School Section</h2>
+
+    <p>Choose the section you want to access.</p>
+
+    <div class="school-buttons">
+
+        <button
+            type="button"
+            id="comprehensiveBtn"
+            onclick="showSchoolSection('comprehensive')">
+            🏫 Comprehensive
+        </button>
+
+        <button
+            type="button"
+            id="seniorBtn"
+            class="selected"
+            onclick="showSchoolSection('senior')">
+            🎓 Senior
+        </button>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<!-- ============================================================
+     COMPREHENSIVE SCHOOL SECTION
+============================================================ -->
+
+<div id="comprehensiveSection" class="school-section">
+
+    <div class="section-title">
+        🏫 Comprehensive School
+    </div>
+
+    <div class="coming-soon">
+
+        <h2>Comprehensive School Tools</h2>
+
+        <p>
+            Primary and Junior School tools will appear here.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ============================================================
+     SENIOR SCHOOL SECTION
+============================================================ -->
+
+<div id="seniorSection" class="school-section active">
+
+    <div class="section-title">
+        🎓 Senior School
+    </div>
+
+	
 <div class="container">
 
   <!-- ELIMU CONNECT -->
@@ -441,7 +736,7 @@
  
 </div>
 
-
+</div>
 <footer>
   &copy; 2025 <strong>Smart Elimu Connect</strong>. All rights reserved.  
   
@@ -2608,6 +2903,108 @@ async function submitSuggestion(){
     document.getElementById("suggestionText").value="";
 
 }
+
+
+
+
+
+
+	function showSchoolSection(section) {
+
+    const comprehensiveSection =
+        document.getElementById(
+            "comprehensiveSection"
+        );
+
+    const seniorSection =
+        document.getElementById(
+            "seniorSection"
+        );
+
+    const comprehensiveBtn =
+        document.getElementById(
+            "comprehensiveBtn"
+        );
+
+    const seniorBtn =
+        document.getElementById(
+            "seniorBtn"
+        );
+
+
+    // ========================================================
+    // HIDE BOTH SECTIONS
+    // ========================================================
+
+    comprehensiveSection.classList.remove(
+        "active"
+    );
+
+    seniorSection.classList.remove(
+        "active"
+    );
+
+
+    // ========================================================
+    // REMOVE BUTTON SELECTION
+    // ========================================================
+
+    comprehensiveBtn.classList.remove(
+        "selected"
+    );
+
+    seniorBtn.classList.remove(
+        "selected"
+    );
+
+
+    // ========================================================
+    // SHOW SELECTED SECTION
+    // ========================================================
+
+    if (section === "comprehensive") {
+
+        comprehensiveSection.classList.add(
+            "active"
+        );
+
+        comprehensiveBtn.classList.add(
+            "selected"
+        );
+
+    }
+
+
+    if (section === "senior") {
+
+        seniorSection.classList.add(
+            "active"
+        );
+
+        seniorBtn.classList.add(
+            "selected"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// DEFAULT = SENIOR
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        showSchoolSection(
+            "senior"
+        );
+
+    }
+);
+
 </script>
 </body>
 </html>
