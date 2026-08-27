@@ -886,85 +886,242 @@ function startCountdown(expiresAt){
 
 
 
+
 async function adminLogin(){
 
-    const email = document.getElementById("loginEmail")
-        .value.trim().toLowerCase();
+    const email =
+        document.getElementById("loginEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-    if(!email) return alert("Enter administrator email.");
 
-    const deviceId = getDeviceId();
+    if(!email){
 
-    const { data: admin, error } = await client
+        alert(
+            "Enter administrator email."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data: admin,
+        error
+    } = await client
+
         .from("school_tools_users")
+
         .select("*")
+
         .eq("email", email)
+
         .eq("role", "admin")
+
         .single();
 
+
     if(error || !admin){
-        alert("Administrator not found.");
+
+        alert(
+            "Administrator not found."
+        );
+
         return;
+
     }
 
-    if(!admin.device_id){
 
-        await client
-            .from("school_tools_users")
-            .update({ device_id: deviceId })
-            .eq("id", admin.id);
+    // --------------------------------------------------------
+    // CHECK DEVICE
+    // --------------------------------------------------------
 
-    } else if(admin.device_id !== deviceId){
+    const device =
+        await verifyUserDevice(
+            "school_tools_users",
+            admin
+        );
 
-        alert("This account is already used on another device.");
+
+    if(!device.allowed){
+
+        if(
+            device.reason === "MAX_DEVICES"
+        ){
+
+            alert(
+                "This account is already registered on two devices."
+            );
+
+        }
+
         return;
+
     }
 
-   		localStorage.setItem("admin_email", email);
-localStorage.removeItem("teacher_email");		
 
-    await handleAdminAccess(admin.email);
-	
+    // --------------------------------------------------------
+    // THIS LOGIN BECOMES THE ACTIVE SESSION
+    // --------------------------------------------------------
+
+    const sessionStarted =
+        await startUserSession(
+
+            "school_tools_users",
+
+            admin.id,
+
+            device.deviceId
+
+        );
+
+
+    if(!sessionStarted){
+
+        alert(
+            "Could not start your session."
+        );
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+        "admin_email",
+        email
+    );
+
+    localStorage.removeItem(
+        "teacher_email"
+    );
+
+
+    await handleAdminAccess(
+        email
+    );
+
 }
 
 
+	
+
 async function teacherLogin(){
 
-    const email = document.getElementById("loginEmail")
-        .value.trim().toLowerCase();
+    const email =
+        document.getElementById("loginEmail")
+        .value
+        .trim()
+        .toLowerCase();
 
-    if(!email) return alert("Enter teacher email.");
 
-    const deviceId = getDeviceId();
+    if(!email){
 
-    const { data: teacher, error } = await client
+        alert(
+            "Enter teacher email."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data: teacher,
+        error
+    } = await client
+
         .from("school_tools_teachers")
+
         .select("*")
+
         .eq("email", email)
+
         .single();
 
+
     if(error || !teacher){
-        alert("Teacher not registered.");
+
+        alert(
+            "Teacher not registered."
+        );
+
         return;
+
     }
 
-    if(!teacher.device_id){
 
-        await client
-            .from("school_tools_teachers")
-            .update({ device_id: deviceId })
-            .eq("id", teacher.id);
+    // --------------------------------------------------------
+    // CHECK DEVICE
+    // --------------------------------------------------------
 
-    } else if(teacher.device_id !== deviceId){
+    const device =
+        await verifyUserDevice(
+            "school_tools_teachers",
+            teacher
+        );
 
-        alert("This account is already used on another device.");
+
+    if(!device.allowed){
+
+        if(
+            device.reason === "MAX_DEVICES"
+        ){
+
+            alert(
+                "This account is already registered on two devices."
+            );
+
+        }
+
         return;
+
     }
-localStorage.setItem("teacher_email", email);
-localStorage.removeItem("admin_email");
-   
-    await handleTeacherAccess(teacher.email);
-	
+
+
+    // --------------------------------------------------------
+    // START SESSION
+    // --------------------------------------------------------
+
+    const sessionStarted =
+        await startUserSession(
+
+            "school_tools_teachers",
+
+            teacher.id,
+
+            device.deviceId
+
+        );
+
+
+    if(!sessionStarted){
+
+        alert(
+            "Could not start your session."
+        );
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+        "teacher_email",
+        email
+    );
+
+    localStorage.removeItem(
+        "admin_email"
+    );
+
+
+    await handleTeacherAccess(
+        email
+    );
+
 }
 
 
@@ -980,32 +1137,130 @@ document.getElementById("registerModal").addEventListener("click", function(e){
 
 
 	
-	
+
+
+
+// ============================================================
+// DEVICE ID
+// ============================================================
+
 function getDeviceId(){
+
     let id = localStorage.getItem("device_id");
 
     if(!id){
+
         id = crypto.randomUUID();
-        localStorage.setItem("device_id", id);
+
+        localStorage.setItem(
+            "device_id",
+            id
+        );
+
     }
 
     return id;
 }
 
 
+// ============================================================
+// BROWSER FINGERPRINT
+// ============================================================
+
+async function getFingerprint(){
+
+    const components = [
+
+        navigator.userAgent || "",
+
+        navigator.language || "",
+
+        navigator.platform || "",
+
+        navigator.hardwareConcurrency || "",
+
+        navigator.deviceMemory || "",
+
+        screen.width || "",
+
+        screen.height || "",
+
+        screen.colorDepth || "",
+
+        new Date().getTimezoneOffset(),
+
+        Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+
+    ];
+
+    const raw = components.join("|");
+
+    const encoded =
+        new TextEncoder().encode(raw);
+
+    const hash =
+        await crypto.subtle.digest(
+            "SHA-256",
+            encoded
+        );
+
+    return Array.from(
+        new Uint8Array(hash)
+    )
+    .map(
+        b => b.toString(16).padStart(2, "0")
+    )
+    .join("");
+}
+
+
+// ============================================================
+// SESSION TOKEN
+// ============================================================
+
+function createSessionToken(){
+
+    return crypto.randomUUID()
+        + "-"
+        + crypto.randomUUID();
+
+}
+
+
+
+
+
+
+
+
+
+	
+
 
 
 async function registerSchool(){
 
-    const school = document.getElementById("regSchool").value.trim();
+    const school =
+        document.getElementById("regSchool")
+        .value.trim();
 
-    const admin = document.getElementById("regAdmin").value.trim();
+    const admin =
+        document.getElementById("regAdmin")
+        .value.trim();
 
-    const email = document.getElementById("regEmail").value.trim().toLowerCase();
+    const email =
+        document.getElementById("regEmail")
+        .value.trim()
+        .toLowerCase();
 
-    const phone = document.getElementById("regPhone").value.trim();
+    const phone =
+        document.getElementById("regPhone")
+        .value.trim();
 
-    const county = document.getElementById("regCounty").value.trim();
+    const county =
+        document.getElementById("regCounty")
+        .value.trim();
+
 
     if(!school || !admin || !email){
 
@@ -1015,12 +1270,35 @@ async function registerSchool(){
 
     }
 
-    // Check if admin already exists
-    const { data: existing, error: existingError } = await client
+
+    // ========================================================
+    // DEVICE + FINGERPRINT
+    // ========================================================
+
+    const deviceId =
+        getDeviceId();
+
+    const fingerprint =
+        await getFingerprint();
+
+
+    // ========================================================
+    // CHECK EXISTING ADMIN
+    // ========================================================
+
+    const {
+        data: existing,
+        error: existingError
+    } = await client
+
         .from("school_tools_users")
+
         .select("id")
+
         .eq("email", email)
+
         .maybeSingle();
+
 
     if(existingError){
 
@@ -1030,26 +1308,51 @@ async function registerSchool(){
 
     }
 
+
     if(existing){
 
-        alert("Administrator email already registered.");
+        alert(
+            "Administrator email already registered."
+        );
 
         return;
 
     }
 
-    // Create school account
-    const { error: accountError } = await client
+
+    // ========================================================
+    // CREATE SCHOOL
+    // ========================================================
+
+    const {
+        data: schoolAccount,
+        error: accountError
+    } = await client
+
         .from("school_tool_accounts")
+
         .insert({
+
             school_name: school,
+
             admin_name: admin,
+
             email: email,
+
             phone: phone,
+
             county: county
-        });
+
+        })
+
+        .select("id")
+
+        .single();
+
 
     if(accountError){
+
+        console.error(accountError);
 
         alert(accountError.message);
 
@@ -1057,15 +1360,52 @@ async function registerSchool(){
 
     }
 
-    // Create admin user
-    const { error: userError } = await client
+
+    if(!schoolAccount){
+
+        alert(
+            "School was created but its ID could not be retrieved."
+        );
+
+        return;
+
+    }
+
+
+    const schoolId =
+        schoolAccount.id;
+
+
+    // ========================================================
+    // CREATE ADMIN USER
+    // ========================================================
+
+    const {
+        error: userError
+    } = await client
+
         .from("school_tools_users")
+
         .insert({
+
             email: email,
-            role: "admin"
+
+            role: "admin",
+
+            school_id: schoolId,
+
+            device_id_1: deviceId,
+
+            fingerprint_1: fingerprint,
+
+            active_device_id: deviceId
+
         });
 
+
     if(userError){
+
+        console.error(userError);
 
         alert(userError.message);
 
@@ -1073,29 +1413,470 @@ async function registerSchool(){
 
     }
 
-   // Registration successful
-alert("School registered successfully.");
 
-localStorage.setItem("admin_email", email);
-localStorage.removeItem("teacher_email");
+    // ========================================================
+    // SAVE LOGIN
+    // ========================================================
 
-// Close registration form
-document.getElementById("registerModal").style.display = "none";
+    localStorage.setItem(
+        "admin_email",
+        email
+    );
 
-// Clear the form
-document.getElementById("regSchool").value = "";
-document.getElementById("regAdmin").value = "";
-document.getElementById("regEmail").value = "";
-document.getElementById("regPhone").value = "";
-document.getElementById("regCounty").value = "";
+    localStorage.removeItem(
+        "teacher_email"
+    );
 
-// Show payment screen
-showAccessModal(
-    "School registered successfully.\n\nPlease pay to activate your administrator account.",
-    true
-);
+
+    // ========================================================
+    // CLOSE REGISTRATION
+    // ========================================================
+
+    alert(
+        "School registered successfully."
+    );
+
+
+    document.getElementById(
+        "registerModal"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "regSchool"
+    ).value = "";
+
+    document.getElementById(
+        "regAdmin"
+    ).value = "";
+
+    document.getElementById(
+        "regEmail"
+    ).value = "";
+
+    document.getElementById(
+        "regPhone"
+    ).value = "";
+
+    document.getElementById(
+        "regCounty"
+    ).value = "";
+
+
+    // ========================================================
+    // PAYMENT
+    // ========================================================
+
+    showAccessModal(
+
+        "School registered successfully.\n\n" +
+        "Please pay to activate your administrator account.",
+
+        true
+
+    );
+
 }
 
+
+
+
+// ============================================================
+// REGISTER / VERIFY USER DEVICE
+// MAXIMUM 2 DEVICES
+// ONLY ONE ACTIVE SESSION
+// ============================================================
+
+async function verifyUserDevice(
+    table,
+    user
+){
+
+    const deviceId =
+        getDeviceId();
+
+    const fingerprint =
+        await getFingerprint();
+
+
+    // --------------------------------------------------------
+    // DEVICE 1
+    // --------------------------------------------------------
+
+    if(
+        user.device_id_1 === deviceId ||
+        user.fingerprint_1 === fingerprint
+    ){
+
+        return {
+            allowed: true,
+            slot: 1,
+            deviceId,
+            fingerprint
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // DEVICE 2
+    // --------------------------------------------------------
+
+    if(
+        user.device_id_2 === deviceId ||
+        user.fingerprint_2 === fingerprint
+    ){
+
+        return {
+            allowed: true,
+            slot: 2,
+            deviceId,
+            fingerprint
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // EMPTY DEVICE SLOT 1
+    // --------------------------------------------------------
+
+    if(!user.device_id_1){
+
+        const { error } =
+            await client
+
+            .from(table)
+
+            .update({
+
+                device_id_1: deviceId,
+
+                fingerprint_1: fingerprint
+
+            })
+
+            .eq("id", user.id);
+
+
+        if(error){
+
+            console.error(error);
+
+            return {
+                allowed: false
+            };
+
+        }
+
+
+        return {
+
+            allowed: true,
+
+            slot: 1,
+
+            deviceId,
+
+            fingerprint
+
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // EMPTY DEVICE SLOT 2
+    // --------------------------------------------------------
+
+    if(!user.device_id_2){
+
+        const { error } =
+            await client
+
+            .from(table)
+
+            .update({
+
+                device_id_2: deviceId,
+
+                fingerprint_2: fingerprint
+
+            })
+
+            .eq("id", user.id);
+
+
+        if(error){
+
+            console.error(error);
+
+            return {
+                allowed: false
+            };
+
+        }
+
+
+        return {
+
+            allowed: true,
+
+            slot: 2,
+
+            deviceId,
+
+            fingerprint
+
+        };
+
+    }
+
+
+    // --------------------------------------------------------
+    // TWO DEVICES ALREADY REGISTERED
+    // --------------------------------------------------------
+
+    return {
+
+        allowed: false,
+
+        reason: "MAX_DEVICES"
+
+    };
+
+}
+
+
+
+
+	// ============================================================
+// START NEW ACTIVE SESSION
+// THIS INVALIDATES THE OTHER DEVICE
+// ============================================================
+
+async function startUserSession(
+    table,
+    userId,
+    deviceId
+){
+
+    const sessionToken =
+        createSessionToken();
+
+
+    const {
+        error
+    } = await client
+
+        .from(table)
+
+        .update({
+
+            active_session_token:
+                sessionToken,
+
+            active_device_id:
+                deviceId
+
+        })
+
+        .eq("id", userId);
+
+
+    if(error){
+
+        console.error(
+            "Session creation failed:",
+            error
+        );
+
+        return false;
+
+    }
+
+
+    localStorage.setItem(
+        "active_session_token",
+        sessionToken
+    );
+
+
+    localStorage.setItem(
+        "active_device_id",
+        deviceId
+    );
+
+
+    return true;
+
+}
+
+
+
+// ============================================================
+// CHECK WHETHER THIS DEVICE IS STILL THE ACTIVE DEVICE
+// ============================================================
+
+let sessionCheckInterval = null;
+
+
+async function checkActiveSession(
+    table,
+    userId
+){
+
+    const token =
+        localStorage.getItem(
+            "active_session_token"
+        );
+
+
+    if(!token){
+
+        return false;
+
+    }
+
+
+    const {
+        data: user,
+        error
+    } = await client
+
+        .from(table)
+
+        .select(
+            "active_session_token"
+        )
+
+        .eq("id", userId)
+
+        .single();
+
+
+    if(error || !user){
+
+        return false;
+
+    }
+
+
+    if(
+        user.active_session_token !== token
+    ){
+
+        forceLogout(
+            "Your account was logged in on another device."
+        );
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+// ============================================================
+// START SESSION MONITORING
+// ============================================================
+
+function startSessionMonitoring(
+    table,
+    userId
+){
+
+    if(sessionCheckInterval){
+
+        clearInterval(
+            sessionCheckInterval
+        );
+
+    }
+
+
+    sessionCheckInterval =
+        setInterval(
+
+            () => {
+
+                checkActiveSession(
+                    table,
+                    userId
+                );
+
+            },
+
+            5000
+
+        );
+
+}
+
+
+// ============================================================
+// FORCE LOGOUT
+// ============================================================
+
+function forceLogout(message){
+
+    if(sessionCheckInterval){
+
+        clearInterval(
+            sessionCheckInterval
+        );
+
+        sessionCheckInterval = null;
+
+    }
+
+
+    localStorage.removeItem(
+        "admin_email"
+    );
+
+    localStorage.removeItem(
+        "teacher_email"
+    );
+
+    localStorage.removeItem(
+        "active_session_token"
+    );
+
+    localStorage.removeItem(
+        "active_device_id"
+    );
+
+
+    hideAdminAccess();
+
+    hideAccessModal();
+
+
+    alert(
+        message ||
+        "You have been logged out."
+    );
+
+
+    location.reload();
+
+}
+
+
+
+
+
+	
+
+
+
+
+
+	
 
 function showRegistrationForm(){
 
@@ -1366,97 +2147,316 @@ async function checkTeacherAccess(email){
 
 
 
+
 async function adminAddTeacher(){
 
-    const email = document
-        .getElementById("newTeacherEmail")
-        .value
-        .trim()
-        .toLowerCase();
+    // ============================================================
+    // GET TEACHER EMAIL
+    // ============================================================
+
+    const email =
+        document
+            .getElementById("newTeacherEmail")
+            .value
+            .trim()
+            .toLowerCase();
+
 
     if(!email){
+
         alert("Enter teacher email.");
+
         return false;
+
     }
 
-    // ✅ Get admin email from localStorage (NO AUTH)
-    const adminEmail = localStorage.getItem("admin_email");
+
+    // ============================================================
+    // GET LOGGED-IN ADMIN EMAIL
+    // ============================================================
+
+    const adminEmail =
+        localStorage
+            .getItem("admin_email");
+
 
     if(!adminEmail){
+
         alert("Admin not signed in.");
+
         return false;
+
     }
 
-    // Get admin ID
-    const { data: admin, error: adminError } = await client
+
+    // ============================================================
+    // GET ADMIN + SCHOOL ID
+    // ============================================================
+
+    const {
+        data: admin,
+        error: adminError
+    } = await client
+
         .from("school_tools_users")
-        .select("id")
-        .eq("email", adminEmail)
+
+        .select(
+            "id, school_id, email, role"
+        )
+
+        .eq(
+            "email",
+            adminEmail
+        )
+
+        .eq(
+            "role",
+            "admin"
+        )
+
         .single();
 
+
     if(adminError || !admin){
-        alert("Admin account not found.");
+
+        console.error(
+            "Admin lookup error:",
+            adminError
+        );
+
+        alert(
+            "Admin account not found."
+        );
+
         return false;
+
     }
 
-   // Count teachers added by this admin
-const { count, error: countError } = await client
-    .from("school_tools_teachers")
-    .select("*", { count: "exact", head: true })
-    .eq("added_by", admin.id);
 
-if (countError) {
-    alert(countError.message);
-    return false;
+    // ============================================================
+    // MAKE SURE ADMIN HAS A SCHOOL
+    // ============================================================
+
+    if(!admin.school_id){
+
+        alert(
+            "This administrator is not linked to a school."
+        );
+
+        return false;
+
+    }
+
+
+    // ============================================================
+    // CHECK TEACHER LIMIT
+    // ============================================================
+
+    const {
+        count,
+        error: countError
+    } = await client
+
+        .from("school_tools_teachers")
+
+        .select(
+            "id",
+            {
+                count: "exact",
+                head: true
+            }
+        )
+
+        .eq(
+            "added_by",
+            admin.id
+        );
+
+
+    if(countError){
+
+        console.error(
+            "Teacher count error:",
+            countError
+        );
+
+        alert(
+            countError.message
+        );
+
+        return false;
+
+    }
+
+
+    if(count >= MAX_TEACHERS){
+
+        alert(
+            `Maximum of ${MAX_TEACHERS} teachers reached!`
+        );
+
+        return false;
+
+    }
+
+
+    // ============================================================
+    // CHECK IF TEACHER ALREADY EXISTS
+    // FOR THIS ADMIN / SCHOOL
+    // ============================================================
+
+    const {
+        data: existingTeacher,
+        error: existingError
+    } = await client
+
+        .from("school_tools_teachers")
+
+        .select("id")
+
+        .eq(
+            "email",
+            email
+        )
+
+        .eq(
+            "added_by",
+            admin.id
+        )
+
+        .maybeSingle();
+
+
+    if(existingError){
+
+        console.error(
+            "Teacher lookup error:",
+            existingError
+        );
+
+        alert(
+            existingError.message
+        );
+
+        return false;
+
+    }
+
+
+    if(existingTeacher){
+
+        alert(
+            "This teacher has already been added."
+        );
+
+        return false;
+
+    }
+
+
+    // ============================================================
+    // CREATE TEACHER
+    //
+    // school_id comes directly from the admin's school_id.
+    //
+    // device_id_1 / device_id_2 remain NULL until the teacher
+    // actually logs in from their devices.
+    //
+    // fingerprint_1 / fingerprint_2 remain NULL until login.
+    // ============================================================
+
+    const {
+        data: newTeacher,
+        error: teacherError
+    } = await client
+
+        .from("school_tools_teachers")
+
+        .insert({
+
+            email: email,
+
+            added_by: admin.id,
+
+            school_id: admin.school_id,
+
+            device_id_1: null,
+
+            device_id_2: null,
+
+            fingerprint_1: null,
+
+            fingerprint_2: null,
+
+            active_device_id: null,
+
+            active_session_token: null
+
+        })
+
+        .select(
+            "id, email, school_id, added_by"
+        )
+
+        .single();
+
+
+    if(teacherError){
+
+        console.error(
+            "Teacher creation error:",
+            teacherError
+        );
+
+        alert(
+            teacherError.message
+        );
+
+        return false;
+
+    }
+
+
+    // ============================================================
+    // VERIFY CREATION
+    // ============================================================
+
+    if(!newTeacher){
+
+        alert(
+            "Teacher could not be created."
+        );
+
+        return false;
+
+    }
+
+
+    // ============================================================
+    // CLEAR INPUT
+    // ============================================================
+
+    document
+        .getElementById("newTeacherEmail")
+        .value = "";
+
+
+    // ============================================================
+    // SUCCESS
+    // ============================================================
+
+    alert(
+        "Teacher added successfully."
+    );
+
+
+    return true;
+
 }
 
-// Check if teacher already exists
-const { data: existingTeacher, error: existingError } = await client
-    .from("school_tools_teachers")
-    .select("id")
-    .eq("email", email)
-    .eq("added_by", admin.id)
-    .maybeSingle();
 
-if (existingError) {
-    alert(existingError.message);
-    return false;
-}
 
-if (existingTeacher) {
-    alert("This teacher has already been added.");
-    return false;
-}
-
-// Maximum teachers reached
-if (count >= MAX_TEACHERS) {
-    alert(`Maximum of ${MAX_TEACHERS} teachers reached!`);
-    return false;
-}
-
-// Insert teacher
-const { error } = await client
-    .from("school_tools_teachers")
-    .insert({
-        email,
-        added_by: admin.id
-    });
 	
-
-if (error) {
-    alert(error.message);
-    return false;
-}
-
-document.getElementById("newTeacherEmail").value = "";
-
-alert("Teacher added successfully.");
-
-return true;
-
-}
-
-
 async function handleAdminAccess(email){
 
     const admin = await checkAdmin(email);
