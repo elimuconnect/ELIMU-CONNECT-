@@ -3705,11 +3705,20 @@ const { data:{user} } = await supabase.auth.getUser();
     alert("Please login first.");
     return;
   }
-  const answers = assignmentQuestions.map((q,i)=>({
-    question:q,
-    answer:document.getElementById(`ans${i}`).value || ""
-  }));
 
+
+const answers = assignmentQuestions.map((q,i)=>({
+
+    question:
+        typeof q === "string"
+            ? q
+            : q.question,
+
+    answer:
+        document.getElementById(`ans${i}`).value || ""
+
+}));
+  
   const { error } = await supabase
   .from("homework_submissions")
   .upsert({
