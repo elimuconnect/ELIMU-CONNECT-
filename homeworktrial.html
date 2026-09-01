@@ -3681,7 +3681,9 @@ supabase.auth.getUser().then(({data}) => {
     }
 
 });
+}); // closes data.forEach
 
+} // ✅ THIS was missing
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
 
