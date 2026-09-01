@@ -552,32 +552,31 @@ let currentSchoolId = null;
 let currentSchoolName = "";
 
 
+const homeworkParams = new URLSearchParams(window.location.search);
 
-const params =
-    new URLSearchParams(window.location.search);
+const homeworkSchoolIdFromURL =
+    homeworkParams.get("school_id");
 
-currentSchoolId =
-    params.get("school_id");
-
-if(!currentSchoolId){
+if(!homeworkSchoolIdFromURL){
 
     document.body.innerHTML = `
         <div style="
+            padding:40px;
             text-align:center;
-            padding:50px;
-            font-family:sans-serif;
+            font-family:Arial;
         ">
             <h2>School Not Identified</h2>
             <p>
-                Please open this tool from the School Tools page.
+                Please open the Homework Smart System
+                from your School Tools dashboard.
             </p>
         </div>
     `;
 
-    throw new Error(
-        "Missing school_id"
-    );
+    throw new Error("Missing school_id");
 }
+
+let currentSchoolId = homeworkSchoolIdFromURL;
 
 
 
@@ -710,6 +709,16 @@ window.signup = async function () {
 
 async function loadCurrentSchool(){
 
+  if(!currentSchoolId){
+
+        console.error(
+            "loadCurrentSchool: currentSchoolId is null"
+        );
+
+        return;
+    }
+
+
     const {
         data,
         error
@@ -794,9 +803,7 @@ const { data: profile, error } = await supabase
 
     currentUserRole = profile.role;
 
-    currentSchoolId = profile.school_id;
-
-
+   
 
 const schoolLoaded =
     await loadCurrentSchool();
