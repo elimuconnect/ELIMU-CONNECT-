@@ -576,12 +576,24 @@ let currentSchoolId = null;
 let currentSchoolName = "";
 
 
-const homeworkParams = new URLSearchParams(window.location.search);
+
+const homeworkParams =
+    new URLSearchParams(window.location.search);
 
 const homeworkSchoolIdFromURL =
     homeworkParams.get("school_id");
 
-if(!homeworkSchoolIdFromURL){
+// Get saved school ID if there is no ID in the URL
+const savedSchoolId =
+    localStorage.getItem("smart_assignment_school_id");
+
+
+// Use URL ID first, otherwise use saved ID
+currentSchoolId =
+    homeworkSchoolIdFromURL || savedSchoolId;
+
+
+if(!currentSchoolId){
 
     document.body.innerHTML = `
         <div style="
@@ -600,9 +612,15 @@ if(!homeworkSchoolIdFromURL){
     throw new Error("Missing school_id");
 }
 
- currentSchoolId = homeworkSchoolIdFromURL;
 
+  
 
+// Remove school_id from the URL after reading it
+window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+);
 
 
 // ============================================================
@@ -768,13 +786,17 @@ async function loadCurrentSchool(){
         return false;
     }
 
+currentSchoolName =
+    data.school_name;
 
-    currentSchoolName =
-        data.school_name;
 
-    return true;
-}
+// Remember this school in this browser
+localStorage.setItem(
+    "smart_assignment_school_id",
+    currentSchoolId
+);
 
+return true;
 
 
 
