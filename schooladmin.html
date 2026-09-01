@@ -422,8 +422,15 @@
 		  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/register4" target="_blank" title="Manage and track student attendance easily with a smart digital register.">Smart Register</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/acbl.html" target="_blank" title="Record, track, and showcase student projects and competency-based learning portfolios.">Projects & CBL Portfolio</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/projects" target="_blank" title="Generate activities and projects automatically for classroom use.">Activities/Projects Generator</a></li>
-  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/homeworkbest.html" target="_blank" title="Create, assign, and track homework efficiently for your students.">Homework Smart System</a></li>
-  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/driver" target="_blank" title="Track school bus routes and driver information in real-time.">School Bus Tracking - Driver Phase</a></li>
+<li>
+    <a href="#"
+       onclick="openHomework(); return false;"
+       title="Create, assign, and track homework efficiently for your students.">
+        Homework Smart System
+    </a>
+</li>
+		  
+		  <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/driver" target="_blank" title="Track school bus routes and driver information in real-time.">School Bus Tracking - Driver Phase</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/parents" target="_blank" title="Parents can track the school bus and student activities for safety and updates.">School Bus Tracking - Parents Phase</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/competencytracker" target="_blank" title="Monitor student competencies and performance across subjects.">Competencies Tracker</a></li>
   <li><a href="https://elimuconnect.github.io/ELIMU-CONNECT-/fortutor4" target="_blank" title="AI-powered assistant to help teachers plan lessons and answer queries.">AI Teaching Assistant</a></li>
@@ -781,14 +788,15 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a href="https://elimuconnect.github.io/ELIMU-CONNECT-/homeworkbest.html"
-                           target="_blank"
-                           title="Create, assign, and track homework efficiently for your students.">
-                            Homework Smart System
-                        </a>
-                    </li>
-
+                  
+<li id="comprehensiveHomeworkItem">
+    <a href="#"
+       id="comprehensiveHomeworkLink"
+       onclick="openComprehensiveHomework(); return false;"
+       title="Create, assign, and track homework efficiently for your students.">
+        Homework Smart System
+    </a>
+</li>
                    
 
                     <li>
@@ -3841,6 +3849,205 @@ document.addEventListener(
     }
 );
 
+
+async function openHomework() {
+
+    let schoolId = null;
+
+    // Check if an admin is logged in
+    const adminEmail = localStorage.getItem("admin_email");
+
+    // Check if a teacher is logged in
+    const teacherEmail = localStorage.getItem("teacher_email");
+
+
+    // --------------------------------
+    // ADMIN
+    // --------------------------------
+
+    if (adminEmail) {
+
+        const { data: admin, error } = await client
+            .from("school_tools_users")
+            .select("school_id")
+            .eq("email", adminEmail)
+            .eq("role", "admin")
+            .single();
+
+        if (error || !admin?.school_id) {
+
+            console.error("Could not identify admin school:", error);
+
+            alert("Unable to identify your school.");
+
+            return;
+        }
+
+        schoolId = admin.school_id;
+    }
+
+
+    // --------------------------------
+    // TEACHER
+    // --------------------------------
+
+    else if (teacherEmail) {
+
+        const { data: teacher, error } = await client
+            .from("school_tools_teachers")
+            .select("school_id")
+            .eq("email", teacherEmail)
+            .single();
+
+        if (error || !teacher?.school_id) {
+
+            console.error("Could not identify teacher school:", error);
+
+            alert("Unable to identify your school.");
+
+            return;
+        }
+
+        schoolId = teacher.school_id;
+    }
+
+
+    // --------------------------------
+    // NO LOGIN
+    // --------------------------------
+
+    else {
+
+        alert("Please login first.");
+
+        return;
+    }
+
+
+    // --------------------------------
+    // OPEN HOMEWORK
+    // --------------------------------
+
+    const homeworkURL =
+        "https://elimuconnect.github.io/ELIMU-CONNECT-/homeworkbest.html"
+        + "?school_id="
+        + encodeURIComponent(schoolId);
+
+
+    window.open(homeworkURL, "_blank");
+}
+
+
+
+async function openComprehensiveHomework() {
+
+    let comprehensiveSchoolId = null;
+
+    // Check for logged-in admin
+    const comprehensiveAdminEmail =
+        localStorage.getItem("admin_email");
+
+    // Check for logged-in teacher
+    const comprehensiveTeacherEmail =
+        localStorage.getItem("teacher_email");
+
+
+    // ================================
+    // ADMIN
+    // ================================
+
+    if (comprehensiveAdminEmail) {
+
+        const { data: comprehensiveAdmin, error } = await client
+            .from("school_tools_users")
+            .select("school_id")
+            .eq("email", comprehensiveAdminEmail)
+            .eq("role", "admin")
+            .single();
+
+        if (
+            error ||
+            !comprehensiveAdmin ||
+            !comprehensiveAdmin.school_id
+        ) {
+
+            console.error(
+                "Unable to identify comprehensive school:",
+                error
+            );
+
+            alert("Unable to identify your school.");
+
+            return;
+        }
+
+        comprehensiveSchoolId =
+            comprehensiveAdmin.school_id;
+    }
+
+
+    // ================================
+    // TEACHER
+    // ================================
+
+    else if (comprehensiveTeacherEmail) {
+
+        const { data: comprehensiveTeacher, error } =
+            await client
+                .from("school_tools_teachers")
+                .select("school_id")
+                .eq("email", comprehensiveTeacherEmail)
+                .single();
+
+        if (
+            error ||
+            !comprehensiveTeacher ||
+            !comprehensiveTeacher.school_id
+        ) {
+
+            console.error(
+                "Unable to identify comprehensive teacher school:",
+                error
+            );
+
+            alert("Unable to identify your school.");
+
+            return;
+        }
+
+        comprehensiveSchoolId =
+            comprehensiveTeacher.school_id;
+    }
+
+
+    // ================================
+    // NOT LOGGED IN
+    // ================================
+
+    else {
+
+        alert("Please login first.");
+
+        return;
+    }
+
+
+    // ================================
+    // OPEN COMPREHENSIVE HOMEWORK
+    // ================================
+
+    const comprehensiveHomeworkURL =
+        "https://elimuconnect.github.io/ELIMU-CONNECT-/homeworkbest.html"
+        + "?school_id="
+        + encodeURIComponent(comprehensiveSchoolId);
+
+
+    window.open(
+        comprehensiveHomeworkURL,
+        "_blank"
+    );
+}
+	
 </script>
 </body>
 </html>
