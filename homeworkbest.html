@@ -1056,7 +1056,13 @@ window.saveAssignment = async function(){
 
     }
 
-    if(!grade){
+     if(!currentSchoolName){
+        alert("School information has not loaded yet. Please refresh and try again.");
+        return;
+    }
+  
+  
+  if(!grade){
 
         alert("Please select a grade.");
         return;
@@ -1078,22 +1084,15 @@ window.saveAssignment = async function(){
     }
 
 
-    const { error } = await supabase
-
-        .from("homework_assignments")
-
-        .insert({
-
-            school_id,
-
-            grade,
-
-            subject,
-
-            questions:
-                assignmentQuestions
-
-        });
+   const { error } = await supabase
+    .from("homework_assignments")
+    .insert({
+        school_id: school_id,
+        school: currentSchoolName,
+        grade: grade,
+        subject: subject,
+        questions: assignmentQuestions
+    });
 
 
     if(error){
