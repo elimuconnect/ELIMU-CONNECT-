@@ -362,6 +362,17 @@ Logout
  <select id="subject">
     <option value="">Select Subject</option>
 </select><br>
+
+<label for="assignmentDate">
+    <b>Homework Date:</b>
+</label><br>
+
+<input
+    type="date"
+    id="assignmentDate"
+><br>
+
+
   
   <h4>Add New Question:</h4>
   <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
@@ -481,9 +492,22 @@ Logout
 
   <h4>Pick Your Homework</h4>
  <p><b>School:</b> <span id="studentSchoolName"></span></p>
-  <select id="studentGradeSelect"><option value="">Select Grade</option></select><br>
-  <select id="studentSubjectSelect"><option value="">Select Subject</option></select><br>
+ <select id="studentGradeSelect">
+    <option value="">Select Grade</option>
+</select><br>
 
+<select id="studentSubjectSelect">
+    <option value="">Select Subject</option>
+</select><br>
+
+<label for="studentAssignmentDate">
+    <b>📅 Select Homework Date:</b>
+</label><br>
+
+<input
+    type="date"
+    id="studentAssignmentDate"
+><br>
   <div id="studentAssignment"></div>
   <button onclick="submitAnswers()">Submit Answers</button>
 
@@ -958,13 +982,18 @@ window.deleteQuestion = function(index){
 };
 
 
-
 function updatePreview(){
 
     const container =
         document.getElementById(
             "assignmentPreview"
         );
+
+
+    const assignmentDate =
+        document.getElementById(
+            "assignmentDate"
+        )?.value || "";
 
 
     container.innerHTML =
@@ -1015,9 +1044,7 @@ function updatePreview(){
 
                     <button
                         onclick="deleteQuestion(${i})"
-                        style="
-                            color:red;
-                        "
+                        style="color:red;"
                     >
                         Delete
                     </button>
@@ -1029,14 +1056,29 @@ function updatePreview(){
         })
         .join("");
 
+
+    if(assignmentDate){
+
+        container.innerHTML =
+            `<div style="
+                background:#eef7ff;
+                padding:10px;
+                margin-bottom:10px;
+                border-radius:8px;
+            ">
+                <b>📅 Homework Date:</b>
+                ${assignmentDate}
+            </div>`
+            +
+            container.innerHTML;
+    }
+
 }
 
 
 
 
-
 // ------------------ Save Assignment ------------------
-
 window.saveAssignment = async function(){
 
     const school_id =
@@ -1048,56 +1090,98 @@ window.saveAssignment = async function(){
     const subject =
         document.getElementById("subject").value;
 
+    const assignmentDate =
+        document.getElementById("assignmentDate").value;
+
+
+    // -----------------------------
+    // VALIDATION
+    // -----------------------------
 
     if(!school_id){
 
         alert("School not identified.");
-        return;
 
-    }
-
-     if(!currentSchoolName){
-        alert("School information has not loaded yet. Please refresh and try again.");
         return;
     }
-  
-  
-  if(!grade){
+
+
+    if(!currentSchoolName){
+
+        alert(
+            "School information has not loaded yet. " +
+            "Please refresh and try again."
+        );
+
+        return;
+    }
+
+
+    if(!grade){
 
         alert("Please select a grade.");
-        return;
 
+        return;
     }
+
 
     if(!subject){
 
         alert("Please select a subject.");
-        return;
 
+        return;
     }
+
+
+    if(!assignmentDate){
+
+        alert("Please select the homework date.");
+
+        return;
+    }
+
 
     if(assignmentQuestions.length === 0){
 
-        alert("Please add at least one question.");
-        return;
+        alert(
+            "Please add at least one question."
+        );
 
+        return;
     }
 
 
-   const { error } = await supabase
-    .from("homework_assignments")
-    .insert({
-        school_id: school_id,
-        school: currentSchoolName,
-        grade: grade,
-        subject: subject,
-        questions: assignmentQuestions
-    });
+    // -----------------------------
+    // SAVE ASSIGNMENT
+    // -----------------------------
+
+    const { error } = await supabase
+
+        .from("homework_assignments")
+
+        .insert({
+
+            school_id: school_id,
+
+            school: currentSchoolName,
+
+            grade: grade,
+
+            subject: subject,
+
+            assignment_date: assignmentDate,
+
+            questions: assignmentQuestions
+
+        });
 
 
     if(error){
 
-        console.error(error);
+        console.error(
+            "Error saving homework:",
+            error
+        );
 
         alert(error.message);
 
@@ -1105,9 +1189,21 @@ window.saveAssignment = async function(){
     }
 
 
+    // -----------------------------
+    // CLEAR ASSIGNMENT
+    // -----------------------------
+
     assignmentQuestions = [];
 
     updatePreview();
+
+
+    // Reset date
+
+    document.getElementById(
+        "assignmentDate"
+    ).value = "";
+
 
     await loadStudentFilters();
 
@@ -1116,9 +1212,13 @@ window.saveAssignment = async function(){
     await loadFilteredSubmissions();
 
 
-    alert("Homework Saved!");
+    alert(
+        "Homework Saved for " +
+        assignmentDate
+    );
 
 };
+
 // ------------------ Student Filters ------------------
 
 
@@ -1227,104 +1327,272 @@ async function loadStudentFilters(){
     subjectSel.onchange =
         filterAssignments;
 
+const studentDate =
+    document.getElementById(
+        "studentAssignmentDate"
+    );
+
+if(studentDate){
+
+    studentDate.value =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+}
+
+  
 }
 
 
 
 
 // ------------------ Student: Filter Assignments ------------------
+
+
 async function filterAssignments(){
 
-const school = currentSchoolId;
-  const grade = document.getElementById("studentGradeSelect").value;
-  const subject = document.getElementById("studentSubjectSelect").value;
+    const school =
+        currentSchoolId;
 
-  if(!school || !grade || !subject){
+    const grade =
+        document.getElementById(
+            "studentGradeSelect"
+        ).value;
 
-    document.getElementById("studentAssignment").innerHTML =
-      "<p>Select school, grade, and subject.</p>";
+    const subject =
+        document.getElementById(
+            "studentSubjectSelect"
+        ).value;
 
-    return;
+    const assignmentDate =
+        document.getElementById(
+            "studentAssignmentDate"
+        ).value;
 
-  }
-const { data, error } = await supabase
-.from("homework_assignments")
-.select("*")
-.eq("school_id", currentSchoolId)
-.eq("grade", grade)
-.eq("subject", subject);
 
-  const container = document.getElementById("studentAssignment");
+    const container =
+        document.getElementById(
+            "studentAssignment"
+        );
 
-  container.innerHTML = "";
 
-  assignmentQuestions = [];
+    // -----------------------------
+    // VALIDATION
+    // -----------------------------
 
-  if(error || !data) return;
+    if(!school || !grade || !subject){
 
-  data.forEach(assign=>{
+        container.innerHTML =
+            "<p>Select grade and subject.</p>";
 
- assignmentQuestions = assign.questions || [];
+        return;
+    }
 
-currentAssignmentKey = assign.id;
 
-container.innerHTML += `
-    <b>School:</b> ${currentSchoolName}<br>
-    <b>Grade:</b> ${assign.grade}<br>
-    <b>Subject:</b> ${assign.subject}<br>
+    if(!assignmentDate){
 
-    ${assignmentQuestions.map((q, i) => {
+        container.innerHTML =
+            "<p>📅 Select a homework date.</p>";
 
-        const questionText =
-            typeof q === "string"
-                ? q
-                : q.question;
+        return;
+    }
 
-        return `
+
+    // -----------------------------
+    // LOAD ASSIGNMENT
+    // -----------------------------
+
+    const {
+        data,
+        error
+    } = await supabase
+
+        .from("homework_assignments")
+
+        .select("*")
+
+        .eq(
+            "school_id",
+            currentSchoolId
+        )
+
+        .eq(
+            "grade",
+            grade
+        )
+
+        .eq(
+            "subject",
+            subject
+        )
+
+        .eq(
+            "assignment_date",
+            assignmentDate
+        )
+
+        .order(
+            "created_at",
+            {
+                ascending: true
+            }
+        );
+
+
+    container.innerHTML = "";
+
+    assignmentQuestions = [];
+
+    currentAssignmentKey = null;
+
+
+    if(error){
+
+        console.error(
+            "Error loading assignment:",
+            error
+        );
+
+        container.innerHTML =
+            "<p>Error loading homework.</p>";
+
+        return;
+    }
+
+
+    if(!data || data.length === 0){
+
+        container.innerHTML = `
+
             <div style="
-                margin:15px 0;
+                padding:15px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                background:#fff8e1;
+            ">
+
+                <b>📅 ${assignmentDate}</b>
+
+                <p>
+                    No homework was assigned for
+                    this date.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    // -----------------------------
+    // DISPLAY ASSIGNMENTS
+    // -----------------------------
+
+    data.forEach(assign => {
+
+        assignmentQuestions =
+            assign.questions || [];
+
+        currentAssignmentKey =
+            assign.id;
+
+
+        container.innerHTML += `
+
+            <div style="
                 padding:12px;
+                margin-bottom:15px;
                 border:1px solid #ddd;
                 border-radius:8px;
             ">
 
-                <b>Q${i + 1}.</b>
+                <b>School:</b>
+                ${currentSchoolName}
+                <br>
 
-                ${questionText}
+                <b>Grade:</b>
+                ${assign.grade}
+                <br>
 
-                <br><br>
+                <b>Subject:</b>
+                ${assign.subject}
+                <br>
 
-                <input
-                    type="text"
-                    id="ans${i}"
-                    placeholder="Your Answer"
-                    style="
-                        width:100%;
-                        padding:8px;
-                    "
-                >
+                <b>📅 Date:</b>
+                ${assign.assignment_date}
 
             </div>
+
+
+            ${assignmentQuestions.map((q, i) => {
+
+                const questionText =
+                    typeof q === "string"
+                        ? q
+                        : q.question;
+
+
+                return `
+
+                    <div style="
+                        margin:15px 0;
+                        padding:12px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                    ">
+
+                        <b>Q${i + 1}.</b>
+
+                        ${questionText}
+
+                        <br><br>
+
+                        <input
+                            type="text"
+                            id="ans${i}"
+                            placeholder="Your Answer"
+                            style="
+                                width:100%;
+                                padding:8px;
+                            "
+                        >
+
+                    </div>
+
+                `;
+
+            }).join("")}
+
         `;
 
-    }).join("")}
-`;
 
-supabase.auth.getUser().then(({data}) => {
+        // -----------------------------
+        // LOAD RESULTS
+        // -----------------------------
 
-    if(data.user){
+        supabase.auth.getUser()
+            .then(({data}) => {
 
-        showResults(
-            data.user.id,
-            assign.id
-        );
+                if(data.user){
 
-    }
+                    showResults(
+                        data.user.id,
+                        assign.id
+                    );
 
-});
-}); // closes data.forEach
+                }
 
-} // ✅ THIS was missing
+            });
+
+    });
+
+}
+
+
+   
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
 
@@ -1476,9 +1744,14 @@ supabase
   data.forEach(assign=>{
 
     area.innerHTML +=
-      `<h4>${currentSchoolName}- Grade: ${assign.grade} | Subject: ${assign.subject}</h4>
-       <div id="markingArea_${assign.id}"></div>`;
+  `<h4>
+      ${currentSchoolName}
+      - Grade: ${assign.grade}
+      | Subject: ${assign.subject}
+      | 📅 Date: ${assign.assignment_date || "No date"}
+   </h4>
 
+   <div id="markingArea_${assign.id}"></div>`;
     loadSubmissionsForAssignment(assign.id, assign.questions);
 
   });
@@ -2303,6 +2576,14 @@ document
         }
     );
 
+
+
+   document
+    .getElementById("studentAssignmentDate")
+    .addEventListener(
+        "change",
+        filterAssignments
+    );
 
 window.addSelectedBankQuestions =
     addSelectedBankQuestions;
