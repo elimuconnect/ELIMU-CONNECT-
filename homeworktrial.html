@@ -3623,37 +3623,64 @@ const { data, error } = await supabase
 
   data.forEach(assign=>{
 
-    assignmentQuestions = assign.questions || [];
+ assignmentQuestions = assign.questions || [];
 
-    currentAssignmentKey = assign.id;
+currentAssignmentKey = assign.id;
 
-    container.innerHTML +=
-      `<b>School:</b> ${assign.school}<br>
-       <b>Grade:</b> ${assign.grade}<br>
-       <b>Subject:</b> ${assign.subject}<br>` +
+container.innerHTML += `
+    <b>School:</b> ${assign.school}<br>
+    <b>Grade:</b> ${assign.grade}<br>
+    <b>Subject:</b> ${assign.subject}<br>
 
-     ${assignmentQuestions.map((q,i)=>
+    ${assignmentQuestions.map((q, i) => {
 
-    `<div>
-        ${typeof q === "string" ? q : q.question}
-        <br>
-        <input
-            id="ans${i}"
-            placeholder="Your Answer"
-        >
-    </div>`
-    
-).join("")}
+        const questionText =
+            typeof q === "string"
+                ? q
+                : q.question;
 
-    supabase.auth.getUser().then(({data})=>{
-      if(data.user){
-        showResults(data.user.id, assign.id);
-      }
-    });
+        return `
+            <div style="
+                margin:15px 0;
+                padding:12px;
+                border:1px solid #ddd;
+                border-radius:8px;
+            ">
 
-  });
+                <b>Q${i + 1}.</b>
 
-}
+                ${questionText}
+
+                <br><br>
+
+                <input
+                    type="text"
+                    id="ans${i}"
+                    placeholder="Your Answer"
+                    style="
+                        width:100%;
+                        padding:8px;
+                    "
+                >
+
+            </div>
+        `;
+
+    }).join("")}
+`;
+
+supabase.auth.getUser().then(({data}) => {
+
+    if(data.user){
+
+        showResults(
+            data.user.id,
+            assign.id
+        );
+
+    }
+
+});
 
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
