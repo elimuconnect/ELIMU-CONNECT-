@@ -341,188 +341,59 @@ Homework • Submission • Marking • Results
 
 
 
-<div id="teacherPhase" class="section" style="display:none;">
-<button onclick="logout()" style="float:right;">
-Logout
-</button>
-  <h3>Teacher Panel</h3>
-  
-  <h4>Create Homework</h4>
- <p><b>School:</b> <span id="teacherSchoolName"></span></p>
 
-<select id="grade">
-    <option value="">Select Grade</option>
-    <option value="PP1">PP1</option>
-    <option value="PP2">PP2</option>
-    <option value="Grade 1">Grade 1</option>
-    <option value="Grade 2">Grade 2</option>
-    <option value="Grade 3">Grade 3</option>
-    <option value="Grade 4">Grade 4</option>
-    <option value="Grade 5">Grade 5</option>
-    <option value="Grade 6">Grade 6</option>
-    <option value="Grade 7">Grade 7</option>
-    <option value="Grade 8">Grade 8</option>
-    <option value="Grade 9">Grade 9</option>
-    <option value="Grade 10">Grade 10</option>
-    <option value="Grade 11">Grade 11</option>
-    <option value="Grade 12">Grade 12</option>
-</select><br>
+  <div id="studentPhase" class="section" style="display:none;">
 
+    <button onclick="logout()" style="float:right;">
+        Logout
+    </button>
 
- <select id="subject">
-    <option value="">Select Subject</option>
-</select><br>
+    <h3>Student Panel</h3>
 
-<label for="assignmentDate">
-    <b>Homework Date:</b>
-</label><br>
-
-<input
-    type="date"
-    id="assignmentDate"
-><br>
-
-
-  
-  <h4>Add New Question:</h4>
-  <textarea id="newQuestion" placeholder="Type a new question"></textarea><br>
-  <button onclick="addTypedQuestion()">Add Question</button><br>
-  
-
-<h4>📚 Question Bank</h4>
-
-<div style="display:grid;gap:10px;">
-
-    <!-- Grade -->
-    <select id="bankGradeSelect">
-        <option value="">Select Grade</option>
-        <option value="PP1">PP1</option>
-        <option value="PP2">PP2</option>
-        <option value="Grade 1">Grade 1</option>
-        <option value="Grade 2">Grade 2</option>
-        <option value="Grade 3">Grade 3</option>
-        <option value="Grade 4">Grade 4</option>
-        <option value="Grade 5">Grade 5</option>
-        <option value="Grade 6">Grade 6</option>
-        <option value="Grade 7">Grade 7</option>
-        <option value="Grade 8">Grade 8</option>
-        <option value="Grade 9">Grade 9</option>
-        <option value="Grade 10">Grade 10</option>
-        <option value="Grade 11">Grade 11</option>
-        <option value="Grade 12">Grade 12</option>
-    </select>
-
-
-    <!-- Subject -->
-    <select id="subjectSelectBank">
-        <option value="">Select Subject</option>
-    </select>
-
-
-    <!-- Topic -->
-    <select id="topicSelectBank">
-        <option value="">All Topics</option>
-    </select>
-
-
-    <!-- Difficulty -->
-    <select id="difficultySelectBank">
-
-        <option value="">All Difficulties</option>
-
-        <option value="Easy">
-            Easy
-        </option>
-
-        <option value="Medium">
-            Medium
-        </option>
-
-        <option value="Hard">
-            Hard
-        </option>
-
-    </select>
-
-
-    <!-- Search -->
-    <input
-        type="text"
-        id="questionSearch"
-        placeholder="Search questions..."
-    >
-
-</div>
-
-
-<br>
-
-<div id="questionBankResults">
-
+    <!-- Saved learner information -->
     <p>
-        Select a grade and subject to load questions.
+        <b>Learner:</b>
+        <span id="studentFullName"></span>
     </p>
 
-</div>
+    <p>
+        <b>School:</b>
+        <span id="studentSchoolName"></span>
+    </p>
 
+    <h4>Pick Your Homework</h4>
 
-<br>
+    <select id="studentGradeSelect">
+        <option value="">Select Grade</option>
+    </select><br>
 
-<button onclick="addSelectedBankQuestions()">
-    ➕ Add Selected Questions
-</button>
+    <select id="studentSubjectSelect">
+        <option value="">Select Subject</option>
+    </select><br>
 
+    <label for="studentAssignmentDate">
+        <b>📅 Select Homework Date:</b>
+    </label><br>
 
+    <input
+        type="date"
+        id="studentAssignmentDate"
+    ><br>
 
+    <div id="studentAssignment"></div>
 
-  <h4>Preview Assignment:</h4>
-  <div id="assignmentPreview"></div><br>
-  <button onclick="saveAssignment()">Save Homework</button>
+    <button onclick="submitAnswers()">
+        Submit Answers
+    </button>
 
-  <hr>
-  <h4>Mark Submissions</h4>
-  <select id="filterGrade"><option value="">All Grades</option></select><br>
-  <select id="filterSubject"><option value="">All Subjects</option></select><br>
-  
-  <div id="markingArea"></div>
-  <button onclick="submitMarks()">Return Marks</button>
-</div>
+    <h4>
+        Results
+        (filter assignment again to view your results -
+        if results are sent, you will see them)
+    </h4>
 
+    <div id="studentResults"></div>
 
-
-
-
-<div id="studentPhase" class="section" style="display:none;">
-<button onclick="logout()" style="float:right;">
-Logout
-</button>
-  <h3>Student Panel</h3>
-  <input type="text" id="studentName1" placeholder="Enter First Name" required><br>
-  <input type="text" id="studentName2" placeholder="Enter Second Name" required><br>
-
-  <h4>Pick Your Homework</h4>
- <p><b>School:</b> <span id="studentSchoolName"></span></p>
- <select id="studentGradeSelect">
-    <option value="">Select Grade</option>
-</select><br>
-
-<select id="studentSubjectSelect">
-    <option value="">Select Subject</option>
-</select><br>
-
-<label for="studentAssignmentDate">
-    <b>📅 Select Homework Date:</b>
-</label><br>
-
-<input
-    type="date"
-    id="studentAssignmentDate"
-><br>
-  <div id="studentAssignment"></div>
-  <button onclick="submitAnswers()">Submit Answers</button>
-
-  <h4>Results(filter assignement again to view your results-If results are sent, you will see them)</h4>
-  <div id="studentResults"></div>
 </div>
 
  <script type="module">
@@ -550,7 +421,9 @@ let currentAssignmentKey = null;
 
 let currentSchoolId = null;
 let currentSchoolName = "";
+let currentStudentName1 = "";
 
+let currentStudentName2 = "";
 
 
 
@@ -716,15 +589,31 @@ window.signup = async function () {
     // -----------------------------
 
     const {
-        data,
-        error
-    } = await supabase.auth.signUp({
+    data,
+    error
+} = await supabase.auth.signUp({
 
-        email: email,
+    email: email,
 
-        password: password
+    password: password,
 
-    });
+    options: {
+
+        data: {
+
+            first_name: name1,
+
+            second_name: name2,
+
+            school_id: school.id,
+
+            role: "student"
+
+        }
+
+    }
+
+});
 
 
     if(error){
@@ -748,20 +637,22 @@ window.signup = async function () {
             error: profileError
         } = await supabase
 
-            .from("homework_users")
+           .from("homework_users")
+.insert({
 
-            .insert({
+    id: data.user.id,
 
-                id: data.user.id,
+    email: email,
 
-                email: email,
+    role: "student",
 
-                role: "student",
+    school_id: school.id,
 
-                school_id: school.id
+    first_name: name1,
 
-            });
+    second_name: name2
 
+});
 
         if(profileError){
 
@@ -801,57 +692,6 @@ window.signup = async function () {
 };
 
 
-async function loadCurrentSchool(){
-
-  if(!currentSchoolId){
-
-        console.error(
-            "loadCurrentSchool: currentSchoolId is null"
-        );
-
-        return;
-    }
-
-
-    const {
-        data,
-        error
-    } = await supabase
-
-        .from("school_tool_accounts")
-
-        .select("id, school_name")
-
-        .eq("id", currentSchoolId)
-
-        .single();
-
-
-    if(error || !data){
-
-        console.error(error);
-
-        alert(
-            "Invalid school account."
-        );
-
-        return false;
-    }
-
-currentSchoolName =
-    data.school_name;
-
-
-// Remember this school in this browser
-localStorage.setItem(
-    "smart_assignment_school_id",
-    currentSchoolId
-);
-
-return true;
-}
-
-
 
 
 
@@ -873,10 +713,9 @@ window.login = async function () {
 
 };
 
-
 // ============================================================
 // CHECK LEARNER SESSION
-// School comes from homework_users.school_id
+// Automatically restores learner after refresh
 // ============================================================
 
 async function checkSession(){
@@ -888,9 +727,9 @@ async function checkSession(){
     } = await supabase.auth.getSession();
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // NOT LOGGED IN
-    // --------------------------------------------------------
+    // ========================================================
 
     if(!session){
 
@@ -908,9 +747,9 @@ async function checkSession(){
         session.user;
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // GET LEARNER PROFILE
-    // --------------------------------------------------------
+    // ========================================================
 
     const {
         data: profile,
@@ -921,7 +760,9 @@ async function checkSession(){
 
         .select(`
             role,
-            school_id
+            school_id,
+            first_name,
+            second_name
         `)
 
         .eq("id", user.id)
@@ -946,9 +787,9 @@ async function checkSession(){
     }
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // MAKE SURE THIS IS A LEARNER
-    // --------------------------------------------------------
+    // ========================================================
 
     if(profile.role !== "student"){
 
@@ -962,9 +803,9 @@ async function checkSession(){
     }
 
 
-    // --------------------------------------------------------
-    // GET SCHOOL ID FROM LEARNER ACCOUNT
-    // --------------------------------------------------------
+    // ========================================================
+    // SCHOOL MUST EXIST
+    // ========================================================
 
     if(!profile.school_id){
 
@@ -977,17 +818,44 @@ async function checkSession(){
     }
 
 
+    // ========================================================
+    // NAME MUST EXIST
+    // ========================================================
+
+    if(
+        !profile.first_name ||
+        !profile.second_name
+    ){
+
+        alert(
+            "Your learner name is missing. " +
+            "Please contact your school administrator."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // SAVE CURRENT USER INFORMATION
+    // ========================================================
+
     currentUserRole =
         "student";
-
 
     currentSchoolId =
         profile.school_id;
 
+    currentStudentName1 =
+        profile.first_name;
 
-    // --------------------------------------------------------
+    currentStudentName2 =
+        profile.second_name;
+
+
+    // ========================================================
     // GET SCHOOL INFORMATION
-    // --------------------------------------------------------
+    // ========================================================
 
     const {
         data: school,
@@ -1022,37 +890,51 @@ async function checkSession(){
         school.school_name;
 
 
-    // --------------------------------------------------------
-    // SHOW LEARNER PANEL
-    // --------------------------------------------------------
+    // ========================================================
+    // OPEN LEARNER PANEL AUTOMATICALLY
+    // ========================================================
 
     document.getElementById("authDiv").style.display =
+        "none";
+
+    document.getElementById("teacherPhase").style.display =
         "none";
 
     document.getElementById("studentPhase").style.display =
         "block";
 
 
-    document.getElementById("studentSchoolName")
-        .textContent =
-            currentSchoolName;
+    // ========================================================
+    // DISPLAY LEARNER NAME
+    // ========================================================
+
+    document.getElementById(
+        "studentFullName"
+    ).textContent =
+        currentStudentName1 +
+        " " +
+        currentStudentName2;
 
 
-    // --------------------------------------------------------
-    // LOAD HOMEWORK
-    // --------------------------------------------------------
+    // ========================================================
+    // DISPLAY LOCKED SCHOOL
+    // ========================================================
+
+    document.getElementById(
+        "studentSchoolName"
+    ).textContent =
+        currentSchoolName;
+
+
+    // ========================================================
+    // LOAD HOMEWORK FOR THIS SCHOOL ONLY
+    // ========================================================
 
     await loadStudentFilters();
 
 }
 
 
-
-
-
-supabase.auth.onAuthStateChange(() => {
-    checkSession();
-});
    
 // ------------------ Logout ------------------
 window.logout = async function () {
@@ -1747,63 +1629,62 @@ async function filterAssignments(){
 // ------------------ Student: Submit Answers ------------------
 window.submitAnswers = async function(){
 
-  const name1 = document.getElementById("studentName1").value.trim();
-  const name2 = document.getElementById("studentName2").value.trim();
+    const name1 = currentStudentName1.trim();
+    const name2 = currentStudentName2.trim();
 
-  if(!name1 || !name2){
-    alert("Enter both names.");
-    return;
-  }
+    if(!name1 || !name2){
+        alert("Learner name is missing. Please log in again.");
+        return;
+    }
 
-  if(!currentAssignmentKey){
-    alert("No assignment selected.");
-    return;
-  }
+    if(!currentAssignmentKey){
+        alert("No assignment selected.");
+        return;
+    }
 
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
 
-const { data:{user} } = await supabase.auth.getUser();
+    if(!user){
+        alert("Please login first.");
+        return;
+    }
 
-  if(!user){
-    alert("Please login first.");
-    return;
-  }
+    const answers = assignmentQuestions.map((q,i)=>({
+        question:
+            typeof q === "string"
+                ? q
+                : q.question,
 
+        answer:
+            document.getElementById(`ans${i}`).value || ""
+    }));
 
-const answers = assignmentQuestions.map((q,i)=>({
+    const { error } = await supabase
+        .from("homework_submissions")
+        .upsert({
+            assignment_id: currentAssignmentKey,
+            user_id: user.id,
+            name1: name1,
+            name2: name2,
+            answers: answers
+        },{
+            onConflict: "assignment_id,user_id"
+        });
 
-    question:
-        typeof q === "string"
-            ? q
-            : q.question,
+    if(error){
+        alert(error.message);
+        return;
+    }
 
-    answer:
-        document.getElementById(`ans${i}`).value || ""
+    alert("Answers Submitted!");
 
-}));
-  
-  const { error } = await supabase
-  .from("homework_submissions")
-  .upsert({
-    assignment_id: currentAssignmentKey,
-    user_id: user.id,
-    name1,
-    name2,
-    answers
-  },{
-    onConflict:"assignment_id,user_id"
-  });
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  alert("Answers Submitted!");
-
-  showResults(user.id,currentAssignmentKey);
-
+    showResults(
+        user.id,
+        currentAssignmentKey
+    );
 };
-
 // ------------------ Teacher Filters + Marking ------------------
 async function fillTeacherFilters(){
 
@@ -2741,10 +2622,23 @@ document
 window.addSelectedBankQuestions =
     addSelectedBankQuestions;
 
+// ============================================================
+// PAGE INITIALIZATION
+// ============================================================
 
-// Load schools for learner signup
+// Load schools for new learners
 loadSchoolsForSignup();
 
+// Automatically restore logged-in learner
+checkSession();
+
+
+// Listen for login/logout/session changes
+supabase.auth.onAuthStateChange(() => {
+
+    checkSession();
+
+});
 
   </script>
 </body>
