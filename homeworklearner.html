@@ -2438,71 +2438,111 @@ async function addSelectedBankQuestions(){
 // Events
 // ------------------------------------------------------------
 
+// ============================================================
+// QUESTION BANK EVENTS
+// ============================================================
 
+// Question Bank Grade
+if (bankGradeSelect) {
 
-bankGradeSelect.addEventListener(
-    "change",
-    async function(){
+    bankGradeSelect.addEventListener(
+        "change",
+        async function(){
 
-        const assignmentGrade =
-            document.getElementById("grade");
+            const assignmentGrade =
+                document.getElementById("grade");
 
-        if(assignmentGrade){
+            // Keep Assignment Grade synchronized
+            if(assignmentGrade){
 
-            assignmentGrade.value =
-                this.value;
+                assignmentGrade.value =
+                    this.value;
 
-            await loadAssignmentSubjects();
+                await loadAssignmentSubjects();
 
-        }
+            }
 
-        await loadQuestionBankSubjects();
-
-    }
-);
-
-
-
-subjectSelectBank.addEventListener(
-    "change",
-    async function(){
-
-        // Automatically use Question Bank subject
-        // as the assignment subject
-
-        const assignmentSubject =
-            document.getElementById("subject");
-
-        if(assignmentSubject){
-
-            assignmentSubject.value =
-                this.value;
+            // Load Question Bank subjects
+            await loadQuestionBankSubjects();
 
         }
+    );
 
-        await loadQuestionBankTopics();
-
-    }
-);
-
-topicSelectBank.addEventListener(
-    "change",
-    loadQuestionBankQuestions
-);
+}
 
 
-difficultySelectBank.addEventListener(
-    "change",
-    loadQuestionBankQuestions
-);
+// ============================================================
+// QUESTION BANK SUBJECT
+// ============================================================
+
+if (subjectSelectBank) {
+
+    subjectSelectBank.addEventListener(
+        "change",
+        async function(){
+
+            // Automatically use Question Bank subject
+            // as the Assignment subject
+
+            const assignmentSubject =
+                document.getElementById("subject");
+
+            if(assignmentSubject){
+
+                assignmentSubject.value =
+                    this.value;
+
+            }
+
+            // Load topics
+            await loadQuestionBankTopics();
+
+        }
+    );
+
+}
 
 
-questionSearch.addEventListener(
-    "input",
-    loadQuestionBankQuestions
-);
+// ============================================================
+// QUESTION BANK TOPIC
+// ============================================================
+
+if (topicSelectBank) {
+
+    topicSelectBank.addEventListener(
+        "change",
+        loadQuestionBankQuestions
+    );
+
+}
 
 
+// ============================================================
+// QUESTION BANK DIFFICULTY
+// ============================================================
+
+if (difficultySelectBank) {
+
+    difficultySelectBank.addEventListener(
+        "change",
+        loadQuestionBankQuestions
+    );
+
+}
+
+
+// ============================================================
+// QUESTION BANK SEARCH
+// ============================================================
+
+if (questionSearch) {
+
+    questionSearch.addEventListener(
+        "input",
+        loadQuestionBankQuestions
+    );
+
+}
 
 
 // ============================================================
@@ -2511,21 +2551,48 @@ questionSearch.addEventListener(
 
 async function loadAssignmentSubjects(){
 
-    const grade =
-        document.getElementById("grade").value;
+    const gradeElement =
+        document.getElementById("grade");
 
     const subjectSelect =
         document.getElementById("subject");
 
+
+    // Make sure elements exist
+    if(!gradeElement || !subjectSelect){
+
+        console.warn(
+            "Assignment grade or subject element not found."
+        );
+
+        return;
+
+    }
+
+
+    const grade =
+        gradeElement.value;
+
+
+    // Reset subjects
+
     subjectSelect.innerHTML =
         '<option value="">Select Subject</option>';
+
 
     if(!grade){
 
         return;
+
     }
 
-    const { data, error } = await supabase
+
+    // Load subjects from Question Bank
+
+    const {
+        data,
+        error
+    } = await supabase
 
         .from("homework_question_bank")
 
@@ -2534,6 +2601,7 @@ async function loadAssignmentSubjects(){
         .eq("grade", grade)
 
         .order("subject");
+
 
     if(error){
 
@@ -2547,7 +2615,11 @@ async function loadAssignmentSubjects(){
         );
 
         return;
+
     }
+
+
+    // Remove duplicates
 
     const subjects = [
         ...new Set(
@@ -2557,88 +2629,155 @@ async function loadAssignmentSubjects(){
         )
     ];
 
+
+    // Add subjects
+
     subjects.forEach(subject => {
 
         const option =
             document.createElement("option");
 
-        option.value = subject;
+        option.value =
+            subject;
 
-        option.textContent = subject;
+        option.textContent =
+            subject;
 
-        subjectSelect.appendChild(option);
+        subjectSelect.appendChild(
+            option
+        );
 
     });
 
 }
 
 
+// ============================================================
+// ASSIGNMENT GRADE EVENTS
+// ============================================================
 
-document
-    .getElementById("grade")
-    .addEventListener(
+const assignmentGradeElement =
+    document.getElementById("grade");
+
+
+if(assignmentGradeElement){
+
+    assignmentGradeElement.addEventListener(
         "change",
         async function(){
 
             // Keep Question Bank grade synchronized
-            bankGradeSelect.value = this.value;
 
-            // Load subjects for this grade
+            if(bankGradeSelect){
+
+                bankGradeSelect.value =
+                    this.value;
+
+            }
+
+
+            // Load Assignment subjects
+
             await loadAssignmentSubjects();
 
+
             // Load Question Bank subjects
+
             await loadQuestionBankSubjects();
 
         }
     );
 
+}
 
 
-document
-    .getElementById("subject")
-    .addEventListener(
+// ============================================================
+// ASSIGNMENT SUBJECT EVENTS
+// ============================================================
+
+const assignmentSubjectElement =
+    document.getElementById("subject");
+
+
+if(assignmentSubjectElement){
+
+    assignmentSubjectElement.addEventListener(
         "change",
         async function(){
 
-            subjectSelectBank.value =
-                this.value;
+            // Keep Question Bank subject synchronized
+
+            if(subjectSelectBank){
+
+                subjectSelectBank.value =
+                    this.value;
+
+            }
+
+
+            // Load Question Bank topics
 
             await loadQuestionBankTopics();
 
         }
     );
 
+}
 
 
-   document
-    .getElementById("studentAssignmentDate")
-    .addEventListener(
+// ============================================================
+// STUDENT HOMEWORK DATE
+// ============================================================
+
+const studentAssignmentDateElement =
+    document.getElementById(
+        "studentAssignmentDate"
+    );
+
+
+if(studentAssignmentDateElement){
+
+    studentAssignmentDateElement.addEventListener(
         "change",
         filterAssignments
     );
 
+}
 
+
+// ============================================================
+// MAKE ADD SELECTED QUESTIONS AVAILABLE TO HTML
+// ============================================================
 
 window.addSelectedBankQuestions =
     addSelectedBankQuestions;
+
 
 // ============================================================
 // PAGE INITIALIZATION
 // ============================================================
 
 // Load schools for new learners
+
 loadSchoolsForSignup();
 
+
 // Automatically restore logged-in learner
+
 checkSession();
 
 
-// Listen for login/logout/session changes
-supabase.auth.onAuthStateChange(() => {
+// ============================================================
+// LISTEN FOR LOGIN / LOGOUT / SESSION CHANGES
+// ============================================================
 
-    checkSession();
+supabase.auth.onAuthStateChange(
+    () => {
 
-});
+        checkSession();
+
+    }
+);
 
   </script>
 </body>
