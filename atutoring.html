@@ -831,6 +831,82 @@
         transform:none;
       }
     }
+/* LEARNER TESTIMONIALS */
+.testimonials {
+  background: #f4f8fc;
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+
+.testimonial-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 27px;
+  box-shadow: 0 10px 28px rgba(9,47,85,.06);
+  position: relative;
+}
+
+.testimonial-card::before {
+  content: "“";
+  font-family: Georgia, serif;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--cyan);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.testimonial-card h3 {
+  margin: 0 0 5px;
+  font-size: 1.25rem;
+}
+
+.testimonial-location {
+  color: var(--teal);
+  font-size: .86rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.testimonial-card p {
+  color: var(--muted);
+  margin: 0 0 17px;
+}
+
+.testimonial-subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.testimonial-subjects span {
+  background: #eaf5ff;
+  color: #1769d2;
+  padding: 7px 12px;
+  border-radius: 30px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.testimonial-footer {
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+  padding-top: 14px;
+  color: #52677e;
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+@media(max-width:620px) {
+  .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+}
   </style>
 </head>
 
@@ -860,6 +936,7 @@
       <nav id="mainNav" aria-label="Main navigation">
         <a href="#subjects">Subjects</a>
         <a href="#curricula">Curricula</a>
+        <a href="#testimonials">Learner Stories</a>
         <a href="#how-it-works">How it works</a>
         <a href="#pricing">Pricing</a>
         <a href="#learning-tools">Learning tools</a>
@@ -1069,6 +1146,96 @@
       </div>
     </section>
 
+    
+
+
+    
+<!-- LEARNER TESTIMONIALS AND STORIES -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+
+    <div class="section-head" data-reveal>
+      <div class="section-kicker">Our learners</div>
+
+      <h2>Learning journeys across borders</h2>
+
+      <p>
+        Smart Elimu Connect supports learners from different countries,
+        grade levels and educational pathways through personalised online tutoring.
+      </p>
+    </div>
+
+    <div class="testimonial-grid" data-reveal>
+
+      <!-- STUDENT 1 -->
+      <article class="testimonial-card">
+
+        <h3>Maya</h3>
+
+        <div class="testimonial-location">
+          Nairobi, Kenya · IGCSE Curriculum
+        </div>
+
+        <p>
+          Maya's learning journey with Smart Elimu Connect spans
+          Grades 7 to 11, with tutoring support in Mathematics,
+          Chemistry and Biology. She reported improvement in all
+          three subjects through the learning support she received.
+        </p>
+
+        <div class="testimonial-subjects">
+          <span>Mathematics</span>
+          <span>Chemistry</span>
+          <span>Biology</span>
+        </div>
+
+        <div class="testimonial-footer">
+          IGCSE learner · Grades 7–11
+        </div>
+
+      </article>
+
+      <!-- STUDENT 2 -->
+      <article class="testimonial-card">
+
+        <h3>Hannah</h3>
+
+        <div class="testimonial-location">
+          United States · Grade 7
+        </div>
+
+        <p>
+          Hannah is currently in Grade 7 and is receiving Mathematics
+          learning support while preparing for an entrance examination
+          for a university-linked mathematics programme in Minnesota.
+          She reports that she has experienced huge improvements
+          through the tutoring support she has received.
+        </p>
+
+        <div class="testimonial-subjects">
+          <span>Mathematics</span>
+          <span>Grade 7</span>
+          <span>Entrance Exam Preparation</span>
+        </div>
+
+        <div class="testimonial-footer">
+          US-based learner · Minnesota entrance exam preparation
+        </div>
+
+      </article>
+
+    </div>
+
+    <p class="muted" style="text-align:center;margin-top:24px;font-size:.88rem">
+      Names have been changed to protect the privacy of our learners.
+      Testimonials reflect their reported learning experiences.
+    </p>
+
+  </div>
+</section>
+
+    
+    
     <section class="pricing" id="pricing">
       <div class="container">
 
